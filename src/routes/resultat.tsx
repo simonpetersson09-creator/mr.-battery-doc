@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { SectionCard } from "@/components/wizard/fields";
-import { dimensionBattery } from "@/lib/battery-engine";
+import { dimensionBattery } from "@/lib/battery-preview";
 import { getCountry } from "@/lib/country-config";
 import { useWizard } from "@/state/wizard";
 
