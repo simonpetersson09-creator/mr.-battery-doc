@@ -22,8 +22,9 @@ export function WizardShell({
   nextDisabled,
 }: WizardShellProps) {
   const router = useRouter();
-  const prev = stepIndex > 0 ? WIZARD_STEPS[stepIndex - 1].path : "/";
-  const next = stepIndex < WIZARD_STEPS.length - 1 ? WIZARD_STEPS[stepIndex + 1].path : null;
+  const prev = stepIndex > 0 ? WIZARD_STEPS[stepIndex - 1]!.path : "/";
+  const next = stepIndex < WIZARD_STEPS.length - 1 ? WIZARD_STEPS[stepIndex + 1]!.path : null;
+
 
   return (
     <div className="app-shell">
@@ -57,9 +58,10 @@ export function WizardShell({
           </Button>
           {next ? (
             <Button asChild size="lg" className="flex-[2]" disabled={nextDisabled}>
-              <Link to={next} disabled={nextDisabled}>
+              <Link to={next} disabled={nextDisabled === true}>
                 {nextLabel ?? "Nästa"}
                 <ArrowRight className="size-4" />
+
               </Link>
             </Button>
           ) : (

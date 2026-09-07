@@ -15,6 +15,7 @@ import { Route as EkonomiRouteImport } from './routes/ekonomi'
 import { Route as ForbrukningRouteImport } from './routes/forbrukning'
 import { Route as NatRouteImport } from './routes/nat'
 import { Route as ProduktionRouteImport } from './routes/produktion'
+import { Route as ResultatRouteImport } from './routes/resultat'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,6 +47,11 @@ const ProduktionRoute = ProduktionRouteImport.update({
   path: '/produktion',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResultatRoute = ResultatRouteImport.update({
+  id: '/resultat',
+  path: '/resultat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/forbrukning': typeof ForbrukningRoute
   '/nat': typeof NatRoute
   '/produktion': typeof ProduktionRoute
+  '/resultat': typeof ResultatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/forbrukning': typeof ForbrukningRoute
   '/nat': typeof NatRoute
   '/produktion': typeof ProduktionRoute
+  '/resultat': typeof ResultatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,13 +79,27 @@ export interface FileRoutesById {
   '/forbrukning': typeof ForbrukningRoute
   '/nat': typeof NatRoute
   '/produktion': typeof ProduktionRoute
+  '/resultat': typeof ResultatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/batteri' | '/ekonomi' | '/forbrukning' | '/nat' | '/produktion'
+    | '/'
+    | '/batteri'
+    | '/ekonomi'
+    | '/forbrukning'
+    | '/nat'
+    | '/produktion'
+    | '/resultat'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/batteri' | '/ekonomi' | '/forbrukning' | '/nat' | '/produktion'
+  to:
+    | '/'
+    | '/batteri'
+    | '/ekonomi'
+    | '/forbrukning'
+    | '/nat'
+    | '/produktion'
+    | '/resultat'
   id:
     | '__root__'
     | '/'
@@ -86,6 +108,7 @@ export interface FileRouteTypes {
     | '/forbrukning'
     | '/nat'
     | '/produktion'
+    | '/resultat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -95,6 +118,7 @@ export interface RootRouteChildren {
   ForbrukningRoute: typeof ForbrukningRoute
   NatRoute: typeof NatRoute
   ProduktionRoute: typeof ProduktionRoute
+  ResultatRoute: typeof ResultatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -141,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProduktionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/resultat': {
+      id: '/resultat'
+      path: '/resultat'
+      fullPath: '/resultat'
+      preLoaderRoute: typeof ResultatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -151,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForbrukningRoute: ForbrukningRoute,
   NatRoute: NatRoute,
   ProduktionRoute: ProduktionRoute,
+  ResultatRoute: ResultatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
