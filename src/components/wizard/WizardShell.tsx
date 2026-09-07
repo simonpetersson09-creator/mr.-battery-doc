@@ -29,15 +29,15 @@ export function WizardShell({
   return (
     <div className="app-shell">
       <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur-md">
-        <div className="flex items-center gap-3 px-4 pt-4 pb-3">
+        <div className="flex items-center gap-2 px-3 pt-2 pb-1.5">
           <button
             onClick={() => router.history.back()}
             aria-label="Tillbaka"
-            className="flex size-9 items-center justify-center rounded-full bg-secondary text-secondary-foreground transition-colors active:bg-muted"
+            className="flex size-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground transition-colors active:bg-muted"
           >
             <ArrowLeft className="size-4" />
           </button>
-          <div className="flex items-center gap-2 text-sm font-semibold">
+          <div className="flex items-center gap-1.5 text-[13px] font-semibold">
             <BatteryCharging className="size-4 text-primary" />
             Mr. Battery Doc
           </div>
@@ -45,19 +45,19 @@ export function WizardShell({
         <StepIndicator stepIndex={stepIndex} />
       </header>
 
-      <main className="flex-1 px-4 pt-5 pb-32">
-        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-        {intro ? <p className="mt-1.5 text-sm text-muted-foreground">{intro}</p> : null}
-        <div className="mt-5 space-y-4">{children}</div>
+      <main className="flex-1 px-3 pt-3 pb-24">
+        <h1 className="text-xl leading-tight font-bold tracking-tight">{title}</h1>
+        {intro ? <p className="mt-1 text-[13px] text-muted-foreground">{intro}</p> : null}
+        <div className="mt-3 space-y-3">{children}</div>
       </main>
 
-      <div className="fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-[30rem] border-t border-border bg-background/95 px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-md">
-        <div className="flex gap-3">
-          <Button asChild variant="outline" size="lg" className="flex-1">
+      <div className="fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-[30rem] border-t border-border bg-background/95 px-3 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-md">
+        <div className="flex gap-2">
+          <Button asChild variant="outline" className="h-11 flex-1">
             <Link to={prev}>Tillbaka</Link>
           </Button>
           {next ? (
-            <Button asChild size="lg" className="flex-[2]" disabled={nextDisabled}>
+            <Button asChild className="h-11 flex-[2]" disabled={nextDisabled}>
               <Link to={next} disabled={nextDisabled === true}>
                 {nextLabel ?? "Nästa"}
                 <ArrowRight className="size-4" />
