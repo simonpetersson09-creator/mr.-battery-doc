@@ -36,6 +36,8 @@ export interface EconomyDefaults {
    * 0 = unknown or not applicable until a DSO specific tariff is added.
    */
   demandCharge: number;
+  /** SEK per EUR (currency assumption used by the engine's FCR economics). */
+  eurSekRate: number;
   /** Set true once verified DSO-specific tariffs exist for the country */
   demandChargeVerified: boolean;
 }
@@ -68,7 +70,8 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       currencyLabel: "kr",
       importPrice: 1.5,
       exportPrice: 0.6,
-      demandCharge: 0,
+      demandCharge: 55,
+      eurSekRate: 11.3,
       demandChargeVerified: false,
     },
   },
@@ -91,6 +94,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       importPrice: 1.4,
       exportPrice: 0.7,
       demandCharge: 0,
+      eurSekRate: 11.3,
       demandChargeVerified: false,
     },
   },
@@ -113,6 +117,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       importPrice: 0.15,
       exportPrice: 0.05,
       demandCharge: 0,
+      eurSekRate: 11.3,
       demandChargeVerified: false,
     },
   },
@@ -135,6 +140,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       importPrice: 2.2,
       exportPrice: 0.5,
       demandCharge: 0,
+      eurSekRate: 11.3,
       demandChargeVerified: false,
     },
   },
@@ -157,6 +163,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       importPrice: 0.32,
       exportPrice: 0.08,
       demandCharge: 0,
+      eurSekRate: 11.3,
       demandChargeVerified: false,
     },
   },
