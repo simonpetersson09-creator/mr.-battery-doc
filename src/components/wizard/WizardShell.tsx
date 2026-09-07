@@ -77,9 +77,9 @@ export function WizardShell({
 
 function StepIndicator({ stepIndex }: { stepIndex: number }) {
   return (
-    <div className="flex items-center gap-1.5 px-4 pb-3">
+    <div className="flex items-center gap-1 px-3 pb-2">
       {WIZARD_STEPS.map((step, i) => (
-        <div key={step.path} className="flex flex-1 flex-col gap-1">
+        <div key={step.path} className="flex flex-1 flex-col gap-0.5">
           <div
             className={
               "h-1 rounded-full transition-colors " +
