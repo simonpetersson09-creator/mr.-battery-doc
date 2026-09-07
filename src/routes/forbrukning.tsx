@@ -1,7 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { AttachmentPicker, NumberField, OptionCard, SectionCard } from "@/components/wizard/fields";
-import { MONTH_SHORT_SV, PROFILE_CATALOG } from "@/lib/consumption-profiles";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { MONTH_SHORT_SV, PROFILE_CATALOG, getProfile } from "@/lib/consumption-profiles";
 import { useWizard, type ConsumptionMode } from "@/state/wizard";
 
 export const Route = createFileRoute("/forbrukning")({
@@ -137,30 +144,40 @@ function ConsumptionStep() {
 
 function ProfilePicker({ optional, note }: { optional?: boolean; note?: string }) {
   const { state, update } = useWizard();
+  const selected = state.consumption.profileId
+    ? getProfile(state.consumption.profileId)
+    : null;
   return (
     <SectionCard
       title={optional ? "Förbrukningsprofil (valfri)" : "Förbrukningsprofil"}
       description={note ?? "Välj den beskrivning som liknar din fastighet mest."}
     >
-      <div className="space-y-2">
-        {PROFILE_CATALOG.map((p) => (
-          <OptionCard
-            key={p.id}
-            title={p.name}
-            description={p.description}
-            selected={state.consumption.profileId === p.id}
-            onSelect={() =>
-              update((s) => ({
-                ...s,
-                consumption: {
-                  ...s.consumption,
-                  profileId: s.consumption.profileId === p.id ? null : p.id,
-                },
-              }))
-            }
-          />
-        ))}
-      </div>
+      <Select
+        value={state.consumption.profileId ?? ""}
+        onValueChange={(v) =>
+          update((s) => ({
+            ...s,
+            consumption: {
+              ...s.consumption,
+              profileId: v || null,
+            },
+          }))
+        }
+      >
+        <SelectTrigger className="h-12 w-full rounded-xl text-base">
+          <SelectValue placeholder="Välj profil">
+            {selected ? selected.name : null}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {PROFILE_CATALOG.map((p) => (
+            <SelectItem key={p.id} value={p.id}>
+              <span className="font-medium">{p.name}</span>
+              <span className="text-muted-foreground"> — {p.description}</span>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </SectionCard>
   );
 }
