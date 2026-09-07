@@ -113,10 +113,6 @@ function ConsumptionStep() {
               {c.monthlyKwh.reduce<number>((a, b) => a + (b ?? 0), 0).toLocaleString("sv-SE")} kWh
             </p>
           </SectionCard>
-          <ProfilePicker
-            optional
-            note="Profilen används bara för att fördela energin inom varje månad."
-          />
         </>
       ) : null}
 
@@ -132,10 +128,6 @@ function ConsumptionStep() {
               }
             />
           </SectionCard>
-          <ProfilePicker
-            optional
-            note="Om bara årsförbrukningen går att läsa av används den profil du väljer här."
-          />
         </>
       ) : null}
     </WizardShell>
