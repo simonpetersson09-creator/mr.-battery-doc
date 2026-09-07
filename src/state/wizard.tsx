@@ -7,14 +7,8 @@
  */
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import {
-  DEFAULT_COUNTRY,
-  getCountry,
-  selfConsumptionValue,
-  type CountryCode,
-} from "@/lib/country-config";
+import { DEFAULT_COUNTRY, getCountry, type CountryCode } from "@/lib/country-config";
 import type { ProfileId } from "@/lib/consumption-profiles";
-import type { BatteryEngineInput } from "@/lib/battery-preview";
 
 export type ConsumptionMode = "annual" | "monthly" | "document";
 export type ProductionMode = "none" | "manual" | "document";
@@ -54,17 +48,21 @@ export interface WizardState {
     solarSelfConsumption: boolean;
     reducedGridImport: boolean;
     peakShaving: boolean;
+    /** FCR-D up. Not exposed in the UI yet; mapped to the engine when true. */
+    fcrDUp: boolean;
   };
   economy: {
     importPrice: number;
     exportPrice: number;
     demandCharge: number;
+    /** Currency assumption used by the engine's FCR economics. */
+    eurSekRate: number;
     /** true when the user has manually edited prices (blocks country overwrite) */
     touched: boolean;
   };
 }
 
-const STORAGE_KEY = "mr-battery-doc:wizard:v1";
+const STORAGE_KEY = "mr-battery-doc:wizard:v2";
 
 function economyFromCountry(code: CountryCode) {
   const c = getCountry(code).economy;
@@ -72,6 +70,7 @@ function economyFromCountry(code: CountryCode) {
     importPrice: c.importPrice,
     exportPrice: c.exportPrice,
     demandCharge: c.demandCharge,
+    eurSekRate: c.eurSekRate,
     touched: false,
   };
 }
@@ -103,6 +102,7 @@ export function createInitialState(country: CountryCode = DEFAULT_COUNTRY): Wiza
       solarSelfConsumption: true,
       reducedGridImport: true,
       peakShaving: true,
+      fcrDUp: false,
     },
     economy: economyFromCountry(country),
   };
@@ -113,7 +113,6 @@ interface WizardContextValue {
   update: (patch: (s: WizardState) => WizardState) => void;
   setCountry: (code: CountryCode) => void;
   reset: () => void;
-  engineInput: BatteryEngineInput;
   hydrated: boolean;
 }
 
@@ -146,51 +145,9 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   }, [state, hydrated]);
 
   const value = useMemo<WizardContextValue>(() => {
-    const country = getCountry(state.grid.country);
-    const selfValue = selfConsumptionValue(state.economy.importPrice, state.economy.exportPrice);
-
-    const engineInput: BatteryEngineInput = {
-      grid: {
-        country: state.grid.country,
-        voltage: country.grid.voltage,
-        phases: country.grid.phases,
-        frequency: country.grid.frequency,
-        mainFuseA: state.grid.mainFuseA,
-      },
-      consumption: {
-        annualKwh: state.consumption.annualKwh ?? 0,
-        profileId: state.consumption.profileId,
-        monthlyKwh:
-          state.consumption.mode === "monthly" &&
-          state.consumption.monthlyKwh.every((m) => m !== null)
-            ? (state.consumption.monthlyKwh as number[])
-            : null,
-        source: state.consumption.mode,
-      },
-      production: {
-        hasPv: state.production.mode !== "none",
-        dcKwp: state.production.dcKwp,
-        acKw: state.production.acKw,
-        annualKwh: state.production.annualKwh,
-        monthlyKwh:
-          state.production.useMonthly && state.production.monthlyKwh.every((m) => m !== null)
-            ? (state.production.monthlyKwh as number[])
-            : null,
-      },
-      strategies: { ...state.strategies },
-      economics: {
-        currency: country.economy.currency,
-        importPrice: state.economy.importPrice,
-        exportPrice: state.economy.exportPrice,
-        selfConsumptionValue: selfValue,
-        demandCharge: state.economy.demandCharge,
-      },
-    };
-
     return {
       state,
       hydrated,
-      engineInput,
       update: (patch) => setState((s) => patch(s)),
       setCountry: (code) =>
         setState((s) => ({
