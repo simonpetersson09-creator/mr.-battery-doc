@@ -16,11 +16,11 @@ export function SectionCard({
   action?: ReactNode;
 }) {
   return (
-    <section className="card-surface p-4">
+    <section className="card-surface p-3">
       {(title || action) && (
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start justify-between gap-2">
           <div>
-            {title ? <h2 className="text-base font-semibold">{title}</h2> : null}
+            {title ? <h2 className="text-[15px] font-semibold">{title}</h2> : null}
             {description ? (
               <p className="mt-1 text-sm text-muted-foreground">{description}</p>
             ) : null}
@@ -28,7 +28,7 @@ export function SectionCard({
           {action}
         </div>
       )}
-      {children ? <div className={title ? "mt-4 space-y-4" : "space-y-4"}>{children}</div> : null}
+      {children ? <div className={title ? "mt-3 space-y-3" : "space-y-3"}>{children}</div> : null}
     </section>
   );
 }
@@ -53,12 +53,12 @@ export function NumberField({
   return (
     <label className="block">
       <span className="field-label">{label}</span>
-      <div className="mt-1.5 flex items-center gap-2">
+      <div className="mt-1 flex items-center gap-2">
         <Input
           inputMode="decimal"
           type="number"
           step={step}
-          className="h-12 rounded-xl text-base"
+          className="h-10 rounded-xl text-[15px]"
           value={value ?? ""}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
@@ -67,7 +67,7 @@ export function NumberField({
           <span className="w-24 shrink-0 text-sm text-muted-foreground">{unit}</span>
         ) : null}
       </div>
-      {hint ? <p className="mt-1.5 text-xs text-muted-foreground">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
     </label>
   );
 }
@@ -90,7 +90,7 @@ export function OptionCard({
       type="button"
       onClick={onSelect}
       className={
-        "flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition-colors " +
+        "flex w-full items-start gap-2.5 rounded-2xl border p-3 text-left transition-colors " +
         (selected
           ? "border-primary bg-primary-soft"
           : "border-border bg-card active:bg-secondary")
@@ -100,12 +100,12 @@ export function OptionCard({
       <span className="flex-1">
         <span className="block text-sm font-semibold">{title}</span>
         {description ? (
-          <span className="mt-0.5 block text-sm text-muted-foreground">{description}</span>
+          <span className="mt-0.5 block text-[13px] text-muted-foreground">{description}</span>
         ) : null}
       </span>
       <span
         className={
-          "mt-0.5 size-5 shrink-0 rounded-full border-2 " +
+          "mt-0.5 size-4.5 shrink-0 rounded-full border-2 " +
           (selected ? "border-primary bg-primary" : "border-input")
         }
       />
@@ -125,7 +125,7 @@ export function ToggleRow({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="flex items-start justify-between gap-4 rounded-2xl border border-border bg-card p-4">
+    <div className="flex items-start justify-between gap-3 rounded-2xl border border-border bg-card p-3">
       <div className="flex-1">
         <p className="text-sm font-semibold">{title}</p>
         {description ? (
@@ -167,8 +167,8 @@ export function AttachmentPicker({
   return (
     <div>
       <span className="field-label">{label}</span>
-      <div className="mt-2 grid grid-cols-2 gap-3">
-        <label className="flex h-24 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl border border-dashed border-input bg-secondary/50 text-sm font-medium active:bg-secondary">
+      <div className="mt-1.5 grid grid-cols-2 gap-2">
+        <label className="flex h-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-input bg-secondary/50 text-[13px] font-medium active:bg-secondary">
           <Camera className="size-5 text-primary" />
           Ta foto
           <input
@@ -179,7 +179,7 @@ export function AttachmentPicker({
             onChange={(e) => add(e.target.files, "image")}
           />
         </label>
-        <label className="flex h-24 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl border border-dashed border-input bg-secondary/50 text-sm font-medium active:bg-secondary">
+        <label className="flex h-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-input bg-secondary/50 text-[13px] font-medium active:bg-secondary">
           <Paperclip className="size-5 text-primary" />
           Bifoga fil
           <input
@@ -190,9 +190,9 @@ export function AttachmentPicker({
           />
         </label>
       </div>
-      <p className="mt-2 text-xs text-muted-foreground">{hint}</p>
+      <p className="mt-1.5 text-xs text-muted-foreground">{hint}</p>
       {attachments.length > 0 ? (
-        <ul className="mt-3 space-y-2">
+        <ul className="mt-2 space-y-1.5">
           {attachments.map((a) => (
             <li
               key={a.id}
