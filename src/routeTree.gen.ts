@@ -10,33 +10,91 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BatteriRouteImport } from './routes/batteri'
+import { Route as EkonomiRouteImport } from './routes/ekonomi'
+import { Route as ForbrukningRouteImport } from './routes/forbrukning'
+import { Route as NatRouteImport } from './routes/nat'
+import { Route as ProduktionRouteImport } from './routes/produktion'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BatteriRoute = BatteriRouteImport.update({
+  id: '/batteri',
+  path: '/batteri',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EkonomiRoute = EkonomiRouteImport.update({
+  id: '/ekonomi',
+  path: '/ekonomi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForbrukningRoute = ForbrukningRouteImport.update({
+  id: '/forbrukning',
+  path: '/forbrukning',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NatRoute = NatRouteImport.update({
+  id: '/nat',
+  path: '/nat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProduktionRoute = ProduktionRouteImport.update({
+  id: '/produktion',
+  path: '/produktion',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/batteri': typeof BatteriRoute
+  '/ekonomi': typeof EkonomiRoute
+  '/forbrukning': typeof ForbrukningRoute
+  '/nat': typeof NatRoute
+  '/produktion': typeof ProduktionRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/batteri': typeof BatteriRoute
+  '/ekonomi': typeof EkonomiRoute
+  '/forbrukning': typeof ForbrukningRoute
+  '/nat': typeof NatRoute
+  '/produktion': typeof ProduktionRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/batteri': typeof BatteriRoute
+  '/ekonomi': typeof EkonomiRoute
+  '/forbrukning': typeof ForbrukningRoute
+  '/nat': typeof NatRoute
+  '/produktion': typeof ProduktionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    '/' | '/batteri' | '/ekonomi' | '/forbrukning' | '/nat' | '/produktion'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/batteri' | '/ekonomi' | '/forbrukning' | '/nat' | '/produktion'
+  id:
+    | '__root__'
+    | '/'
+    | '/batteri'
+    | '/ekonomi'
+    | '/forbrukning'
+    | '/nat'
+    | '/produktion'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BatteriRoute: typeof BatteriRoute
+  EkonomiRoute: typeof EkonomiRoute
+  ForbrukningRoute: typeof ForbrukningRoute
+  NatRoute: typeof NatRoute
+  ProduktionRoute: typeof ProduktionRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +106,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/batteri': {
+      id: '/batteri'
+      path: '/batteri'
+      fullPath: '/batteri'
+      preLoaderRoute: typeof BatteriRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ekonomi': {
+      id: '/ekonomi'
+      path: '/ekonomi'
+      fullPath: '/ekonomi'
+      preLoaderRoute: typeof EkonomiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forbrukning': {
+      id: '/forbrukning'
+      path: '/forbrukning'
+      fullPath: '/forbrukning'
+      preLoaderRoute: typeof ForbrukningRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nat': {
+      id: '/nat'
+      path: '/nat'
+      fullPath: '/nat'
+      preLoaderRoute: typeof NatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/produktion': {
+      id: '/produktion'
+      path: '/produktion'
+      fullPath: '/produktion'
+      preLoaderRoute: typeof ProduktionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BatteriRoute: BatteriRoute,
+  EkonomiRoute: EkonomiRoute,
+  ForbrukningRoute: ForbrukningRoute,
+  NatRoute: NatRoute,
+  ProduktionRoute: ProduktionRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

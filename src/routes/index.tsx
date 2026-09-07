@@ -1,24 +1,67 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { BatteryCharging, Gauge, PiggyBank, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "Mr. Battery Doc — hitta rätt batteri till din fastighet" },
+      {
+        name: "description",
+        content:
+          "Svara på några enkla frågor och få veta vilken batteristorlek och effekt som passar din fastighet.",
+      },
+      { property: "og:title", content: "Mr. Battery Doc — rätt batteri till din fastighet" },
+      {
+        property: "og:description",
+        content: "Enkel guide som visar batteristorlek, effekt och nytta.",
+      },
+    ],
+  }),
+  component: Welcome,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+const POINTS = [
+  { icon: BatteryCharging, text: "Hur stort batteri i kWh som passar din fastighet" },
+  { icon: Gauge, text: "Vilken effekt i kW du behöver" },
+  { icon: Sun, text: "Hur batteriet kan användas i vardagen" },
+  { icon: PiggyBank, text: "Vilken nytta batteriet kan skapa" },
+];
+
+function Welcome() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="app-shell justify-between px-6 py-10">
+      <div>
+        <div className="flex size-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[var(--shadow-card)]">
+          <BatteryCharging className="size-7" />
+        </div>
+        <h1 className="mt-6 text-4xl leading-tight font-bold tracking-tight">
+          Mr. Battery Doc
+        </h1>
+        <p className="mt-3 text-base text-muted-foreground">
+          Svara på några enkla frågor om din fastighet, så visar vi vilket batteri som passar dig.
+        </p>
+
+        <ul className="mt-8 space-y-3">
+          {POINTS.map(({ icon: Icon, text }) => (
+            <li key={text} className="flex items-center gap-3 card-surface p-4">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
+                <Icon className="size-4.5" />
+              </span>
+              <span className="text-sm font-medium">{text}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="pt-10">
+        <Button asChild size="lg" className="h-13 w-full text-base">
+          <Link to="/nat">Kom igång</Link>
+        </Button>
+        <p className="mt-3 text-center text-xs text-muted-foreground">
+          Tar ungefär tre minuter. Dina svar sparas medan du fyller i.
+        </p>
+      </div>
     </div>
   );
 }
