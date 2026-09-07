@@ -14,7 +14,7 @@ import {
   type CountryCode,
 } from "@/lib/country-config";
 import type { ProfileId } from "@/lib/consumption-profiles";
-import type { BatteryEngineInput } from "@/lib/battery-engine";
+import type { BatteryEngineInput } from "@/lib/battery-preview";
 
 export type ConsumptionMode = "annual" | "monthly" | "document";
 export type ProductionMode = "none" | "manual" | "document";
