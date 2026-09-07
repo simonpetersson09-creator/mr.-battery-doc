@@ -1,7 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { AttachmentPicker, NumberField, OptionCard, SectionCard } from "@/components/wizard/fields";
-import { MONTH_SHORT_SV, PROFILE_CATALOG } from "@/lib/consumption-profiles";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { MONTH_SHORT_SV, PROFILE_CATALOG, getProfile } from "@/lib/consumption-profiles";
 import { useWizard, type ConsumptionMode } from "@/state/wizard";
 
 export const Route = createFileRoute("/forbrukning")({
