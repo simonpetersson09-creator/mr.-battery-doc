@@ -30,22 +30,22 @@ const POINTS = [
 
 function Welcome() {
   return (
-    <div className="app-shell justify-between px-6 py-10">
+    <div className="app-shell justify-between px-5 py-7">
       <div>
-        <div className="flex size-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[var(--shadow-card)]">
-          <BatteryCharging className="size-7" />
+        <div className="flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[var(--shadow-card)]">
+          <BatteryCharging className="size-6" />
         </div>
-        <h1 className="mt-6 text-4xl leading-tight font-bold tracking-tight">
+        <h1 className="mt-4 text-3xl leading-tight font-bold tracking-tight">
           Mr. Battery Doc
         </h1>
-        <p className="mt-3 text-base text-muted-foreground">
+        <p className="mt-2 text-[15px] text-muted-foreground">
           Svara på några enkla frågor om din fastighet, så visar vi vilket batteri som passar dig.
         </p>
 
-        <ul className="mt-8 space-y-3">
+        <ul className="mt-5 space-y-2">
           {POINTS.map(({ icon: Icon, text }) => (
-            <li key={text} className="flex items-center gap-3 card-surface p-4">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
+            <li key={text} className="flex items-center gap-3 card-surface p-3">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
                 <Icon className="size-4.5" />
               </span>
               <span className="text-sm font-medium">{text}</span>
@@ -54,11 +54,11 @@ function Welcome() {
         </ul>
       </div>
 
-      <div className="pt-10">
-        <Button asChild size="lg" className="h-13 w-full text-base">
+      <div className="pt-6">
+        <Button asChild className="h-12 w-full text-base">
           <Link to="/nat">Kom igång</Link>
         </Button>
-        <p className="mt-3 text-center text-xs text-muted-foreground">
+        <p className="mt-2 text-center text-xs text-muted-foreground">
           Tar ungefär tre minuter. Dina svar sparas medan du fyller i.
         </p>
       </div>

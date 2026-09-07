@@ -38,7 +38,7 @@ function ResultStep() {
         </p>
       ) : null}
 
-      <div className="card-surface bg-primary-soft border-primary/40 p-5 text-center">
+      <div className="card-surface bg-primary-soft border-primary/40 p-4 text-center">
         <p className="text-sm font-semibold text-muted-foreground">Rekommenderat batteri</p>
         <p className="mt-2 text-4xl font-bold tracking-tight">{result.battery.capacityKwh} kWh</p>
         <p className="mt-1 text-lg font-semibold">{result.battery.powerKw} kW effekt</p>
