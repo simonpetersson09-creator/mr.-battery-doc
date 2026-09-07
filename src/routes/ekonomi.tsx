@@ -57,9 +57,9 @@ function EconomyStep() {
         />
       </SectionCard>
 
-      <div className="card-surface border-primary/40 bg-primary-soft p-4">
+      <div className="card-surface border-primary/40 bg-primary-soft p-3">
         <p className="text-sm font-semibold">Värde av att använda solelen själv</p>
-        <p className="mt-1 text-3xl font-bold tracking-tight">
+        <p className="mt-0.5 text-2xl font-bold tracking-tight">
           {net.toFixed(2).replace(".", ",")} {unit}/kWh
         </p>
         <p className="mt-1.5 text-sm text-muted-foreground">
