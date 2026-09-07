@@ -65,7 +65,7 @@ export function WizardShell({
               </Link>
             </Button>
           ) : (
-            <Button asChild size="lg" className="flex-[2]">
+            <Button asChild className="h-11 flex-[2]">
               <Link to="/">Börja om</Link>
             </Button>
           )}
