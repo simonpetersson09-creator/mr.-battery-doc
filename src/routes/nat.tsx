@@ -46,7 +46,9 @@ function GridStep() {
           onValueChange={(v) => setCountry(v as CountryCode)}
         >
           <SelectTrigger className="h-12 w-full rounded-xl text-base">
-            <SelectValue />
+            <SelectValue>
+              {country.flag} {country.name}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {COUNTRY_LIST.map((c) => (
