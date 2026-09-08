@@ -130,13 +130,25 @@ export function buildResultPresentation(
     benefit: o.totalOperatingBenefitSek - o.fcrRevenueSek,
   }));
   let propertyOnlyPowerKw: number | null = null;
+  let withoutFcrBenefitSek: number | null = null;
   if (withoutFcr.length > 0) {
     const best = Math.max(...withoutFcr.map((o) => o.benefit));
-    propertyOnlyPowerKw = (withoutFcr.find((o) => o.benefit >= best - TIE) ?? withoutFcr[0]!)
-      .powerKw;
+    const pick = withoutFcr.find((o) => o.benefit >= best - TIE) ?? withoutFcr[0]!;
+    propertyOnlyPowerKw = pick.powerKw;
+    withoutFcrBenefitSek = pick.benefit;
   } else if (r.physicalPowerNeedKw > 0) {
     propertyOnlyPowerKw = r.physicalPowerNeedKw;
   }
+
+  const selectedOption =
+    s.powerOptions.find((o) => o.selected) ??
+    s.powerOptions.find((o) => Math.abs(o.powerKw - recommendedPowerKw) < 1e-9) ??
+    null;
+  const withFcrBenefitSek = selectedOption ? selectedOption.totalOperatingBenefitSek : total;
+  const benefitDeltaSek =
+    withFcrBenefitSek !== null && withoutFcrBenefitSek !== null
+      ? withFcrBenefitSek - withoutFcrBenefitSek
+      : null;
 
   // Only meaningful when the recommended power is genuinely above the property-only level.
   const showFcrPowerCard =
@@ -146,24 +158,36 @@ export function buildResultPresentation(
     recommendedPowerKw > propertyOnlyPowerKw + 1e-9;
 
   const propKw = propertyOnlyPowerKw !== null ? nf(propertyOnlyPowerKw, 1) : "";
+  const physKw = nf(r.physicalPowerNeedKw, 1);
   const recKw = nf(recommendedPowerKw, 1);
+  // The physical need and the FCR-off system power are different concepts; only split the
+  // rows when the engine actually produced two different levels.
+  const showPhysicalNeedRow =
+    showFcrPowerCard &&
+    propertyOnlyPowerKw !== null &&
+    Math.abs(propertyOnlyPowerKw - r.physicalPowerNeedKw) > 0.05;
 
   const capacityWhy = noBattery
     ? "Med dina uppgifter flyttar ett batteri för lite energi för att en storlek ska kunna rekommenderas."
     : `${nf(r.capacityKWh)} kWh ger en bra balans mellan hur mycket energi batteriet kan flytta och nyttan av ytterligare kapacitet. Ett större batteri ger relativt liten ytterligare nytta med din förbrukning${hasSolar ? " och solproduktion" : ""}.`;
 
+  const fcrCardText = showPhysicalNeedRow
+    ? `Fastighetens fysiska effektbehov är cirka ${physKw} kW. Utan FCR-D upp skulle systemeffekten vara ${propKw} kW. Med historiska FCR-D upp-priser från 2025 ger ${recKw} kW högst beräknad årlig nytta.`
+    : `Fastighetens fysiska effektbehov är cirka ${physKw} kW. Med historiska FCR-D upp-priser från 2025 ger ${recKw} kW högst beräknad årlig nytta.`;
+
   let powerWhy: string | null;
   if (noBattery) {
     powerWhy = null;
   } else if (showFcrPowerCard) {
-    powerWhy = `Fastighetens eget beräknade effektbehov är cirka ${propKw} kW. ${recKw} kW ger högre beräknad årlig nytta i scenariot där stödtjänster (FCR-D upp) ingår.`;
+    powerWhy = fcrCardText;
   } else if (raisedAbovePhysical) {
-    powerWhy = `${recKw} kW ger högst beräknad årlig nytta av de systemeffekter som har jämförts. Fastighetens eget effektbehov är lägre (${nf(r.physicalPowerNeedKw, 1)} kW).`;
+    powerWhy = `${recKw} kW ger högst beräknad årlig nytta av de systemeffekter som har jämförts. Fastighetens eget effektbehov är lägre (${physKw} kW).`;
   } else if (powerFloorApplied) {
-    powerWhy = `${recKw} kW följer batteriets tekniska minimikrav i förhållande till kapaciteten. Fastighetens eget effektbehov är lägre (${nf(r.physicalPowerNeedKw, 1)} kW). Högre systemeffekt ger inte tillräckligt större beräknad årlig nytta.`;
+    powerWhy = `${recKw} kW följer batteriets tekniska minimikrav i förhållande till kapaciteten. Fastighetens eget effektbehov är lägre (${physKw} kW). Högre systemeffekt ger inte tillräckligt större beräknad årlig nytta.`;
   } else {
-    powerWhy = `${recKw} kW är dimensionerad efter fastighetens energiflöden och beräknade effektbehov (${nf(r.physicalPowerNeedKw, 1)} kW). Högre systemeffekt ger inte tillräckligt större beräknad årlig nytta.`;
+    powerWhy = `${recKw} kW är dimensionerad efter fastighetens energiflöden och beräknade effektbehov (${physKw} kW). Högre systemeffekt ger inte tillräckligt större beräknad årlig nytta.`;
   }
+
 
 
   return {
