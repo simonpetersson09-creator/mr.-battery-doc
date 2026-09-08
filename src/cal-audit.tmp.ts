@@ -52,7 +52,7 @@ for (const t of [null, 30, 45, 60, 85]) {
     const s = o.result.summary;
     const c = s.selfConsumptionCalibration;
     console.log(
-      `${t ?? "none"}\t${p}\tach=${s.energy.selfConsumptionBeforePct.toFixed(1)}\tstatus=${c?.status ?? "not-requested"}\tdev=${(c?.shapeDeviation ?? 0).toFixed(3)}\tpeak=${s.grid.importPeakBeforeKw.toFixed(2)}\tphys=${s.recommendation.physicalPowerNeedKw.toFixed(2)}\tkWh=${s.recommendation.capacityKWh}\tkW=${s.recommendation.powerKw}\tcyc=${s.energy.equivalentFullCycles.toFixed(1)}\tshift=${s.energy.pvShiftedKWh?.toFixed(0) ?? "-"}\tben=${s.economy.totalOperatingBenefitSek.toFixed(0)}\tbal=${s.energyBalance.ok}`,
+      `${t ?? "none"}\t${p}\tach=${s.energy.selfConsumptionBeforePct.toFixed(1)}\tstatus=${c?.status ?? "not-requested"}\tdev=${(c?.shapeDeviation ?? 0).toFixed(3)}\tpeak=${s.grid.importPeakBeforeKw.toFixed(2)}\tphys=${s.recommendation.physicalPowerNeedKw.toFixed(2)}\tkWh=${s.recommendation.capacityKWh}\tkW=${s.recommendation.powerKw}\tcyc=${s.energy.equivalentFullCycles.toFixed(1)}\tshift=${0}\tben=${(s.economy.totalOperatingBenefitSek ?? 0).toFixed(0)}\tbal=${s.energyBalance.ok}`,
     );
   }
 }
