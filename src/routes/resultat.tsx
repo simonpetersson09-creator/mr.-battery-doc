@@ -93,9 +93,13 @@ function ResultStep() {
   }
 
   const s = outcome.result.summary;
+  const d = outcome.result.diagnostics;
+  const ps = d.powerSizing;
+  const ga = d.gridAssessment;
   const r = s.recommendation;
   const e = s.energy;
   const g = s.grid;
+
 
   const peakPct =
     g.importPeakBeforeKw > 0 ? (s.peak.peakReductionKw / g.importPeakBeforeKw) * 100 : 0;
