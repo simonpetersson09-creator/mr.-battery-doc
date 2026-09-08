@@ -63,7 +63,7 @@ function ResultStep() {
           title="Fyll i det som saknas"
           description="Beräkningen startar först när alla uppgifter finns — vi gissar aldrig åt dig."
         >
-          <ul className="space-y-2 text-sm text-muted-foreground">
+          <ul className="ui-help space-y-1.5">
             {outcome.issues.map((i) => (
               <li key={i.field} className="flex gap-2">
                 <span className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" />
@@ -120,7 +120,7 @@ function ResultStep() {
 
 
       <SectionCard title="Energi">
-        <div className="space-y-2.5">
+        <div className="space-y-2">
           <BeforeAfter
             label="Egenanvändning"
             before={pct(e.selfConsumptionBeforePct)}
@@ -149,7 +149,7 @@ function ResultStep() {
       </SectionCard>
 
       <SectionCard title="Effekt">
-        <div className="space-y-2.5">
+        <div className="space-y-2">
           <BeforeAfter
             label="Effekttopp"
             before={kw(g.importPeakBeforeKw)}
@@ -161,19 +161,19 @@ function ResultStep() {
           />
           <Row label="Minskad effektkostnad" value={money(s.peak.demandCostSavingSek)} />
           {s.peak.tariffNote ? (
-            <p className="text-xs text-muted-foreground">{s.peak.tariffNote}</p>
+            <p className="ui-help">{s.peak.tariffNote}</p>
           ) : null}
         </div>
       </SectionCard>
 
       <SectionCard title="Ekonomi" description="Varje nytta räknas bara en gång.">
-        <div className="space-y-2.5">
+        <div className="space-y-2">
           <Row label="Energinytta" value={money(s.economy.energyBenefitSek)} />
           <Row label="Minskad effektkostnad" value={money(s.economy.demandCostSavingSek)} />
           {s.fcr.enabled ? (
             <Row label="FCR-D upp (historiskt 2025)" value={money(s.fcr.grossSek)} />
           ) : null}
-          <div className="mt-1 flex items-center justify-between rounded-2xl bg-accent px-3 py-2.5 text-base font-extrabold text-accent-foreground">
+          <div className="mt-1 flex items-center justify-between gap-3 rounded-[0.875rem] bg-accent px-3 py-2.5 text-[17px] font-extrabold text-accent-foreground">
             <span>Total nytta per år</span>
             <span className="tabular-nums">{money(s.economy.totalOperatingBenefitSek)}</span>
           </div>
@@ -182,25 +182,25 @@ function ResultStep() {
 
       {s.fcr.enabled ? (
         <SectionCard title="FCR-D upp">
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             <Row label="Erbjuden effekt" value={kw(s.fcr.offeredPowerKw, 1)} />
             <Row label="Genomsnittligt hållen effekt" value={kw(s.fcr.avgHeldPowerKw, 2)} />
             <Row label="Tillgänglighet" value={pct(s.fcr.availabilityPct)} />
-            <p className="text-xs text-muted-foreground">{s.fcr.disclaimer}</p>
+            <p className="ui-help">{s.fcr.disclaimer}</p>
           </div>
         </SectionCard>
       ) : null}
 
       <SectionCard title="Begränsningar">
-        <div className="space-y-2.5">
+        <div className="space-y-2">
           <Row label="Nätstatus" value={g.headline} />
           <Row label="Otäckt last" value={`${kwh(g.unservedLoadKWh)}/år`} />
-          {g.detail ? <p className="text-xs text-muted-foreground">{g.detail}</p> : null}
+          {g.detail ? <p className="ui-help">{g.detail}</p> : null}
           {r.utilisationWarning ? (
-            <p className="text-xs text-muted-foreground">{r.utilisationWarning}</p>
+            <p className="ui-help">{r.utilisationWarning}</p>
           ) : null}
           {g.consequences.length ? (
-            <ul className="space-y-2 text-sm text-muted-foreground">
+            <ul className="ui-help space-y-1.5">
               {g.consequences.map((line) => (
                 <li key={line} className="flex gap-2">
                   <span className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" />
@@ -213,7 +213,7 @@ function ResultStep() {
       </SectionCard>
 
       <SectionCard title="Varför den här storleken?">
-        <ul className="space-y-2 text-sm text-muted-foreground">
+        <ul className="ui-help space-y-1.5">
           {[r.explanation, r.powerExplanation].filter(Boolean).map((line) => (
             <li key={line} className="flex gap-2">
               <span className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" />
