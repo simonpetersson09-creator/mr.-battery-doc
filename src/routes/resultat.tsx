@@ -273,17 +273,6 @@ function ResultStep() {
 
 
 
-      <details className="ui-card">
-        <summary className="ui-label cursor-pointer list-none">
-          {noBattery
-            ? "Visa varför ingen rekommendation"
-            : `Visa varför ${nf(p.capacityKWh)} kWh och ${nf(p.recommendedPowerKw, 1)} kW`}
-        </summary>
-        <div className="mt-3 space-y-1.5">
-          <p className="ui-help">{p.capacityWhy}</p>
-          {p.powerWhy ? <p className="ui-help">{p.powerWhy}</p> : null}
-        </div>
-      </details>
 
       <details className="ui-card">
         <summary className="ui-label cursor-pointer list-none">Visa tekniska detaljer</summary>
