@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { runBatteryApp } from "@/lib/battery-app";
 import { buildResultPresentation } from "@/lib/battery-app/resultPresentation";
 import { computeWithoutFcrOptimum } from "@/lib/battery-app/withoutFcrOptimum";
+import { computeBatteryAlternatives } from "@/lib/battery-app/capacityAlternatives";
+
 
 import { useWizard } from "@/state/wizard";
 
