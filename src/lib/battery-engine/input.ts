@@ -105,6 +105,8 @@ export function toLabConfig(input: BatteryEngineInput = {}): LabConfig {
       enabled: st.fcrDUp ?? base.ancillary.enabled,
       offeredPowerKw: st.fcrOfferedPowerKw ?? base.ancillary.offeredPowerKw,
       eurSekRate: input.economy?.eurSekRate ?? base.ancillary.eurSekRate,
+      // Country only selects the historical price series; no physics depends on it.
+      priceCountry: site.country ?? base.ancillary.priceCountry ?? "SE",
     },
     sweep: {
       capacitiesKWh: bat.capacityStepsKWh ?? base.sweep.capacitiesKWh,

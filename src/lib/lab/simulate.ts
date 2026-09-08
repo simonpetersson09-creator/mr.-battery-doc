@@ -2,6 +2,7 @@ import {
   ancillaryPlan,
   computeAncillary,
   computeFcrRevenue,
+  fcrPriceSeriesForCountry,
   marketProfile,
   MISSING_PRICE_TEXT,
 } from "./ancillary";
@@ -188,6 +189,7 @@ export function simulate(
     cfg.strategies.ancillaryServices && plan !== null
       ? computeFcrRevenue({
           reservedPowerKwByHour: heldReservation,
+          series: fcrPriceSeriesForCountry(cfg.ancillary.priceCountry),
           eurSekRate: cfg.ancillary.eurSekRate,
           aggregatorSharePct: cfg.ancillary.aggregatorSharePct,
           aggregatorFixedFeeSek: cfg.ancillary.aggregatorFixedKrPerYear,

@@ -40,7 +40,7 @@ import type {
 
 export type { SelfConsumptionCalibration } from "../lab/types";
 
-export type CountryCode = "SE";
+export type CountryCode = "SE" | "FI" | "DK" | "DE";
 
 /* ============================ INPUT ============================ */
 

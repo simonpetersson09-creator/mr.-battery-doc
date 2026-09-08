@@ -23,7 +23,7 @@
  */
 
 export interface FcrPriceSeries {
-  market: "Sweden";
+  market: string;
   service: "FCR-D up";
   referenceYear: number;
   currency: "EUR";
@@ -36,6 +36,10 @@ export interface FcrPriceSeries {
   hours: number;
   /** 8 760 hourly prices in EUR/MW/h, indexed by engine hour 0..8759. */
   pricesEurPerMw: number[];
+  /** Number of hours in the untouched imported source, when it differs from `hours`. */
+  sourceHours?: number;
+  /** The untouched imported source values, when they differ from `pricesEurPerMw`. */
+  sourcePricesEurPerMw?: number[];
 }
 
 const RAW =
