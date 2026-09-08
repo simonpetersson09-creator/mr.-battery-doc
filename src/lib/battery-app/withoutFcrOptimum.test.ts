@@ -140,7 +140,7 @@ describe("compact power explanation card", () => {
     expect(p.fcrPowerLevels).toHaveLength(2);
     expect(p.fcrPowerLevels[0]!.label).toBe("För fastighetens eget behov");
     expect(p.fcrPowerLevels[0]!.kw).toBeCloseTo(3.5, 6);
-    expect(p.fcrPowerLevels[1]!.label).toBe("Med historiskt FCR-scenario");
+    expect(p.fcrPowerLevels[1]!.label).toBe("Med stödtjänst");
     expect(p.fcrPowerLevels[1]!.kw).toBeCloseTo(12.5, 6);
     // The old stale 10 kW level must never appear.
     for (const lvl of p.fcrPowerLevels) {
