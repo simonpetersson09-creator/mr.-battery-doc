@@ -107,12 +107,13 @@ describe("EUR/SEK", () => {
     expect(input.economy?.peakDemandChargeSekPerKwMonth).toBe(30);
   });
 
-  it("accepts 0 kr/kW/month as a valid user value", () => {
+  it("accepts 0 kr/kW/month as a valid user value meaning no demand charge is priced", () => {
     const s = base();
     s.economy.demandCharge = 0;
     s.economy.demandChargeTouched = true;
     const input = normalizeWizardToEngineInput(s);
-    expect(input.economy?.peakDemandChargeSekPerKwMonth).toBe(0);
+    // 0 means "no demand charge": the engine gets no tariff and prices no peak benefit.
+    expect(input.economy?.peakDemandChargeSekPerKwMonth).toBeNull();
     expect(input.economy?.peakTariffSource).toBe("user-provided");
   });
 });
