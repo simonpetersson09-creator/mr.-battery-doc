@@ -4,6 +4,7 @@ import { WizardShell } from "@/components/wizard/WizardShell";
 import { SectionCard } from "@/components/wizard/fields";
 import { Button } from "@/components/ui/button";
 import { runBatteryApp } from "@/lib/battery-app";
+import { buildResultPresentation } from "@/lib/battery-app/resultPresentation";
 import { useWizard } from "@/state/wizard";
 
 export const Route = createFileRoute("/resultat")({
@@ -162,35 +163,35 @@ function ResultStep() {
 
         <SectionCard title="Energi">
           <div className="space-y-2">
-            {showSelfConsumption ? (
+            {p.showSelfConsumption ? (
               <BeforeAfter
                 label="Egenanvändning"
                 before={pct(e.selfConsumptionBeforePct)}
                 after={pct(e.selfConsumptionAfterPct)}
               />
             ) : null}
-            {showSelfSufficiency ? (
+            {p.showSelfSufficiency ? (
               <BeforeAfter
                 label="Självförsörjning"
                 before={pct(e.selfSufficiencyBeforePct)}
                 after={pct(e.selfSufficiencyAfterPct)}
               />
             ) : null}
-            {showImport ? (
+            {p.showImport ? (
               <BeforeAfter
                 label="Nätimport"
                 before={kwh(e.importBeforeKWh)}
                 after={kwh(e.importAfterKWh)}
               />
             ) : null}
-            {showExport ? (
+            {p.showExport ? (
               <BeforeAfter
                 label="Nätexport"
                 before={kwh(e.exportBeforeKWh)}
                 after={kwh(e.exportAfterKWh)}
               />
             ) : null}
-            {showShiftedSolar ? (
+            {p.showShiftedSolar ? (
               <Row label="Flyttad solel" value={`${kwh(e.shiftedSolarKWh)}/år`} />
             ) : null}
             {e.recoveredCurtailmentKWh > 0 ? (
@@ -200,7 +201,7 @@ function ResultStep() {
         </SectionCard>
       ) : null}
 
-      {showPeakSection ? (
+      {p.showPeakSection ? (
         <SectionCard title="Effekt">
           <div className="space-y-2">
             <BeforeAfter
@@ -208,7 +209,7 @@ function ResultStep() {
               before={kw(g.importPeakBeforeKw)}
               after={kw(g.importPeakAfterKw)}
             />
-            {peakChanged ? (
+            {p.peakChanged ? (
               <>
                 <Row
                   label="Minskning"
@@ -229,7 +230,7 @@ function ResultStep() {
       ) : null}
 
       <SectionCard title="Beräknad nytta">
-        {noEconomy ? (
+        {p.noEconomy ? (
           <>
             <p className="ui-section-title tabular-nums">0 kr/år</p>
             <p className="ui-help mt-1">
@@ -246,7 +247,7 @@ function ResultStep() {
               {s.economy.energyBenefitSek !== 0 ? (
                 <Row label="Energinytta" value={`${money(s.economy.energyBenefitSek)}/år`} />
               ) : null}
-              {demandSaving !== 0 ? (
+              {p.showDemandSavingRow ? (
                 <Row
                   label="Minskad effektkostnad"
                   value={`${money(s.economy.demandCostSavingSek)}/år`}
@@ -311,8 +312,8 @@ function ResultStep() {
             : `Visa varför ${nf(r.capacityKWh)} kWh och ${nf(r.powerKw, 1)} kW`}
         </summary>
         <div className="mt-3 space-y-1.5">
-          <p className="ui-help">{capacityWhy}</p>
-          {powerWhy ? <p className="ui-help">{powerWhy}</p> : null}
+          <p className="ui-help">{p.capacityWhy}</p>
+          {p.powerWhy ? <p className="ui-help">{p.powerWhy}</p> : null}
         </div>
       </details>
 
