@@ -10,6 +10,10 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { DEFAULT_COUNTRY, getCountry, type CountryCode } from "@/lib/country-config";
 import type { ProfileId } from "@/lib/consumption-profiles";
 
+/**
+ * "document" is kept for the future document parser but is NOT exposed in the v1 UI.
+ * Any persisted "document" state is coerced back to a supported mode on hydration.
+ */
 export type ConsumptionMode = "annual" | "monthly" | "document";
 export type ProductionMode = "none" | "manual" | "document";
 
@@ -59,6 +63,8 @@ export interface WizardState {
     eurSekRate: number;
     /** true when the user has manually edited prices (blocks country overwrite) */
     touched: boolean;
+    /** true ONLY when the user edited the demand charge itself (drives peakTariffSource) */
+    demandChargeTouched: boolean;
   };
 }
 
