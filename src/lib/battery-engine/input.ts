@@ -149,7 +149,10 @@ export function toTimeSeries(cfg: LabConfig, input: BatteryEngineInput = {}): Ti
   if (load && load.length === HOURS_PER_YEAR) {
     series.load = [...load];
     series.loadProvenance = "verified";
+    // A verified hourly series IS the measurement; nothing may reshape it.
+    series.selfConsumptionCalibration = null;
   }
+
   if (pv && pv.length === HOURS_PER_YEAR) {
     series.pv = [...pv];
     series.pvClipped = new Array(HOURS_PER_YEAR).fill(0);

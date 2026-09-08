@@ -83,6 +83,10 @@ export function normalizeWizardToEngineInput(
     if (typeof state.production.dcKwp === "number") production.kWp = state.production.dcKwp;
     if (typeof state.production.acKw === "number")
       production.inverterAcKw = state.production.acKw;
+    // Optional measured self-consumption. Identical whether typed or imported.
+    const measured = state.production.selfConsumptionPct;
+    if (typeof measured === "number" && measured > 0 && measured <= 100)
+      production.measuredSelfConsumptionPct = measured;
   }
 
   /* ---------------- strategies ---------------- */

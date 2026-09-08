@@ -46,6 +46,8 @@ export interface WizardState {
     annualKwh: number | null;
     useMonthly: boolean;
     monthlyKwh: (number | null)[];
+    /** Optional MEASURED self-consumption of solar, %. null = let the model calculate it. */
+    selfConsumptionPct: number | null;
     attachments: AttachmentMeta[];
   };
   strategies: {
@@ -113,6 +115,7 @@ export function createInitialState(country: CountryCode = DEFAULT_COUNTRY): Wiza
       annualKwh: null,
       useMonthly: false,
       monthlyKwh: Array(12).fill(null),
+      selfConsumptionPct: null,
       attachments: [],
     },
     strategies: {
