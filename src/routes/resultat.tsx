@@ -326,30 +326,76 @@ function ResultStep() {
 
       <details className="ui-card">
         <summary className="ui-label cursor-pointer list-none">Visa tekniska detaljer</summary>
-        <div className="mt-3 space-y-2">
-          <Row
-            label="Rimligt intervall"
-            value={`${nf(r.reasonableRangeKWh[0])}–${nf(r.reasonableRangeKWh[1])} kWh`}
-          />
-          <Row label="Nyttjandegrad" value={pct(e.utilisationPct)} />
-          <Row label="Cykler per år" value={nf(e.equivalentFullCycles, 1)} />
-          <Row label="Otäckt last" value={`${kwh(g.unservedLoadKWh)}/år`} />
+
+        <div className="mt-3 space-y-4">
+          {/* All key figures below come from the FINAL simulation of the recommended system. */}
+          <TechGroup title="Batterianvändning">
+            <Row label="Nyttjandegrad" value={pct(e.utilisationPct)} />
+            <Row label="Cykler per år" value={nf(e.equivalentFullCycles, 1)} />
+            <Row
+              label="Rimligt kapacitetsintervall"
+              value={`${nf(r.reasonableRangeKWh[0])}–${nf(r.reasonableRangeKWh[1])} kWh`}
+            />
+          </TechGroup>
+
+          <TechGroup title="Effektdimensionering">
+            <Row label="Rekommenderad effekt" value={kw(r.powerKw, 1)} />
+            <Row label="Fysiskt effektbehov" value={kw(r.physicalPowerNeedKw, 1)} />
+            <Row label="C-rate" value={`${nf(ps.productCRate, 2)} C`} />
+            <Row
+              label="Nytta jämfört med obegränsad effekt"
+              value={pct(ps.utilityPctOfReference)}
+            />
+          </TechGroup>
+
+          <TechGroup title="Elanslutning">
+            <Row label="Nätstatus" value={g.headline} />
+            <Row label="Begränsad laddning" value={`${kwh(ga.batteryChargeBlockedKWh)}/år`} />
+            <Row
+              label="Andel av laddad energi"
+              value={`${nf(ga.batteryBlockedPctOfCharge, 1)} %`}
+            />
+            <Row label="Importgränsen nådd" value={`${nf(ga.importBoundHours)} timmar/år`} />
+            <Row label="Exportgränsen nådd" value={`${nf(ga.exportBoundHours)} timmar/år`} />
+            <Row label="Otäckt last" value={`${kwh(g.unservedLoadKWh)}/år`} />
+            {g.detail ? <p className="ui-help">{g.detail}</p> : null}
+          </TechGroup>
+
           {s.fcr.enabled ? (
-            <Row label="Genomsnittligt hållen effekt" value={kw(s.fcr.avgHeldPowerKw, 2)} />
+            <TechGroup title="FCR-D upp">
+              <Row label="Erbjuden/reserverad effekt" value={kw(s.fcr.offeredPowerKw, 1)} />
+              <Row label="Genomsnittligt hållen effekt" value={kw(s.fcr.avgHeldPowerKw, 2)} />
+              <Row label="Tillgänglighet" value={pct(s.fcr.availabilityPct)} />
+              <Row label="Reserverade timmar" value={`${nf(s.fcr.reservedHours)} timmar/år`} />
+              {s.fcr.blockers.map((b) => (
+                <p key={b} className="ui-help">
+                  {b}
+                </p>
+              ))}
+            </TechGroup>
           ) : null}
-          <Row label="Nätstatus" value={g.headline} />
-          {g.detail ? <p className="ui-help">{g.detail}</p> : null}
-          {s.peak.tariffNote ? <p className="ui-help">{s.peak.tariffNote}</p> : null}
-          {r.utilisationWarning ? <p className="ui-help">{r.utilisationWarning}</p> : null}
-          {[r.explanation, r.powerExplanation, ...g.consequences]
-            .filter((x): x is string => Boolean(x))
-            .map((line) => (
-              <p key={line} className="ui-help">
-                {line}
+
+          <details className="rounded-[0.875rem] border border-border/60 p-3">
+            <summary className="ui-label cursor-pointer list-none">Dimensioneringsmetod</summary>
+            <div className="mt-2 space-y-2">
+              <p className="ui-caption">
+                Beskriver hur dimensioneringen togs fram. Nyckeltal i den här texten kommer från
+                dimensioneringsberäkningen (utan FCR-reservation) och kan därför skilja sig från
+                det slutliga scenariots värden ovan.
               </p>
-            ))}
+              {[r.explanation, r.powerExplanation, ...g.consequences]
+                .filter((x): x is string => Boolean(x))
+                .map((line) => (
+                  <p key={line} className="ui-help">
+                    {line}
+                  </p>
+                ))}
+              {s.peak.tariffNote ? <p className="ui-help">{s.peak.tariffNote}</p> : null}
+            </div>
+          </details>
         </div>
       </details>
+
     </WizardShell>
   );
 }
