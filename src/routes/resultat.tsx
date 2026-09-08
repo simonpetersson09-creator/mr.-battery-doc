@@ -99,6 +99,8 @@ function ResultStep() {
   const ga = d.gridAssessment;
   const r = s.recommendation;
   const e = s.energy;
+  const cal = s.selfConsumptionCalibration;
+
   const g = s.grid;
 
   /* All customer-facing relevance and wording comes from one pure presentation layer. */
