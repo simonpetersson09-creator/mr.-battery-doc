@@ -79,21 +79,66 @@ describe("main recommendation reads the engine's recommended system power", () =
 });
 
 describe("FCR-driven power explanation", () => {
-  it("case C: FCR on and FCR decided the power -> the explanation is shown", () => {
+  it("case A: FCR on and FCR raised the power -> the 'Varför X kW?' card is shown, fully dynamic", () => {
     const p = present({ ...REF, fcr: true });
     expect(p.fcrDrivesPower).toBe(true);
-    expect(p.fcrPowerNote).toMatch(/Historisk FCR-D upp-intäkt har påverkat effektvalet/);
-    expect(p.fcrPowerNoteSecondary).toBe("Fastighetens eget effektbehov är lägre.");
-    expect(p.powerWhy).toMatch(/högst beräknad årlig nytta/);
+    expect(p.showFcrPowerCard).toBe(true);
+    expect(p.propertyOnlyPowerKw).not.toBeNull();
+    expect(p.recommendedPowerKw).toBeGreaterThan(p.propertyOnlyPowerKw!);
+
+    const rec = p.recommendedPowerKw.toLocaleString("sv-SE", {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    });
+    const prop = p.propertyOnlyPowerKw!.toLocaleString("sv-SE", {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    });
+    // C/E: every number comes from the engine result, nothing hardcoded.
+    expect(p.fcrPowerCardTitle).toBe(`Varför ${rec} kW?`);
+    expect(p.fcrPowerCardText).toContain(`cirka ${prop} kW`);
+    expect(p.fcrPowerCardText).toContain(`${rec} kW`);
+    expect(p.fcrPowerCardNeutralText).toContain(`cirka ${prop} kW`);
+    expect(p.powerWhy).toContain(`cirka ${prop} kW`);
+    expect(p.powerWhy).toContain(`${rec} kW`);
+    // F: historical scenario, never a forecast or a guarantee.
+    expect(p.fcrHistoricalNote).toMatch(/historiska FCR-D upp-priser från 2025/);
+    expect(p.fcrHistoricalNote).toMatch(/både högre och lägre/);
+    for (const text of [p.fcrPowerCardText, p.fcrPowerCardNeutralText, p.fcrHistoricalNote]) {
+      expect(text ?? "").not.toMatch(/garanter|prognos|mer lönsam|du bör|tjänar mer/i);
+    }
   });
 
-  it("case D: FCR off -> no FCR wording anywhere in the presentation", () => {
+  it("case B: FCR off -> no FCR wording and no card", () => {
     const p = present({ ...REF, fcr: false });
     expect(p.fcrDrivesPower).toBe(false);
-    expect(p.fcrPowerNote).toBeNull();
-    expect(p.fcrPowerNoteSecondary).toBeNull();
-    expect(p.powerWhy ?? "").not.toMatch(/FCR/);
+    expect(p.showFcrPowerCard).toBe(false);
+    expect(p.fcrPowerCardText).toBeNull();
+    expect(p.fcrHistoricalNote).toBeNull();
+    expect(p.powerWhy ?? "").not.toMatch(/FCR|stödtjänst/i);
+    expect(p.powerWhy ?? "").toMatch(/effektbehov/);
   });
+
+  it("case D: FCR on but it did not decide the power -> no card", () => {
+    const p = present({ consumption: 4000, fcr: true, peak: true });
+    if (!p.fcrDrivesPower) {
+      expect(p.showFcrPowerCard).toBe(false);
+      expect(p.fcrPowerCardText).toBeNull();
+    }
+  });
+
+  it("case C: a second, different case produces different dynamic numbers", () => {
+    const a = present({ ...REF, fcr: true });
+    const b = present({ consumption: 30000, solarKwh: 8000, fuseA: 63, fcr: true });
+    expect(b.recommendedPowerKw).toBeGreaterThan(0);
+    if (b.showFcrPowerCard) {
+      expect(b.fcrPowerCardTitle).toBe(
+        `Varför ${b.recommendedPowerKw.toLocaleString("sv-SE", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kW?`,
+      );
+      expect(b.fcrPowerCardTitle).not.toBe(a.fcrPowerCardTitle);
+    }
+  });
+
 
   it("case A/B: villa without and with FCR", () => {
     const a = present({ consumption: 10000, solarKwh: 12000, fuseA: 16, fcr: false });
