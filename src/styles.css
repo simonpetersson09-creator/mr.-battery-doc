@@ -493,6 +493,28 @@ html[data-native="true"] {
   padding: 0.875rem;
 }
 
+/* Expandable details: chevron rotates when open. */
+@utility ui-expandable {
+  & > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    list-style: none;
+  }
+  & > summary::-webkit-details-marker { display: none; }
+  & > summary::after {
+    content: "›";
+    font-size: 1.25rem;
+    line-height: 1;
+    transition: transform 0.15s ease;
+    color: var(--color-muted-foreground);
+  }
+  &[open] > summary::after {
+    transform: rotate(90deg);
+  }
+}
+
 /* One control height everywhere: 48px touch target, 14px text. */
 @utility ui-control {
   height: 3rem;
