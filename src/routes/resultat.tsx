@@ -428,3 +428,12 @@ function BeforeAfter({
   );
 }
 
+
+function TechGroup({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="space-y-2">
+      <p className="ui-caption uppercase tracking-wide">{title}</p>
+      <div className="space-y-2">{children}</div>
+    </section>
+  );
+}
