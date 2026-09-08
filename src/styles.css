@@ -223,6 +223,17 @@ html[data-native="true"] {
     overscroll-behavior: none;
   }
 
+  /* Hide scrollbars everywhere — the app still scrolls, just without visible bars. */
+  html,
+  body,
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
   body {
     background-color: transparent;
     color: var(--color-foreground);
