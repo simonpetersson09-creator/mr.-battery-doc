@@ -49,7 +49,7 @@ function GridStep() {
           value={state.grid.country}
           onValueChange={(v) => setCountry(v as CountryCode)}
         >
-          <SelectTrigger className="h-12 w-full rounded-2xl border-foreground/15 bg-surface-cream text-base font-semibold">
+          <SelectTrigger className="h-10 w-full rounded-xl border-foreground/15 bg-surface-cream text-sm font-semibold">
             <SelectValue>
               {country.flag} {country.name}
             </SelectValue>
