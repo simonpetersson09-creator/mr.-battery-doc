@@ -81,13 +81,26 @@ function EconomyStep() {
           step="1"
           value={state.economy.demandCharge}
           hint={
-            country.economy.demandChargeVerified
-              ? "Standardvärde för ditt land."
-              : "Vi har inget säkert standardvärde för ditt nätbolag ännu — 0 betyder att peak shaving inte värderas."
+            state.economy.demandChargeTouched
+              ? "Ditt eget värde."
+              : "Schablonvärde för Sverige – justera efter ditt nätavtal."
           }
-          onChange={(v) => setEconomy({ demandCharge: v ?? 0 })}
+          onChange={(v) => setEconomy({ demandCharge: v ?? 0, demandChargeTouched: true })}
         />
       </SectionCard>
+
+      {state.strategies.fcrDUp ? (
+        <SectionCard title="Valutakurs">
+          <NumberField
+            label="EUR/SEK"
+            unit="kr/EUR"
+            step="0.01"
+            value={state.economy.eurSekRate}
+            hint="Antagande för omräkning av historiska FCR-D upp-priser."
+            onChange={(v) => setEconomy({ eurSekRate: v ?? 0 })}
+          />
+        </SectionCard>
+      ) : null}
 
       <SectionCard description="Varje nytta räknas bara en gång: minskad nätimport värderas till priset på köpt el, flyttad solel till skillnaden mellan köpt och såld el, och lägre effekttoppar till effektavgiften." />
     </WizardShell>
