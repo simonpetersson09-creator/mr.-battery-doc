@@ -41,7 +41,12 @@ const CASES: Record<string, { label: string; input: BatteryEngineInput }> = {
  *  - the FCR-D up reservation floor is defended against the next hour's self-discharge,
  *    so the readiness is genuinely held and `fcrHeldKw` / `fcrGrossSek` rise;
  *  - all charging nets against free PV surplus before importing.
- * No other physics, sizing rule, profile, price or default was changed.
+ * Regenerated again after the engine correction audit. Two intentional output changes:
+ *  1. DIAGNOSTIC FIX: grid charging capped by the PEAK-SHAVING threshold is no longer
+ *     booked as a connection limitation, so GM03/GM04/GM06 report gridStatus "none";
+ *  2. OPTIMISATION: the FCR reservation sweep uses 10 % resolution instead of 25 %, so
+ *     GM06 picks 1,8 kW instead of 1,5 kW and its dispatch/economy follow.
+ * No physics, sizing rule, profile, price or default was changed.
  */
 const EXPECTED = {
   "GM01": {
@@ -114,7 +119,7 @@ const EXPECTED = {
     "utilisationPct": 7.4194,
     "peakBeforeKw": 5.5338,
     "peakAfterKw": 4.4871,
-    "gridStatus": "battery-limited",
+    "gridStatus": "none",
     "unservedKWh": 0,
     "peakReductionKw": 1.0467,
     "demandCostSavingSek": 411.34,
@@ -142,7 +147,7 @@ const EXPECTED = {
     "utilisationPct": 48.4132,
     "peakBeforeKw": 5.5338,
     "peakAfterKw": 4.4871,
-    "gridStatus": "battery-limited",
+    "gridStatus": "none",
     "unservedKWh": 0,
     "peakReductionKw": 1.0467,
     "demandCostSavingSek": 706.73,
@@ -189,26 +194,26 @@ const EXPECTED = {
     "powerKw": 3,
     "physicalPowerNeedKw": 2.5,
     "importBeforeKWh": 7126.1765,
-    "importAfterKWh": 5106.7952,
+    "importAfterKWh": 5156.2495,
     "exportBeforeKWh": 9126.1765,
-    "exportAfterKWh": 6692.656,
-    "shiftedToLoadKWh": 2184.2534,
+    "exportAfterKWh": 6747.7562,
+    "shiftedToLoadKWh": 2133.2001,
     "recoveredCurtailmentKWh": 0,
-    "cycles": 161.7966,
-    "utilisationPct": 44.3278,
+    "cycles": 158.0148,
+    "utilisationPct": 43.2917,
     "peakBeforeKw": 5.5338,
     "peakAfterKw": 4.4872,
-    "gridStatus": "battery-limited",
+    "gridStatus": "none",
     "unservedKWh": 0,
     "peakReductionKw": 1.0466,
-    "demandCostSavingSek": 740.92,
+    "demandCostSavingSek": 681.06,
     "fcrEnabled": true,
-    "fcrOfferedKw": 1.5,
-    "fcrHeldKw": 1.5,
-    "fcrGrossSek": 901.72,
-    "fcrOptimisedKw": 1.5,
-    "energyBenefitSek": 1568.96,
-    "totalOperatingBenefitSek": 3211.6,
+    "fcrOfferedKw": 1.8,
+    "fcrHeldKw": 1.8,
+    "fcrGrossSek": 1082.07,
+    "fcrOptimisedKw": 1.8,
+    "energyBenefitSek": 1527.84,
+    "totalOperatingBenefitSek": 3290.96,
     "balanceOk": true,
     "residualKWh": 0
   },
