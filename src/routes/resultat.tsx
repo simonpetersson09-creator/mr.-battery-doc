@@ -268,7 +268,7 @@ function ResultStep() {
 
       {s.fcr.enabled ? (
         <details className="ui-card">
-          <summary className="ui-label cursor-pointer list-none">Visa FCR-D upp</summary>
+          <summary className="ui-label cursor-pointer list-none">Visa Stödtjänster</summary>
           <div className="mt-3 space-y-2">
             <Row label="Reserverad effekt" value={kw(s.fcr.offeredPowerKw, 1)} />
             <Row label="Tillgänglighet" value={pct(s.fcr.availabilityPct)} />
