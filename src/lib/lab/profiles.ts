@@ -274,15 +274,17 @@ const LAMBDA_LIMIT = 8;
 export const SELF_CONSUMPTION_TOLERANCE_PCT = 0.1;
 /**
  * Maximum allowed normalised L1 deviation between the calibrated series and the
- * profile's own series (0 = untouched, 1 = nothing left of the original shape).
+ * profile's own series (0 = untouched, 1 = nothing left of the original shape). The
+ * measure equals the share of the annual energy the calibration moves to other hours.
  *
- * 0.20 was chosen after sweeping 0.10/0.15/0.20/0.25/0.30 on the reference case: up to
- * 0.20 every customer profile keeps its own peak hour, its own pre-battery peak power
- * and its own physical power need, while still covering the realistic 30-55 %
- * self-consumption span. Above 0.25 the evening profiles start losing their evening
- * peak, which is exactly the failure the old blend produced.
+ * Chosen from a 0.10/0.15/0.20/0.25/0.30 sweep on the reference case (20 000 kWh load,
+ * 14 000 kWh PV): at 0.15 the evening-heavy and EV-evening profiles still keep their
+ * evening peak hour and every profile keeps a clearly different peak level and physical
+ * power need, while the realistic 30-50 % self-consumption span is still reachable. From
+ * 0.20 and up the evening peak starts collapsing towards midday, which is the failure the
+ * old blend produced, so 0.15 is the conservative default.
  */
-export const SHAPE_DEVIATION_CAP = 0.2;
+export const SHAPE_DEVIATION_CAP = 0.15;
 
 /** Direct PV -> load overlap of two hourly series, kWh. */
 function directOverlapKWh(load: number[], pv: number[]): number {
