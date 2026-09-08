@@ -50,12 +50,6 @@ function ProductionStep() {
           selected={p.mode === "manual"}
           onSelect={() => setMode("manual")}
         />
-        <OptionCard
-          title="Foto eller fil"
-          description="Från växelriktare, elbolag eller produktionsrapport."
-          selected={p.mode === "document"}
-          onSelect={() => setMode("document")}
-        />
       </div>
 
       {p.mode === "manual" ? (
