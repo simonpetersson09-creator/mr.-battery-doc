@@ -62,6 +62,17 @@ function GridStep() {
             ))}
           </SelectContent>
         </Select>
+
+        <details className="ui-details">
+          <summary className="ui-summary">Visa nätvärden</summary>
+          <dl className="grid grid-cols-2 gap-2">
+            <Value label="Spänning" value={`${country.grid.voltage} V`} />
+            <Value label="Faser" value={`${country.grid.phases}-fas`} />
+            <Value label="Frekvens" value={`${country.grid.frequency} Hz`} />
+            <Value label="Valuta" value={country.economy.currency} />
+          </dl>
+          <p className="ui-help">Standarder: {country.grid.standards.join(", ")}</p>
+        </details>
       </SectionCard>
 
       <SectionCard
@@ -109,19 +120,6 @@ function GridStep() {
             }))
           }
         />
-      </SectionCard>
-
-      <SectionCard
-        title="Nätvärden"
-        description="Sätts automatiskt utifrån valt land."
-      >
-        <dl className="grid grid-cols-2 gap-2">
-          <Value label="Spänning" value={`${country.grid.voltage} V`} />
-          <Value label="Faser" value={`${country.grid.phases}-fas`} />
-          <Value label="Frekvens" value={`${country.grid.frequency} Hz`} />
-          <Value label="Valuta" value={country.economy.currency} />
-        </dl>
-        <p className="ui-help">Standarder: {country.grid.standards.join(", ")}</p>
       </SectionCard>
     </WizardShell>
   );
