@@ -286,14 +286,15 @@ function ResultStep() {
             <TechGroup title="Egenanvändning före batteri">
               <Row label="Angivet historiskt värde" value={pct(cal.requestedPct)} />
               <Row label="Modellens uppnådda nivå" value={pct(cal.achievedPct)} />
-              {cal.status === "clamped" ? (
-                <Row
-                  label="Avvikelse"
-                  value={`${nf(cal.residualPct, 1)} procentenheter`}
-                />
+              {cal.status === "partial" ? (
+                <p className="ui-help">
+                  Modellen har anpassat förbrukningsprofilen så långt det är rimligt utan att
+                  förlora dess dygnsmönster.
+                </p>
               ) : null}
             </TechGroup>
           ) : null}
+
 
           <TechGroup title="Batterianvändning">
 
