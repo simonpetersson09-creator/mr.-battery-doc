@@ -358,7 +358,21 @@ function ResultStep() {
 
         <div className="mt-3 space-y-4">
           {/* All key figures below come from the FINAL simulation of the recommended system. */}
+          {cal ? (
+            <TechGroup title="Egenanvändning före batteri">
+              <Row label="Angivet historiskt värde" value={pct(cal.requestedPct)} />
+              <Row label="Modellens uppnådda nivå" value={pct(cal.achievedPct)} />
+              {cal.status === "clamped" ? (
+                <Row
+                  label="Avvikelse"
+                  value={`${nf(cal.residualPct, 1)} procentenheter`}
+                />
+              ) : null}
+            </TechGroup>
+          ) : null}
+
           <TechGroup title="Batterianvändning">
+
             <Row label="Nyttjandegrad" value={pct(e.utilisationPct)} />
             <Row label="Cykler per år" value={nf(e.equivalentFullCycles, 1)} />
             <Row
