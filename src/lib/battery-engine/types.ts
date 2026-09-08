@@ -15,6 +15,12 @@
 
 import type { FcrRevenueResult } from "../lab/ancillary/fcrEconomics";
 import type {
+  EconomicPowerSizingResult,
+  EconomicPowerSizingStatus,
+  FcrMarketRealismConfig,
+} from "../lab/economicPowerSizing";
+import type { ProductCostConfig } from "../lab/productCost";
+import type {
   FcrOptimisationResult,
   OperatingEconomyConfig,
   OperatingEconomyResult,
@@ -90,6 +96,12 @@ export interface EngineBatteryInput {
   /** Fix the sizing instead of letting the engine recommend, kWh/kW. */
   fixedCapacityKWh?: number;
   fixedPowerKw?: number;
+  /**
+   * MAXIMUM candidate range for economic power sizing, as a C-rate (default 0.5).
+   * It is a ceiling for the product alternatives that are tested — never a minimum
+   * required C-rate, and it never changes the physical sizing.
+   */
+  maxProductCRateForCandidates?: number;
 }
 
 export interface EngineStrategyInput {
@@ -130,6 +142,16 @@ export interface BatteryEngineInput {
   /** ECONOMIC inputs only. Never affects the physics. */
   economy?: EngineEconomyInput;
   /**
+   * Product cost model for ECONOMIC power sizing. Everything defaults to null =
+   * unverified, and the engine then refuses to produce an economic power optimum.
+   */
+  productCost?: Partial<ProductCostConfig>;
+  /**
+   * FCR market realism. While any parameter is null the FCR revenue is left OUT of the
+   * economic power-sizing objective.
+   */
+  fcrMarketRealism?: Partial<FcrMarketRealismConfig>;
+  /**
    * Escape hatch for advanced/internal parameters (sweet spot, power sizing, variability,
    * grid-assessment thresholds). Applied on top of the engine defaults.
    */
@@ -157,6 +179,39 @@ export interface EngineRecommendation {
    * property's calculated need (`physicalPowerNeedKw`).
    */
   actualDispatchPowerKw: number;
+  /** Rating of the product alternative today's PHYSICAL sizing lands on, kW. */
+  productPowerKw: number;
+  /** Highest operating benefit BEFORE product cost, kW. Null when not evaluated. */
+  operatingOptimalPowerKw: number | null;
+  /** Highest annualised net AFTER product cost, kW. Null when it cannot be computed. */
+  economicallyOptimalPowerKw: number | null;
+  economicPowerSizingStatus: EconomicPowerSizingStatus;
+  /** "ok" | "product-cost-data-missing" | "fcr-market-data-incomplete" | "sizing-fixed". */
+  economicPowerSizingReason: string;
+}
+
+/** One simulated product alternative at the recommended capacity. */
+export interface EnginePowerOption {
+  powerKw: number;
+  cRate: number;
+  actualDispatchPowerKw: number;
+  fcrOfferedPowerKw: number;
+  fcrReservablePowerKw: number;
+  fcrHeldPowerKw: number;
+  fcrMonetizedPowerKw: number;
+  energyBenefitSek: number;
+  peakBenefitSek: number | null;
+  fcrGrossSek: number | null;
+  fcrRealisticNetSek: number | null;
+  operatingBenefitSek: number;
+  capexSek: number | null;
+  annualisedCostSek: number | null;
+  annualNetBenefitSek: number | null;
+  incrementalOperatingBenefitSek: number | null;
+  incrementalAnnualisedPowerCostSek: number | null;
+  incrementalAnnualNetBenefitSek: number | null;
+  selected: boolean;
+  physicalSizingChoice: boolean;
 }
 
 export interface EngineEnergySummary {
@@ -269,6 +324,8 @@ export interface BatteryEngineSummary {
   fcr: EngineFcrSummary;
   economy: EngineEconomySummary;
   energyBalance: EnergyBalance;
+  /** Simulated product alternatives at the recommended capacity. Empty when not run. */
+  powerOptions: EnginePowerOption[];
 }
 
 /** Everything an engineering/debug view needs. Never required by a consumer app. */
@@ -288,6 +345,8 @@ export interface BatteryEngineDiagnostics {
   series: TimeSeries;
   /** Fully resolved internal configuration — the reproducible run definition. */
   config: LabConfig;
+  /** Full economic power-sizing evaluation, including every simulated candidate. */
+  economicPowerSizing: EconomicPowerSizingResult;
 }
 
 export interface BatteryEngineResult {
