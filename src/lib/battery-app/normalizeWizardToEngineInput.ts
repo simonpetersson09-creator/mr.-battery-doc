@@ -102,7 +102,8 @@ export function normalizeWizardToEngineInput(
     exportEnergyValueSekPerKWh: state.economy.exportPrice,
     peakDemandChargeSekPerKwMonth:
       state.economy.demandCharge > 0 ? state.economy.demandCharge : null,
-    peakTariffSource: state.economy.touched ? "user-provided" : "default-estimate",
+    // Only an edit of the demand charge itself makes the tariff user-provided.
+    peakTariffSource: state.economy.demandChargeTouched ? "user-provided" : "default-estimate",
     eurSekRate: state.economy.eurSekRate,
   };
 

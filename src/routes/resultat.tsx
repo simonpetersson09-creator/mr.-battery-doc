@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { SectionCard } from "@/components/wizard/fields";
+import { Button } from "@/components/ui/button";
 import { runBatteryApp } from "@/lib/battery-app";
 import { useWizard } from "@/state/wizard";
 
