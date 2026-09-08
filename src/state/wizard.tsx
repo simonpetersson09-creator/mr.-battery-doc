@@ -185,7 +185,14 @@ export function WizardProvider({ children }: { children: ReactNode }) {
           // Country defaults only overwrite untouched economy values.
           economy: s.economy.touched ? s.economy : economyFromCountry(code),
         })),
-      reset: () => setState(createInitialState()),
+      reset: () => {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch {
+          /* storage unavailable */
+        }
+        setState(createInitialState());
+      },
     };
   }, [state, hydrated]);
 

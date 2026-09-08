@@ -171,6 +171,19 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
 
 export const COUNTRY_LIST = Object.values(COUNTRIES);
 
+/**
+ * Countries released in v1. The engine's economy input is SEK-denominated, so a country
+ * whose local currency is not SEK must NOT be offered until a verified country economy
+ * config exists — otherwise EUR/DKK/NOK values would be read as SEK.
+ */
+export const SUPPORTED_COUNTRY_CODES: CountryCode[] = ["SE"];
+
+export const SUPPORTED_COUNTRY_LIST = SUPPORTED_COUNTRY_CODES.map((c) => COUNTRIES[c]);
+
+export function isSupportedCountry(code: CountryCode): boolean {
+  return SUPPORTED_COUNTRY_CODES.includes(code);
+}
+
 export const DEFAULT_COUNTRY: CountryCode = "SE";
 
 export function getCountry(code: CountryCode): CountryConfig {
