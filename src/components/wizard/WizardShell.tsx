@@ -33,7 +33,7 @@ export function WizardShell({
 
   return (
     <div className="app-shell surface-sun">
-      <header className="pt-safe sticky top-0 z-20 px-5 pb-2 backdrop-blur-md">
+      <header className="pt-safe sticky top-0 z-20 px-4 pb-1.5 backdrop-blur-md">
         <div className="flex items-center gap-3 pt-1">
           <Link
             to={prev}
