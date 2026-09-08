@@ -193,10 +193,22 @@ export function buildResultPresentation(
 
     showFcr,
     fcrDrivesPower,
-    fcrPowerNote: fcrDrivesPower
-      ? "Systemeffekten har valts för att ge högst beräknad årlig nytta med dina valda strategier. Historisk FCR-D upp-intäkt har påverkat effektvalet."
+    fcrPowerNote: null,
+    fcrPowerNoteSecondary: null,
+
+    showFcrPowerCard,
+    fcrPowerCardTitle: showFcrPowerCard ? `Varför ${recKw} kW?` : null,
+    fcrPowerCardText: showFcrPowerCard
+      ? `Fastighetens eget beräknade effektbehov är cirka ${propKw} kW. Den högre systemeffekten på ${recKw} kW ger större beräknad årlig nytta eftersom stödtjänster (FCR-D upp) ingår i beräkningen.`
       : null,
-    fcrPowerNoteSecondary: fcrDrivesPower ? "Fastighetens eget effektbehov är lägre." : null,
+    fcrPowerCardNeutralText: showFcrPowerCard
+      ? `Om du bedömer att stödtjänster även framöver kommer att ge ett betydande värde kan den högre systemeffekten vara relevant. Utan stödtjänster räcker cirka ${propKw} kW enligt beräkningen för fastighetens eget behov.`
+      : null,
+    fcrHistoricalNote: showFcrPowerCard
+      ? "Beräkningen använder historiska FCR-D upp-priser från 2025. Framtida priser och intäkter kan bli både högre och lägre."
+      : null,
+    propertyOnlyPowerKw,
+
 
     capacityWhy,
     powerWhy,
