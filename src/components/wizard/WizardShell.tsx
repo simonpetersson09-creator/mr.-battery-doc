@@ -54,16 +54,15 @@ export function WizardShell({
         <StepIndicator stepIndex={stepIndex} />
       </header>
 
-      <main className="flex-1 px-4 pt-1 pb-24">
-        <p className="text-[10px] font-bold tracking-widest text-foreground/55 uppercase">
+      <main className="flex-1 px-4 pt-1 pb-32">
+        <p className="ui-caption">
           Steg {stepIndex + 1} av {WIZARD_STEPS.length}
         </p>
-        <h1 className="mt-0.5 text-xl leading-tight font-extrabold tracking-tight">{title}</h1>
-        {intro ? (
-          <p className="mt-1 text-xs leading-snug text-muted-foreground">{intro}</p>
-        ) : null}
-        <div className="mt-3 space-y-2.5">{children}</div>
+        <h1 className="ui-page-title mt-1">{title}</h1>
+        {intro ? <p className="ui-help mt-1">{intro}</p> : null}
+        <div className="mt-4 space-y-3">{children}</div>
       </main>
+
 
       <div className="pb-safe fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-[32rem] border-t border-border/70 bg-background/90 px-4 pt-2 backdrop-blur-md">
         {nextDisabled && nextBlockedReason ? (

@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { Check } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 
 export function SectionCard({
@@ -15,21 +14,21 @@ export function SectionCard({
   action?: ReactNode;
 }) {
   return (
-    <section className="card-elevated p-3">
+    <section className="ui-card">
       {(title || description || action) && (
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            {title ? (
-              <h2 className="font-display text-[15px] font-bold tracking-tight">{title}</h2>
-            ) : null}
+            {title ? <h2 className="ui-card-title">{title}</h2> : null}
             {description ? (
-              <p className="mt-1 text-[13px] leading-snug text-muted-foreground">{description}</p>
+              <p className={title ? "ui-help mt-1" : "ui-help"}>{description}</p>
             ) : null}
           </div>
           {action}
         </div>
       )}
-      {children ? <div className={title ? "mt-2.5 space-y-2.5" : "space-y-2.5"}>{children}</div> : null}
+      {children ? (
+        <div className={title || description ? "mt-3 space-y-3" : "space-y-3"}>{children}</div>
+      ) : null}
     </section>
   );
 }
@@ -42,6 +41,7 @@ export function NumberField({
   placeholder,
   hint,
   step,
+  badge,
 }: {
   label: string;
   unit?: string;
@@ -50,29 +50,36 @@ export function NumberField({
   placeholder?: string;
   hint?: string;
   step?: string;
+  /** Purely visual marker, e.g. "Standardvärde" / "Ditt värde". */
+  badge?: string;
 }) {
   return (
     <label className="block">
-      <span className="field-label">{label}</span>
-      <div className="mt-1.5 flex items-center gap-2">
-        <Input
+      <span className="flex items-center justify-between gap-2">
+        <span className="ui-label">{label}</span>
+        {badge ? (
+          <span className="rounded-full bg-secondary px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+            {badge}
+          </span>
+        ) : null}
+      </span>
+      <span className="mt-1.5 flex items-center gap-2">
+        <input
           inputMode="decimal"
           type="number"
           step={step}
-          className="h-10 rounded-xl border-foreground/15 bg-surface-cream text-sm font-semibold"
+          className="ui-control tabular-nums"
           value={value ?? ""}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
         />
         {unit ? (
-          <span className="w-24 shrink-0 text-[13px] font-medium text-muted-foreground">
+          <span className="ui-body w-[5.5rem] shrink-0 font-medium text-muted-foreground">
             {unit}
           </span>
         ) : null}
-      </div>
-      {hint ? (
-        <p className="mt-1.5 text-xs leading-snug text-muted-foreground">{hint}</p>
-      ) : null}
+      </span>
+      {hint ? <span className="ui-help mt-1 block">{hint}</span> : null}
     </label>
   );
 }
@@ -96,22 +103,20 @@ export function OptionCard({
       onClick={onSelect}
       aria-pressed={selected}
       className={
-        "flex w-full items-start gap-2.5 rounded-[16px] p-2.5 text-left transition-colors " +
+        "flex w-full items-center gap-2.5 rounded-[1.25rem] px-3.5 py-3 text-left transition-colors " +
         (selected ? "chip-selected" : "chip-unselected")
       }
     >
-      {icon ? <span className="mt-0.5">{icon}</span> : null}
+      {icon ? <span className="shrink-0">{icon}</span> : null}
       <span className="min-w-0 flex-1">
-        <span className="block text-sm font-bold">{title}</span>
+        <span className="ui-label block">{title}</span>
         {description ? (
-          <span className="mt-0.5 block text-[13px] leading-snug text-foreground/65">
-            {description}
-          </span>
+          <span className="ui-help mt-0.5 block text-foreground/65">{description}</span>
         ) : null}
       </span>
       <span
         className={
-          "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors " +
+          "flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors " +
           (selected
             ? "border-foreground/45 bg-foreground text-background"
             : "border-foreground/25 bg-transparent")
@@ -137,20 +142,20 @@ export function ToggleRow({
   return (
     <div
       className={
-        "flex items-start justify-between gap-2.5 rounded-[16px] p-2.5 transition-colors " +
+        "flex items-center justify-between gap-3 rounded-[1.25rem] px-3.5 py-3 transition-colors " +
         (checked ? "chip-selected" : "chip-unselected")
       }
     >
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-bold">{title}</p>
+        <p className="ui-label">{title}</p>
         {description ? (
-          <p className="mt-1 text-[13px] leading-snug text-foreground/65">{description}</p>
+          <p className="ui-help mt-0.5 text-foreground/65">{description}</p>
         ) : null}
       </div>
       <Switch
         checked={checked}
         onCheckedChange={onChange}
-        className="mt-0.5 data-[state=checked]:bg-foreground"
+        className="shrink-0 data-[state=checked]:bg-foreground"
       />
     </div>
   );
