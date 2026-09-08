@@ -453,6 +453,26 @@ html[data-native="true"] {
   letter-spacing: -0.03em;
 }
 
+/* One text size for every control and button. */
+:root {
+  --ui-control-text: 0.9375rem;
+  --ui-control-text-sm: 0.8125rem;
+}
+@media (pointer: coarse) {
+  :root {
+    --ui-control-text: 1rem;
+    --ui-control-text-sm: 0.875rem;
+  }
+}
+@utility ui-control-text {
+  font-size: var(--ui-control-text);
+  line-height: 1.2;
+}
+@utility ui-control-text-sm {
+  font-size: var(--ui-control-text-sm);
+  line-height: 1.2;
+}
+
 /* One card language everywhere: same radius, border, shadow and padding. */
 @utility ui-card {
   background-color: var(--color-card);
@@ -470,7 +490,7 @@ html[data-native="true"] {
   border: 1px solid oklch(0.3172 0 0 / 0.15);
   background-color: var(--surface-cream);
   padding-inline: 0.75rem;
-  font-size: 0.875rem;
+  font-size: var(--ui-control-text);
   font-weight: 600;
   color: var(--color-foreground);
   outline: none;
@@ -493,6 +513,6 @@ html[data-native="true"] {
   input,
   select,
   textarea {
-    font-size: 16px;
+    font-size: var(--ui-control-text);
   }
 }

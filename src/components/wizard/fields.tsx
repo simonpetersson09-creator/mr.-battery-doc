@@ -58,7 +58,7 @@ export function NumberField({
       <span className="flex items-center justify-between gap-2">
         <span className="ui-label">{label}</span>
         {badge ? (
-          <span className="rounded-full bg-secondary px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+          <span className="rounded-full bg-secondary px-2 py-0.5 ui-control-text-sm font-semibold text-muted-foreground">
             {badge}
           </span>
         ) : null}
