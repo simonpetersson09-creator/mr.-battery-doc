@@ -257,7 +257,7 @@ function ResultStep() {
               ) : null}
               {s.fcr.enabled ? (
                 <Row
-                  label="FCR-D upp – historiskt 2025"
+                  label="Stödtjänster – historiskt 2025"
                   value={`${money(s.fcr.grossSek)}/år`}
                 />
               ) : null}
@@ -268,7 +268,7 @@ function ResultStep() {
 
       {s.fcr.enabled ? (
         <details className="ui-card">
-          <summary className="ui-label cursor-pointer list-none">Visa FCR-D upp</summary>
+          <summary className="ui-label cursor-pointer list-none">Visa Stödtjänster</summary>
           <div className="mt-3 space-y-2">
             <Row label="Reserverad effekt" value={kw(s.fcr.offeredPowerKw, 1)} />
             <Row label="Tillgänglighet" value={pct(s.fcr.availabilityPct)} />
@@ -338,7 +338,7 @@ function ResultStep() {
             <Row label="Fastighetens fysiska effektbehov" value={kw(p.physicalPowerNeedKw, 1)} />
             <Row label="Max faktiskt använd effekt" value={kw(p.actualDispatchPowerKw, 2)} />
             {p.fcrHeldPowerKw !== null ? (
-              <Row label="FCR-D upp hållen effekt" value={kw(p.fcrHeldPowerKw, 2)} />
+              <Row label="Stödtjänster hållen effekt" value={kw(p.fcrHeldPowerKw, 2)} />
             ) : null}
             <Row label="C-rate" value={`${nf(ps.productCRate, 2)} C`} />
             <Row
@@ -361,14 +361,14 @@ function ResultStep() {
           </TechGroup>
 
           {s.fcr.enabled ? (
-            <TechGroup title="FCR-D upp">
+            <TechGroup title="Stödtjänster">
               <Row label="Erbjuden/reserverad effekt" value={kw(s.fcr.offeredPowerKw, 1)} />
               <Row label="Genomsnittligt hållen effekt" value={kw(s.fcr.avgHeldPowerKw, 2)} />
               <Row label="Tillgänglighet" value={pct(s.fcr.availabilityPct)} />
               <Row label="Reserverade timmar" value={`${nf(s.fcr.reservedHours)} timmar/år`} />
               <p className="ui-help">
-                Modellnotering: FCR-D upp är i modellen en beredskaps- och effektintäkt. Den ger
-                ingen egen energimängd och räknas därför inte som cykler.
+                Modellnotering: Stödtjänster (FCR-D upp) är i modellen en beredskaps- och
+                effektintäkt. Den ger ingen egen energimängd och räknas därför inte som cykler.
               </p>
               {s.fcr.blockers.map((b) => (
                 <p key={b} className="ui-help">
