@@ -214,6 +214,31 @@ function ResultStep() {
               );
             })}
           </div>
+          {(() => {
+            const recommended = alternatives.find((a) => a.level === "recommended");
+            const higher = alternatives.find((a) => a.level === "higher");
+            if (!recommended) return null;
+            const higherIsBetter =
+              higher &&
+              higher.annualBenefitSek !== null &&
+              recommended.annualBenefitSek !== null &&
+              higher.annualBenefitSek > recommended.annualBenefitSek;
+            if (higherIsBetter) {
+              const fcrSuffix = s.fcr.enabled ? " särskilt med stödtjänster" : "";
+              return (
+                <p className="ui-help mt-2.5 text-center text-foreground/60">
+                  Rekommenderad är den storlek som ger bäst balans utifrån fastighetens
+                  energibehov. Ett större batteri kan ge högre beräknad nytta{fcrSuffix}.
+                </p>
+              );
+            }
+            return (
+              <p className="ui-help mt-2.5 text-center text-foreground/60">
+                Rekommenderad är den storlek som ger bäst balans utifrån fastighetens
+                energibehov.
+              </p>
+            );
+          })()}
         </div>
       )}
 
