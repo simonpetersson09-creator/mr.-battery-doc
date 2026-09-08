@@ -150,20 +150,41 @@ function ResultStep() {
       {p.showFcrPowerCard ? (
         <SectionCard title={p.fcrPowerCardTitle ?? ""}>
           <p className="ui-help">{p.fcrPowerCardText}</p>
-          <p className="ui-help mt-1.5">{p.fcrPowerCardNeutralText}</p>
           <div className="mt-2.5 space-y-1.5">
+            {p.showPhysicalNeedRow ? (
+              <Row label="Fysiskt effektbehov" value={kw(p.physicalPowerNeedKw, 1)} />
+            ) : null}
             <Row
-              label="Med historiskt stödtjänstscenario"
+              label={p.showPhysicalNeedRow ? "Utan FCR-D upp" : "Fysiskt behov / utan FCR-D upp"}
+              value={kw(p.withoutFcrPowerKw ?? p.physicalPowerNeedKw, 1)}
+            />
+            <Row
+              label="Med historiskt FCR-scenario"
               value={kw(p.recommendedPowerKw, 1)}
             />
-            <Row
-              label="För fastighetens eget behov"
-              value={kw(p.propertyOnlyPowerKw ?? p.physicalPowerNeedKw, 1)}
-            />
           </div>
+          {p.withoutFcrBenefitSek !== null && p.withFcrBenefitSek !== null ? (
+            <div className="mt-2.5 space-y-1.5">
+              <Row
+                label="Beräknad nytta utan FCR-D upp"
+                value={`${nf(p.withoutFcrBenefitSek)} kr/år`}
+              />
+              <Row
+                label="Beräknad nytta med FCR-scenario"
+                value={`${nf(p.withFcrBenefitSek)} kr/år`}
+              />
+              {p.benefitDeltaSek !== null ? (
+                <Row
+                  label="Skillnad"
+                  value={`${p.benefitDeltaSek > 0 ? "+" : ""}${nf(p.benefitDeltaSek)} kr/år`}
+                />
+              ) : null}
+            </div>
+          ) : null}
           <p className="ui-help mt-2 text-foreground/70">{p.fcrHistoricalNote}</p>
         </SectionCard>
       ) : null}
+
 
       {p.limitedBenefit ? (
         <SectionCard title={p.limitedBenefitTitle ?? ""} description={p.limitedBenefitText ?? ""} />

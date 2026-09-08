@@ -63,10 +63,21 @@ export interface ResultPresentation {
   fcrHistoricalNote: string | null;
   /** Power level motivated by the property itself (actual FCR-off result when available). */
   propertyOnlyPowerKw: number | null;
+  /** System power the calculation would recommend with FCR removed from the objective. */
+  withoutFcrPowerKw: number | null;
+  /** True when the physical need row differs from the FCR-off system power. */
+  showPhysicalNeedRow: boolean;
+  /** Annual benefit, SEK/year, of the FCR-off candidate (FCR revenue excluded). */
+  withoutFcrBenefitSek: number | null;
+  /** Annual benefit, SEK/year, of the recommended candidate (FCR included). */
+  withFcrBenefitSek: number | null;
+  /** withFcr - withoutFcr, SEK/year. */
+  benefitDeltaSek: number | null;
 
   capacityWhy: string;
   powerWhy: string | null;
 }
+
 
 
 export function buildResultPresentation(
@@ -119,13 +130,25 @@ export function buildResultPresentation(
     benefit: o.totalOperatingBenefitSek - o.fcrRevenueSek,
   }));
   let propertyOnlyPowerKw: number | null = null;
+  let withoutFcrBenefitSek: number | null = null;
   if (withoutFcr.length > 0) {
     const best = Math.max(...withoutFcr.map((o) => o.benefit));
-    propertyOnlyPowerKw = (withoutFcr.find((o) => o.benefit >= best - TIE) ?? withoutFcr[0]!)
-      .powerKw;
+    const pick = withoutFcr.find((o) => o.benefit >= best - TIE) ?? withoutFcr[0]!;
+    propertyOnlyPowerKw = pick.powerKw;
+    withoutFcrBenefitSek = pick.benefit;
   } else if (r.physicalPowerNeedKw > 0) {
     propertyOnlyPowerKw = r.physicalPowerNeedKw;
   }
+
+  const selectedOption =
+    s.powerOptions.find((o) => o.selected) ??
+    s.powerOptions.find((o) => Math.abs(o.powerKw - recommendedPowerKw) < 1e-9) ??
+    null;
+  const withFcrBenefitSek = selectedOption ? selectedOption.totalOperatingBenefitSek : total;
+  const benefitDeltaSek =
+    withFcrBenefitSek !== null && withoutFcrBenefitSek !== null
+      ? withFcrBenefitSek - withoutFcrBenefitSek
+      : null;
 
   // Only meaningful when the recommended power is genuinely above the property-only level.
   const showFcrPowerCard =
@@ -135,24 +158,36 @@ export function buildResultPresentation(
     recommendedPowerKw > propertyOnlyPowerKw + 1e-9;
 
   const propKw = propertyOnlyPowerKw !== null ? nf(propertyOnlyPowerKw, 1) : "";
+  const physKw = nf(r.physicalPowerNeedKw, 1);
   const recKw = nf(recommendedPowerKw, 1);
+  // The physical need and the FCR-off system power are different concepts; only split the
+  // rows when the engine actually produced two different levels.
+  const showPhysicalNeedRow =
+    showFcrPowerCard &&
+    propertyOnlyPowerKw !== null &&
+    Math.abs(propertyOnlyPowerKw - r.physicalPowerNeedKw) > 0.05;
 
   const capacityWhy = noBattery
     ? "Med dina uppgifter flyttar ett batteri för lite energi för att en storlek ska kunna rekommenderas."
     : `${nf(r.capacityKWh)} kWh ger en bra balans mellan hur mycket energi batteriet kan flytta och nyttan av ytterligare kapacitet. Ett större batteri ger relativt liten ytterligare nytta med din förbrukning${hasSolar ? " och solproduktion" : ""}.`;
 
+  const fcrCardText = showPhysicalNeedRow
+    ? `Fastighetens fysiska effektbehov är cirka ${physKw} kW. Utan FCR-D upp skulle systemeffekten vara ${propKw} kW. Med historiska FCR-D upp-priser från 2025 ger ${recKw} kW högst beräknad årlig nytta.`
+    : `Fastighetens fysiska effektbehov är cirka ${physKw} kW. Med historiska FCR-D upp-priser från 2025 ger ${recKw} kW högst beräknad årlig nytta.`;
+
   let powerWhy: string | null;
   if (noBattery) {
     powerWhy = null;
   } else if (showFcrPowerCard) {
-    powerWhy = `Fastighetens eget beräknade effektbehov är cirka ${propKw} kW. ${recKw} kW ger högre beräknad årlig nytta i scenariot där stödtjänster (FCR-D upp) ingår.`;
+    powerWhy = fcrCardText;
   } else if (raisedAbovePhysical) {
-    powerWhy = `${recKw} kW ger högst beräknad årlig nytta av de systemeffekter som har jämförts. Fastighetens eget effektbehov är lägre (${nf(r.physicalPowerNeedKw, 1)} kW).`;
+    powerWhy = `${recKw} kW ger högst beräknad årlig nytta av de systemeffekter som har jämförts. Fastighetens eget effektbehov är lägre (${physKw} kW).`;
   } else if (powerFloorApplied) {
-    powerWhy = `${recKw} kW följer batteriets tekniska minimikrav i förhållande till kapaciteten. Fastighetens eget effektbehov är lägre (${nf(r.physicalPowerNeedKw, 1)} kW). Högre systemeffekt ger inte tillräckligt större beräknad årlig nytta.`;
+    powerWhy = `${recKw} kW följer batteriets tekniska minimikrav i förhållande till kapaciteten. Fastighetens eget effektbehov är lägre (${physKw} kW). Högre systemeffekt ger inte tillräckligt större beräknad årlig nytta.`;
   } else {
-    powerWhy = `${recKw} kW är dimensionerad efter fastighetens energiflöden och beräknade effektbehov (${nf(r.physicalPowerNeedKw, 1)} kW). Högre systemeffekt ger inte tillräckligt större beräknad årlig nytta.`;
+    powerWhy = `${recKw} kW är dimensionerad efter fastighetens energiflöden och beräknade effektbehov (${physKw} kW). Högre systemeffekt ger inte tillräckligt större beräknad årlig nytta.`;
   }
+
 
 
   return {
@@ -198,16 +233,19 @@ export function buildResultPresentation(
 
     showFcrPowerCard,
     fcrPowerCardTitle: showFcrPowerCard ? `Varför ${recKw} kW?` : null,
-    fcrPowerCardText: showFcrPowerCard
-      ? `Fastighetens eget beräknade effektbehov är cirka ${propKw} kW. Den högre systemeffekten på ${recKw} kW ger större beräknad årlig nytta eftersom stödtjänster (FCR-D upp) ingår i beräkningen.`
-      : null,
-    fcrPowerCardNeutralText: showFcrPowerCard
-      ? `Om du bedömer att stödtjänster även framöver kommer att ge ett betydande värde kan den högre systemeffekten vara relevant. Utan stödtjänster räcker cirka ${propKw} kW enligt beräkningen för fastighetens eget behov.`
-      : null,
+    fcrPowerCardText: showFcrPowerCard ? fcrCardText : null,
+    fcrPowerCardNeutralText: null,
     fcrHistoricalNote: showFcrPowerCard
-      ? "Beräkningen använder historiska FCR-D upp-priser från 2025. Framtida priser och intäkter kan bli både högre och lägre."
+      ? "Framtida FCR-priser och intäkter kan bli både högre och lägre."
       : null,
     propertyOnlyPowerKw,
+    withoutFcrPowerKw: propertyOnlyPowerKw,
+    showPhysicalNeedRow,
+    withoutFcrBenefitSek: showFcrPowerCard ? withoutFcrBenefitSek : null,
+    withFcrBenefitSek: showFcrPowerCard ? withFcrBenefitSek : null,
+    benefitDeltaSek: showFcrPowerCard ? benefitDeltaSek : null,
+
+
 
 
     capacityWhy,
