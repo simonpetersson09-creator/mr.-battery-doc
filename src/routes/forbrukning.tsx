@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { WizardShell } from "@/components/wizard/WizardShell";
+import { MonthlyImport } from "@/components/wizard/MonthlyImport";
+
 import { NumberField, OptionCard, SectionCard } from "@/components/wizard/fields";
 import { validateConsumptionStep } from "@/lib/battery-app/stepValidation";
 import {
@@ -86,7 +88,18 @@ function ConsumptionStep() {
             title="Faktisk månadsförbrukning"
             description="Faktiska värden går alltid före uppskattningar."
           >
+            <MonthlyImport
+              kind="consumption"
+              description="Importera en bild eller PDF med din elförbrukning."
+              onApply={(vals) =>
+                update((s) => ({
+                  ...s,
+                  consumption: { ...s.consumption, monthlyKwh: [...vals] },
+                }))
+              }
+            />
             <div className="grid grid-cols-2 gap-2">
+
               {MONTH_SHORT_SV.map((m, i) => (
                 <label key={m} className="flex items-center gap-2">
                   <span className="field-label w-9 shrink-0">{m}</span>

@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { WizardShell } from "@/components/wizard/WizardShell";
+import { MonthlyImport } from "@/components/wizard/MonthlyImport";
+
 import { NumberField, OptionCard, SectionCard, ToggleRow } from "@/components/wizard/fields";
 import { MONTH_SHORT_SV } from "@/lib/consumption-profiles";
 import { validateProductionStep } from "@/lib/battery-app/stepValidation";
@@ -91,7 +93,18 @@ function ProductionStep() {
 
           {p.useMonthly ? (
             <SectionCard title="Månadsproduktion">
+              <MonthlyImport
+                kind="production"
+                description="Importera en bild eller PDF med din solproduktion."
+                onApply={(vals: number[]) =>
+                  update((s) => ({
+                    ...s,
+                    production: { ...s.production, monthlyKwh: [...vals] },
+                  }))
+                }
+              />
               <div className="grid grid-cols-2 gap-2">
+
                 {MONTH_SHORT_SV.map((m, i) => (
                   <label key={m} className="flex items-center gap-2">
                     <span className="field-label w-9 shrink-0">{m}</span>
