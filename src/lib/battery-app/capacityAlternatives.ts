@@ -20,7 +20,8 @@ export interface BatteryAlternative {
   level: AlternativeLevel;
   capacityKWh: number;
   powerKw: number;
-  annualBenefitSek: number;
+  /** null when the economy is incomplete for that candidate. */
+  annualBenefitSek: number | null;
 }
 
 /** Unique simulated capacity steps (> 0) from the engine's own sweep, ascending. */
