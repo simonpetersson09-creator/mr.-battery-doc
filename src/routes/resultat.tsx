@@ -40,7 +40,8 @@ function ResultStep() {
   const restart = (
     <Button
       variant="cta"
-      className="h-auto flex-[2] rounded-[18px] py-2.5 text-sm font-bold shadow-cta"
+      className="h-12 flex-[2] rounded-[0.875rem] text-[15px] font-bold shadow-cta"
+
       onClick={() => {
         reset();
         void navigate({ to: "/" });
@@ -227,9 +228,9 @@ function ResultStep() {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-4 text-sm">
+    <div className="ui-body flex items-center justify-between gap-4">
       <span className="text-muted-foreground">{label}</span>
-      <span className="font-semibold">{value}</span>
+      <span className="font-semibold tabular-nums">{value}</span>
     </div>
   );
 }
@@ -244,11 +245,12 @@ function BeforeAfter({
   after: string;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 text-sm">
+    <div className="ui-body flex items-center justify-between gap-4">
       <span className="text-muted-foreground">{label}</span>
-      <span className="font-semibold">
+      <span className="font-semibold tabular-nums">
         <span className="text-muted-foreground">{before}</span> → {after}
       </span>
     </div>
   );
 }
+
