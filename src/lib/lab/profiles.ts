@@ -265,13 +265,8 @@ export function buildPvSeries(
 /* Measured self-consumption calibration                               */
 /* ------------------------------------------------------------------ */
 
-/**
- * Softening term so night hours (PV = 0) keep a finite, well-behaved weight factor.
- * Without it the reshaping would collapse to zero/infinity at the day edges.
- */
-const SHAPE_EPS = 0.15;
-/** Bounds of the shape exponent that is searched. Defines the reachable window. */
-const K_LIMIT = 8;
+/** Bounds of the blend factor that is searched. Defines the reachable window. */
+const K_LIMIT = 1;
 /** Calibration tolerance, percentage points. */
 export const SELF_CONSUMPTION_TOLERANCE_PCT = 0.1;
 
@@ -283,31 +278,47 @@ function directOverlapKWh(load: number[], pv: number[]): number {
 }
 
 /**
- * Reshapes the INTRADAY distribution of the load inside every month by weighting each
- * hour with (SHAPE_EPS + pv(h)/pvMean(month))^k and renormalising the month back to its
- * exact original energy. k > 0 moves load towards sunny hours, k < 0 away from them.
- * Load stays non-negative, and every monthly kWh — hence the annual kWh — is preserved.
+ * Reshapes the INTRADAY distribution of the load inside every month by blending the
+ * profile's own hourly shape with a reference shape, then renormalising the month back
+ * to its exact original energy:
+ *
+ *   k > 0 : blend towards the month's PV shape       (load follows the sun)
+ *   k < 0 : blend towards the complementary shape    (load avoids the sun)
+ *   k = 0 : the profile is untouched
+ *
+ * k = ±1 are the physical extremes: at +1 the month's load is distributed exactly like
+ * its own PV, which is the maximum overlap this monthly energy allows. Load stays
+ * non-negative and every monthly kWh — hence the annual kWh — is preserved exactly.
  */
 function reshapeLoad(load: number[], pv: number[], k: number): number[] {
   if (k === 0) return load;
   const out = [...load];
+  const mix = Math.min(1, Math.abs(k));
   for (const { start, end } of monthHourRanges()) {
     let pvSum = 0;
+    let pvMax = 0;
     let monthTotal = 0;
     for (let h = start; h < end; h++) {
-      pvSum += pv[h] ?? 0;
+      const v = pv[h] ?? 0;
+      pvSum += v;
+      if (v > pvMax) pvMax = v;
       monthTotal += load[h] ?? 0;
     }
-    const n = end - start;
-    const pvMean = n > 0 ? pvSum / n : 0;
-    if (pvMean <= 0 || monthTotal <= 0) continue;
+    if (pvSum <= 0 || monthTotal <= 0) continue;
+
+    // Reference shape weights for this month.
+    const refWeight = (h: number) =>
+      k > 0 ? (pv[h] ?? 0) : Math.max(0, pvMax - (pv[h] ?? 0));
+    let refSum = 0;
+    for (let h = start; h < end; h++) refSum += refWeight(h);
+    if (refSum <= 0) continue;
 
     let sum = 0;
     for (let h = start; h < end; h++) {
-      const f = Math.pow(SHAPE_EPS + (pv[h] ?? 0) / pvMean, k);
-      const v = (load[h] ?? 0) * (Number.isFinite(f) ? f : 0);
-      out[h] = v;
-      sum += v;
+      const v =
+        (1 - mix) * (load[h] ?? 0) + mix * monthTotal * (refWeight(h) / refSum);
+      out[h] = Math.max(0, v);
+      sum += out[h] ?? 0;
     }
     if (sum <= 0) {
       for (let h = start; h < end; h++) out[h] = load[h] ?? 0;
@@ -330,6 +341,7 @@ function reshapeLoad(load: number[], pv: number[], k: number): number[] {
   }
   return out;
 }
+
 
 /**
  * Calibrates the load shape so the PRE-BATTERY overlap between PV and load matches the
