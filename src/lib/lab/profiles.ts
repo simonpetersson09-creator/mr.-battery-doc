@@ -265,10 +265,26 @@ export function buildPvSeries(
 /* Measured self-consumption calibration                               */
 /* ------------------------------------------------------------------ */
 
-/** Bounds of the blend factor that is searched. Defines the reachable window. */
-const K_LIMIT = 1;
+/**
+ * Maximum solar tilt strength that is searched. |lambda| = 8 is far beyond what the
+ * shape-deviation cap ever allows, so the cap — not this bound — is the binding limit.
+ */
+const LAMBDA_LIMIT = 8;
 /** Calibration tolerance, percentage points. */
 export const SELF_CONSUMPTION_TOLERANCE_PCT = 0.1;
+/**
+ * Maximum allowed normalised L1 deviation between the calibrated series and the
+ * profile's own series (0 = untouched, 1 = nothing left of the original shape). The
+ * measure equals the share of the annual energy the calibration moves to other hours.
+ *
+ * Chosen from a 0.10/0.15/0.20/0.25/0.30 sweep on the reference case (20 000 kWh load,
+ * 14 000 kWh PV): at 0.15 the evening-heavy and EV-evening profiles still keep their
+ * evening peak hour and every profile keeps a clearly different peak level and physical
+ * power need, while the realistic 30-50 % self-consumption span is still reachable. From
+ * 0.20 and up the evening peak starts collapsing towards midday, which is the failure the
+ * old blend produced, so 0.15 is the conservative default.
+ */
+export const SHAPE_DEVIATION_CAP = 0.15;
 
 /** Direct PV -> load overlap of two hourly series, kWh. */
 function directOverlapKWh(load: number[], pv: number[]): number {
@@ -278,49 +294,56 @@ function directOverlapKWh(load: number[], pv: number[]): number {
 }
 
 /**
- * Reshapes the INTRADAY distribution of the load inside every month by blending the
- * profile's own hourly shape with a reference shape, then renormalising the month back
- * to its exact original energy:
- *
- *   k > 0 : blend towards the month's PV shape       (load follows the sun)
- *   k < 0 : blend towards the complementary shape    (load avoids the sun)
- *   k = 0 : the profile is untouched
- *
- * k = ±1 are the physical extremes: at +1 the month's load is distributed exactly like
- * its own PV, which is the maximum overlap this monthly energy allows. Load stays
- * non-negative and every monthly kWh — hence the annual kWh — is preserved exactly.
+ * Normalised L1 (total-variation) distance between the calibrated and the original
+ * load series: 0.5 * sum|adjusted - original| / sum(original). Because both series
+ * carry identical energy, this is exactly the share of the annual energy that the
+ * calibration has moved to other hours.
  */
-function reshapeLoad(load: number[], pv: number[], k: number): number[] {
-  if (k === 0) return load;
+export function shapeDeviationOf(original: number[], adjusted: number[]): number {
+  let total = 0;
+  let diff = 0;
+  for (let h = 0; h < original.length; h++) {
+    const a = original[h] ?? 0;
+    total += a;
+    diff += Math.abs((adjusted[h] ?? 0) - a);
+  }
+  return total > 0 ? diff / (2 * total) : 0;
+}
+
+/**
+ * Multiplicative solar tilt. Every hour keeps the profile's own value and is only
+ * scaled by exp(lambda * s_h), where s_h is the month's normalised PV signal (0..1):
+ *
+ *   lambda > 0 : the load leans towards the sun hours
+ *   lambda < 0 : the load leans away from the sun hours
+ *   lambda = 0 : the profile is untouched
+ *
+ * Since the factor is multiplicative, the profile's characteristic diurnal signature is
+ * never replaced — an evening-heavy profile stays evening-heavy, it only shifts weight.
+ * Each month is renormalised to its exact original energy, so monthly and annual kWh are
+ * preserved and no hour can become negative.
+ */
+function tiltLoad(load: number[], pv: number[], lambda: number): number[] {
+  if (lambda === 0) return load;
   const out = [...load];
-  const mix = Math.min(1, Math.abs(k));
   for (const { start, end } of monthHourRanges()) {
-    let pvSum = 0;
     let pvMax = 0;
     let monthTotal = 0;
     for (let h = start; h < end; h++) {
       const v = pv[h] ?? 0;
-      pvSum += v;
       if (v > pvMax) pvMax = v;
       monthTotal += load[h] ?? 0;
     }
-    if (pvSum <= 0 || monthTotal <= 0) continue;
-
-    // Reference shape weights for this month.
-    const refWeight = (h: number) =>
-      k > 0 ? (pv[h] ?? 0) : Math.max(0, pvMax - (pv[h] ?? 0));
-    let refSum = 0;
-    for (let h = start; h < end; h++) refSum += refWeight(h);
-    if (refSum <= 0) continue;
+    if (pvMax <= 0 || monthTotal <= 0) continue;
 
     let sum = 0;
     for (let h = start; h < end; h++) {
-      const v =
-        (1 - mix) * (load[h] ?? 0) + mix * monthTotal * (refWeight(h) / refSum);
-      out[h] = Math.max(0, v);
-      sum += out[h] ?? 0;
+      const signal = (pv[h] ?? 0) / pvMax;
+      const v = Math.max(0, (load[h] ?? 0) * Math.exp(lambda * signal));
+      out[h] = v;
+      sum += v;
     }
-    if (sum <= 0) {
+    if (!(sum > 0) || !Number.isFinite(sum)) {
       for (let h = start; h < end; h++) out[h] = load[h] ?? 0;
       continue;
     }
@@ -342,19 +365,20 @@ function reshapeLoad(load: number[], pv: number[], k: number): number[] {
   return out;
 }
 
-
 /**
- * Calibrates the load shape so the PRE-BATTERY overlap between PV and load matches the
+ * Calibrates the load shape so the PRE-BATTERY overlap between PV and load approaches the
  * measured self-consumption share (direct PV to load / PV production).
  *
- * Nothing but the intraday shape moves: annual load, annual PV, every monthly value and
- * the whole PV series are untouched. An unreachable target is clamped to the closest
- * physically possible level and reported through `residualPct`.
+ * Priority order: exact monthly energy > physical validity > preserving the selected
+ * profile's diurnal structure > reaching the requested share. A target that would require
+ * more deformation than `SHAPE_DEVIATION_CAP` is therefore only partially applied and
+ * reported as `status: "partial"` with the level the model actually reached.
  */
 export function calibrateLoadToSelfConsumption(
   load: number[],
   pv: number[],
   targetPct: number,
+  shapeCap: number = SHAPE_DEVIATION_CAP,
 ): { load: number[]; calibration: SelfConsumptionCalibration | null } {
   let pvTotal = 0;
   let loadTotal = 0;
@@ -365,14 +389,30 @@ export function calibrateLoadToSelfConsumption(
   }
 
   const pctOf = (series: number[]) => (directOverlapKWh(series, pv) / pvTotal) * 100;
-  const pctAt = (k: number) => pctOf(reshapeLoad(load, pv, k));
 
-  const minPct = pctAt(-K_LIMIT);
-  const maxPct = pctAt(K_LIMIT);
+  /** Largest |lambda| in the given direction that still respects the shape cap. */
+  const lambdaAtCap = (sign: 1 | -1): number => {
+    if (shapeDeviationOf(load, tiltLoad(load, pv, sign * LAMBDA_LIMIT)) <= shapeCap) {
+      return sign * LAMBDA_LIMIT;
+    }
+    let lo = 0;
+    let hi = LAMBDA_LIMIT;
+    for (let i = 0; i < 40; i++) {
+      const mid = (lo + hi) / 2;
+      if (shapeDeviationOf(load, tiltLoad(load, pv, sign * mid)) <= shapeCap) lo = mid;
+      else hi = mid;
+    }
+    return sign * lo;
+  };
+
+  const lambdaMax = lambdaAtCap(1);
+  const lambdaMin = lambdaAtCap(-1);
+  const maxPct = pctOf(tiltLoad(load, pv, lambdaMax));
+  const minPct = pctOf(tiltLoad(load, pv, lambdaMin));
   const target = Math.min(Math.max(targetPct, 0), 100);
 
-  const finish = (k: number) => {
-    const calibrated = reshapeLoad(load, pv, k);
+  const finish = (lambda: number) => {
+    const calibrated = tiltLoad(load, pv, lambda);
     const achieved = pctOf(calibrated);
     const residual = achieved - targetPct;
     return {
@@ -381,31 +421,34 @@ export function calibrateLoadToSelfConsumption(
         requestedPct: targetPct,
         achievedPct: achieved,
         residualPct: residual,
-        exponent: k,
+        exponent: lambda,
+        shapeDeviation: shapeDeviationOf(load, calibrated),
+        shapeDeviationCap: shapeCap,
         feasibleMinPct: minPct,
         feasibleMaxPct: maxPct,
         tolerancePct: SELF_CONSUMPTION_TOLERANCE_PCT,
         status:
           Math.abs(residual) <= SELF_CONSUMPTION_TOLERANCE_PCT
-            ? ("applied" as const)
-            : ("clamped" as const),
+            ? ("matched" as const)
+            : ("partial" as const),
       },
     };
   };
 
-  if (target <= minPct) return finish(-K_LIMIT);
-  if (target >= maxPct) return finish(K_LIMIT);
+  if (target <= minPct) return finish(lambdaMin);
+  if (target >= maxPct) return finish(lambdaMax);
 
-  // The overlap grows monotonically with k, so a plain bisection is stable.
-  let lo = -K_LIMIT;
-  let hi = K_LIMIT;
-  for (let i = 0; i < 44; i++) {
+  // The overlap grows monotonically with lambda, so a plain bisection is stable.
+  let lo = lambdaMin;
+  let hi = lambdaMax;
+  for (let i = 0; i < 48; i++) {
     const mid = (lo + hi) / 2;
-    if (pctAt(mid) < target) lo = mid;
+    if (pctOf(tiltLoad(load, pv, mid)) < target) lo = mid;
     else hi = mid;
   }
   return finish((lo + hi) / 2);
 }
+
 
 export function buildTimeSeries(
   consumption: ConsumptionInput,
