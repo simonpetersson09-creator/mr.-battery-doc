@@ -28,7 +28,7 @@ function EconomyStep() {
   const { state, update } = useWizard();
   const country = getCountry(state.grid.country);
   const unit = country.economy.currencyLabel;
-  const net = selfConsumptionValue(state.economy.importPrice, state.economy.exportPrice);
+  
 
   const setEconomy = (patch: Partial<typeof state.economy>) =>
     update((s) => ({ ...s, economy: { ...s.economy, ...patch, touched: true } }));
