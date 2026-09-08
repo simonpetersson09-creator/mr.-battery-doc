@@ -124,3 +124,70 @@ describe("true without-FCR counterfactual", () => {
     expect(p.showFcrPowerCard).toBe(false);
   });
 });
+
+describe("compact power explanation card", () => {
+  const outcome = run(refState(true));
+  const wo = computeWithoutFcrOptimum(outcome.input, outcome.result)!;
+
+  it("control case: two rows when physical need equals without-FCR power (no 10 kW)", () => {
+    const p = buildResultPresentation(outcome.result, {
+      peakShavingSelected: true,
+      demandChargeTouched: false,
+      withoutFcr: wo,
+    });
+    expect(p.showFcrPowerCard).toBe(true);
+    expect(p.showPhysicalNeedRow).toBe(false);
+    expect(p.fcrPowerLevels).toHaveLength(2);
+    expect(p.fcrPowerLevels[0]!.label).toBe("För fastighetens eget behov");
+    expect(p.fcrPowerLevels[0]!.kw).toBeCloseTo(3.5, 6);
+    expect(p.fcrPowerLevels[1]!.label).toBe("Med historiskt FCR-scenario");
+    expect(p.fcrPowerLevels[1]!.kw).toBeCloseTo(12.5, 6);
+    // The old stale 10 kW level must never appear.
+    for (const lvl of p.fcrPowerLevels) {
+      expect(Math.abs(lvl.kw - 10)).toBeGreaterThan(0.1);
+    }
+  });
+
+  it("three rows when physical need differs from without-FCR power", () => {
+    const p = buildResultPresentation(outcome.result, {
+      peakShavingSelected: true,
+      demandChargeTouched: false,
+      withoutFcr: { ...wo, withoutFcrOptimalPowerKw: 5 },
+    });
+    expect(p.showPhysicalNeedRow).toBe(true);
+    expect(p.fcrPowerLevels).toHaveLength(3);
+    expect(p.fcrPowerLevels[0]!.label).toBe("Fysiskt effektbehov");
+    expect(p.fcrPowerLevels[1]!.label).toBe("Utan FCR-D upp");
+    expect(p.fcrPowerLevels[2]!.label).toBe("Med historiskt FCR-scenario");
+  });
+
+  it("explanation is short, neutral and mentions historical prices", () => {
+    const p = buildResultPresentation(outcome.result, {
+      peakShavingSelected: true,
+      demandChargeTouched: false,
+      withoutFcr: wo,
+    });
+    expect(p.fcrPowerExplanation).toContain("historiska FCR-D upp-priser");
+    expect(p.fcrPowerExplanation).toContain("Framtida priser");
+  });
+
+  it("FCR off -> no card, no levels, no explanation", () => {
+    const off = run(refState(false));
+    const p = buildResultPresentation(off.result, {
+      peakShavingSelected: true,
+      demandChargeTouched: false,
+      withoutFcr: null,
+    });
+    expect(p.showFcrPowerCard).toBe(false);
+    expect(p.fcrPowerLevels).toHaveLength(0);
+    expect(p.fcrPowerExplanation).toBeNull();
+  });
+
+  it("card is closed by default — no open attribute in source", () => {
+    const src = require("node:fs").readFileSync("src/routes/resultat.tsx", "utf8");
+    const idx = src.indexOf("showFcrPowerCard");
+    expect(idx).toBeGreaterThan(-1);
+    const slice = src.slice(idx, idx + 250);
+    expect(slice).not.toMatch(/<details[^>]*\bopen\b/);
+  });
+});
