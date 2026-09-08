@@ -79,34 +79,43 @@ describe("main recommendation reads the engine's recommended system power", () =
 });
 
 describe("FCR-driven power explanation", () => {
-  it("case A: FCR on and FCR raised the power -> the 'Varför X kW?' card is shown, fully dynamic", () => {
+  it("case A: three power levels are separated and every number is dynamic", () => {
     const p = present({ ...REF, fcr: true });
     expect(p.fcrDrivesPower).toBe(true);
     expect(p.showFcrPowerCard).toBe(true);
-    expect(p.propertyOnlyPowerKw).not.toBeNull();
-    expect(p.recommendedPowerKw).toBeGreaterThan(p.propertyOnlyPowerKw!);
+    expect(p.withoutFcrPowerKw).not.toBeNull();
+    expect(p.recommendedPowerKw).toBeGreaterThan(p.withoutFcrPowerKw!);
 
-    const rec = p.recommendedPowerKw.toLocaleString("sv-SE", {
-      minimumFractionDigits: 1,
-      maximumFractionDigits: 1,
-    });
-    const prop = p.propertyOnlyPowerKw!.toLocaleString("sv-SE", {
-      minimumFractionDigits: 1,
-      maximumFractionDigits: 1,
-    });
-    // C/E: every number comes from the engine result, nothing hardcoded.
+    const f = (v: number) =>
+      v.toLocaleString("sv-SE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    const rec = f(p.recommendedPowerKw);
+    const phys = f(p.physicalPowerNeedKw);
+    const without = f(p.withoutFcrPowerKw!);
+
     expect(p.fcrPowerCardTitle).toBe(`Varför ${rec} kW?`);
-    expect(p.fcrPowerCardText).toContain(`cirka ${prop} kW`);
-    expect(p.fcrPowerCardText).toContain(`${rec} kW`);
-    expect(p.fcrPowerCardNeutralText).toContain(`cirka ${prop} kW`);
-    expect(p.powerWhy).toContain(`cirka ${prop} kW`);
-    expect(p.powerWhy).toContain(`${rec} kW`);
+    expect(p.fcrPowerCardText).toContain(`cirka ${phys} kW`);
+    expect(p.fcrPowerCardText).toContain(`${rec} kW högst beräknad årlig nytta`);
+    // B: the FCR-off level only appears as its own sentence when it differs from the physical need.
+    if (p.showPhysicalNeedRow) {
+      expect(p.fcrPowerCardText).toContain(`Utan FCR-D upp skulle systemeffekten vara ${without} kW`);
+    } else {
+      expect(p.fcrPowerCardText).not.toContain("Utan FCR-D upp skulle");
+    }
+    expect(p.powerWhy).toBe(p.fcrPowerCardText);
+    // Repetition removed.
+    expect(p.fcrPowerCardNeutralText).toBeNull();
     // F: historical scenario, never a forecast or a guarantee.
-    expect(p.fcrHistoricalNote).toMatch(/historiska FCR-D upp-priser från 2025/);
     expect(p.fcrHistoricalNote).toMatch(/både högre och lägre/);
-    for (const text of [p.fcrPowerCardText, p.fcrPowerCardNeutralText, p.fcrHistoricalNote]) {
+    for (const text of [p.fcrPowerCardText, p.fcrHistoricalNote]) {
       expect(text ?? "").not.toMatch(/garanter|prognos|mer lönsam|du bör|tjänar mer/i);
     }
+  });
+
+  it("case A: annual benefit comparison comes from the engine's own candidates", () => {
+    const p = present({ ...REF, fcr: true });
+    expect(p.withoutFcrBenefitSek).not.toBeNull();
+    expect(p.withFcrBenefitSek).not.toBeNull();
+    expect(p.benefitDeltaSek).toBeCloseTo(p.withFcrBenefitSek! - p.withoutFcrBenefitSek!, 6);
   });
 
   it("case B: FCR off -> no FCR wording and no card", () => {
@@ -115,6 +124,8 @@ describe("FCR-driven power explanation", () => {
     expect(p.showFcrPowerCard).toBe(false);
     expect(p.fcrPowerCardText).toBeNull();
     expect(p.fcrHistoricalNote).toBeNull();
+    expect(p.withoutFcrBenefitSek).toBeNull();
+    expect(p.benefitDeltaSek).toBeNull();
     expect(p.powerWhy ?? "").not.toMatch(/FCR|stödtjänst/i);
     expect(p.powerWhy ?? "").toMatch(/effektbehov/);
   });
@@ -124,8 +135,10 @@ describe("FCR-driven power explanation", () => {
     if (!p.fcrDrivesPower) {
       expect(p.showFcrPowerCard).toBe(false);
       expect(p.fcrPowerCardText).toBeNull();
+      expect(p.showPhysicalNeedRow).toBe(false);
     }
   });
+
 
   it("case C: a second, different case produces different dynamic numbers", () => {
     const a = present({ ...REF, fcr: true });
