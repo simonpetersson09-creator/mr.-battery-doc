@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { WizardShell } from "@/components/wizard/WizardShell";
-import { AttachmentPicker, NumberField, OptionCard, SectionCard, ToggleRow } from "@/components/wizard/fields";
+import { NumberField, OptionCard, SectionCard, ToggleRow } from "@/components/wizard/fields";
 import { MONTH_SHORT_SV } from "@/lib/consumption-profiles";
+import { validateProductionStep } from "@/lib/battery-app/stepValidation";
 import { useWizard, type ProductionMode } from "@/state/wizard";
 
 export const Route = createFileRoute("/produktion")({
@@ -27,12 +28,15 @@ function ProductionStep() {
   const p = state.production;
   const setMode = (mode: ProductionMode) =>
     update((s) => ({ ...s, production: { ...s.production, mode } }));
+  const validity = validateProductionStep(state);
 
   return (
     <WizardShell
       stepIndex={2}
       title="Produktion"
       intro="Har fastigheten solceller idag?"
+      nextDisabled={!validity.ok}
+      nextBlockedReason={validity.message}
     >
       <div className="space-y-3">
         <OptionCard
