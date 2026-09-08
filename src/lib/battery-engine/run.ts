@@ -132,6 +132,10 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       powerExplanation: sweep.powerSizing.explanation,
       utilisationWarning: sweep.sweetSpot.utilisationWarning,
       sizingWasFixed,
+      actualDispatchPowerKw: Math.max(
+        result.dispatchPower.maxChargeKw,
+        result.dispatchPower.maxDischargeKw,
+      ),
     },
     energy: {
       annualLoadKWh: result.annualLoadKWh,
@@ -185,6 +189,15 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
     fcr: {
       enabled: a.enabled,
       offeredPowerKw: a.reservedPowerUpKw,
+      reservablePowerAvgKw: a.reservablePowerAvgKw,
+      reservablePowerMaxKw: a.reservablePowerMaxKw,
+      gridHeadroomAvgKw: a.gridHeadroomAvgKw,
+      gridClippedAvgKw: a.gridClippedAvgKw,
+      limitingFactor: a.limitingFactor,
+      powerLimitedHours: a.powerLimitedHours,
+      energyLimitedHours: a.energyLimitedHours,
+      gridLimitedHours: a.gridLimitedHours,
+      monetizedPowerKw: a.monetizedPowerAvgKw,
       avgHeldPowerKw: a.avgReservedPowerUpKw,
       reservedEnergyKWh: a.reservedEnergyUpKWh,
       reservedHours: a.reservedHours,

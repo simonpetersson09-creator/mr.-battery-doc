@@ -42,6 +42,19 @@ export interface FcrRevenueInput {
   aggregatorSharePct?: number | null;
   /** FUTURE: fixed aggregator fee, SEK/year. Null = unknown, no deduction made. */
   aggregatorFixedFeeSek?: number | null;
+  /**
+   * REALISTIC CUSTOMER VALUE layer. Every parameter is explicit and defaults to null =
+   * UNKNOWN. Null never means 100 % and never means 0: no percentage is invented here,
+   * the value is simply reported as a gap until a verified figure exists.
+   *  - marketParticipationPct: share of the hours the asset is actually in the market
+   *  - technicalAvailabilityPct: share of those hours the asset is technically able
+   *  - downtimePct: planned/unplanned downtime removed on top
+   *  - activationEnergySek: net cost/revenue of actually being activated (not simulated)
+   */
+  marketParticipationPct?: number | null;
+  technicalAvailabilityPct?: number | null;
+  downtimePct?: number | null;
+  activationEnergySek?: number | null;
 }
 
 export interface FcrRevenueResult {
@@ -77,6 +90,19 @@ export interface FcrRevenueResult {
   /** Net after aggregator. Null while the aggregator terms are unknown. */
   netSek: number | null;
   netEur: number | null;
+  // ---- realistic customer value layer: null while the parameters are unverified ----
+  marketParticipationPct: number | null;
+  technicalAvailabilityPct: number | null;
+  downtimePct: number | null;
+  activationEnergySek: number | null;
+  /**
+   * Historical gross adjusted for participation/availability/downtime/activation and the
+   * aggregator terms. Null while EVERY one of those parameters is unknown — the model
+   * refuses to present an unverified "realistic" number.
+   */
+  realisticNetSek: number | null;
+  /** Parameters still missing before the historical gross can be called customer value. */
+  realismGaps: string[];
   assumptions: string[];
   warnings: string[];
 }
@@ -170,6 +196,32 @@ export function computeFcrRevenue(input: FcrRevenueInput): FcrRevenueResult {
     netSek = annualGrossSek - aggregatorFeeSek;
   }
 
+  const marketParticipationPct = input.marketParticipationPct ?? null;
+  const technicalAvailabilityPct = input.technicalAvailabilityPct ?? null;
+  const downtimePct = input.downtimePct ?? null;
+  const activationEnergySek = input.activationEnergySek ?? null;
+  const realismGaps: string[] = [];
+  if (marketParticipationPct === null) realismGaps.push("marketParticipationPct");
+  if (technicalAvailabilityPct === null) realismGaps.push("technicalAvailabilityPct");
+  if (downtimePct === null) realismGaps.push("downtimePct");
+  if (activationEnergySek === null) realismGaps.push("activationEnergySek");
+  if (aggregatorSharePct === null && aggregatorFixedFeeSek === null)
+    realismGaps.push("aggregatorSharePct/aggregatorFixedFeeSek");
+  const anyRealism =
+    marketParticipationPct !== null ||
+    technicalAvailabilityPct !== null ||
+    downtimePct !== null ||
+    activationEnergySek !== null;
+  const factor = (pct: number | null) => (pct === null ? 1 : Math.max(0, Math.min(100, pct)) / 100);
+  const realisticNetSek =
+    anyRealism || netSek !== null
+      ? (netSek ?? annualGrossSek) *
+          factor(marketParticipationPct) *
+          factor(technicalAvailabilityPct) *
+          (1 - factor(downtimePct === null ? 0 : downtimePct)) +
+        (activationEnergySek ?? 0)
+      : null;
+
   const assumptions = [
     `${FCR_HISTORICAL_LABEL} (${series.timestampFrom} – ${series.timestampTo}). Historiskt utfall, inte en prognos.`,
     "Priset är gemensamt för hela Sverige. Inga separata SE1–SE4-priser används; SE1–SE4 i källan är upphandlade volymer, inte priser.",
@@ -178,6 +230,10 @@ export function computeFcrRevenue(input: FcrRevenueInput): FcrRevenueResult {
     `Valutakurs ${eurSekRate.toFixed(2)} SEK/EUR är ett ANTAGANDE, inte en del av Svenska kraftnäts FCR-data.`,
     "Aktivering av tjänsten simuleras inte — detta är ersättning för bokad beredskap (kapacitet).",
   ];
+  if (realismGaps.length > 0)
+    assumptions.push(
+      `Historiskt bruttovärde. Följande parametrar saknar verifierat underlag och sätts INTE till påhittade procentsatser: ${realismGaps.join(", ")}.`,
+    );
   if (aggregatorFeeSek === null)
     assumptions.push(
       "Inget aggregatoravdrag är gjort — bruttovärdet visas. Aggregatorns andel/avgift är okänd och sätts inte utan verifierat underlag.",
@@ -208,6 +264,12 @@ export function computeFcrRevenue(input: FcrRevenueInput): FcrRevenueResult {
     aggregatorFeeSek,
     netSek,
     netEur: netSek === null ? null : netSek / eurSekRate,
+    marketParticipationPct,
+    technicalAvailabilityPct,
+    downtimePct,
+    activationEnergySek,
+    realisticNetSek,
+    realismGaps,
     assumptions,
     warnings,
   };

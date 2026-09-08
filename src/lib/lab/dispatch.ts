@@ -232,6 +232,25 @@ export interface DispatchTallies {
   ancillaryReadyHours: number;
   /** Grid energy charged only to keep the ancillary readiness, kWh. */
   ancillaryReadinessChargeKWh: number;
+  /**
+   * DIAGNOSTIC ONLY (no physics): the highest battery AC power the dispatch actually
+   * used, kW. Separates "what the product can do" from "what the site actually used".
+   */
+  maxChargePowerKw: number;
+  maxDischargePowerKw: number;
+  /**
+   * FCR-D up PHYSICAL GATE diagnostics, over the scheduled reservation hours.
+   * finalReservable = min(power headroom, energy headroom, grid headroom).
+   */
+  fcrReservableSumKw: number;
+  fcrReservableMaxKw: number;
+  fcrPowerLimitedHours: number;
+  fcrEnergyLimitedHours: number;
+  fcrGridLimitedHours: number;
+  /** Sum of the grid-side up-regulation headroom over the scheduled hours, kW. */
+  fcrGridHeadroomSumKw: number;
+  /** kW of offered reservation that the grid gate removed, summed over the hours. */
+  fcrGridClippedSumKw: number;
 }
 
 export interface DispatchOutput {
@@ -255,6 +274,25 @@ export interface DispatchOutput {
    * held. This is the only series the FCR economics may be paid on.
    */
   ancillaryReservedPowerKwByHour: number[];
+  /**
+   * FCR-D up physical gate, aggregated over the scheduled reservation hours.
+   * These are DIAGNOSTICS: the binding numbers themselves are applied hour by hour.
+   */
+  fcrGate: {
+    scheduledHours: number;
+    /** Mean of min(power, energy, grid) headroom over the scheduled hours, kW. */
+    avgReservablePowerKw: number;
+    maxReservablePowerKw: number;
+    /** Mean grid-side up-regulation headroom over the scheduled hours, kW. */
+    avgGridHeadroomKw: number;
+    /** Mean kW of the offered reservation the grid gate removed. */
+    avgGridClippedKw: number;
+    powerLimitedHours: number;
+    energyLimitedHours: number;
+    gridLimitedHours: number;
+    /** Which factor bound most of the scheduled hours. */
+    bindingFactor: "power" | "energy" | "grid" | "none";
+  };
   notes: string[];
 }
 
@@ -440,6 +478,15 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
     ancillaryReservedHours: 0,
     ancillaryReadyHours: 0,
     ancillaryReadinessChargeKWh: 0,
+    maxChargePowerKw: 0,
+    maxDischargePowerKw: 0,
+    fcrReservableSumKw: 0,
+    fcrReservableMaxKw: 0,
+    fcrPowerLimitedHours: 0,
+    fcrEnergyLimitedHours: 0,
+    fcrGridLimitedHours: 0,
+    fcrGridHeadroomSumKw: 0,
+    fcrGridClippedSumKw: 0,
   };
 
   let arbCost = 0;
@@ -694,6 +741,7 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
         const fromBattery = delivered / win.dischargeEff;
         soc -= fromBattery;
         t.dischargedKWh += delivered;
+        if (delivered > t.maxDischargePowerKw) t.maxDischargePowerKw = delivered;
         t.dischargedToLoadKWh += toLoad;
         t.dischargedToGridKWh += toGrid;
         t.lossesKWh += fromBattery - delivered;
@@ -915,6 +963,7 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
           const stored = charged * win.chargeEff;
           soc += stored;
           t.chargedKWh += charged;
+          if (charged > t.maxChargePowerKw) t.maxChargePowerKw = charged;
           t.lossesKWh += charged - stored;
         }
       } else if (win.usableKWh > 0) {
@@ -979,9 +1028,51 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
         socLow >= hourFloorStrict - 1e-9 &&
         socHigh <= hourCeil + 1e-9 &&
         hourCeil > hourFloor - 1e-9;
+      /**
+       * ---------- PHYSICAL FCR GATE (added after the economic power sizing audit) ----------
+       * ROOT CAUSE it fixes: readiness used to be judged on the battery rating and the SOC
+       * only. A 150 kW inverter behind a ~16 kW connection could therefore be paid for
+       * ~100 kW of up-regulation it could never physically deliver.
+       *
+       * An FCR-D up activation must show up as a real change in the GRID exchange: the
+       * site either imports less or exports more. In an hour where the site imports
+       * `imp[h]` and exports `exp[h]` (never both), the deliverable up-power is therefore
+       *   gridHeadroomKw = imp[h] + (maxExportKw - exp[h]).
+       *
+       * finalReservableKw = min(power headroom, energy headroom, grid headroom), and the
+       * paid series is capped by it. The cap can only REDUCE the held power, never raise
+       * it: the existing power/energy readiness test is untouched, so no hour that failed
+       * before can pass now.
+       */
+      const offeredKw = plan?.upPowerKw ?? 0;
+      const enduranceHours =
+        offeredKw > 0 ? (plan?.upEnergyKWh ?? 0) / offeredKw : 0;
+      const powerLimitedFcrKw = win.dischargeKw;
+      const deliverableKWh =
+        Math.max(0, socLow - Math.max(win.socFloorKWh, planServiceFloor)) * win.dischargeEff;
+      const energyLimitedFcrKw =
+        enduranceHours > 0 ? deliverableKWh / enduranceHours : powerLimitedFcrKw;
+      const gridLimitedFcrKw =
+        (imp[h] ?? 0) + Math.max(0, limits.maxExportKw - (exp[h] ?? 0));
+      const finalReservableFcrKw = Math.max(
+        0,
+        Math.min(powerLimitedFcrKw, energyLimitedFcrKw, gridLimitedFcrKw),
+      );
+      t.fcrReservableSumKw += finalReservableFcrKw;
+      t.fcrGridHeadroomSumKw += gridLimitedFcrKw;
+      if (finalReservableFcrKw > t.fcrReservableMaxKw)
+        t.fcrReservableMaxKw = finalReservableFcrKw;
+      if (finalReservableFcrKw >= gridLimitedFcrKw - 1e-9) t.fcrGridLimitedHours++;
+      else if (finalReservableFcrKw >= energyLimitedFcrKw - 1e-9) t.fcrEnergyLimitedHours++;
+      else t.fcrPowerLimitedHours++;
+
       if (powerOk && energyOk) {
-        t.ancillaryReadyHours++;
-        ancillaryReservedPowerKwByHour[h] = plan?.upPowerKw ?? 0;
+        const heldKw = Math.min(offeredKw, gridLimitedFcrKw);
+        t.fcrGridClippedSumKw += Math.max(0, offeredKw - heldKw);
+        if (heldKw > 1e-9) {
+          t.ancillaryReadyHours++;
+          ancillaryReservedPowerKwByHour[h] = heldKw;
+        }
       }
     }
     socSeries[h] = soc;
@@ -1004,6 +1095,32 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
     arbitrageDischargeRevenueKr: arbRevenue,
     flexAvailableHours,
     ancillaryReservedPowerKwByHour,
+    fcrGate: (() => {
+      const n = t.ancillaryReservedHours;
+      const counts = {
+        power: t.fcrPowerLimitedHours,
+        energy: t.fcrEnergyLimitedHours,
+        grid: t.fcrGridLimitedHours,
+      } as const;
+      let bindingFactor: "power" | "energy" | "grid" | "none" = "none";
+      if (n > 0) {
+        bindingFactor = (Object.entries(counts) as [
+          "power" | "energy" | "grid",
+          number,
+        ][]).reduce((a, b) => (b[1] > a[1] ? b : a))[0];
+      }
+      return {
+        scheduledHours: n,
+        avgReservablePowerKw: n > 0 ? t.fcrReservableSumKw / n : 0,
+        maxReservablePowerKw: t.fcrReservableMaxKw,
+        avgGridHeadroomKw: n > 0 ? t.fcrGridHeadroomSumKw / n : 0,
+        avgGridClippedKw: n > 0 ? t.fcrGridClippedSumKw / n : 0,
+        powerLimitedHours: t.fcrPowerLimitedHours,
+        energyLimitedHours: t.fcrEnergyLimitedHours,
+        gridLimitedHours: t.fcrGridLimitedHours,
+        bindingFactor,
+      };
+    })(),
     ancillaryAvailabilityPct:
       t.ancillaryReservedHours > 0 ? (t.ancillaryReadyHours / t.ancillaryReservedHours) * 100 : 0,
     notes,
