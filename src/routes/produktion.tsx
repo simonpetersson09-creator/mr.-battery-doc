@@ -184,6 +184,9 @@ function ProductionStep() {
           </SectionCard>
         </>
       ) : null}
+
+      {choice !== "none" ? selfConsumptionField : null}
     </WizardShell>
   );
 }
+
