@@ -47,10 +47,10 @@ const withFcr = (c: LabConfig, kw: number): LabConfig => ({
 });
 
 describe("operating economy — Swedish defaults", () => {
-  it("uses 1.50 SEK/kWh import, 0.60 SEK/kWh export and the Swedish 55 kr/kW/month schablon", () => {
+  it("uses 1.50 SEK/kWh import, 0.60 SEK/kWh export and the Swedish 30 kr/kW/month schablon", () => {
     expect(ECON.importEnergyPriceSekPerKWh).toBe(1.5);
     expect(ECON.exportEnergyValueSekPerKWh).toBe(0.6);
-    expect(ECON.peakDemandChargeSekPerKwMonth).toBe(55);
+    expect(ECON.peakDemandChargeSekPerKwMonth).toBe(30);
     expect(ECON.peakTariffSource).toBe("default-estimate");
     expect(ECON.eurSekRate).toBe(11.3);
   });
@@ -317,7 +317,9 @@ describe("FCR-D up reservation optimisation (economic layer only)", () => {
         2,
       );
     });
-    expect(total(o.best)).toBe(Math.max(...o.candidates.map(total)));
+    // Tie-break: within FCR_TIE_TOLERANCE_SEK of the maximum the LOWER reservation wins.
+    const bestTotal = Math.max(...o.candidates.map(total));
+    expect(total(o.best)).toBeGreaterThanOrEqual(bestTotal - FCR_TIE_TOLERANCE_SEK);
   });
 
   it("only ever credits power that was actually held (E)", () => {

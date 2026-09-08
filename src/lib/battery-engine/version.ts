@@ -110,7 +110,7 @@ export const SWEDEN_DEFAULT_PROVENANCE: DefaultProvenance[] = [
   },
   {
     key: "peakDemandChargeSekPerKwMonth",
-    value: "55 SEK/kW/month",
+    value: "30 SEK/kW/month",
     kind: "economic-estimate",
     note: "Swedish schablon, NOT a national tariff. Mark as user-provided when the customer supplies their own.",
   },

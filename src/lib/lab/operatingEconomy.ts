@@ -44,8 +44,13 @@ export interface OperatingEconomyConfig {
   eurSekRate: number;
 }
 
-/** Swedish schablon for the demand charge, SEK/kW/month. Not a universal tariff. */
-export const SWEDISH_DEFAULT_PEAK_TARIFF_SEK_PER_KW_MONTH = 55;
+/**
+ * Swedish schablon for the demand charge, SEK/kW/month. An ANNUALISED calculation
+ * placeholder (30 x 12 = 360 SEK/kW/year) used when the customer has not supplied their
+ * own tariff. It is NOT the actual or average Swedish demand charge, and a user value
+ * always takes precedence. 0 is valid and means no demand charge is priced.
+ */
+export const SWEDISH_DEFAULT_PEAK_TARIFF_SEK_PER_KW_MONTH = 30;
 
 /** Swedish defaults for this version. Simplified, explicit, replaceable. */
 export const SWEDISH_OPERATING_ECONOMY: OperatingEconomyConfig = {

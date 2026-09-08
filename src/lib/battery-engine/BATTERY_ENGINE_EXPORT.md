@@ -17,7 +17,7 @@ engine exactly as frozen here and verifies against the same Golden Masters.
 | Metric | Frozen value |
 | --- | --- |
 | Recommended capacity / power | 15 kWh / 3 kW |
-| Total operating benefit | 2 271,21 SEK/year |
+| Total operating benefit | 2 041,66 SEK/year (with the 30 SEK/kW/month schablon; 2 271,21 with the previous 55) |
 | Energy balance | OK (residual 0) |
 
 Frozen assumptions and limits:
@@ -25,7 +25,7 @@ Frozen assumptions and limits:
 - **200 kW cap** on offered FCR-D up power and on the product power ladder.
 - Historical FCR-D up price series: **Sweden 2025**, 8 760 hours, EUR/MW/h
   (historical reference data — not a forecast).
-- Swedish peak tariff schablon: **55 SEK/kW/month**.
+- Swedish peak tariff schablon: **30 SEK/kW/month** (annualised placeholder, 360 SEK/kW/year; not the actual or average Swedish demand charge, a user value always wins, 0 is valid).
 - EUR/SEK assumption: **11.30 SEK/EUR**.
 
 ## Public entry point

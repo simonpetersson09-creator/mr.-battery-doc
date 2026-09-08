@@ -87,35 +87,11 @@ function EconomyStep() {
           unit={`${unit}/kW/mån`}
           step="1"
           value={state.economy.demandCharge}
-          hint={
-            state.economy.demandChargeTouched
-              ? "Finns vanligtvis på din nätfaktura."
-              : "Schablonvärde för Sverige – finns på din nätfaktura. Lämna 55 om du inte vet."
-          }
+          hint="Schablonvärde. Din faktiska effektavgift kan vara högre, lägre eller saknas beroende på nätbolag och avtal."
           badge={state.economy.demandChargeTouched ? "Ditt värde" : "Standardvärde"}
           onChange={(v) => setEconomy({ demandCharge: v ?? 0, demandChargeTouched: true })}
         />
       </SectionCard>
-
-      {state.strategies.fcrDUp ? (
-        <SectionCard title="Valutakurs">
-          <NumberField
-            label="EUR/SEK"
-            unit="kr/EUR"
-            step="0.01"
-            value={state.economy.eurSekRate}
-            hint="Antagande för omräkning av historiska FCR-D upp-priser."
-            badge={state.economy.eurSekRate === 11.3 ? "Standardvärde" : "Ditt värde"}
-            onChange={(v) => setEconomy({ eurSekRate: v ?? 0 })}
-          />
-        </SectionCard>
-      ) : null}
-
-      <p className="ui-help px-1">
-        Varje nytta räknas bara en gång: minskad nätimport värderas till priset på köpt el, flyttad
-        solel till skillnaden mellan köpt och såld el, och lägre effekttoppar till effektavgiften.
-      </p>
-
     </WizardShell>
   );
 }
