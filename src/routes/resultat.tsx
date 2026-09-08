@@ -144,20 +144,31 @@ function ResultStep() {
           <p className="ui-section-title mt-0.5 tabular-nums">
             {nf(p.recommendedPowerKw, 1)} kW effekt
           </p>
-          {p.fcrPowerNote ? (
-            <>
-              <p className="ui-help mt-2 text-left text-foreground/70">{p.fcrPowerNote}</p>
-              <p className="ui-help mt-1 text-left text-foreground/70">
-                {p.fcrPowerNoteSecondary}
-              </p>
-            </>
-          ) : null}
         </div>
       )}
+
+      {p.showFcrPowerCard ? (
+        <SectionCard title={p.fcrPowerCardTitle ?? ""}>
+          <p className="ui-help">{p.fcrPowerCardText}</p>
+          <p className="ui-help mt-1.5">{p.fcrPowerCardNeutralText}</p>
+          <div className="mt-2.5 space-y-1.5">
+            <Row
+              label="Med historiskt stödtjänstscenario"
+              value={kw(p.recommendedPowerKw, 1)}
+            />
+            <Row
+              label="För fastighetens eget behov"
+              value={kw(p.propertyOnlyPowerKw ?? p.physicalPowerNeedKw, 1)}
+            />
+          </div>
+          <p className="ui-help mt-2 text-foreground/70">{p.fcrHistoricalNote}</p>
+        </SectionCard>
+      ) : null}
 
       {p.limitedBenefit ? (
         <SectionCard title={p.limitedBenefitTitle ?? ""} description={p.limitedBenefitText ?? ""} />
       ) : null}
+
 
       {p.showEnergySection ? (
 
