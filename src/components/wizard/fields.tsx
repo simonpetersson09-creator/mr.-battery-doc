@@ -15,7 +15,7 @@ export function SectionCard({
   action?: ReactNode;
 }) {
   return (
-    <section className="card-elevated p-4">
+    <section className="card-elevated p-3">
       {(title || description || action) && (
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
@@ -29,7 +29,7 @@ export function SectionCard({
           {action}
         </div>
       )}
-      {children ? <div className={title ? "mt-3 space-y-3" : "space-y-3"}>{children}</div> : null}
+      {children ? <div className={title ? "mt-2.5 space-y-2.5" : "space-y-2.5"}>{children}</div> : null}
     </section>
   );
 }
@@ -59,7 +59,7 @@ export function NumberField({
           inputMode="decimal"
           type="number"
           step={step}
-          className="h-12 rounded-2xl border-foreground/15 bg-surface-cream text-base font-semibold"
+          className="h-10 rounded-xl border-foreground/15 bg-surface-cream text-sm font-semibold"
           value={value ?? ""}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
@@ -96,7 +96,7 @@ export function OptionCard({
       onClick={onSelect}
       aria-pressed={selected}
       className={
-        "flex w-full items-start gap-3 rounded-[22px] p-3.5 text-left transition-colors " +
+        "flex w-full items-start gap-2.5 rounded-[16px] p-2.5 text-left transition-colors " +
         (selected ? "chip-selected" : "chip-unselected")
       }
     >
@@ -137,7 +137,7 @@ export function ToggleRow({
   return (
     <div
       className={
-        "flex items-start justify-between gap-3 rounded-[22px] p-3.5 transition-colors " +
+        "flex items-start justify-between gap-2.5 rounded-[16px] p-2.5 transition-colors " +
         (checked ? "chip-selected" : "chip-unselected")
       }
     >

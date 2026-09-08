@@ -40,7 +40,7 @@ function ResultStep() {
   const restart = (
     <Button
       variant="cta"
-      className="h-auto flex-[2] rounded-[24px] py-3.5 text-base font-bold shadow-cta"
+      className="h-auto flex-[2] rounded-[18px] py-2.5 text-sm font-bold shadow-cta"
       onClick={() => {
         reset();
         void navigate({ to: "/" });
@@ -106,7 +106,7 @@ function ResultStep() {
       intro="Så här ser förslaget ut för din fastighet."
       footerAction={restart}
     >
-      <div className="hero-metric rounded-[28px] p-5 text-center">
+      <div className="hero-metric rounded-[22px] p-4 text-center">
         <p className="text-[11px] font-bold tracking-widest text-foreground/60 uppercase">
           Rekommenderat batteri
         </p>

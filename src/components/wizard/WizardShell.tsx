@@ -33,7 +33,7 @@ export function WizardShell({
 
   return (
     <div className="app-shell surface-sun">
-      <header className="pt-safe sticky top-0 z-20 px-5 pb-2 backdrop-blur-md">
+      <header className="pt-safe sticky top-0 z-20 px-4 pb-1.5 backdrop-blur-md">
         <div className="flex items-center gap-3 pt-1">
           <Link
             to={prev}
@@ -54,25 +54,25 @@ export function WizardShell({
         <StepIndicator stepIndex={stepIndex} />
       </header>
 
-      <main className="flex-1 px-5 pt-1 pb-32">
-        <p className="text-[11px] font-bold tracking-widest text-foreground/55 uppercase">
+      <main className="flex-1 px-4 pt-1 pb-24">
+        <p className="text-[10px] font-bold tracking-widest text-foreground/55 uppercase">
           Steg {stepIndex + 1} av {WIZARD_STEPS.length}
         </p>
-        <h1 className="mt-1 text-2xl leading-tight font-extrabold tracking-tight">{title}</h1>
+        <h1 className="mt-0.5 text-xl leading-tight font-extrabold tracking-tight">{title}</h1>
         {intro ? (
-          <p className="mt-1.5 text-[13px] leading-snug text-muted-foreground">{intro}</p>
+          <p className="mt-1 text-xs leading-snug text-muted-foreground">{intro}</p>
         ) : null}
-        <div className="mt-4 space-y-3">{children}</div>
+        <div className="mt-3 space-y-2.5">{children}</div>
       </main>
 
-      <div className="pb-safe fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-[32rem] border-t border-border/70 bg-background/90 px-5 pt-3 backdrop-blur-md">
+      <div className="pb-safe fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-[32rem] border-t border-border/70 bg-background/90 px-4 pt-2 backdrop-blur-md">
         {nextDisabled && nextBlockedReason ? (
           <p className="mb-2 text-xs text-muted-foreground" role="status">
             {nextBlockedReason}
           </p>
         ) : null}
         <div className="flex gap-2">
-          <Button asChild variant="outline" className="h-auto flex-1 rounded-[24px] py-3.5">
+          <Button asChild variant="outline" className="h-auto flex-1 rounded-[18px] py-2.5 text-sm">
             <Link to={prev}>Tillbaka</Link>
           </Button>
           {footerAction ? (
@@ -81,7 +81,7 @@ export function WizardShell({
             nextDisabled ? (
               <Button
                 variant="cta"
-                className="h-auto flex-[2] rounded-[24px] py-3.5 text-base font-bold shadow-cta"
+                className="h-auto flex-[2] rounded-[18px] py-2.5 text-sm font-bold shadow-cta"
                 disabled
                 aria-disabled="true"
               >
@@ -92,7 +92,7 @@ export function WizardShell({
               <Button
                 asChild
                 variant="cta"
-                className="h-auto flex-[2] rounded-[24px] py-3.5 text-base font-bold shadow-cta"
+                className="h-auto flex-[2] rounded-[18px] py-2.5 text-sm font-bold shadow-cta"
               >
                 <Link to={next}>
                   {nextLabel ?? "Nästa"}
@@ -104,7 +104,7 @@ export function WizardShell({
             <Button
               asChild
               variant="cta"
-              className="h-auto flex-[2] rounded-[24px] py-3.5 text-base font-bold shadow-cta"
+              className="h-auto flex-[2] rounded-[18px] py-2.5 text-sm font-bold shadow-cta"
             >
               <Link to="/">Klar</Link>
             </Button>

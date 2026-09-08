@@ -35,7 +35,7 @@ function Welcome() {
         <div className="flex size-14 items-center justify-center rounded-[20px] bg-accent text-accent-foreground shadow-[var(--shadow-card)]">
           <BatteryCharging className="size-7" />
         </div>
-        <h1 className="mt-5 font-display text-4xl leading-[1.05] font-extrabold tracking-tight ink-gloss">
+        <h1 className="mt-4 font-display text-3xl leading-[1.05] font-extrabold tracking-tight ink-gloss">
           Mr. Battery
           <br />
           Doc
@@ -60,7 +60,7 @@ function Welcome() {
         <Button
           asChild
           variant="cta"
-          className="h-auto w-full rounded-[24px] py-4 text-base font-bold shadow-cta"
+          className="h-auto w-full rounded-[18px] py-3 text-sm font-bold shadow-cta"
         >
           <Link to="/nat">
             Kom igång
