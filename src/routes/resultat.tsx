@@ -94,8 +94,6 @@ function ResultStep() {
   }
 
   const s = outcome.result.summary;
-  const d = outcome.result.diagnostics;
-  const ga = d.gridAssessment;
   const r = s.recommendation;
   const e = s.energy;
   const cal = s.selfConsumptionCalibration;
@@ -111,12 +109,6 @@ function ResultStep() {
 
   const peakPct =
     g.importPeakBeforeKw > 0 ? (s.peak.peakReductionKw / g.importPeakBeforeKw) * 100 : 0;
-
-  const gridLimitsBattery = g.status === "battery-limited" || g.status === "combined";
-  const gridLimitsExport =
-    g.status === "export-limited" ||
-    g.status === "export-limited-minor" ||
-    g.status === "combined";
 
 
 
@@ -155,33 +147,24 @@ function ResultStep() {
           </summary>
           <div className="mt-3 space-y-1.5">
             {p.showPhysicalNeedRow ? (
-              <Row label="Fysiskt effektbehov" value={kw(p.physicalPowerNeedKw, 1)} />
-            ) : null}
-            <Row
-              label={p.showPhysicalNeedRow ? "Utan FCR-D upp" : "Fysiskt behov / utan FCR-D upp"}
-              value={kw(p.withoutFcrPowerKw ?? p.physicalPowerNeedKw, 1)}
-            />
-            <Row label="Med historiskt FCR-scenario" value={kw(p.recommendedPowerKw, 1)} />
-            {p.withoutFcrBenefitSek !== null && p.withFcrBenefitSek !== null ? (
               <>
+                <Row label="Fysiskt effektbehov" value={kw(p.physicalPowerNeedKw, 1)} />
                 <Row
-                  label="Nytta utan FCR-D upp"
-                  value={`${nf(p.withoutFcrBenefitSek)} kr/år`}
+                  label="Utan FCR-D upp"
+                  value={kw(p.withoutFcrPowerKw ?? p.physicalPowerNeedKw, 1)}
                 />
-                <Row
-                  label="Nytta med FCR-scenario"
-                  value={`${nf(p.withFcrBenefitSek)} kr/år`}
-                />
-                {p.benefitDeltaSek !== null ? (
-                  <Row
-                    label="Skillnad"
-                    value={`${p.benefitDeltaSek > 0 ? "+" : ""}${nf(p.benefitDeltaSek)} kr/år`}
-                  />
-                ) : null}
               </>
-            ) : null}
-            <p className="ui-help pt-1">{p.fcrPowerCardText}</p>
-            <p className="ui-help text-foreground/70">{p.fcrHistoricalNote}</p>
+            ) : (
+              <Row
+                label="Fastighetens eget effektbehov"
+                value={kw(p.withoutFcrPowerKw ?? p.physicalPowerNeedKw, 1)}
+              />
+            )}
+            <Row label="Med historiskt FCR-scenario" value={kw(p.recommendedPowerKw, 1)} />
+            <p className="ui-help pt-1 text-foreground/70">
+              Historiska FCR-D upp-priser från 2025 har påverkat effektvalet. Framtida intäkter kan
+              avvika.
+            </p>
           </div>
         </details>
       ) : null}
@@ -218,13 +201,6 @@ function ResultStep() {
                 after={kwh(e.importAfterKWh)}
               />
             ) : null}
-            {p.showExport ? (
-              <BeforeAfter
-                label="Nätexport"
-                before={kwh(e.exportBeforeKWh)}
-                after={kwh(e.exportAfterKWh)}
-              />
-            ) : null}
             {p.showShiftedSolar ? (
               <Row label="Flyttad solel" value={`${kwh(e.shiftedSolarKWh)}/år`} />
             ) : null}
@@ -249,14 +225,6 @@ function ResultStep() {
                   label="Minskning"
                   value={`${nf(s.peak.peakReductionKw, 2)} kW (${nf(peakPct, 1)} %)`}
                 />
-                {p.showDemandSavingRow ? (
-                  <Row
-                    label="Minskad effektkostnad"
-                    value={`${money(s.peak.demandCostSavingSek)}/år`}
-                  />
-                ) : null}
-                {p.demandNote ? <p className="ui-help">{p.demandNote}</p> : null}
-
               </>
             ) : (
               <p className="ui-help">Ingen minskning av effekttoppen med de valda inställningarna.</p>
@@ -328,32 +296,6 @@ function ResultStep() {
 
 
       <details className="ui-card">
-        <summary className="ui-label cursor-pointer list-none">Visa Elanslutning</summary>
-        <div className="mt-3">
-          {gridLimitsBattery ? (
-            <>
-              <p className="ui-label">Elanslutningen begränsar batteriet något</p>
-              <p className="ui-help mt-1">
-                Batteriet kan fortfarande använda den rekommenderade storleken
-                {noBattery ? "" : ` ${nf(p.capacityKWh)} kWh / ${nf(p.recommendedPowerKw, 1)} kW`}. Din
-                elanslutning begränsar laddning eller urladdning under vissa perioder.
-              </p>
-            </>
-          ) : gridLimitsExport ? (
-            <>
-              <p className="ui-label">Elanslutningen räcker för batteriet</p>
-              <p className="ui-help mt-1">
-                Under soliga stunder kan en del av solelen inte skickas ut på nätet. Det beror på
-                solanläggningens storlek i förhållande till elanslutningen, inte på batteriet.
-              </p>
-            </>
-          ) : (
-            <p className="ui-label">Din nuvarande elanslutning bedöms vara tillräcklig.</p>
-          )}
-        </div>
-      </details>
-
-      <details className="ui-card">
         <summary className="ui-label cursor-pointer list-none">
           {noBattery
             ? "Visa varför ingen rekommendation"
@@ -395,64 +337,14 @@ function ResultStep() {
 
           <TechGroup title="Effektdimensionering">
             <Row label="Rekommenderad systemeffekt" value={kw(p.recommendedPowerKw, 1)} />
-            <Row label="Fastighetens fysiska effektbehov" value={kw(p.physicalPowerNeedKw, 1)} />
+            <Row label="Fysiskt effektbehov" value={kw(p.physicalPowerNeedKw, 1)} />
             <Row label="Max faktiskt använd effekt" value={kw(p.actualDispatchPowerKw, 2)} />
             {p.fcrHeldPowerKw !== null ? (
               <Row label="Stödtjänster hållen effekt" value={kw(p.fcrHeldPowerKw, 2)} />
             ) : null}
             <Row label="Systemets C-rate" value={`${nf(p.systemCRate, 2)} C`} />
-            <Row label={p.baseUtilityLabel} value={pct(p.baseUtilityPct)} />
           </TechGroup>
 
-          <TechGroup title="Elanslutning">
-            <Row label="Nätstatus" value={g.headline} />
-            <Row label="Begränsad laddning" value={`${kwh(ga.batteryChargeBlockedKWh)}/år`} />
-            <Row
-              label="Andel av laddad energi"
-              value={`${nf(ga.batteryBlockedPctOfCharge, 1)} %`}
-            />
-            <Row label="Importgränsen nådd" value={`${nf(ga.importBoundHours)} timmar/år`} />
-            <Row label="Exportgränsen nådd" value={`${nf(ga.exportBoundHours)} timmar/år`} />
-            <Row label="Otäckt last" value={`${kwh(g.unservedLoadKWh)}/år`} />
-            {g.detail ? <p className="ui-help">{g.detail}</p> : null}
-          </TechGroup>
-
-          {s.fcr.enabled ? (
-            <TechGroup title="Stödtjänster">
-              <Row label="Erbjuden/reserverad effekt" value={kw(s.fcr.offeredPowerKw, 1)} />
-              <Row label="Genomsnittligt hållen effekt" value={kw(s.fcr.avgHeldPowerKw, 2)} />
-              <Row label="Tillgänglighet" value={pct(s.fcr.availabilityPct)} />
-              <Row label="Reserverade timmar" value={`${nf(s.fcr.reservedHours)} timmar/år`} />
-              <p className="ui-help">
-                Modellnotering: Stödtjänster (FCR-D upp) är i modellen en beredskaps- och
-                effektintäkt. Den ger ingen egen energimängd och räknas därför inte som cykler.
-              </p>
-              {s.fcr.blockers.map((b) => (
-                <p key={b} className="ui-help">
-                  {b}
-                </p>
-              ))}
-            </TechGroup>
-          ) : null}
-
-          <details className="rounded-[0.875rem] border border-border/60 p-3">
-            <summary className="ui-label cursor-pointer list-none">Dimensioneringsmetod</summary>
-            <div className="mt-2 space-y-2">
-              <p className="ui-caption">
-                Beskriver besluten i ordning: fastighetens fysiska effektbehov, grundeffekt från
-                fysisk dimensionering och därefter slutlig rekommenderad systemeffekt. Nyckeltal i
-                dimensioneringssteget beräknas utan FCR-reservation.
-              </p>
-              {[...p.sizingMethodLines, ...g.consequences]
-                .filter((x): x is string => Boolean(x))
-                .map((line) => (
-                  <p key={line} className="ui-help">
-                    {line}
-                  </p>
-                ))}
-              {s.peak.tariffNote ? <p className="ui-help">{s.peak.tariffNote}</p> : null}
-            </div>
-          </details>
         </div>
       </details>
 
