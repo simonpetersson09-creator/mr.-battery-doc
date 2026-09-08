@@ -4,6 +4,7 @@ import { WizardShell } from "@/components/wizard/WizardShell";
 import { SectionCard } from "@/components/wizard/fields";
 import { Button } from "@/components/ui/button";
 import { runBatteryApp } from "@/lib/battery-app";
+import { buildResultPresentation } from "@/lib/battery-app/resultPresentation";
 import { useWizard } from "@/state/wizard";
 
 export const Route = createFileRoute("/resultat")({
@@ -100,50 +101,22 @@ function ResultStep() {
   const e = s.energy;
   const g = s.grid;
 
+  /* All customer-facing relevance and wording comes from one pure presentation layer. */
+  const p = buildResultPresentation(outcome.result, {
+    peakShavingSelected: state.strategies.peakShaving,
+    demandChargeTouched: state.economy.demandChargeTouched,
+  });
+  const noBattery = p.noBattery;
 
   const peakPct =
     g.importPeakBeforeKw > 0 ? (s.peak.peakReductionKw / g.importPeakBeforeKw) * 100 : 0;
 
-  /* ---- Presentation-only relevance rules. No numbers are recomputed here. ---- */
-  const noBattery = r.capacityKWh <= 0;
-  const hasSolar = e.annualPvKWh > 0;
-  const peakStrategyOn = state.strategies.peakShaving;
-
-  const showSelfConsumption = hasSolar;
-  const showSelfSufficiency = hasSolar;
-  const showExport = e.exportBeforeKWh > 0 || e.exportAfterKWh > 0;
-  const showShiftedSolar = hasSolar && e.shiftedSolarKWh > 0;
-  const importChanged = e.importBeforeKWh !== e.importAfterKWh;
-  const showImport = importChanged || !hasSolar;
-  const showEnergySection =
-    showSelfConsumption || showSelfSufficiency || showExport || showShiftedSolar || showImport;
-
-  const peakChanged = s.peak.peakReductionKw !== 0;
-  const showPeakSection = peakStrategyOn || peakChanged;
-  const demandSaving = s.economy.demandCostSavingSek ?? 0;
-  const fcrGross = s.fcr.enabled ? (s.fcr.grossSek ?? 0) : 0;
-  const noEconomy =
-    s.economy.energyBenefitSek === 0 && demandSaving === 0 && fcrGross === 0;
-
-  /* Customer-facing wording derived only from engine flags — no recalculation. */
   const gridLimitsBattery = g.status === "battery-limited" || g.status === "combined";
   const gridLimitsExport =
     g.status === "export-limited" ||
     g.status === "export-limited-minor" ||
     g.status === "combined";
 
-  const capacityWhy = noBattery
-    ? "Med dina uppgifter flyttar ett batteri för lite energi för att en storlek ska kunna rekommenderas."
-    : `${nf(r.capacityKWh)} kWh ger en bra balans mellan hur mycket energi batteriet kan flytta och nyttan av ytterligare kapacitet. Ett större batteri ger relativt liten ytterligare nytta med din förbrukning${hasSolar ? " och solproduktion" : ""}.`;
-  // The power wording follows the engine's own sizing driver, never a fixed phrase.
-  const powerFloorApplied = ps.productFloorAppliedKw !== null && ps.productFloorAppliedKw > 0;
-  const powerWhy = noBattery
-    ? null
-    : peakStrategyOn && peakChanged
-      ? `${nf(r.powerKw, 1)} kW effekt är vald så att batteriet kan kapa fastighetens effekttoppar. Högre effekt ger liten ytterligare nytta i beräkningen.`
-      : powerFloorApplied
-        ? `${nf(r.powerKw, 1)} kW effekt följer batteriets tekniska minimikrav i förhållande till kapaciteten. Fastighetens eget effektbehov är lägre (${nf(r.physicalPowerNeedKw, 1)} kW).`
-        : `${nf(r.powerKw, 1)} kW effekt räcker för att flytta energin under dygnet. Fastighetens beräknade effektbehov är ${nf(r.physicalPowerNeedKw, 1)} kW, så högre effekt ger liten eller ingen ytterligare nytta.`;
 
 
   return (
@@ -166,45 +139,59 @@ function ResultStep() {
         <div className="hero-metric rounded-[1.25rem] px-4 py-4 text-center">
           <p className="ui-caption">Rekommenderat batteri</p>
           <p className="ui-hero mt-1.5 tabular-nums">
-            {nf(r.capacityKWh)} <span className="text-2xl font-bold">kWh</span>
+            {nf(p.capacityKWh)} <span className="text-2xl font-bold">kWh</span>
           </p>
-          <p className="ui-section-title mt-0.5 tabular-nums">{nf(r.powerKw, 1)} kW effekt</p>
+          <p className="ui-section-title mt-0.5 tabular-nums">
+            {nf(p.recommendedPowerKw, 1)} kW effekt
+          </p>
+          {p.fcrPowerNote ? (
+            <>
+              <p className="ui-help mt-2 text-left text-foreground/70">{p.fcrPowerNote}</p>
+              <p className="ui-help mt-1 text-left text-foreground/70">
+                {p.fcrPowerNoteSecondary}
+              </p>
+            </>
+          ) : null}
         </div>
       )}
 
+      {p.limitedBenefit ? (
+        <SectionCard title={p.limitedBenefitTitle ?? ""} description={p.limitedBenefitText ?? ""} />
+      ) : null}
 
-      {showEnergySection ? (
+      {p.showEnergySection ? (
+
         <SectionCard title="Energi">
           <div className="space-y-2">
-            {showSelfConsumption ? (
+            {p.showSelfConsumption ? (
               <BeforeAfter
                 label="Egenanvändning"
                 before={pct(e.selfConsumptionBeforePct)}
                 after={pct(e.selfConsumptionAfterPct)}
               />
             ) : null}
-            {showSelfSufficiency ? (
+            {p.showSelfSufficiency ? (
               <BeforeAfter
                 label="Självförsörjning"
                 before={pct(e.selfSufficiencyBeforePct)}
                 after={pct(e.selfSufficiencyAfterPct)}
               />
             ) : null}
-            {showImport ? (
+            {p.showImport ? (
               <BeforeAfter
                 label="Nätimport"
                 before={kwh(e.importBeforeKWh)}
                 after={kwh(e.importAfterKWh)}
               />
             ) : null}
-            {showExport ? (
+            {p.showExport ? (
               <BeforeAfter
                 label="Nätexport"
                 before={kwh(e.exportBeforeKWh)}
                 after={kwh(e.exportAfterKWh)}
               />
             ) : null}
-            {showShiftedSolar ? (
+            {p.showShiftedSolar ? (
               <Row label="Flyttad solel" value={`${kwh(e.shiftedSolarKWh)}/år`} />
             ) : null}
             {e.recoveredCurtailmentKWh > 0 ? (
@@ -214,7 +201,7 @@ function ResultStep() {
         </SectionCard>
       ) : null}
 
-      {showPeakSection ? (
+      {p.showPeakSection ? (
         <SectionCard title="Effekt">
           <div className="space-y-2">
             <BeforeAfter
@@ -222,18 +209,20 @@ function ResultStep() {
               before={kw(g.importPeakBeforeKw)}
               after={kw(g.importPeakAfterKw)}
             />
-            {peakChanged ? (
+            {p.peakChanged ? (
               <>
                 <Row
                   label="Minskning"
                   value={`${nf(s.peak.peakReductionKw, 2)} kW (${nf(peakPct, 1)} %)`}
                 />
-                <Row label="Minskad effektkostnad" value={`${money(s.peak.demandCostSavingSek)}/år`} />
-                <p className="ui-help">
-                  {state.economy.demandChargeTouched
-                    ? "Beräknat med den effektavgift du angett."
-                    : "Beräknat med ett svenskt schablonvärde för effektavgift."}
-                </p>
+                {p.showDemandSavingRow ? (
+                  <Row
+                    label="Minskad effektkostnad"
+                    value={`${money(s.peak.demandCostSavingSek)}/år`}
+                  />
+                ) : null}
+                {p.demandNote ? <p className="ui-help">{p.demandNote}</p> : null}
+
               </>
             ) : (
               <p className="ui-help">Ingen minskning av effekttoppen med de valda inställningarna.</p>
@@ -243,7 +232,7 @@ function ResultStep() {
       ) : null}
 
       <SectionCard title="Beräknad nytta">
-        {noEconomy ? (
+        {p.noEconomy ? (
           <>
             <p className="ui-section-title tabular-nums">0 kr/år</p>
             <p className="ui-help mt-1">
@@ -260,7 +249,7 @@ function ResultStep() {
               {s.economy.energyBenefitSek !== 0 ? (
                 <Row label="Energinytta" value={`${money(s.economy.energyBenefitSek)}/år`} />
               ) : null}
-              {demandSaving !== 0 ? (
+              {p.showDemandSavingRow ? (
                 <Row
                   label="Minskad effektkostnad"
                   value={`${money(s.economy.demandCostSavingSek)}/år`}
@@ -300,7 +289,7 @@ function ResultStep() {
               <p className="ui-label">Elanslutningen begränsar batteriet något</p>
               <p className="ui-help mt-1">
                 Batteriet kan fortfarande använda den rekommenderade storleken
-                {noBattery ? "" : ` ${nf(r.capacityKWh)} kWh / ${nf(r.powerKw, 1)} kW`}. Din
+                {noBattery ? "" : ` ${nf(p.capacityKWh)} kWh / ${nf(p.recommendedPowerKw, 1)} kW`}. Din
                 elanslutning begränsar laddning eller urladdning under vissa perioder.
               </p>
             </>
@@ -322,11 +311,11 @@ function ResultStep() {
         <summary className="ui-label cursor-pointer list-none">
           {noBattery
             ? "Visa varför ingen rekommendation"
-            : `Visa varför ${nf(r.capacityKWh)} kWh och ${nf(r.powerKw, 1)} kW`}
+            : `Visa varför ${nf(p.capacityKWh)} kWh och ${nf(p.recommendedPowerKw, 1)} kW`}
         </summary>
         <div className="mt-3 space-y-1.5">
-          <p className="ui-help">{capacityWhy}</p>
-          {powerWhy ? <p className="ui-help">{powerWhy}</p> : null}
+          <p className="ui-help">{p.capacityWhy}</p>
+          {p.powerWhy ? <p className="ui-help">{p.powerWhy}</p> : null}
         </div>
       </details>
 
@@ -345,8 +334,12 @@ function ResultStep() {
           </TechGroup>
 
           <TechGroup title="Effektdimensionering">
-            <Row label="Rekommenderad effekt" value={kw(r.powerKw, 1)} />
-            <Row label="Fysiskt effektbehov" value={kw(r.physicalPowerNeedKw, 1)} />
+            <Row label="Rekommenderad systemeffekt" value={kw(p.recommendedPowerKw, 1)} />
+            <Row label="Fastighetens fysiska effektbehov" value={kw(p.physicalPowerNeedKw, 1)} />
+            <Row label="Max faktiskt använd effekt" value={kw(p.actualDispatchPowerKw, 2)} />
+            {p.fcrHeldPowerKw !== null ? (
+              <Row label="FCR-D upp hållen effekt" value={kw(p.fcrHeldPowerKw, 2)} />
+            ) : null}
             <Row label="C-rate" value={`${nf(ps.productCRate, 2)} C`} />
             <Row
               label="Nytta jämfört med obegränsad effekt"
@@ -373,6 +366,10 @@ function ResultStep() {
               <Row label="Genomsnittligt hållen effekt" value={kw(s.fcr.avgHeldPowerKw, 2)} />
               <Row label="Tillgänglighet" value={pct(s.fcr.availabilityPct)} />
               <Row label="Reserverade timmar" value={`${nf(s.fcr.reservedHours)} timmar/år`} />
+              <p className="ui-help">
+                Modellnotering: FCR-D upp är i modellen en beredskaps- och effektintäkt. Den ger
+                ingen egen energimängd och räknas därför inte som cykler.
+              </p>
               {s.fcr.blockers.map((b) => (
                 <p key={b} className="ui-help">
                   {b}
