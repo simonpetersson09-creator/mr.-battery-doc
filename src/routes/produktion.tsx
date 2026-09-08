@@ -136,9 +136,8 @@ function ProductionStep() {
         </SectionCard>
       ) : null}
 
-      {choice !== "none" ? selfConsumptionField : null}
-
       {choice === "monthly" ? (
+
         <>
           <SectionCard title="Faktisk månadsproduktion">
             <MonthlyImport
