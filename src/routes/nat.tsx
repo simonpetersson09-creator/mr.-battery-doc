@@ -75,52 +75,54 @@ function GridStep() {
         </details>
       </SectionCard>
 
-      <SectionCard
-        title="Huvudsäkring"
-        description="Står oftast i elcentralen eller på elnätsfakturan."
-      >
-        <div className="flex flex-wrap gap-2">
-          {country.grid.commonMainFuses.map((a) => {
-            const active = !state.grid.mainFuseManual && state.grid.mainFuseA === a;
-            return (
-              <button
-                key={a}
-                type="button"
-                onClick={() =>
-                  update((s) => ({
-                    ...s,
-                    grid: { ...s.grid, mainFuseA: a, mainFuseManual: false },
-                  }))
-                }
-                className={
-                  "h-10 min-w-[4rem] rounded-[0.875rem] px-3 ui-label tabular-nums transition-colors " +
-                  (active ? "chip-selected" : "chip-unselected")
-                }
-
-
-              >
-                {a} A
-              </button>
-            );
-          })}
-        </div>
-        <NumberField
-          label="Annan huvudsäkring"
-          unit="A"
-          value={state.grid.mainFuseManual ? state.grid.mainFuseA : null}
-          placeholder="Ange manuellt"
-          onChange={(v) =>
+      <SectionCard title="Huvudsäkring" description="Finns oftast på elnätsfakturan.">
+        <Select
+          value={state.grid.mainFuseManual ? "custom" : String(state.grid.mainFuseA)}
+          onValueChange={(v) =>
             update((s) => ({
               ...s,
-              grid: {
-                ...s.grid,
-                mainFuseA: v ?? country.grid.defaultMainFuse,
-                mainFuseManual: v !== null,
-              },
+              grid:
+                v === "custom"
+                  ? { ...s.grid, mainFuseManual: true }
+                  : { ...s.grid, mainFuseA: Number(v), mainFuseManual: false },
             }))
           }
-        />
+        >
+          <SelectTrigger className="ui-control">
+            <SelectValue>
+              {state.grid.mainFuseManual ? "Annan" : `${state.grid.mainFuseA} A`}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {country.grid.commonMainFuses.map((a) => (
+              <SelectItem key={a} value={String(a)}>
+                {a} A
+              </SelectItem>
+            ))}
+            <SelectItem value="custom">Annan</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {state.grid.mainFuseManual ? (
+          <NumberField
+            label="Annan huvudsäkring"
+            unit="A"
+            value={state.grid.mainFuseA}
+            placeholder="Ange manuellt"
+            onChange={(v) =>
+              update((s) => ({
+                ...s,
+                grid: {
+                  ...s.grid,
+                  mainFuseA: v ?? country.grid.defaultMainFuse,
+                  mainFuseManual: true,
+                },
+              }))
+            }
+          />
+        ) : null}
       </SectionCard>
+
     </WizardShell>
   );
 }
