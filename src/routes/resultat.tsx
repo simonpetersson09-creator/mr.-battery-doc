@@ -9,6 +9,7 @@ import { computeWithoutFcrOptimum } from "@/lib/battery-app/withoutFcrOptimum";
 import { computeBatteryAlternatives } from "@/lib/battery-app/capacityAlternatives";
 
 
+import { ancillaryUnavailableText } from "@/lib/battery-app/ancillaryAvailability";
 import { useWizard } from "@/state/wizard";
 
 export const Route = createFileRoute("/resultat")({
