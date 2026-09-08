@@ -392,7 +392,7 @@ html[data-native="true"] {
 
 /* ---------------------------------------------------------------------------
  * Typographic scale — one level per information type, used on every page.
- * page 24 / section 19 / card 17 / label 15 / body 15 / help 13.5 / caption 11.5
+ * page 22 / section 17 / card 15 / label 13 / body 13 / help 11.5 / caption 9.5
  * ------------------------------------------------------------------------ */
 @utility ui-page-title {
   font-family: var(--font-display);
@@ -462,7 +462,7 @@ html[data-native="true"] {
   padding: 0.875rem;
 }
 
-/* One control height everywhere: 48px touch target, 16px text. */
+/* One control height everywhere: 48px touch target, 14px text. */
 @utility ui-control {
   height: 3rem;
   width: 100%;
