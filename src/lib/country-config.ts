@@ -8,6 +8,9 @@
  * Adding a new country = adding one entry to COUNTRIES. No UI changes needed.
  */
 
+import type { FcrMarketArea } from "@/lib/lab/ancillary/prices";
+import { computeFuseKw } from "@/lib/battery-engine";
+
 export type CountryCode = "SE" | "NO" | "FI" | "DK" | "DE";
 
 export interface GridDefaults {
@@ -92,6 +95,11 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       eurSekRate: 11.3,
       demandChargeVerified: false,
     },
+    ancillary: {
+      marketLabel: "Svenska kraftnät (FCR-D upp)",
+      priceArea: "SE",
+      additionalPriceAreas: [],
+    },
   },
   NO: {
     code: "NO",
@@ -114,6 +122,11 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       demandCharge: 0,
       eurSekRate: 11.3,
       demandChargeVerified: false,
+    },
+    ancillary: {
+      marketLabel: "Statnett (FCR-D upp)",
+      priceArea: "SE",
+      additionalPriceAreas: [],
     },
   },
   FI: {
@@ -139,6 +152,11 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       eurSekRate: 11.3,
       demandChargeVerified: false,
     },
+    ancillary: {
+      marketLabel: "Fingrid (FCR-D upp)",
+      priceArea: "FI",
+      additionalPriceAreas: [],
+    },
   },
   DK: {
     code: "DK",
@@ -163,6 +181,11 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       eurSekRate: 11.3,
       demandChargeVerified: false,
     },
+    ancillary: {
+      marketLabel: "Energinet (FCR-D upp)",
+      priceArea: "DK",
+      additionalPriceAreas: ["DK1", "DK2"],
+    },
   },
   DE: {
     code: "DE",
@@ -186,6 +209,11 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       demandCharge: 0,
       eurSekRate: 11.3,
       demandChargeVerified: false,
+    },
+    ancillary: {
+      marketLabel: "Regelleistung / ÜNB (FCR)",
+      priceArea: "DE",
+      additionalPriceAreas: [],
     },
   },
 };
