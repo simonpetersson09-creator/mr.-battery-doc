@@ -1,4 +1,4 @@
-import { Link, useRouter } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, BatteryCharging } from "lucide-react";
 import type { ReactNode } from "react";
 import { WIZARD_STEPS } from "./steps";
@@ -11,6 +11,10 @@ interface WizardShellProps {
   children: ReactNode;
   nextLabel?: string;
   nextDisabled?: boolean;
+  /** Shown above the buttons when the step is incomplete. */
+  nextBlockedReason?: string | null;
+  /** Replaces the "Nästa" button on the last step. */
+  footerAction?: ReactNode;
 }
 
 export function WizardShell({
@@ -20,23 +24,27 @@ export function WizardShell({
   children,
   nextLabel,
   nextDisabled,
+  nextBlockedReason,
+  footerAction,
 }: WizardShellProps) {
-  const router = useRouter();
+  // Both back affordances follow the wizard's own step order.
   const prev = stepIndex > 0 ? WIZARD_STEPS[stepIndex - 1]!.path : "/";
   const next = stepIndex < WIZARD_STEPS.length - 1 ? WIZARD_STEPS[stepIndex + 1]!.path : null;
+
+
 
 
   return (
     <div className="app-shell">
       <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur-md">
         <div className="flex items-center gap-2 px-3 pt-2 pb-1.5">
-          <button
-            onClick={() => router.history.back()}
+          <Link
+            to={prev}
             aria-label="Tillbaka"
             className="flex size-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground transition-colors active:bg-muted"
           >
             <ArrowLeft className="size-4" />
-          </button>
+          </Link>
           <div className="flex items-center gap-1.5 text-[13px] font-semibold">
             <BatteryCharging className="size-4 text-primary" />
             Mr. Battery Doc
@@ -52,21 +60,34 @@ export function WizardShell({
       </main>
 
       <div className="fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-[30rem] border-t border-border bg-background/95 px-3 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-md">
+        {nextDisabled && nextBlockedReason ? (
+          <p className="mb-1.5 text-xs text-muted-foreground" role="status">
+            {nextBlockedReason}
+          </p>
+        ) : null}
         <div className="flex gap-2">
           <Button asChild variant="outline" className="h-11 flex-1">
             <Link to={prev}>Tillbaka</Link>
           </Button>
-          {next ? (
-            <Button asChild className="h-11 flex-[2]" disabled={nextDisabled}>
-              <Link to={next} disabled={nextDisabled === true}>
+          {footerAction ? (
+            footerAction
+          ) : next ? (
+            nextDisabled ? (
+              <Button className="h-11 flex-[2]" disabled aria-disabled="true">
                 {nextLabel ?? "Nästa"}
                 <ArrowRight className="size-4" />
-
-              </Link>
-            </Button>
+              </Button>
+            ) : (
+              <Button asChild className="h-11 flex-[2]">
+                <Link to={next}>
+                  {nextLabel ?? "Nästa"}
+                  <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+            )
           ) : (
             <Button asChild className="h-11 flex-[2]">
-              <Link to="/">Börja om</Link>
+              <Link to="/">Klar</Link>
             </Button>
           )}
         </div>

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { NumberField, SectionCard } from "@/components/wizard/fields";
 import { getCountry, selfConsumptionValue } from "@/lib/country-config";
+import { validateEconomyStep } from "@/lib/battery-app/stepValidation";
 import { useWizard } from "@/state/wizard";
 
 export const Route = createFileRoute("/ekonomi")({
@@ -31,12 +32,15 @@ function EconomyStep() {
 
   const setEconomy = (patch: Partial<typeof state.economy>) =>
     update((s) => ({ ...s, economy: { ...s.economy, ...patch, touched: true } }));
+  const validity = validateEconomyStep(state);
 
   return (
     <WizardShell
       stepIndex={4}
       title="Ekonomi"
       intro={`Standardvärden för ${country.name}. Du kan ändra allt själv.`}
+      nextDisabled={!validity.ok}
+      nextBlockedReason={validity.message}
     >
       <SectionCard title="Elpriser">
         <NumberField
@@ -77,13 +81,26 @@ function EconomyStep() {
           step="1"
           value={state.economy.demandCharge}
           hint={
-            country.economy.demandChargeVerified
-              ? "Standardvärde för ditt land."
-              : "Vi har inget säkert standardvärde för ditt nätbolag ännu — 0 betyder att peak shaving inte värderas."
+            state.economy.demandChargeTouched
+              ? "Ditt eget värde."
+              : "Schablonvärde för Sverige – justera efter ditt nätavtal."
           }
-          onChange={(v) => setEconomy({ demandCharge: v ?? 0 })}
+          onChange={(v) => setEconomy({ demandCharge: v ?? 0, demandChargeTouched: true })}
         />
       </SectionCard>
+
+      {state.strategies.fcrDUp ? (
+        <SectionCard title="Valutakurs">
+          <NumberField
+            label="EUR/SEK"
+            unit="kr/EUR"
+            step="0.01"
+            value={state.economy.eurSekRate}
+            hint="Antagande för omräkning av historiska FCR-D upp-priser."
+            onChange={(v) => setEconomy({ eurSekRate: v ?? 0 })}
+          />
+        </SectionCard>
+      ) : null}
 
       <SectionCard description="Varje nytta räknas bara en gång: minskad nätimport värderas till priset på köpt el, flyttad solel till skillnaden mellan köpt och såld el, och lägre effekttoppar till effektavgiften." />
     </WizardShell>

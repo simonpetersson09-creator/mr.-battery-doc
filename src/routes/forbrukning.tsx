@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { WizardShell } from "@/components/wizard/WizardShell";
-import { AttachmentPicker, NumberField, OptionCard, SectionCard } from "@/components/wizard/fields";
+import { NumberField, OptionCard, SectionCard } from "@/components/wizard/fields";
+import { validateConsumptionStep } from "@/lib/battery-app/stepValidation";
 import {
   Select,
   SelectContent,
@@ -33,6 +34,7 @@ export const Route = createFileRoute("/forbrukning")({
 function ConsumptionStep() {
   const { state, update } = useWizard();
   const c = state.consumption;
+  const validity = validateConsumptionStep(state);
 
   const setMode = (mode: ConsumptionMode) =>
     update((s) => ({ ...s, consumption: { ...s.consumption, mode } }));
@@ -42,6 +44,8 @@ function ConsumptionStep() {
       stepIndex={1}
       title="Förbrukning"
       intro="Välj det sätt som passar dig bäst. Du kan ändra dig senare."
+      nextDisabled={!validity.ok}
+      nextBlockedReason={validity.message}
     >
       <div className="space-y-3">
         <OptionCard
@@ -55,12 +59,6 @@ function ConsumptionStep() {
           description="Jag har faktiska värden för alla 12 månader."
           selected={c.mode === "monthly"}
           onSelect={() => setMode("monthly")}
-        />
-        <OptionCard
-          title="Foto eller fil"
-          description="Jag laddar upp min elräkning eller förbrukningsrapport."
-          selected={c.mode === "document"}
-          onSelect={() => setMode("document")}
         />
       </div>
 
@@ -113,35 +111,21 @@ function ConsumptionStep() {
               {c.monthlyKwh.reduce<number>((a, b) => a + (b ?? 0), 0).toLocaleString("sv-SE")} kWh
             </p>
           </SectionCard>
-        </>
-      ) : null}
-
-      {c.mode === "document" ? (
-        <>
-          <SectionCard title="Ladda upp underlag">
-            <AttachmentPicker
-              label="Elräkning eller förbrukningsrapport"
-              hint="Automatisk avläsning är inte påslagen ännu — filen sparas för kommande tolkning."
-              attachments={c.attachments}
-              onChange={(attachments) =>
-                update((s) => ({ ...s, consumption: { ...s.consumption, attachments } }))
-              }
-            />
-          </SectionCard>
+          <ProfilePicker note="Profilen används för att fördela varje månads förbrukning över dygnets timmar. Dina månadsvärden styr månadsenergin." />
         </>
       ) : null}
     </WizardShell>
   );
 }
 
-function ProfilePicker({ optional, note }: { optional?: boolean; note?: string }) {
+function ProfilePicker({ note }: { note?: string }) {
   const { state, update } = useWizard();
   const selected = state.consumption.profileId
     ? getProfile(state.consumption.profileId)
     : null;
   return (
     <SectionCard
-      title={optional ? "Förbrukningsprofil (valfri)" : "Förbrukningsprofil"}
+      title="Förbrukningsprofil"
       description={note ?? "Välj den beskrivning som liknar din fastighet mest."}
     >
       <Select

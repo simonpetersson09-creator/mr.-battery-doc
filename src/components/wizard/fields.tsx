@@ -1,8 +1,6 @@
-import { Camera, Paperclip } from "lucide-react";
 import type { ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import type { AttachmentMeta } from "@/state/wizard";
 
 export function SectionCard({
   title,
@@ -137,79 +135,5 @@ export function ToggleRow({
   );
 }
 
-/**
- * Photo / file capture UI. Document interpretation is NOT implemented yet —
- * files are only registered with metadata and marked as pending parsing.
- */
-export function AttachmentPicker({
-  label,
-  hint,
-  attachments,
-  onChange,
-}: {
-  label: string;
-  hint: string;
-  attachments: AttachmentMeta[];
-  onChange: (next: AttachmentMeta[]) => void;
-}) {
-  function add(files: FileList | null, kind: AttachmentMeta["kind"]) {
-    if (!files) return;
-    const next = Array.from(files).map((f) => ({
-      id: `${Date.now()}-${f.name}`,
-      name: f.name,
-      size: f.size,
-      kind,
-      status: "pending-parsing" as const,
-    }));
-    onChange([...attachments, ...next]);
-  }
-
-  return (
-    <div>
-      <span className="field-label">{label}</span>
-      <div className="mt-1.5 grid grid-cols-2 gap-2">
-        <label className="flex h-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-input bg-secondary/50 text-[13px] font-medium active:bg-secondary">
-          <Camera className="size-5 text-primary" />
-          Ta foto
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="hidden"
-            onChange={(e) => add(e.target.files, "image")}
-          />
-        </label>
-        <label className="flex h-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-input bg-secondary/50 text-[13px] font-medium active:bg-secondary">
-          <Paperclip className="size-5 text-primary" />
-          Bifoga fil
-          <input
-            type="file"
-            accept="image/*,application/pdf,.csv,.xlsx"
-            className="hidden"
-            onChange={(e) => add(e.target.files, "file")}
-          />
-        </label>
-      </div>
-      <p className="mt-1.5 text-xs text-muted-foreground">{hint}</p>
-      {attachments.length > 0 ? (
-        <ul className="mt-2 space-y-1.5">
-          {attachments.map((a) => (
-            <li
-              key={a.id}
-              className="flex items-center justify-between gap-3 rounded-xl bg-secondary px-3 py-2 text-xs"
-            >
-              <span className="truncate">{a.name}</span>
-              <button
-                type="button"
-                className="shrink-0 text-muted-foreground underline"
-                onClick={() => onChange(attachments.filter((x) => x.id !== a.id))}
-              >
-                Ta bort
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-    </div>
-  );
-}
+/* The photo/file picker was removed in v1: document parsing is not implemented,
+   so it would only be a dead end. State/types remain for a future parser. */

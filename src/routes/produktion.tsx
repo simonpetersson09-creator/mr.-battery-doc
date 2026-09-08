@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { WizardShell } from "@/components/wizard/WizardShell";
-import { AttachmentPicker, NumberField, OptionCard, SectionCard, ToggleRow } from "@/components/wizard/fields";
+import { NumberField, OptionCard, SectionCard, ToggleRow } from "@/components/wizard/fields";
 import { MONTH_SHORT_SV } from "@/lib/consumption-profiles";
+import { validateProductionStep } from "@/lib/battery-app/stepValidation";
 import { useWizard, type ProductionMode } from "@/state/wizard";
 
 export const Route = createFileRoute("/produktion")({
@@ -27,12 +28,15 @@ function ProductionStep() {
   const p = state.production;
   const setMode = (mode: ProductionMode) =>
     update((s) => ({ ...s, production: { ...s.production, mode } }));
+  const validity = validateProductionStep(state);
 
   return (
     <WizardShell
       stepIndex={2}
       title="Produktion"
       intro="Har fastigheten solceller idag?"
+      nextDisabled={!validity.ok}
+      nextBlockedReason={validity.message}
     >
       <div className="space-y-3">
         <OptionCard
@@ -45,12 +49,6 @@ function ProductionStep() {
           description="Paneleffekt, växelriktare och årsproduktion."
           selected={p.mode === "manual"}
           onSelect={() => setMode("manual")}
-        />
-        <OptionCard
-          title="Foto eller fil"
-          description="Från växelriktare, elbolag eller produktionsrapport."
-          selected={p.mode === "document"}
-          onSelect={() => setMode("document")}
         />
       </div>
 
@@ -119,18 +117,6 @@ function ProductionStep() {
         </>
       ) : null}
 
-      {p.mode === "document" ? (
-        <SectionCard title="Ladda upp underlag">
-          <AttachmentPicker
-            label="Produktionsrapport eller skärmbild"
-            hint="Automatisk avläsning är inte påslagen ännu — filen sparas för kommande tolkning."
-            attachments={p.attachments}
-            onChange={(attachments) =>
-              update((s) => ({ ...s, production: { ...s.production, attachments } }))
-            }
-          />
-        </SectionCard>
-      ) : null}
     </WizardShell>
   );
 }

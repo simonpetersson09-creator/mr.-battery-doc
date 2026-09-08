@@ -10,6 +10,10 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { DEFAULT_COUNTRY, getCountry, type CountryCode } from "@/lib/country-config";
 import type { ProfileId } from "@/lib/consumption-profiles";
 
+/**
+ * "document" is kept for the future document parser but is NOT exposed in the v1 UI.
+ * Any persisted "document" state is coerced back to a supported mode on hydration.
+ */
 export type ConsumptionMode = "annual" | "monthly" | "document";
 export type ProductionMode = "none" | "manual" | "document";
 
@@ -59,6 +63,8 @@ export interface WizardState {
     eurSekRate: number;
     /** true when the user has manually edited prices (blocks country overwrite) */
     touched: boolean;
+    /** true ONLY when the user edited the demand charge itself (drives peakTariffSource) */
+    demandChargeTouched: boolean;
   };
 }
 
@@ -72,7 +78,18 @@ function economyFromCountry(code: CountryCode) {
     demandCharge: c.demandCharge,
     eurSekRate: c.eurSekRate,
     touched: false,
+    demandChargeTouched: false,
   };
+}
+
+/** v1 exposes no document parser — coerce any persisted "document" mode. */
+function coerceSupportedModes(s: WizardState): WizardState {
+  const next = { ...s };
+  if (next.consumption?.mode === "document")
+    next.consumption = { ...next.consumption, mode: "annual" };
+  if (next.production?.mode === "document")
+    next.production = { ...next.production, mode: "manual" };
+  return next;
 }
 
 export function createInitialState(country: CountryCode = DEFAULT_COUNTRY): WizardState {
@@ -127,7 +144,13 @@ export function WizardProvider({ children }: { children: ReactNode }) {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as WizardState;
-        setState((current) => ({ ...current, ...parsed }));
+        setState((current) =>
+          coerceSupportedModes({
+            ...current,
+            ...parsed,
+            economy: { ...current.economy, ...parsed.economy },
+          }),
+        );
       }
     } catch {
       /* ignore corrupt storage */
@@ -162,7 +185,14 @@ export function WizardProvider({ children }: { children: ReactNode }) {
           // Country defaults only overwrite untouched economy values.
           economy: s.economy.touched ? s.economy : economyFromCountry(code),
         })),
-      reset: () => setState(createInitialState()),
+      reset: () => {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch {
+          /* storage unavailable */
+        }
+        setState(createInitialState());
+      },
     };
   }, [state, hydrated]);
 

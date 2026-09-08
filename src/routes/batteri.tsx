@@ -50,6 +50,12 @@ function BatteryStep() {
         checked={s.peakShaving}
         onChange={set("peakShaving")}
       />
+      <ToggleRow
+        title="Stödtjänster – FCR-D upp"
+        description="Reserverar en del av batteriets effekt och energi för att kunna stödja elnätet. Appen optimerar automatiskt hur stor effekt som är ekonomiskt rimlig att reservera."
+        checked={s.fcrDUp}
+        onChange={set("fcrDUp")}
+      />
 
       {noSolar && s.solarSelfConsumption ? (
         <SectionCard description="Du har angett att fastigheten inte har solceller. Då ger egenanvändning av solel ingen nytta idag — övriga användningssätt påverkas inte." />
