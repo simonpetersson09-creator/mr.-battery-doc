@@ -76,7 +76,12 @@ function ResultStep() {
 
   if (outcome.status === "error") {
     return (
-      <WizardShell stepIndex={5} title="Resultat" intro="Något gick fel.">
+      <WizardShell
+        stepIndex={5}
+        title="Resultat"
+        intro="Något gick fel."
+        footerAction={restart}
+      >
         <SectionCard
           title="Beräkningen kunde inte genomföras"
           description="Gå tillbaka och kontrollera dina uppgifter, och försök igen. Vi visar hellre inget än ett påhittat resultat."
@@ -94,7 +99,12 @@ function ResultStep() {
     g.importPeakBeforeKw > 0 ? (s.peak.peakReductionKw / g.importPeakBeforeKw) * 100 : 0;
 
   return (
-    <WizardShell stepIndex={5} title="Resultat" intro="Så här ser förslaget ut för din fastighet.">
+    <WizardShell
+      stepIndex={5}
+      title="Resultat"
+      intro="Så här ser förslaget ut för din fastighet."
+      footerAction={restart}
+    >
       <div className="card-surface bg-primary-soft border-primary/40 p-4 text-center">
         <p className="text-sm font-semibold text-muted-foreground">Rekommenderat batteri</p>
         <p className="mt-2 text-4xl font-bold tracking-tight">{nf(r.capacityKWh)} kWh</p>
