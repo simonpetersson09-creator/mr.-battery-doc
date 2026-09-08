@@ -117,18 +117,6 @@ function ProductionStep() {
         </>
       ) : null}
 
-      {p.mode === "document" ? (
-        <SectionCard title="Ladda upp underlag">
-          <AttachmentPicker
-            label="Produktionsrapport eller skärmbild"
-            hint="Automatisk avläsning är inte påslagen ännu — filen sparas för kommande tolkning."
-            attachments={p.attachments}
-            onChange={(attachments) =>
-              update((s) => ({ ...s, production: { ...s.production, attachments } }))
-            }
-          />
-        </SectionCard>
-      ) : null}
     </WizardShell>
   );
 }
