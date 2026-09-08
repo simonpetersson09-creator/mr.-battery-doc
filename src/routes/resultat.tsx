@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { runBatteryApp } from "@/lib/battery-app";
 import { buildResultPresentation } from "@/lib/battery-app/resultPresentation";
 import { computeWithoutFcrOptimum } from "@/lib/battery-app/withoutFcrOptimum";
+import { computeBatteryAlternatives } from "@/lib/battery-app/capacityAlternatives";
+
 
 import { useWizard } from "@/state/wizard";
 
@@ -50,6 +52,13 @@ function ResultStep() {
         : null,
     [outcome],
   );
+  /** Comparison layer: nearest simulated capacity step below/above the recommendation. */
+  const alternatives = useMemo(
+    () =>
+      outcome.status === "ok" ? computeBatteryAlternatives(outcome.input, outcome.result) : [],
+    [outcome],
+  );
+
 
 
   const restart = (
@@ -145,16 +154,69 @@ function ResultStep() {
           </p>
         </div>
       ) : (
-        <div className="hero-metric rounded-[1.25rem] px-4 py-4 text-center">
-          <p className="ui-caption">Rekommenderat batteri</p>
-          <p className="ui-hero mt-1.5 tabular-nums">
-            {nf(p.capacityKWh)} <span className="text-2xl font-bold">kWh</span>
-          </p>
-          <p className="ui-section-title mt-0.5 tabular-nums">
-            {nf(p.recommendedPowerKw, 1)} kW effekt
-          </p>
+        <div className="hero-metric rounded-[1.25rem] px-3 py-4">
+          <p className="ui-caption text-center">Rekommenderat batteri</p>
+          <div
+            className="mt-3 grid items-end gap-2"
+            style={{ gridTemplateColumns: `repeat(${alternatives.length}, minmax(0, 1fr))` }}
+          >
+            {alternatives.map((alt) => {
+              const main = alt.level === "recommended";
+              return (
+                <div
+                  key={alt.level}
+                  className={
+                    "rounded-[1rem] px-1.5 py-2 text-center " +
+                    (main ? "bg-foreground/5" : "opacity-70")
+                  }
+                >
+                  <p
+                    className={
+                      main
+                        ? "ui-caption font-bold uppercase tracking-wide"
+                        : "ui-caption uppercase tracking-wide"
+                    }
+                  >
+                    {alt.level === "lower"
+                      ? "Lägre"
+                      : alt.level === "higher"
+                        ? "Högre"
+                        : "Rekommenderad"}
+                  </p>
+                  <p
+                    className={
+                      main
+                        ? "mt-1 text-2xl font-extrabold tabular-nums leading-tight"
+                        : "mt-1 text-base font-semibold tabular-nums leading-tight"
+                    }
+                  >
+                    {nf(alt.capacityKWh)} <span className="text-xs font-bold">kWh</span>
+                  </p>
+                  <p
+                    className={
+                      main
+                        ? "text-sm font-bold tabular-nums"
+                        : "ui-help font-semibold tabular-nums"
+                    }
+                  >
+                    {nf(alt.powerKw, 1)} kW
+                  </p>
+                  <p
+                    className={
+                      main
+                        ? "mt-1 text-sm font-bold tabular-nums"
+                        : "ui-help mt-1 tabular-nums"
+                    }
+                  >
+                    {alt.annualBenefitSek === null ? "—" : `${nf(alt.annualBenefitSek)} kr/år`}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
+
 
       {p.limitedBenefit ? (
         <SectionCard title={p.limitedBenefitTitle ?? ""} description={p.limitedBenefitText ?? ""} />
