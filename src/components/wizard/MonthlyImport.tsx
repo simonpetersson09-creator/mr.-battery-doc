@@ -6,7 +6,7 @@
  * same fields manual entry fills.
  */
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MONTH_SHORT_SV } from "@/lib/consumption-profiles";
 import { extractMonthlyFromDocument } from "@/lib/import/extractMonthly.functions";
@@ -35,10 +35,13 @@ export function MonthlyImport({
   kind,
   description,
   onApply,
+  onOpenChange,
 }: {
   kind: Exclude<SeriesKind, "unknown">;
   description: string;
   onApply: (valuesKwh: number[]) => void;
+  /** true while the picker/review overlay owns the month values. */
+  onOpenChange?: (open: boolean) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -48,6 +51,11 @@ export function MonthlyImport({
   const [values, setValues] = useState<(number | null)[] | null>(null);
   const [active, setActive] = useState<NormalisedSeries | null>(null);
   const [applied, setApplied] = useState(false);
+
+  const open = !!(candidates || values);
+  useEffect(() => {
+    onOpenChange?.(open);
+  }, [open, onOpenChange]);
 
   const close = () => {
     setValues(null);
