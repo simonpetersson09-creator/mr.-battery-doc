@@ -201,6 +201,11 @@ export function simulate(
 
   const notes = [...d.notes];
   if (plan) notes.push(...plan.notes);
+  if (cfg.strategies.ancillaryServices && fcrSeries === null)
+    notes.push(
+      "Stödtjänster: verifierat historiskt prisunderlag saknas för valt land — intäkten redovisas som ej tillgänglig, inte som 0 kr.",
+    );
+
   if (series.loadProvenance === "modelled")
     notes.push("Effekttoppar och timvärden är MODELLERADE ur syntetisk dygnsprofil.");
   if (t.cycleLimitHit) notes.push("Cykeltaket per år begränsade driften.");
