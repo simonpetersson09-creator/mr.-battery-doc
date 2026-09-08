@@ -8,7 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { COUNTRY_LIST, getCountry, type CountryCode } from "@/lib/country-config";
+import { SUPPORTED_COUNTRY_LIST, getCountry, type CountryCode } from "@/lib/country-config";
+import { validateGridStep } from "@/lib/battery-app/stepValidation";
 import { useWizard } from "@/state/wizard";
 
 export const Route = createFileRoute("/nat")({
@@ -33,12 +34,15 @@ export const Route = createFileRoute("/nat")({
 function GridStep() {
   const { state, setCountry, update } = useWizard();
   const country = getCountry(state.grid.country);
+  const validity = validateGridStep(state);
 
   return (
     <WizardShell
       stepIndex={0}
       title="Nät"
       intro="Börja med att välja land. Då sätts rätt nätvärden och standardpriser automatiskt."
+      nextDisabled={!validity.ok}
+      nextBlockedReason={validity.message}
     >
       <SectionCard title="Land" description="Var ligger fastigheten?">
         <Select
@@ -51,7 +55,7 @@ function GridStep() {
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            {COUNTRY_LIST.map((c) => (
+            {SUPPORTED_COUNTRY_LIST.map((c) => (
               <SelectItem key={c.code} value={c.code}>
                 {c.flag} {c.name}
               </SelectItem>
