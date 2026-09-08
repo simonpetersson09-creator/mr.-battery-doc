@@ -17,7 +17,7 @@ engine exactly as frozen here and verifies against the same Golden Masters.
 | Metric | Frozen value |
 | --- | --- |
 | Recommended capacity / power | 15 kWh / 3 kW |
-| Total operating benefit | 2 271,21 SEK/year |
+| Total operating benefit | 2 041,66 SEK/year (with the 30 SEK/kW/month schablon; 2 271,21 with the previous 55) |
 | Energy balance | OK (residual 0) |
 
 Frozen assumptions and limits:
