@@ -30,47 +30,48 @@ const POINTS = [
 
 function Welcome() {
   return (
-    <div className="app-shell surface-sun pt-safe pb-safe max-w-md justify-between px-6">
-      <div className="pt-6">
-        <div className="flex size-14 items-center justify-center rounded-[20px] bg-accent text-accent-foreground shadow-[var(--shadow-card)]">
-          <BatteryCharging className="size-7" />
+    <div className="app-shell surface-sun pt-safe pb-safe max-w-md justify-between px-5">
+      <div className="pt-5">
+        <div className="flex size-12 items-center justify-center rounded-[1.125rem] bg-accent text-accent-foreground shadow-[var(--shadow-card)]">
+          <BatteryCharging className="size-6" />
         </div>
-        <h1 className="mt-4 font-display text-3xl leading-[1.05] font-extrabold tracking-tight ink-gloss">
+        <h1 className="ink-gloss mt-3 font-display text-[2rem] leading-[1.05] font-extrabold tracking-tight">
           Mr. Battery
           <br />
           Doc
         </h1>
-        <p className="mt-3 text-[15px] leading-snug text-muted-foreground">
+        <p className="ui-body mt-2 text-muted-foreground">
           Svara på några enkla frågor om din fastighet, så visar vi vilket batteri som passar dig.
         </p>
 
-        <ul className="mt-6 space-y-2.5">
+        <ul className="mt-4 space-y-2">
           {POINTS.map(({ icon: Icon, text }) => (
-            <li key={text} className="card-elevated flex items-center gap-3 p-3.5">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
+            <li key={text} className="ui-card flex items-center gap-3 py-3">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-[0.875rem] bg-accent text-accent-foreground">
                 <Icon className="size-4.5" />
               </span>
-              <span className="text-sm font-semibold">{text}</span>
+              <span className="ui-label">{text}</span>
             </li>
           ))}
         </ul>
       </div>
 
-      <div className="pt-8">
+      <div className="pt-6">
         <Button
           asChild
           variant="cta"
-          className="h-auto w-full rounded-[18px] py-3 text-sm font-bold shadow-cta"
+          className="h-12 w-full rounded-[0.875rem] text-[15px] font-bold shadow-cta"
         >
           <Link to="/nat">
             Kom igång
             <ArrowRight className="size-4" />
           </Link>
         </Button>
-        <p className="mt-3 text-center text-xs text-muted-foreground">
+        <p className="ui-help mt-2 text-center">
           Tar ungefär tre minuter. Dina svar sparas medan du fyller i.
         </p>
       </div>
+
     </div>
   );
 }
