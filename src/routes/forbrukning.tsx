@@ -140,7 +140,7 @@ function ProfilePicker({ note }: { note?: string }) {
           }))
         }
       >
-        <SelectTrigger className="h-12 w-full rounded-2xl border-foreground/15 bg-surface-cream text-base font-semibold">
+        <SelectTrigger className="h-10 w-full rounded-xl border-foreground/15 bg-surface-cream text-sm font-semibold">
           <SelectValue placeholder="Välj profil">
             {selected ? selected.name : null}
           </SelectValue>
