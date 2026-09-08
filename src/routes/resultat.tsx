@@ -132,6 +132,13 @@ function ResultStep() {
 
   const noBattery = p.noBattery;
 
+  /* Countries without a verified historical price dataset get an explicit
+     "not available" note instead of a fabricated 0 kr ancillary revenue. */
+  const ancillaryNote = state.strategies.fcrDUp
+    ? ancillaryUnavailableText(state.grid.country)
+    : null;
+
+
   const peakPct =
     g.importPeakBeforeKw > 0 ? (s.peak.peakReductionKw / g.importPeakBeforeKw) * 100 : 0;
 
