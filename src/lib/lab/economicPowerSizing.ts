@@ -1,26 +1,29 @@
 /**
- * Battery Engine — ECONOMIC POWER SIZING (layer on top of the verified physics).
+ * Battery Engine — OPERATING-BENEFIT POWER SIZING (layer on top of the verified physics).
  *
  * Capacity is chosen exactly as before (sweet spot -> peak floor -> ancillary floor) and
  * is NEVER touched here. This module only answers one question:
  *
- *   Given the already chosen capacity, which SYSTEM POWER is economically best?
+ *   Given the already chosen capacity, which SYSTEM POWER gives the highest CALCULATED
+ *   ANNUAL OPERATING BENEFIT with the selected strategies?
  *
- * It does so by running each candidate power through the SAME dispatch, the SAME peak
- * shaving, the SAME FCR physical gate and the SAME 10 % FCR reservation sweep. There is
- * no extrapolation and no shortcut: every kW alternative is fully simulated.
+ *   totalOperatingBenefitSek = energyBenefitSek + peakBenefitSek + fcrRevenueSek
  *
- * Three power concepts are kept strictly apart:
- *   physicalPowerNeedKw   — what the property physically needs
- *   productPowerKw        — the rating of a real product alternative
- *   actualDispatchPowerKw — the highest power the dispatch actually used
- * plus two economic ones:
- *   operatingOptimalPowerKw     — highest operating benefit BEFORE product cost
- *   economicallyOptimalPowerKw  — highest annualised net AFTER product cost
+ * There is no product cost, no CAPEX, no payback and no ROI in this objective. The
+ * product cost layer (`productCost.ts`) is parked for a future version: it is reported
+ * when a caller supplies figures, but it never selects the recommended system power.
+ *
+ * Each candidate runs through the SAME dispatch, the SAME peak shaving, the SAME FCR
+ * physical gate and the SAME 10 % FCR reservation sweep. No extrapolation, no shortcut.
+ *
+ * Power concepts are kept strictly apart:
+ *   physicalPowerNeedKw     — what the property physically needs
+ *   productPowerKw          — the rating physical sizing lands on
+ *   actualDispatchPowerKw   — the highest power the dispatch actually used
+ *   operatingOptimalPowerKw — the power with the highest annual operating benefit
  */
 
 import {
-  composeOperatingEconomy,
   evaluateOperatingEconomy,
   optimizeFcrReservation,
   SWEDISH_OPERATING_ECONOMY,
@@ -28,8 +31,9 @@ import {
 import type { FcrOptimisationResult, OperatingEconomyConfig, OperatingEconomyResult } from "./operatingEconomy";
 import { buildSeries } from "./simulate";
 import type { LabConfig, SimResult, TimeSeries } from "./types";
-import { missingProductCostFields, productCost, productOptionKey } from "./productCost";
+import { productCost } from "./productCost";
 import type { ProductCostBreakdown, ProductCostConfig } from "./productCost";
+import { productCostConfig } from "./productCost";
 
 /**
  * Candidate ceiling as a C-rate. This is a MAXIMUM CANDIDATE RANGE, never a minimum
@@ -42,13 +46,14 @@ export const DEFAULT_MAX_PRODUCT_C_RATE = 0.5;
 export const POWER_TIE_TOLERANCE_SEK = 25;
 
 /* ------------------------------------------------------------------ *
- * FCR market realism
+ * FCR market realism (reported, never a blocker)
  * ------------------------------------------------------------------ */
 
 /**
- * Parameters that turn a HISTORICAL FCR-D up gross revenue into a customer-realistic net
- * revenue. Every one defaults to null = unverified. The engine refuses to size system
- * power economically on an FCR revenue that is explicitly incomplete.
+ * Parameters that would turn a HISTORICAL FCR-D up gross revenue into a customer
+ * realistic net revenue. Every one defaults to null = unverified. In v1 a missing value
+ * does NOT block the recommendation: the historical 2025 scenario is used and the result
+ * is explicitly flagged as historical, never as a forecast or guaranteed income.
  */
 export interface FcrMarketRealismConfig {
   aggregatorRevenueSharePct: number | null;
@@ -181,23 +186,21 @@ export interface PowerOption {
   fcrMonetizedPowerKw: number;
   energyBenefitSek: number;
   peakBenefitSek: number | null;
-  /** Historical 2025 gross. */
+  /** Historical 2025 FCR-D up revenue used in the objective. */
+  fcrRevenueSek: number;
+  /** Same figure, kept explicit as the HISTORICAL gross. */
   fcrGrossSek: number | null;
   /** Gross adjusted for verified market realism. Null while realism data is missing. */
   fcrRealisticNetSek: number | null;
-  /** The FCR figure actually used by the optimisation objective (0 when excluded). */
-  fcrRevenueUsedSek: number;
-  /** energy + peak + FCR gross. Reported value, independent of the objective. */
+  /** energy + peak + FCR. THE optimisation objective. */
+  totalOperatingBenefitSek: number;
+  /** Alias kept for existing consumers; identical to totalOperatingBenefitSek. */
   operatingBenefitSek: number;
-  /** energy + peak + fcrRevenueUsed. What the optimiser maximises before cost. */
-  objectiveOperatingBenefitSek: number;
+  /** Difference in total operating benefit against the NEXT LOWER candidate. */
+  deltaVsPreviousKw: number | null;
+  /** PARKED product-cost reporting. Never part of the objective. Null by default. */
   capexSek: number | null;
   annualisedProductCostSek: number | null;
-  annualNetBenefitSek: number | null;
-  /** Deltas against the NEXT LOWER candidate. Null for the lowest one. */
-  incrementalOperatingBenefitSek: number | null;
-  incrementalAnnualisedPowerCostSek: number | null;
-  incrementalAnnualNetBenefitSek: number | null;
   cost: ProductCostBreakdown;
   selected: boolean;
   /** True for the power today's physical sizing recommends. */
@@ -214,15 +217,18 @@ export interface EconomicPowerSizingResult {
   maxProductCRate: number;
   candidatePowersKw: number[];
   options: PowerOption[];
-  /** Highest operating benefit BEFORE product cost. Null when nothing was simulated. */
+  /** Highest annual operating benefit. THE v1 recommendation. */
   operatingOptimalPowerKw: number | null;
-  /** Highest annualised net AFTER product cost. Null when it cannot be computed. */
-  economicallyOptimalPowerKw: number | null;
+  /** The power the engine recommends = operatingOptimalPowerKw when available. */
+  recommendedPowerKw: number;
+  /** PARKED for a future full cost model. Always null in v1. */
+  economicallyOptimalPowerKw: null;
+  /** True when historical FCR-D up revenue influenced the chosen system power. */
+  recommendationUsesHistoricalFcr: boolean;
   status: EconomicPowerSizingStatus;
   reason: string;
   objective: string;
-  /** True when FCR revenue was deliberately left out of the objective. */
-  fcrExcludedFromObjective: boolean;
+  tieToleranceSek: number;
   productCostGaps: string[];
   fcrMarketGaps: string[];
   notes: string[];
@@ -237,34 +243,33 @@ export interface EconomicPowerSizingInput {
   /** Product power today's physical sizing recommends, kW. The lowest candidate. */
   productPowerKw: number;
   econ?: OperatingEconomyConfig;
-  cost: ProductCostConfig;
+  /** PARKED. Reported only; never used to pick the recommended system power. */
+  cost?: ProductCostConfig;
   fcrMarket?: FcrMarketRealismConfig;
   optimiseFcrReservation?: boolean;
   maxProductCRate?: number | undefined;
   /**
    * Optional cache of already simulated candidate powers. Physics is deterministic, so
-   * re-scoring the SAME simulations under a different product cost is exact and lets a
-   * caller compare cost scenarios without re-running the dispatch.
+   * re-scoring the SAME simulations is exact.
    */
   runCache?: Map<number, PowerCandidateRun>;
 }
 
 const OBJECTIVE_TEXT =
-  "annualNetBenefit = (energinytta + minskad effektkostnad + använd FCR-intäkt) − annualiserad produktkostnad. " +
-  "Kapaciteten är låst, så kapacitetskostnaden är identisk för alla kandidater och rangordningen är därmed " +
-  "matematiskt identisk med incrementalAnnualNetBenefit = Δoperativ nytta − Δannualiserad effektkostnad.";
+  "totalOperatingBenefit = energinytta + minskad effektkostnad + FCR-D upp-intäkt (historiskt 2025-scenario). " +
+  "Ingen produktkostnad, CAPEX, payback eller ROI ingår. Kapaciteten är låst av den fysiska " +
+  "dimensioneringen; endast systemeffekten optimeras.";
 
 function round2(v: number): number {
   return Math.round(v * 100) / 100;
 }
 
 /**
- * Economic power sizing for one already chosen capacity.
+ * Operating-benefit power sizing for one already chosen capacity.
  *
- * Refuses to guess: when the product cost is unknown NOTHING is simulated and the
- * economic optimum is null. When the FCR market realism is unverified the FCR revenue is
- * removed from the objective, so a larger system power can never be justified by a
- * revenue the model itself calls incomplete.
+ * Picks the system power with the highest calculated annual operating benefit. Ties
+ * within POWER_TIE_TOLERANCE_SEK go to the LOWER system power, so a trivial difference
+ * never buys extra kW.
  */
 export function runEconomicPowerSizing(
   input: EconomicPowerSizingInput,
@@ -274,7 +279,7 @@ export function runEconomicPowerSizing(
     capacityKWh,
     physicalPowerNeedKw,
     productPowerKw,
-    cost,
+    cost = productCostConfig(),
     econ = SWEDISH_OPERATING_ECONOMY,
     fcrMarket = EMPTY_FCR_MARKET_REALISM,
     optimiseFcrReservation: optimiseFcr = true,
@@ -291,13 +296,6 @@ export function runEconomicPowerSizing(
   const fcrActive = cfg.strategies.ancillaryServices;
   const fcrMarketGaps = fcrActive ? fcrMarketRealismGaps(fcrMarket) : [];
 
-  const usesPriceList = candidatePowersKw.some(
-    (kw) => cost.explicitOptionCostSek?.[productOptionKey(capacityKWh, kw)] !== undefined,
-  );
-  const productCostGaps = usesPriceList
-    ? [cost.lifetimeYears === null ? "lifetimeYears" : "", cost.discountRatePct === null ? "discountRatePct" : ""].filter(Boolean)
-    : missingProductCostFields(cost);
-
   const base = {
     capacityKWh,
     physicalPowerNeedKw,
@@ -305,28 +303,25 @@ export function runEconomicPowerSizing(
     maxProductCRate,
     candidatePowersKw,
     objective: OBJECTIVE_TEXT,
-    productCostGaps,
+    tieToleranceSek: POWER_TIE_TOLERANCE_SEK,
+    productCostGaps: [] as string[],
     fcrMarketGaps,
+    economicallyOptimalPowerKw: null as null,
   };
 
-  /* --- 1. No verified product cost => no economic recommendation, and no simulation. --- */
-  if (productCostGaps.length > 0)
+  if (candidatePowersKw.length === 0)
     return {
       ...base,
       options: [],
       operatingOptimalPowerKw: null,
-      economicallyOptimalPowerKw: null,
+      recommendedPowerKw: productPowerKw,
+      recommendationUsesHistoricalFcr: false,
       status: "incomplete",
-      reason: "product-cost-data-missing",
-      fcrExcludedFromObjective: fcrMarketGaps.length > 0,
-      notes: [
-        `Produktkostnad saknas (${productCostGaps.join(", ")}). Ekonomiskt optimal systemeffekt beräknas inte och gissas aldrig.`,
-        "Den fysiska effektdimensioneringen är oförändrad och används som rekommendation.",
-      ],
+      reason: "no-candidates",
+      notes: ["Inga giltiga effektkandidater kunde byggas för den valda kapaciteten."],
     };
 
-  /* --- 2. Simulate every candidate fully. --- */
-  const fcrExcluded = fcrActive && fcrMarketGaps.length > 0;
+  /* --- Simulate every candidate fully. --- */
   const cache = input.runCache;
   const options: PowerOption[] = candidatePowersKw.map((powerKw) => {
     const cached = cache?.get(powerKw);
@@ -335,16 +330,13 @@ export function runEconomicPowerSizing(
     const e = run.economy;
     const a = run.result.ancillary;
     const grossSek = e.fcr.grossSek;
-    const realistic = realisticFcrNetSek(grossSek, fcrMarket);
-    const fcrRevenueUsedSek = fcrExcluded ? 0 : (realistic ?? 0);
+    const fcrRevenueSek = grossSek ?? 0;
     const energyBenefitSek = e.energy.energyBenefitSek;
     const peakBenefitSek = e.peak.annualPeakBenefitSek;
-    const breakdown = productCost(capacityKWh, powerKw, cost);
-    const operatingBenefitSek = round2(energyBenefitSek + (peakBenefitSek ?? 0) + (grossSek ?? 0));
-    const objectiveOperatingBenefitSek = round2(
-      energyBenefitSek + (peakBenefitSek ?? 0) + fcrRevenueUsedSek,
+    const totalOperatingBenefitSek = round2(
+      energyBenefitSek + (peakBenefitSek ?? 0) + fcrRevenueSek,
     );
-    const annualisedProductCostSek = breakdown.annualisedTotalProductCostSek;
+    const breakdown = productCost(capacityKWh, powerKw, cost);
     return {
       powerKw,
       cRate: powerKw / capacityKWh,
@@ -358,20 +350,14 @@ export function runEconomicPowerSizing(
       fcrMonetizedPowerKw: a.monetizedPowerAvgKw,
       energyBenefitSek,
       peakBenefitSek,
+      fcrRevenueSek,
       fcrGrossSek: grossSek,
-      fcrRealisticNetSek: realistic,
-      fcrRevenueUsedSek,
-      operatingBenefitSek,
-      objectiveOperatingBenefitSek,
+      fcrRealisticNetSek: realisticFcrNetSek(grossSek, fcrMarket),
+      totalOperatingBenefitSek,
+      operatingBenefitSek: totalOperatingBenefitSek,
+      deltaVsPreviousKw: null,
       capexSek: breakdown.capexSek,
-      annualisedProductCostSek,
-      annualNetBenefitSek:
-        annualisedProductCostSek === null
-          ? null
-          : round2(objectiveOperatingBenefitSek - annualisedProductCostSek),
-      incrementalOperatingBenefitSek: null,
-      incrementalAnnualisedPowerCostSek: null,
-      incrementalAnnualNetBenefitSek: null,
+      annualisedProductCostSek: breakdown.annualisedTotalProductCostSek,
       cost: breakdown,
       selected: false,
       physicalSizingChoice: Math.abs(powerKw - productPowerKw) < 1e-9,
@@ -379,53 +365,55 @@ export function runEconomicPowerSizing(
     };
   });
 
-  /* --- 3. Incremental view against the next lower candidate. --- */
+  /* --- Increments against the next lower candidate. --- */
   for (let i = 1; i < options.length; i++) {
     const cur = options[i]!;
     const prev = options[i - 1]!;
-    cur.incrementalOperatingBenefitSek = round2(
-      cur.objectiveOperatingBenefitSek - prev.objectiveOperatingBenefitSek,
+    cur.deltaVsPreviousKw = round2(
+      cur.totalOperatingBenefitSek - prev.totalOperatingBenefitSek,
     );
-    cur.incrementalAnnualisedPowerCostSek =
-      cur.annualisedProductCostSek === null || prev.annualisedProductCostSek === null
-        ? null
-        : round2(cur.annualisedProductCostSek - prev.annualisedProductCostSek);
-    cur.incrementalAnnualNetBenefitSek =
-      cur.incrementalAnnualisedPowerCostSek === null
-        ? null
-        : round2(cur.incrementalOperatingBenefitSek - cur.incrementalAnnualisedPowerCostSek);
   }
 
-  /* --- 4. Winners. Ties within the tolerance go to the LOWER system power. --- */
-  const operatingBest = Math.max(...options.map((o) => o.operatingBenefitSek));
-  const operatingOptimalPowerKw =
-    options.find((o) => o.operatingBenefitSek >= operatingBest - POWER_TIE_TOLERANCE_SEK)
-      ?.powerKw ?? null;
-
-  const priced = options.filter((o) => o.annualNetBenefitSek !== null);
-  const netBest = Math.max(...priced.map((o) => o.annualNetBenefitSek!));
+  /* --- Winner: highest benefit, ties within the tolerance go to the LOWER power. --- */
+  const best = Math.max(...options.map((o) => o.totalOperatingBenefitSek));
   const winner =
-    priced.find((o) => o.annualNetBenefitSek! >= netBest - POWER_TIE_TOLERANCE_SEK) ?? null;
-  if (winner) winner.selected = true;
+    options.find((o) => o.totalOperatingBenefitSek >= best - POWER_TIE_TOLERANCE_SEK) ??
+    options[0]!;
+  winner.selected = true;
+
+  const physical = options.find((o) => o.physicalSizingChoice);
+  const fcrDecided =
+    fcrActive &&
+    winner.fcrRevenueSek > 0 &&
+    physical !== undefined &&
+    winner.powerKw > physical.powerKw &&
+    // Without the FCR term the higher power would not have beaten the physical one.
+    winner.totalOperatingBenefitSek - winner.fcrRevenueSek <
+      physical.totalOperatingBenefitSek - physical.fcrRevenueSek + POWER_TIE_TOLERANCE_SEK;
 
   const notes: string[] = [
     `Kandidater byggs från vald kapacitet: från fysiskt vald produkteffekt ${productPowerKw} kW upp till ${maxProductCRate} C (${round2(capacityKWh * maxProductCRate)} kW). C-raten är ett kandidattak, aldrig ett minimikrav.`,
     "Varje kandidat körs genom samma dispatch, samma peak shaving, samma FCR-gate och samma 10 %-sweep — ingen extrapolering.",
+    `Systemeffekten väljs på högst beräknad årlig nytta (energi + minskad effektkostnad + FCR). Produktkostnad ingår inte.`,
     `Vid skillnader under ${POWER_TIE_TOLERANCE_SEK} kr/år väljs den LÄGRE systemeffekten.`,
   ];
-  if (fcrExcluded)
+  if (fcrActive)
     notes.push(
-      `FCR-intäkten är UTESLUTEN ur optimeringsmålet: marknadsrealism saknas (${fcrMarketGaps.join(", ")}). Systemeffekten dimensioneras aldrig på en uttryckligen ofullständig marknadsintäkt.`,
+      "FCR-D upp-intäkten bygger på ett HISTORISKT 2025-scenario — inte en prognos eller garanterad intäkt.",
+    );
+  if (fcrMarketGaps.length > 0)
+    notes.push(
+      `Marknadsrealism är ofullständig (${fcrMarketGaps.join(", ")}); det historiska scenariot används och redovisas som sådant.`,
     );
 
   return {
     ...base,
     options,
-    operatingOptimalPowerKw,
-    economicallyOptimalPowerKw: winner ? winner.powerKw : null,
-    status: fcrExcluded ? "partial" : "complete",
-    reason: fcrExcluded ? "fcr-market-data-incomplete" : "ok",
-    fcrExcludedFromObjective: fcrExcluded,
+    operatingOptimalPowerKw: winner.powerKw,
+    recommendedPowerKw: winner.powerKw,
+    recommendationUsesHistoricalFcr: fcrDecided,
+    status: fcrMarketGaps.length > 0 ? "partial" : "complete",
+    reason: fcrMarketGaps.length > 0 ? "historical-fcr-scenario" : "ok",
     notes,
   };
 }

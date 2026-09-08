@@ -19,8 +19,10 @@ import type { FcrOptimisationResult, OperatingEconomyResult } from "../lab/opera
 import {
   DEFAULT_MAX_PRODUCT_C_RATE,
   EMPTY_FCR_MARKET_REALISM,
+  POWER_TIE_TOLERANCE_SEK,
   runEconomicPowerSizing,
 } from "../lab/economicPowerSizing";
+
 import type { EconomicPowerSizingResult } from "../lab/economicPowerSizing";
 import { productCostConfig } from "../lab/productCost";
 import { assessGrid } from "../lab/gridAssessment";
@@ -85,11 +87,11 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
   const productPowerKw = fixedPower ?? sweep.recommended.powerKw;
 
   /**
-   * ECONOMIC POWER SIZING — a layer ON TOP of the verified physics.
+   * OPERATING-BENEFIT POWER SIZING — a layer ON TOP of the verified physics.
    *
-   * The capacity above is untouched. Only the system power may be revised, and only when
-   * a verified product cost exists. Without cost data nothing is simulated here at all,
-   * so both the runtime and every existing result stay exactly as before.
+   * The capacity above is untouched. Only the system power may be revised, and only by
+   * the highest calculated annual operating benefit (energy + peak + FCR). No product
+   * cost, CAPEX, payback or ROI is involved.
    */
   const economicPowerSizing: EconomicPowerSizingResult = sizingWasFixed
     ? {
@@ -100,14 +102,16 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
         candidatePowersKw: [],
         options: [],
         operatingOptimalPowerKw: null,
+        recommendedPowerKw: productPowerKw,
         economicallyOptimalPowerKw: null,
+        recommendationUsesHistoricalFcr: false,
         status: "incomplete",
         reason: "sizing-fixed",
         objective: "",
-        fcrExcludedFromObjective: false,
+        tieToleranceSek: POWER_TIE_TOLERANCE_SEK,
         productCostGaps: [],
         fcrMarketGaps: [],
-        notes: ["Kapacitet och effekt är låsta av anroparen — ingen ekonomisk effektdimensionering körs."],
+        notes: ["Kapacitet och effekt är låsta av anroparen — ingen effektoptimering körs."],
       }
     : runEconomicPowerSizing({
         cfg,
@@ -122,11 +126,9 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
         maxProductCRate: input.battery?.maxProductCRateForCandidates,
       });
 
-  /**
-   * The economic optimum only takes over when it could actually be computed. Otherwise
-   * the physically sized product power remains the recommendation, exactly as today.
-   */
-  const powerKw = economicPowerSizing.economicallyOptimalPowerKw ?? productPowerKw;
+  /** The recommended system power is the operating-benefit optimum when available. */
+  const powerKw = economicPowerSizing.operatingOptimalPowerKw ?? productPowerKw;
+
 
   // Optional FCR reservation sweep. Every candidate runs through the normal simulation.
   let fcrOptimisation: FcrOptimisationResult | null = null;
@@ -189,10 +191,13 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       ),
       productPowerKw,
       operatingOptimalPowerKw: economicPowerSizing.operatingOptimalPowerKw,
+      recommendedPowerKw: powerKw,
       economicallyOptimalPowerKw: economicPowerSizing.economicallyOptimalPowerKw,
+      recommendationUsesHistoricalFcr: economicPowerSizing.recommendationUsesHistoricalFcr,
       economicPowerSizingStatus: economicPowerSizing.status,
       economicPowerSizingReason: economicPowerSizing.reason,
     },
+
     energy: {
       annualLoadKWh: result.annualLoadKWh,
       annualPvKWh: result.annualPvKWh,
@@ -284,8 +289,7 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       notes: economy.notes,
     },
     energyBalance: result.energyBalance,
-    // Product alternatives at the recommended capacity. Empty when economic power
-    // sizing did not run (no verified product cost, or fixed sizing).
+    // Simulated product alternatives at the recommended capacity.
     powerOptions: economicPowerSizing.options.map((o) => ({
       powerKw: o.powerKw,
       cRate: o.cRate,
@@ -296,19 +300,18 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       fcrMonetizedPowerKw: o.fcrMonetizedPowerKw,
       energyBenefitSek: o.energyBenefitSek,
       peakBenefitSek: o.peakBenefitSek,
+      fcrRevenueSek: o.fcrRevenueSek,
       fcrGrossSek: o.fcrGrossSek,
       fcrRealisticNetSek: o.fcrRealisticNetSek,
+      totalOperatingBenefitSek: o.totalOperatingBenefitSek,
       operatingBenefitSek: o.operatingBenefitSek,
-      capexSek: o.capexSek,
-      annualisedCostSek: o.annualisedProductCostSek,
-      annualNetBenefitSek: o.annualNetBenefitSek,
-      incrementalOperatingBenefitSek: o.incrementalOperatingBenefitSek,
-      incrementalAnnualisedPowerCostSek: o.incrementalAnnualisedPowerCostSek,
-      incrementalAnnualNetBenefitSek: o.incrementalAnnualNetBenefitSek,
+      deltaVsPreviousKw: o.deltaVsPreviousKw,
       selected: o.selected,
       physicalSizingChoice: o.physicalSizingChoice,
     })),
   };
+
+
 
   return {
     engineVersion: BATTERY_ENGINE_VERSION,

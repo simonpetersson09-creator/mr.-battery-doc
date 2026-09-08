@@ -181,14 +181,19 @@ export interface EngineRecommendation {
   actualDispatchPowerKw: number;
   /** Rating of the product alternative today's PHYSICAL sizing lands on, kW. */
   productPowerKw: number;
-  /** Highest operating benefit BEFORE product cost, kW. Null when not evaluated. */
+  /** System power with the highest calculated annual operating benefit, kW. */
   operatingOptimalPowerKw: number | null;
-  /** Highest annualised net AFTER product cost, kW. Null when it cannot be computed. */
+  /** The recommended system power = operatingOptimalPowerKw when it was computed. */
+  recommendedPowerKw: number;
+  /** PARKED for a future full product-cost model. Always null in v1. */
   economicallyOptimalPowerKw: number | null;
+  /** True when historical FCR-D up revenue decided the recommended system power. */
+  recommendationUsesHistoricalFcr: boolean;
   economicPowerSizingStatus: EconomicPowerSizingStatus;
-  /** "ok" | "product-cost-data-missing" | "fcr-market-data-incomplete" | "sizing-fixed". */
+  /** "ok" | "historical-fcr-scenario" | "sizing-fixed" | "no-candidates". */
   economicPowerSizingReason: string;
 }
+
 
 /** One simulated product alternative at the recommended capacity. */
 export interface EnginePowerOption {
@@ -201,18 +206,20 @@ export interface EnginePowerOption {
   fcrMonetizedPowerKw: number;
   energyBenefitSek: number;
   peakBenefitSek: number | null;
+  /** Historical 2025 FCR-D up revenue included in the objective. */
+  fcrRevenueSek: number;
   fcrGrossSek: number | null;
   fcrRealisticNetSek: number | null;
+  /** energy + peak + FCR. The value the system power is chosen on. */
+  totalOperatingBenefitSek: number;
+  /** Alias of totalOperatingBenefitSek. */
   operatingBenefitSek: number;
-  capexSek: number | null;
-  annualisedCostSek: number | null;
-  annualNetBenefitSek: number | null;
-  incrementalOperatingBenefitSek: number | null;
-  incrementalAnnualisedPowerCostSek: number | null;
-  incrementalAnnualNetBenefitSek: number | null;
+  /** Difference against the next lower candidate, SEK/year. */
+  deltaVsPreviousKw: number | null;
   selected: boolean;
   physicalSizingChoice: boolean;
 }
+
 
 export interface EngineEnergySummary {
   annualLoadKWh: number;
