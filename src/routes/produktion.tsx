@@ -38,7 +38,7 @@ function ProductionStep() {
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
     >
-      <div className="space-y-3">
+      <div className="space-y-2">
         <OptionCard
           title="Jag har ingen solcellsanläggning"
           selected={p.mode === "none"}
@@ -91,10 +91,10 @@ function ProductionStep() {
 
           {p.useMonthly ? (
             <SectionCard title="Månadsproduktion">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 {MONTH_SHORT_SV.map((m, i) => (
-                  <label key={m} className="block">
-                    <span className="field-label">{m}</span>
+                  <label key={m} className="flex items-center gap-2">
+                    <span className="field-label w-9 shrink-0">{m}</span>
                     <input
                       type="number"
                       inputMode="decimal"
@@ -107,11 +107,12 @@ function ProductionStep() {
                           return { ...s, production: { ...s.production, monthlyKwh: next } };
                         })
                       }
-                      className="mt-1.5 h-10 w-full rounded-xl border border-foreground/15 bg-surface-cream px-2.5 text-sm font-semibold outline-none focus:border-accent"
+                      className="ui-control h-11 min-w-0 flex-1 tabular-nums"
                     />
                   </label>
                 ))}
               </div>
+
             </SectionCard>
           ) : null}
         </>

@@ -40,7 +40,8 @@ function ResultStep() {
   const restart = (
     <Button
       variant="cta"
-      className="h-auto flex-[2] rounded-[18px] py-2.5 text-sm font-bold shadow-cta"
+      className="h-12 flex-[2] rounded-[0.875rem] text-[15px] font-bold shadow-cta"
+
       onClick={() => {
         reset();
         void navigate({ to: "/" });
@@ -62,7 +63,7 @@ function ResultStep() {
           title="Fyll i det som saknas"
           description="Beräkningen startar först när alla uppgifter finns — vi gissar aldrig åt dig."
         >
-          <ul className="space-y-2 text-sm text-muted-foreground">
+          <ul className="ui-help space-y-1.5">
             {outcome.issues.map((i) => (
               <li key={i.field} className="flex gap-2">
                 <span className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" />
@@ -106,21 +107,20 @@ function ResultStep() {
       intro="Så här ser förslaget ut för din fastighet."
       footerAction={restart}
     >
-      <div className="hero-metric rounded-[22px] p-4 text-center">
-        <p className="text-[11px] font-bold tracking-widest text-foreground/60 uppercase">
-          Rekommenderat batteri
-        </p>
-        <p className="mt-2 font-display text-5xl font-extrabold tracking-tight tabular-nums">
+      <div className="hero-metric rounded-[1.25rem] px-4 py-4 text-center">
+        <p className="ui-caption">Rekommenderat batteri</p>
+        <p className="ui-hero mt-1.5 tabular-nums">
           {nf(r.capacityKWh)} <span className="text-2xl font-bold">kWh</span>
         </p>
-        <p className="mt-1 text-lg font-bold tabular-nums">{nf(r.powerKw, 1)} kW effekt</p>
-        <p className="mt-2 text-[13px] text-foreground/70">
+        <p className="ui-section-title mt-0.5 tabular-nums">{nf(r.powerKw, 1)} kW effekt</p>
+        <p className="ui-help mt-1 text-foreground/70">
           Rimligt intervall {nf(r.reasonableRangeKWh[0])}–{nf(r.reasonableRangeKWh[1])} kWh
         </p>
       </div>
 
+
       <SectionCard title="Energi">
-        <div className="space-y-2.5">
+        <div className="space-y-2">
           <BeforeAfter
             label="Egenanvändning"
             before={pct(e.selfConsumptionBeforePct)}
@@ -149,7 +149,7 @@ function ResultStep() {
       </SectionCard>
 
       <SectionCard title="Effekt">
-        <div className="space-y-2.5">
+        <div className="space-y-2">
           <BeforeAfter
             label="Effekttopp"
             before={kw(g.importPeakBeforeKw)}
@@ -161,19 +161,19 @@ function ResultStep() {
           />
           <Row label="Minskad effektkostnad" value={money(s.peak.demandCostSavingSek)} />
           {s.peak.tariffNote ? (
-            <p className="text-xs text-muted-foreground">{s.peak.tariffNote}</p>
+            <p className="ui-help">{s.peak.tariffNote}</p>
           ) : null}
         </div>
       </SectionCard>
 
       <SectionCard title="Ekonomi" description="Varje nytta räknas bara en gång.">
-        <div className="space-y-2.5">
+        <div className="space-y-2">
           <Row label="Energinytta" value={money(s.economy.energyBenefitSek)} />
           <Row label="Minskad effektkostnad" value={money(s.economy.demandCostSavingSek)} />
           {s.fcr.enabled ? (
             <Row label="FCR-D upp (historiskt 2025)" value={money(s.fcr.grossSek)} />
           ) : null}
-          <div className="mt-1 flex items-center justify-between rounded-2xl bg-accent px-3 py-2.5 text-base font-extrabold text-accent-foreground">
+          <div className="mt-1 flex items-center justify-between gap-3 rounded-[0.875rem] bg-accent px-3 py-2.5 text-[17px] font-extrabold text-accent-foreground">
             <span>Total nytta per år</span>
             <span className="tabular-nums">{money(s.economy.totalOperatingBenefitSek)}</span>
           </div>
@@ -182,25 +182,25 @@ function ResultStep() {
 
       {s.fcr.enabled ? (
         <SectionCard title="FCR-D upp">
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             <Row label="Erbjuden effekt" value={kw(s.fcr.offeredPowerKw, 1)} />
             <Row label="Genomsnittligt hållen effekt" value={kw(s.fcr.avgHeldPowerKw, 2)} />
             <Row label="Tillgänglighet" value={pct(s.fcr.availabilityPct)} />
-            <p className="text-xs text-muted-foreground">{s.fcr.disclaimer}</p>
+            <p className="ui-help">{s.fcr.disclaimer}</p>
           </div>
         </SectionCard>
       ) : null}
 
       <SectionCard title="Begränsningar">
-        <div className="space-y-2.5">
+        <div className="space-y-2">
           <Row label="Nätstatus" value={g.headline} />
           <Row label="Otäckt last" value={`${kwh(g.unservedLoadKWh)}/år`} />
-          {g.detail ? <p className="text-xs text-muted-foreground">{g.detail}</p> : null}
+          {g.detail ? <p className="ui-help">{g.detail}</p> : null}
           {r.utilisationWarning ? (
-            <p className="text-xs text-muted-foreground">{r.utilisationWarning}</p>
+            <p className="ui-help">{r.utilisationWarning}</p>
           ) : null}
           {g.consequences.length ? (
-            <ul className="space-y-2 text-sm text-muted-foreground">
+            <ul className="ui-help space-y-1.5">
               {g.consequences.map((line) => (
                 <li key={line} className="flex gap-2">
                   <span className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" />
@@ -213,7 +213,7 @@ function ResultStep() {
       </SectionCard>
 
       <SectionCard title="Varför den här storleken?">
-        <ul className="space-y-2 text-sm text-muted-foreground">
+        <ul className="ui-help space-y-1.5">
           {[r.explanation, r.powerExplanation].filter(Boolean).map((line) => (
             <li key={line} className="flex gap-2">
               <span className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" />
@@ -228,9 +228,9 @@ function ResultStep() {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-4 text-sm">
+    <div className="ui-body flex items-center justify-between gap-4">
       <span className="text-muted-foreground">{label}</span>
-      <span className="font-semibold">{value}</span>
+      <span className="font-semibold tabular-nums">{value}</span>
     </div>
   );
 }
@@ -245,11 +245,12 @@ function BeforeAfter({
   after: string;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 text-sm">
+    <div className="ui-body flex items-center justify-between gap-4">
       <span className="text-muted-foreground">{label}</span>
-      <span className="font-semibold">
+      <span className="font-semibold tabular-nums">
         <span className="text-muted-foreground">{before}</span> → {after}
       </span>
     </div>
   );
 }
+

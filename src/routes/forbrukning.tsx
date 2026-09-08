@@ -47,7 +47,8 @@ function ConsumptionStep() {
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
     >
-      <div className="space-y-3">
+      <div className="space-y-2">
+
         <OptionCard
           title="Årsförbrukning"
           description="Jag vet ungefär hur många kWh vi använder per år."
@@ -85,10 +86,10 @@ function ConsumptionStep() {
             title="Faktisk månadsförbrukning"
             description="Faktiska värden går alltid före uppskattningar."
           >
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               {MONTH_SHORT_SV.map((m, i) => (
-                <label key={m} className="block">
-                  <span className="field-label">{m}</span>
+                <label key={m} className="flex items-center gap-2">
+                  <span className="field-label w-9 shrink-0">{m}</span>
                   <input
                     type="number"
                     inputMode="decimal"
@@ -101,15 +102,16 @@ function ConsumptionStep() {
                         return { ...s, consumption: { ...s.consumption, monthlyKwh: next } };
                       })
                     }
-                    className="mt-1.5 h-10 w-full rounded-xl border border-foreground/15 bg-surface-cream px-2.5 text-sm font-semibold outline-none focus:border-accent"
+                    className="ui-control h-11 min-w-0 flex-1 tabular-nums"
                   />
                 </label>
               ))}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="ui-help">
               Summa:{" "}
               {c.monthlyKwh.reduce<number>((a, b) => a + (b ?? 0), 0).toLocaleString("sv-SE")} kWh
             </p>
+
           </SectionCard>
           <ProfilePicker note="Profilen används för att fördela varje månads förbrukning över dygnets timmar. Dina månadsvärden styr månadsenergin." />
         </>
@@ -140,7 +142,7 @@ function ProfilePicker({ note }: { note?: string }) {
           }))
         }
       >
-        <SelectTrigger className="h-10 w-full rounded-xl border-foreground/15 bg-surface-cream text-sm font-semibold">
+        <SelectTrigger className="ui-control">
           <SelectValue placeholder="Välj profil">
             {selected ? selected.name : null}
           </SelectValue>

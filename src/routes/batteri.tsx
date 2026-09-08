@@ -32,30 +32,34 @@ function BatteryStep() {
       title="Batteri"
       intro="Allt är påslaget från start. Slå av det som inte är intressant för dig."
     >
-      <ToggleRow
-        title="Optimerad egenanvändning av solenergi"
-        description="Lagra överskott från solceller och använd energin senare."
-        checked={s.solarSelfConsumption}
-        onChange={set("solarSelfConsumption")}
-      />
-      <ToggleRow
-        title="Minskad nätimport"
-        description="Använd batteriet för att minska mängden el som hämtas från elnätet."
-        checked={s.reducedGridImport}
-        onChange={set("reducedGridImport")}
-      />
-      <ToggleRow
-        title="Peak shaving"
-        description="Använd batteriet för att minska fastighetens effekttoppar."
-        checked={s.peakShaving}
-        onChange={set("peakShaving")}
-      />
+      <div className="space-y-2">
+        <ToggleRow
+          title="Optimerad egenanvändning av solenergi"
+          description="Lagra solöverskott och använd energin senare."
+          checked={s.solarSelfConsumption}
+          onChange={set("solarSelfConsumption")}
+        />
+        <ToggleRow
+          title="Minskad nätimport"
+          description="Minska mängden el som hämtas från elnätet."
+          checked={s.reducedGridImport}
+          onChange={set("reducedGridImport")}
+        />
+        <ToggleRow
+          title="Peak shaving"
+          description="Kapa fastighetens effekttoppar."
+          checked={s.peakShaving}
+          onChange={set("peakShaving")}
+        />
+      </div>
+
       <ToggleRow
         title="Stödtjänster – FCR-D upp"
-        description="Reserverar en del av batteriets effekt och energi för att kunna stödja elnätet. Appen optimerar automatiskt hur stor effekt som är ekonomiskt rimlig att reservera."
+        description="Reserverar effekt för att stödja elnätet. Appen optimerar reservationen automatiskt."
         checked={s.fcrDUp}
         onChange={set("fcrDUp")}
       />
+
 
       {noSolar && s.solarSelfConsumption ? (
         <SectionCard description="Du har angett att fastigheten inte har solceller. Då ger egenanvändning av solel ingen nytta idag — övriga användningssätt påverkas inte." />
