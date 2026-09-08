@@ -247,3 +247,26 @@ export function formatMoney(value: number, code: CountryCode, digits = 2): strin
   const c = getCountry(code);
   return `${value.toFixed(digits).replace(".", ",")} ${c.economy.currencyLabel}`;
 }
+
+/**
+ * ONE shared grid engine for every country: theoretical connection power from the main
+ * fuse, using the country's own voltage/phases. No 400 V assumption is duplicated
+ * anywhere — a future country with a different standard only needs a COUNTRIES entry.
+ *
+ *   3-phase: P = sqrt(3) x U x A / 1000
+ */
+export function theoreticalGridPowerKw(mainFuseA: number, code: CountryCode): number {
+  const c = getCountry(code);
+  return computeFuseKw(mainFuseA, c.grid.voltage, c.grid.phases);
+}
+
+/** Short technical label, e.g. "3-fas 400 V". */
+export function gridStandardLabel(code: CountryCode): string {
+  const c = getCountry(code);
+  return `${c.grid.phases}-fas ${c.grid.voltage} V`;
+}
+
+/** Market area used for the historical ancillary price lookup. */
+export function fcrMarketArea(code: CountryCode): FcrMarketArea {
+  return getCountry(code).ancillary.priceArea;
+}
