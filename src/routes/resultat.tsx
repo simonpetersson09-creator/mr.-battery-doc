@@ -280,23 +280,34 @@ function ResultStep() {
               {money(s.economy.totalOperatingBenefitSek)}
               <span className="ui-help font-normal"> /år</span>
             </p>
-            <div className="mt-2 space-y-2">
+            <div className="mt-2 space-y-2.5">
               {s.economy.energyBenefitSek !== 0 ? (
-                <Row label="Energinytta" value={`${money(s.economy.energyBenefitSek)}/år`} />
+                <BenefitRow
+                  label={p.hasSolar ? "Flyttad solel och minskat elköp" : "Minskat elköp"}
+                  hint={
+                    p.hasSolar
+                      ? "Lagrad solel används när den behövs."
+                      : "Batteriet laddas när elen är billigare och används senare."
+                  }
+                  value={`${money(s.economy.energyBenefitSek)}/år`}
+                />
               ) : null}
               {p.showDemandSavingRow ? (
-                <Row
-                  label="Minskad effektkostnad"
+                <BenefitRow
+                  label="Peak shaving"
+                  hint="Kapar effekttoppar och minskar effektavgiften."
                   value={`${money(s.economy.demandCostSavingSek)}/år`}
                 />
               ) : null}
               {s.fcr.enabled ? (
-                <Row
-                  label="Stödtjänster – historiskt 2025"
+                <BenefitRow
+                  label="Stödtjänster – FCR-D upp"
+                  hint="Ersättning för reserverad batterieffekt. Historiska priser 2025."
                   value={`${money(s.fcr.grossSek)}/år`}
                 />
               ) : null}
             </div>
+
           </>
         )}
       </SectionCard>
