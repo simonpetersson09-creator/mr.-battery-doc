@@ -8,6 +8,9 @@
  * Adding a new country = adding one entry to COUNTRIES. No UI changes needed.
  */
 
+import type { FcrMarketArea } from "@/lib/lab/ancillary/prices";
+import { computeFuseKw } from "@/lib/battery-engine";
+
 export type CountryCode = "SE" | "NO" | "FI" | "DK" | "DE";
 
 export interface GridDefaults {
@@ -42,6 +45,22 @@ export interface EconomyDefaults {
   demandChargeVerified: boolean;
 }
 
+/**
+ * Ancillary (FCR-D up) market configuration. Deliberately SEPARATE from the grid
+ * physics: sharing 400 V three-phase says nothing about sharing a frequency market.
+ */
+export interface AncillaryMarketConfig {
+  /** The TSO market the country belongs to. */
+  marketLabel: string;
+  /**
+   * Price/market area used to look up the verified historical dataset. Countries that
+   * later need several zones (Denmark: DK1/DK2) get one entry per area here.
+   */
+  priceArea: FcrMarketArea;
+  /** Additional selectable areas, prepared for zone splits. Empty = single area. */
+  additionalPriceAreas: FcrMarketArea[];
+}
+
 export interface CountryConfig {
   code: CountryCode;
   name: string;
@@ -49,7 +68,9 @@ export interface CountryConfig {
   locale: string;
   grid: GridDefaults;
   economy: EconomyDefaults;
+  ancillary: AncillaryMarketConfig;
 }
+
 
 export const COUNTRIES: Record<CountryCode, CountryConfig> = {
   SE: {
@@ -74,6 +95,11 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       eurSekRate: 11.3,
       demandChargeVerified: false,
     },
+    ancillary: {
+      marketLabel: "Svenska kraftnät (FCR-D upp)",
+      priceArea: "SE",
+      additionalPriceAreas: [],
+    },
   },
   NO: {
     code: "NO",
@@ -96,6 +122,11 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       demandCharge: 0,
       eurSekRate: 11.3,
       demandChargeVerified: false,
+    },
+    ancillary: {
+      marketLabel: "Statnett (FCR-D upp)",
+      priceArea: "SE",
+      additionalPriceAreas: [],
     },
   },
   FI: {
@@ -121,6 +152,11 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       eurSekRate: 11.3,
       demandChargeVerified: false,
     },
+    ancillary: {
+      marketLabel: "Fingrid (FCR-D upp)",
+      priceArea: "FI",
+      additionalPriceAreas: [],
+    },
   },
   DK: {
     code: "DK",
@@ -145,6 +181,11 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       eurSekRate: 11.3,
       demandChargeVerified: false,
     },
+    ancillary: {
+      marketLabel: "Energinet (FCR-D upp)",
+      priceArea: "DK",
+      additionalPriceAreas: ["DK1", "DK2"],
+    },
   },
   DE: {
     code: "DE",
@@ -168,6 +209,11 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       demandCharge: 0,
       eurSekRate: 11.3,
       demandChargeVerified: false,
+    },
+    ancillary: {
+      marketLabel: "Regelleistung / ÜNB (FCR)",
+      priceArea: "DE",
+      additionalPriceAreas: [],
     },
   },
 };
@@ -200,4 +246,27 @@ export function selfConsumptionValue(importPrice: number, exportPrice: number): 
 export function formatMoney(value: number, code: CountryCode, digits = 2): string {
   const c = getCountry(code);
   return `${value.toFixed(digits).replace(".", ",")} ${c.economy.currencyLabel}`;
+}
+
+/**
+ * ONE shared grid engine for every country: theoretical connection power from the main
+ * fuse, using the country's own voltage/phases. No 400 V assumption is duplicated
+ * anywhere — a future country with a different standard only needs a COUNTRIES entry.
+ *
+ *   3-phase: P = sqrt(3) x U x A / 1000
+ */
+export function theoreticalGridPowerKw(mainFuseA: number, code: CountryCode): number {
+  const c = getCountry(code);
+  return computeFuseKw(mainFuseA, c.grid.voltage, c.grid.phases);
+}
+
+/** Short technical label, e.g. "3-fas 400 V". */
+export function gridStandardLabel(code: CountryCode): string {
+  const c = getCountry(code);
+  return `${c.grid.phases}-fas ${c.grid.voltage} V`;
+}
+
+/** Market area used for the historical ancillary price lookup. */
+export function fcrMarketArea(code: CountryCode): FcrMarketArea {
+  return getCountry(code).ancillary.priceArea;
 }

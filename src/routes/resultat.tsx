@@ -9,6 +9,7 @@ import { computeWithoutFcrOptimum } from "@/lib/battery-app/withoutFcrOptimum";
 import { computeBatteryAlternatives } from "@/lib/battery-app/capacityAlternatives";
 
 
+import { ancillaryUnavailableText } from "@/lib/battery-app/ancillaryAvailability";
 import { useWizard } from "@/state/wizard";
 
 export const Route = createFileRoute("/resultat")({
@@ -131,6 +132,13 @@ function ResultStep() {
   });
 
   const noBattery = p.noBattery;
+
+  /* Countries without a verified historical price dataset get an explicit
+     "not available" note instead of a fabricated 0 kr ancillary revenue. */
+  const ancillaryNote = state.strategies.fcrDUp
+    ? ancillaryUnavailableText(state.grid.country)
+    : null;
+
 
   const peakPct =
     g.importPeakBeforeKw > 0 ? (s.peak.peakReductionKw / g.importPeakBeforeKw) * 100 : 0;
@@ -339,13 +347,16 @@ function ResultStep() {
                   value={`${money(s.economy.demandCostSavingSek)}/år`}
                 />
               ) : null}
-              {s.fcr.enabled ? (
+              {ancillaryNote ? (
+                <p className="ui-help">{ancillaryNote}</p>
+              ) : s.fcr.enabled ? (
                 <BenefitRow
                   label="Stödtjänster – FCR-D upp"
                   hint="Ersättning för reserverad batterieffekt. Historiska priser 2025."
                   value={`${money(s.fcr.grossSek)}/år`}
                 />
               ) : null}
+
             </div>
 
           </>

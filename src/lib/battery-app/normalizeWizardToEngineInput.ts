@@ -45,10 +45,16 @@ export function normalizeWizardToEngineInput(
     phases: country.grid.phases,
     mainFuseA: state.grid.mainFuseA,
   };
-  // The country tag selects the historical FCR-D up price series (SE = Svenska kraftnät,
-  // FI = Fingrid). Everything else in the engine stays country agnostic.
-  if (state.grid.country === "SE" || state.grid.country === "FI") site.country = state.grid.country;
-  // Grid limits and margins are derived by the engine from fuse/voltage/phases.
+  // The country tag is the single source of truth for which historical FCR-D up market
+  // and price dataset the engine uses (SE, FI, DK, DE). Grid physics stays shared.
+  if (
+    state.grid.country === "SE" ||
+    state.grid.country === "FI" ||
+    state.grid.country === "DK" ||
+    state.grid.country === "DE"
+  )
+    site.country = state.grid.country;
+
 
   /* ---------------- consumption ---------------- */
   const consumption: EngineConsumptionInput = {};
