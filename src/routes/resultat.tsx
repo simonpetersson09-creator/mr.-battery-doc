@@ -138,14 +138,28 @@ function ResultStep() {
         <div className="hero-metric rounded-[1.25rem] px-4 py-4 text-center">
           <p className="ui-caption">Rekommenderat batteri</p>
           <p className="ui-hero mt-1.5 tabular-nums">
-            {nf(r.capacityKWh)} <span className="text-2xl font-bold">kWh</span>
+            {nf(p.capacityKWh)} <span className="text-2xl font-bold">kWh</span>
           </p>
-          <p className="ui-section-title mt-0.5 tabular-nums">{nf(r.powerKw, 1)} kW effekt</p>
+          <p className="ui-section-title mt-0.5 tabular-nums">
+            {nf(p.recommendedPowerKw, 1)} kW effekt
+          </p>
+          {p.fcrPowerNote ? (
+            <>
+              <p className="ui-help mt-2 text-left text-foreground/70">{p.fcrPowerNote}</p>
+              <p className="ui-help mt-1 text-left text-foreground/70">
+                {p.fcrPowerNoteSecondary}
+              </p>
+            </>
+          ) : null}
         </div>
       )}
 
+      {p.limitedBenefit ? (
+        <SectionCard title={p.limitedBenefitTitle ?? ""} description={p.limitedBenefitText ?? ""} />
+      ) : null}
 
-      {showEnergySection ? (
+      {p.showEnergySection ? (
+
         <SectionCard title="Energi">
           <div className="space-y-2">
             {showSelfConsumption ? (
