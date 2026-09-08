@@ -66,12 +66,12 @@ export function WizardShell({
 
       <div className="pb-safe fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-[32rem] border-t border-border/70 bg-background/90 px-4 pt-2 backdrop-blur-md">
         {nextDisabled && nextBlockedReason ? (
-          <p className="mb-2 text-xs text-muted-foreground" role="status">
+          <p className="ui-help mb-2" role="status">
             {nextBlockedReason}
           </p>
         ) : null}
         <div className="flex gap-2">
-          <Button asChild variant="outline" className="h-auto flex-1 rounded-[18px] py-2.5 text-sm">
+          <Button asChild variant="outline" className="h-12 flex-1 rounded-[0.875rem] text-[15px]">
             <Link to={prev}>Tillbaka</Link>
           </Button>
           {footerAction ? (
@@ -80,7 +80,7 @@ export function WizardShell({
             nextDisabled ? (
               <Button
                 variant="cta"
-                className="h-auto flex-[2] rounded-[18px] py-2.5 text-sm font-bold shadow-cta"
+                className="h-12 flex-[2] rounded-[0.875rem] text-[15px] font-bold shadow-cta"
                 disabled
                 aria-disabled="true"
               >
@@ -91,7 +91,7 @@ export function WizardShell({
               <Button
                 asChild
                 variant="cta"
-                className="h-auto flex-[2] rounded-[18px] py-2.5 text-sm font-bold shadow-cta"
+                className="h-12 flex-[2] rounded-[0.875rem] text-[15px] font-bold shadow-cta"
               >
                 <Link to={next}>
                   {nextLabel ?? "Nästa"}
@@ -103,13 +103,14 @@ export function WizardShell({
             <Button
               asChild
               variant="cta"
-              className="h-auto flex-[2] rounded-[18px] py-2.5 text-sm font-bold shadow-cta"
+              className="h-12 flex-[2] rounded-[0.875rem] text-[15px] font-bold shadow-cta"
             >
               <Link to="/">Klar</Link>
             </Button>
           )}
         </div>
       </div>
+
     </div>
   );
 }
