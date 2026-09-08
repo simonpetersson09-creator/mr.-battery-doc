@@ -47,9 +47,37 @@ function ProductionStep() {
     }));
 
   const applyImported = useCallback(
-    (vals: number[]) =>
-      update((s) => ({ ...s, production: { ...s.production, monthlyKwh: [...vals] } })),
+    (vals: number[], selfPct?: number | null) =>
+      update((s) => ({
+        ...s,
+        production: {
+          ...s.production,
+          monthlyKwh: [...vals],
+          selfConsumptionPct:
+            typeof selfPct === "number" && selfPct > 0 && selfPct <= 100
+              ? selfPct
+              : s.production.selfConsumptionPct,
+        },
+      })),
     [update],
+  );
+
+  const selfConsumptionField = (
+    <SectionCard title="Egenanvändning av solel (valfritt)">
+      <NumberField
+        label="Egenanvändning"
+        unit="%"
+        value={p.selfConsumptionPct}
+        placeholder="t.ex. 45"
+        onChange={(v) =>
+          update((s) => ({ ...s, production: { ...s.production, selfConsumptionPct: v } }))
+        }
+      />
+      <p className="ui-help">
+        Andelen av din producerade solel som används direkt i fastigheten. Om du inte vet
+        värdet beräknar vi det utifrån din förbrukning och produktion.
+      </p>
+    </SectionCard>
   );
 
   return (
@@ -107,6 +135,8 @@ function ProductionStep() {
           />
         </SectionCard>
       ) : null}
+
+      {choice !== "none" ? selfConsumptionField : null}
 
       {choice === "monthly" ? (
         <>

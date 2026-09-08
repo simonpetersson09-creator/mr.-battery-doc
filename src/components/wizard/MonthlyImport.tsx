@@ -39,7 +39,7 @@ export function MonthlyImport({
 }: {
   kind: Exclude<SeriesKind, "unknown">;
   description: string;
-  onApply: (valuesKwh: number[]) => void;
+  onApply: (valuesKwh: number[], selfConsumptionPct?: number | null) => void;
   /** true while the picker/review overlay owns the month values. */
   onOpenChange?: (open: boolean) => void;
 }) {
@@ -196,7 +196,10 @@ export function MonthlyImport({
             </p>
           ) : null}
           {selfPct !== null ? (
-            <p className="ui-help">Dokumentet anger även {selfPct} % egenanvändning.</p>
+            <p className="ui-help">
+              Dokumentet anger {selfPct} % egenanvändning. Värdet används som din faktiska
+              egenanvändning när du godkänner värdena.
+            </p>
           ) : null}
 
           <div className="grid grid-cols-2 gap-2">
@@ -237,7 +240,7 @@ export function MonthlyImport({
               className="flex-1"
               disabled={!review.ok}
               onClick={() => {
-                onApply(review.values.map((v) => v as number));
+                onApply(review.values.map((v) => v as number), selfPct);
                 setApplied(true);
                 close();
               }}
