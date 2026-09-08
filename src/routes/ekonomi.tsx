@@ -32,12 +32,15 @@ function EconomyStep() {
 
   const setEconomy = (patch: Partial<typeof state.economy>) =>
     update((s) => ({ ...s, economy: { ...s.economy, ...patch, touched: true } }));
+  const validity = validateEconomyStep(state);
 
   return (
     <WizardShell
       stepIndex={4}
       title="Ekonomi"
       intro={`Standardvärden för ${country.name}. Du kan ändra allt själv.`}
+      nextDisabled={!validity.ok}
+      nextBlockedReason={validity.message}
     >
       <SectionCard title="Elpriser">
         <NumberField
