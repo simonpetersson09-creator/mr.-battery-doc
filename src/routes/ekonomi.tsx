@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { NumberField, SectionCard } from "@/components/wizard/fields";
 import { getCountry, selfConsumptionValue } from "@/lib/country-config";
+import { validateEconomyStep } from "@/lib/battery-app/stepValidation";
 import { useWizard } from "@/state/wizard";
 
 export const Route = createFileRoute("/ekonomi")({
