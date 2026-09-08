@@ -39,6 +39,18 @@ function ResultStep() {
   const navigate = useNavigate();
   // Single integration point: wizard -> adapter -> frozen Battery Engine.
   const outcome = useMemo(() => runBatteryApp(state), [state]);
+  /**
+   * Genuine FCR-off counterfactual (same capacity, FCR switched off BEFORE dispatch).
+   * Only needed while FCR-D up is actually part of the recommendation.
+   */
+  const withoutFcr = useMemo(
+    () =>
+      outcome.status === "ok" && outcome.result.summary.fcr.enabled
+        ? computeWithoutFcrOptimum(outcome.input, outcome.result)
+        : null,
+    [outcome],
+  );
+
 
   const restart = (
     <Button
@@ -106,7 +118,9 @@ function ResultStep() {
   const p = buildResultPresentation(outcome.result, {
     peakShavingSelected: state.strategies.peakShaving,
     demandChargeTouched: state.economy.demandChargeTouched,
+    withoutFcr,
   });
+
   const noBattery = p.noBattery;
 
   const peakPct =
