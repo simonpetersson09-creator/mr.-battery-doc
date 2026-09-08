@@ -196,12 +196,13 @@ describe("restart clears the wizard", () => {
     expect(read("src/state/wizard.tsx")).toMatch(/localStorage\.removeItem\(STORAGE_KEY\)/);
   });
 
-  it("a fresh state carries no user values", () => {
+  it("a fresh state carries no user values but has all strategies on by default", () => {
     const s = createInitialState("SE");
     expect(s.consumption.annualKwh).toBeNull();
     expect(s.consumption.profileId).toBeNull();
     expect(s.production.mode).toBe("none");
-    expect(s.strategies.fcrDUp).toBe(false);
+    expect(s.strategies.fcrDUp).toBe(true);
+    expect(s.grid.gridValuesConfirmed).toBe(false);
   });
 });
 

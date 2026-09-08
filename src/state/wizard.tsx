@@ -31,6 +31,8 @@ export interface WizardState {
     country: CountryCode;
     mainFuseA: number;
     mainFuseManual: boolean;
+    /** User has confirmed the auto-derived grid values are correct. */
+    gridValuesConfirmed: boolean;
   };
   consumption: {
     mode: ConsumptionMode;
@@ -54,7 +56,7 @@ export interface WizardState {
     solarSelfConsumption: boolean;
     reducedGridImport: boolean;
     peakShaving: boolean;
-    /** FCR-D up. Not exposed in the UI yet; mapped to the engine when true. */
+    /** FCR-D up (stödtjänster). Mapped to the engine when true. */
     fcrDUp: boolean;
   };
   economy: {
@@ -100,6 +102,7 @@ export function createInitialState(country: CountryCode = DEFAULT_COUNTRY): Wiza
       country,
       mainFuseA: getCountry(country).grid.defaultMainFuse,
       mainFuseManual: false,
+      gridValuesConfirmed: false,
     },
     consumption: {
       mode: "annual",
@@ -122,7 +125,7 @@ export function createInitialState(country: CountryCode = DEFAULT_COUNTRY): Wiza
       solarSelfConsumption: true,
       reducedGridImport: true,
       peakShaving: true,
-      fcrDUp: false,
+      fcrDUp: true,
     },
     economy: economyFromCountry(country),
   };
@@ -184,6 +187,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
               ? s.grid.mainFuseA
               : getCountry(code).grid.defaultMainFuse,
             mainFuseManual: s.grid.mainFuseManual,
+            gridValuesConfirmed: false,
           },
           // Country defaults only overwrite untouched economy values.
           economy: s.economy.touched ? s.economy : economyFromCountry(code),

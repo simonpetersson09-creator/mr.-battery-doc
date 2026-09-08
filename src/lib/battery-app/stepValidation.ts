@@ -21,6 +21,8 @@ export function validateGridStep(s: WizardState): StepValidity {
   if (!s.grid.country) return fail("Välj land.");
   if (!Number.isFinite(s.grid.mainFuseA) || s.grid.mainFuseA <= 0)
     return fail("Ange en giltig huvudsäkring i ampere.");
+  if (!s.grid.gridValuesConfirmed)
+    return fail("Bekräfta att nätvärdena stämmer innan du fortsätter.");
   return ok;
 }
 
