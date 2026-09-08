@@ -114,7 +114,7 @@ describe("grid limitation attribution", () => {
   it("L: monetized FCR power never exceeds the physically reservable power", () => {
     for (const kw of [5, 7.5, 10, 12.5]) {
       const r = runBatteryEngine({
-        consumption: { annualKWh: 20000, profile: "villa" },
+        consumption: { annualKWh: 20000, profile: "normal" },
         production: { annualKWh: 14000, kWp: 14, inverterAcKw: 12 },
         strategies: { peakShaving: true, fcrDUp: true, optimiseFcrReservation: true },
         battery: { fixedCapacityKWh: 25, fixedPowerKw: kw },
