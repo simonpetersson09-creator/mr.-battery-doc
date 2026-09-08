@@ -302,22 +302,16 @@ function ResultStep() {
 
           <TechGroup title="Batterianvändning">
 
-            <Row label="Nyttjandegrad" value={pct(e.utilisationPct)} />
             <Row label="Cykler per år" value={nf(e.equivalentFullCycles, 1)} />
-            <Row
-              label="Rimligt kapacitetsintervall"
-              value={`${nf(r.reasonableRangeKWh[0])}–${nf(r.reasonableRangeKWh[1])} kWh`}
-            />
           </TechGroup>
 
           <TechGroup title="Effektdimensionering">
             <Row label="Rekommenderad systemeffekt" value={kw(p.recommendedPowerKw, 1)} />
             <Row label="Fysiskt effektbehov" value={kw(p.physicalPowerNeedKw, 1)} />
-            <Row label="Max faktiskt använd effekt" value={kw(p.actualDispatchPowerKw, 2)} />
             {p.fcrHeldPowerKw !== null ? (
               <Row label="Stödtjänster hållen effekt" value={kw(p.fcrHeldPowerKw, 2)} />
             ) : null}
-            <Row label="Systemets C-rate" value={`${nf(p.systemCRate, 2)} C`} />
+            <Row label="C-rate" value={`${nf(p.systemCRate, 2)} C`} />
           </TechGroup>
 
         </div>
