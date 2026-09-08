@@ -107,6 +107,36 @@ export function buildResultPresentation(
   const powerFloorApplied = ps.productFloorAppliedKw !== null && ps.productFloorAppliedKw > 0;
   const raisedAbovePhysical = recommendedPowerKw > r.productPowerKw + 1e-9;
 
+  /**
+   * The power level the property alone motivates. Prefer the ACTUAL simulated candidate that
+   * wins once the historical FCR revenue is taken out of the objective (same 25 kr/år tie
+   * tolerance the engine uses); fall back to the engine's physical need. No recomputation:
+   * every number is read from the already simulated candidates.
+   */
+  const TIE = 25;
+  const withoutFcr = s.powerOptions.map((o) => ({
+    powerKw: o.powerKw,
+    benefit: o.totalOperatingBenefitSek - o.fcrRevenueSek,
+  }));
+  let propertyOnlyPowerKw: number | null = null;
+  if (withoutFcr.length > 0) {
+    const best = Math.max(...withoutFcr.map((o) => o.benefit));
+    propertyOnlyPowerKw = (withoutFcr.find((o) => o.benefit >= best - TIE) ?? withoutFcr[0]!)
+      .powerKw;
+  } else if (r.physicalPowerNeedKw > 0) {
+    propertyOnlyPowerKw = r.physicalPowerNeedKw;
+  }
+
+  // Only meaningful when the recommended power is genuinely above the property-only level.
+  const showFcrPowerCard =
+    !noBattery &&
+    fcrDrivesPower &&
+    propertyOnlyPowerKw !== null &&
+    recommendedPowerKw > propertyOnlyPowerKw + 1e-9;
+
+  const propKw = propertyOnlyPowerKw !== null ? nf(propertyOnlyPowerKw, 1) : "";
+  const recKw = nf(recommendedPowerKw, 1);
+
   const capacityWhy = noBattery
     ? "Med dina uppgifter flyttar ett batteri för lite energi för att en storlek ska kunna rekommenderas."
     : `${nf(r.capacityKWh)} kWh ger en bra balans mellan hur mycket energi batteriet kan flytta och nyttan av ytterligare kapacitet. Ett större batteri ger relativt liten ytterligare nytta med din förbrukning${hasSolar ? " och solproduktion" : ""}.`;
@@ -114,17 +144,16 @@ export function buildResultPresentation(
   let powerWhy: string | null;
   if (noBattery) {
     powerWhy = null;
+  } else if (showFcrPowerCard) {
+    powerWhy = `Fastighetens eget beräknade effektbehov är cirka ${propKw} kW. ${recKw} kW ger högre beräknad årlig nytta i scenariot där stödtjänster (FCR-D upp) ingår.`;
   } else if (raisedAbovePhysical) {
-    powerWhy = `${nf(recommendedPowerKw, 1)} kW ger högst beräknad årlig nytta av de systemeffekter som har jämförts.${
-      fcrDrivesPower
-        ? " Den högre effekten motiveras främst av det historiska FCR-D upp-scenariot."
-        : ""
-    } Fastighetens eget effektbehov är lägre (${nf(r.physicalPowerNeedKw, 1)} kW).`;
+    powerWhy = `${recKw} kW ger högst beräknad årlig nytta av de systemeffekter som har jämförts. Fastighetens eget effektbehov är lägre (${nf(r.physicalPowerNeedKw, 1)} kW).`;
   } else if (powerFloorApplied) {
-    powerWhy = `${nf(recommendedPowerKw, 1)} kW följer batteriets tekniska minimikrav i förhållande till kapaciteten. Fastighetens eget effektbehov är lägre (${nf(r.physicalPowerNeedKw, 1)} kW). Högre systemeffekt ger inte tillräckligt större beräknad årlig nytta.`;
+    powerWhy = `${recKw} kW följer batteriets tekniska minimikrav i förhållande till kapaciteten. Fastighetens eget effektbehov är lägre (${nf(r.physicalPowerNeedKw, 1)} kW). Högre systemeffekt ger inte tillräckligt större beräknad årlig nytta.`;
   } else {
-    powerWhy = `${nf(recommendedPowerKw, 1)} kW täcker fastighetens beräknade effektbehov (${nf(r.physicalPowerNeedKw, 1)} kW). Högre systemeffekt ger inte tillräckligt större beräknad årlig nytta.`;
+    powerWhy = `${recKw} kW är dimensionerad efter fastighetens energiflöden och beräknade effektbehov (${nf(r.physicalPowerNeedKw, 1)} kW). Högre systemeffekt ger inte tillräckligt större beräknad årlig nytta.`;
   }
+
 
   return {
     noBattery,
