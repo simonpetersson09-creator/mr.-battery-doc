@@ -1,6 +1,8 @@
+import { useCallback, useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { MonthlyImport } from "@/components/wizard/MonthlyImport";
+import { MonthGrid } from "@/components/wizard/MonthGrid";
 
 import { NumberField, OptionCard, SectionCard } from "@/components/wizard/fields";
 import { validateConsumptionStep } from "@/lib/battery-app/stepValidation";
@@ -11,8 +13,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MONTH_SHORT_SV, PROFILE_CATALOG, getProfile } from "@/lib/consumption-profiles";
+import { PROFILE_CATALOG, getProfile, isKnownProfile } from "@/lib/consumption-profiles";
 import { useWizard, type ConsumptionMode } from "@/state/wizard";
+
+/**
+ * Hour-shape fallback used when the customer supplies actual monthly values.
+ * The profile picker is hidden in that mode — the months decide the monthly
+ * energy, this only gives the engine a safe intra-day shape.
+ */
+const DEFAULT_HOUR_PROFILE = "normal";
 
 export const Route = createFileRoute("/forbrukning")({
   head: () => ({
@@ -21,12 +30,12 @@ export const Route = createFileRoute("/forbrukning")({
       {
         name: "description",
         content:
-          "Ange årsförbrukning och profil, faktiska månadsvärden eller ladda upp din elräkning.",
+          "Ange årsförbrukning och profil, eller faktiska värden för alla tolv månader.",
       },
       { property: "og:title", content: "Din elförbrukning — Mr. Battery Doc" },
       {
         property: "og:description",
-        content: "Tre sätt att beskriva hur mycket el fastigheten använder.",
+        content: "Två sätt att beskriva hur mycket el fastigheten använder.",
       },
     ],
   }),
@@ -37,9 +46,27 @@ function ConsumptionStep() {
   const { state, update } = useWizard();
   const c = state.consumption;
   const validity = validateConsumptionStep(state);
+  const [importOpen, setImportOpen] = useState(false);
+
+  // Monthly mode hides the profile picker, so make sure the safe hour-shape
+  // default is present in state (also for older saved sessions).
+  useEffect(() => {
+    if (c.mode === "monthly" && !isKnownProfile(c.profileId)) {
+      update((s) => ({
+        ...s,
+        consumption: { ...s.consumption, profileId: DEFAULT_HOUR_PROFILE },
+      }));
+    }
+  }, [c.mode, c.profileId, update]);
 
   const setMode = (mode: ConsumptionMode) =>
     update((s) => ({ ...s, consumption: { ...s.consumption, mode } }));
+
+  const applyImported = useCallback(
+    (vals: number[]) =>
+      update((s) => ({ ...s, consumption: { ...s.consumption, monthlyKwh: [...vals] } })),
+    [update],
+  );
 
   return (
     <WizardShell
@@ -50,7 +77,6 @@ function ConsumptionStep() {
       nextBlockedReason={validity.message}
     >
       <div className="space-y-2">
-
         <OptionCard
           title="Årsförbrukning"
           description="Jag vet ungefär hur många kWh vi använder per år."
@@ -67,12 +93,12 @@ function ConsumptionStep() {
 
       {c.mode === "annual" ? (
         <>
-          <SectionCard title="Total årsförbrukning">
+          <SectionCard title="Årsförbrukning">
             <NumberField
               label="Förbrukning"
               unit="kWh/år"
               value={c.annualKwh}
-              placeholder="t.ex. 18000"
+              placeholder="t.ex. 20000"
               onChange={(v) =>
                 update((s) => ({ ...s, consumption: { ...s.consumption, annualKwh: v } }))
               }
@@ -83,82 +109,49 @@ function ConsumptionStep() {
       ) : null}
 
       {c.mode === "monthly" ? (
-        <>
-          <SectionCard
-            title="Faktisk månadsförbrukning"
-            description="Faktiska värden går alltid före uppskattningar."
-          >
-            <MonthlyImport
-              kind="consumption"
-              description="Importera en bild eller PDF med din elförbrukning."
-              onApply={(vals) =>
-                update((s) => ({
-                  ...s,
-                  consumption: { ...s.consumption, monthlyKwh: [...vals] },
-                }))
+        <SectionCard title="Faktisk månadsförbrukning">
+          <MonthlyImport
+            kind="consumption"
+            description="Importera en bild, PDF eller CSV — värdena fylls i månadsfälten nedan."
+            onApply={applyImported}
+            onOpenChange={setImportOpen}
+          />
+          {!importOpen ? (
+            <MonthGrid
+              values={c.monthlyKwh}
+              onChange={(i, v) =>
+                update((s) => {
+                  const next = [...s.consumption.monthlyKwh];
+                  next[i] = v;
+                  return { ...s, consumption: { ...s.consumption, monthlyKwh: next } };
+                })
               }
             />
-            <div className="grid grid-cols-2 gap-2">
-
-              {MONTH_SHORT_SV.map((m, i) => (
-                <label key={m} className="flex items-center gap-2">
-                  <span className="field-label w-9 shrink-0">{m}</span>
-                  <input
-                    type="number"
-                    inputMode="decimal"
-                    value={c.monthlyKwh[i] ?? ""}
-                    placeholder="kWh"
-                    onChange={(e) =>
-                      update((s) => {
-                        const next = [...s.consumption.monthlyKwh];
-                        next[i] = e.target.value === "" ? null : Number(e.target.value);
-                        return { ...s, consumption: { ...s.consumption, monthlyKwh: next } };
-                      })
-                    }
-                    className="ui-control h-11 min-w-0 flex-1 tabular-nums"
-                  />
-                </label>
-              ))}
-            </div>
-            <p className="ui-help">
-              Summa:{" "}
-              {c.monthlyKwh.reduce<number>((a, b) => a + (b ?? 0), 0).toLocaleString("sv-SE")} kWh
-            </p>
-
-          </SectionCard>
-          <ProfilePicker note="Profilen används för att fördela varje månads förbrukning över dygnets timmar. Dina månadsvärden styr månadsenergin." />
-        </>
+          ) : null}
+        </SectionCard>
       ) : null}
     </WizardShell>
   );
 }
 
-function ProfilePicker({ note }: { note?: string }) {
+function ProfilePicker() {
   const { state, update } = useWizard();
   const selected = state.consumption.profileId
     ? getProfile(state.consumption.profileId)
     : null;
   return (
-    <SectionCard
-      title="Förbrukningsprofil"
-      description={note ?? "Välj den beskrivning som liknar din fastighet mest."}
-    >
+    <SectionCard title="Förbrukningsprofil">
       <Select
         value={state.consumption.profileId ?? ""}
         onValueChange={(v) =>
           update((s) => ({
             ...s,
-            consumption: {
-              ...s.consumption,
-              profileId: v || null,
-            },
+            consumption: { ...s.consumption, profileId: v || null },
           }))
         }
       >
         <SelectTrigger className="ui-control">
-          <SelectValue placeholder="Välj profil">
-            {selected ? selected.name : null}
-          </SelectValue>
+          <SelectValue placeholder="Välj profil">{selected ? selected.name : null}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           {PROFILE_CATALOG.map((p) => (

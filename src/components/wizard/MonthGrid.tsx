@@ -1,0 +1,41 @@
+/**
+ * Twelve compact month inputs + an automatically calculated sum.
+ *
+ * Presentation only: the sum is derived output, never an editable field, and the
+ * values are the single source of truth handed back through `onChange`.
+ */
+
+import { MONTH_SHORT_SV } from "@/lib/consumption-profiles";
+
+export function MonthGrid({
+  values,
+  onChange,
+}: {
+  values: (number | null)[];
+  onChange: (index: number, value: number | null) => void;
+}) {
+  const sum = values.reduce<number>((a, b) => a + (b ?? 0), 0);
+  return (
+    <div className="space-y-2">
+      <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+        {MONTH_SHORT_SV.map((m, i) => (
+          <label key={m} className="flex items-center gap-1.5">
+            <span className="field-label w-8 shrink-0">{m}</span>
+            <input
+              type="number"
+              inputMode="decimal"
+              placeholder="kWh"
+              value={values[i] ?? ""}
+              onChange={(e) => onChange(i, e.target.value === "" ? null : Number(e.target.value))}
+              className="ui-control h-9 min-w-0 flex-1 tabular-nums"
+            />
+          </label>
+        ))}
+      </div>
+      <p className="ui-help">
+        Summa: <span className="tabular-nums text-foreground">{sum.toLocaleString("sv-SE")}</span>{" "}
+        kWh
+      </p>
+    </div>
+  );
+}
