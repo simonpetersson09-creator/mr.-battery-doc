@@ -203,3 +203,16 @@ describe("apply step delivers plain monthly data", () => {
     expect(imported).toEqual(manual);
   });
 });
+
+describe("documented test case: stated totals vs month sums", () => {
+  it("flags that the stated 20 000 / 14 000 do not match the listed months", () => {
+    const c = normaliseSeries(series({ annualTotalStated: 20000 }));
+    const p = normaliseSeries(
+      series({ kind: "production", months: PRODUCTION, annualTotalStated: 14000 }),
+    );
+    expect(c.sumKwh).toBe(21200);
+    expect(p.sumKwh).toBe(13900);
+    expect(c.annualMismatch).toBe(true);
+    expect(p.annualMismatch).toBe(false); // 13 900 vs 14 000 is within 2 %
+  });
+});
