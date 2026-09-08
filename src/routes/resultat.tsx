@@ -156,18 +156,6 @@ function ResultStep() {
         </div>
       )}
 
-      {p.showFcrPowerCard ? (
-        <details className="ui-card">
-          <summary className="ui-label cursor-pointer list-none">{p.fcrPowerCardTitle}</summary>
-          <div className="mt-3 space-y-2">
-            {p.fcrPowerLevels.map((lvl) => (
-              <Row key={lvl.label} label={lvl.label} value={kw(lvl.kw, 1)} />
-            ))}
-            {p.fcrPowerExplanation ? <p className="ui-help">{p.fcrPowerExplanation}</p> : null}
-          </div>
-        </details>
-      ) : null}
-
       {p.limitedBenefit ? (
         <SectionCard title={p.limitedBenefitTitle ?? ""} description={p.limitedBenefitText ?? ""} />
       ) : null}
