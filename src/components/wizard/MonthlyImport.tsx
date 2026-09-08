@@ -132,10 +132,17 @@ export function MonthlyImport({
           <path d="m7 9 5-5 5 5" />
           <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
         </svg>
-        {busy ? "Läser dokumentet…" : "Importera månadsdata"}
+        {busy
+          ? "Läser dokumentet…"
+          : applied
+            ? "Importera på nytt"
+            : "Importera månadsdata"}
       </Button>
-      <p className="ui-help">{description}</p>
-      {applied ? <p className="ui-help text-foreground">✓ Importerade värden</p> : null}
+      {applied ? (
+        <p className="ui-help text-foreground">✓ 12 månaders värden importerade</p>
+      ) : (
+        <p className="ui-help">{description}</p>
+      )}
       {error ? <p className="ui-help text-destructive">{error}</p> : null}
 
       <input
