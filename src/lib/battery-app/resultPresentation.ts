@@ -233,16 +233,19 @@ export function buildResultPresentation(
 
     showFcrPowerCard,
     fcrPowerCardTitle: showFcrPowerCard ? `Varför ${recKw} kW?` : null,
-    fcrPowerCardText: showFcrPowerCard
-      ? `Fastighetens eget beräknade effektbehov är cirka ${propKw} kW. Den högre systemeffekten på ${recKw} kW ger större beräknad årlig nytta eftersom stödtjänster (FCR-D upp) ingår i beräkningen.`
-      : null,
-    fcrPowerCardNeutralText: showFcrPowerCard
-      ? `Om du bedömer att stödtjänster även framöver kommer att ge ett betydande värde kan den högre systemeffekten vara relevant. Utan stödtjänster räcker cirka ${propKw} kW enligt beräkningen för fastighetens eget behov.`
-      : null,
+    fcrPowerCardText: showFcrPowerCard ? fcrCardText : null,
+    fcrPowerCardNeutralText: null,
     fcrHistoricalNote: showFcrPowerCard
-      ? "Beräkningen använder historiska FCR-D upp-priser från 2025. Framtida priser och intäkter kan bli både högre och lägre."
+      ? "Framtida FCR-priser och intäkter kan bli både högre och lägre."
       : null,
     propertyOnlyPowerKw,
+    withoutFcrPowerKw: propertyOnlyPowerKw,
+    showPhysicalNeedRow,
+    withoutFcrBenefitSek: showFcrPowerCard ? withoutFcrBenefitSek : null,
+    withFcrBenefitSek: showFcrPowerCard ? withFcrBenefitSek : null,
+    benefitDeltaSek: showFcrPowerCard ? benefitDeltaSek : null,
+
+
 
 
     capacityWhy,
