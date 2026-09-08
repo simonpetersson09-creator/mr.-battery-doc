@@ -185,16 +185,19 @@ export function simulate(
    * and never enters annualSavingsKr/NPV.
    */
   const heldReservation = d.ancillaryReservedPowerKwByHour;
+  // No verified price dataset for the country => no revenue is invented (null, not 0).
+  const fcrSeries = fcrPriceSeriesForCountry(cfg.ancillary.priceCountry);
   const fcr =
-    cfg.strategies.ancillaryServices && plan !== null
+    cfg.strategies.ancillaryServices && plan !== null && fcrSeries !== null
       ? computeFcrRevenue({
           reservedPowerKwByHour: heldReservation,
-          series: fcrPriceSeriesForCountry(cfg.ancillary.priceCountry),
+          series: fcrSeries,
           eurSekRate: cfg.ancillary.eurSekRate,
           aggregatorSharePct: cfg.ancillary.aggregatorSharePct,
           aggregatorFixedFeeSek: cfg.ancillary.aggregatorFixedKrPerYear,
         })
       : null;
+
 
   const notes = [...d.notes];
   if (plan) notes.push(...plan.notes);
