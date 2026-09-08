@@ -62,17 +62,34 @@ function GridStep() {
             ))}
           </SelectContent>
         </Select>
+      </SectionCard>
 
-        <details className="ui-card mt-2">
-          <summary className="ui-label cursor-pointer list-none">Visa nätvärden</summary>
-          <dl className="grid grid-cols-2 gap-2">
-            <Value label="Spänning" value={`${country.grid.voltage} V`} />
-            <Value label="Faser" value={`${country.grid.phases}-fas`} />
-            <Value label="Frekvens" value={`${country.grid.frequency} Hz`} />
-            <Value label="Valuta" value={country.economy.currency} />
-          </dl>
-          <p className="ui-help">Standarder: {country.grid.standards.join(", ")}</p>
-        </details>
+      <SectionCard
+        title="Nätvärden"
+        description="Automatiskt baserat på valt land."
+      >
+        <dl className="grid grid-cols-2 gap-2">
+          <Value label="Spänning" value={`${country.grid.voltage} V`} />
+          <Value label="Faser" value={`${country.grid.phases}-fas`} />
+          <Value label="Frekvens" value={`${country.grid.frequency} Hz`} />
+          <Value label="Valuta" value={country.economy.currency} />
+        </dl>
+        <p className="ui-help">Standarder: {country.grid.standards.join(", ")}</p>
+
+        <label className="flex items-start gap-2.5 rounded-[1.25rem] px-3.5 py-3 transition-colors chip-unselected cursor-pointer">
+          <input
+            type="checkbox"
+            className="mt-0.5 size-4 shrink-0 accent-foreground"
+            checked={state.grid.gridValuesConfirmed}
+            onChange={(e) =>
+              update((s) => ({
+                ...s,
+                grid: { ...s.grid, gridValuesConfirmed: e.target.checked },
+              }))
+            }
+          />
+          <span className="ui-label">Jag har kontrollerat att nätvärdena stämmer</span>
+        </label>
       </SectionCard>
 
       <SectionCard title="Huvudsäkring" description="Finns oftast på elnätsfakturan.">

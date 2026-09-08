@@ -31,6 +31,7 @@ function standardVilla(): WizardState {
   s.production.acKw = 10;
   s.production.annualKwh = 12000;
   s.strategies.peakShaving = false;
+  s.strategies.fcrDUp = false;
   return s;
 }
 

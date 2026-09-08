@@ -23,6 +23,7 @@ const read = (p: string) => readFileSync(p, "utf8");
 
 function base(): WizardState {
   const s = createInitialState("SE");
+  s.grid.gridValuesConfirmed = true;
   s.consumption.mode = "annual";
   s.consumption.annualKwh = 10000;
   s.consumption.profileId = "evening-heavy";
@@ -51,7 +52,9 @@ describe("photo/file is not exposed as a working v1 feature", () => {
 
 describe("FCR-D up toggle", () => {
   it("off = no FCR at all", () => {
-    const input = normalizeWizardToEngineInput(base());
+    const s = base();
+    s.strategies.fcrDUp = false;
+    const input = normalizeWizardToEngineInput(s);
     expect(input.strategies?.fcrDUp).toBeUndefined();
     expect(input.strategies?.optimiseFcrReservation).toBeUndefined();
   });
@@ -196,12 +199,13 @@ describe("restart clears the wizard", () => {
     expect(read("src/state/wizard.tsx")).toMatch(/localStorage\.removeItem\(STORAGE_KEY\)/);
   });
 
-  it("a fresh state carries no user values", () => {
+  it("a fresh state carries no user values but has all strategies on by default", () => {
     const s = createInitialState("SE");
     expect(s.consumption.annualKwh).toBeNull();
     expect(s.consumption.profileId).toBeNull();
     expect(s.production.mode).toBe("none");
-    expect(s.strategies.fcrDUp).toBe(false);
+    expect(s.strategies.fcrDUp).toBe(true);
+    expect(s.grid.gridValuesConfirmed).toBe(false);
   });
 });
 
