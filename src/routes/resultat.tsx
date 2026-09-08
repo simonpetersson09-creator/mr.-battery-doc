@@ -100,50 +100,22 @@ function ResultStep() {
   const e = s.energy;
   const g = s.grid;
 
+  /* All customer-facing relevance and wording comes from one pure presentation layer. */
+  const p = buildResultPresentation(outcome.result, {
+    peakShavingSelected: state.strategies.peakShaving,
+    demandChargeTouched: state.economy.demandChargeTouched,
+  });
+  const noBattery = p.noBattery;
 
   const peakPct =
     g.importPeakBeforeKw > 0 ? (s.peak.peakReductionKw / g.importPeakBeforeKw) * 100 : 0;
 
-  /* ---- Presentation-only relevance rules. No numbers are recomputed here. ---- */
-  const noBattery = r.capacityKWh <= 0;
-  const hasSolar = e.annualPvKWh > 0;
-  const peakStrategyOn = state.strategies.peakShaving;
-
-  const showSelfConsumption = hasSolar;
-  const showSelfSufficiency = hasSolar;
-  const showExport = e.exportBeforeKWh > 0 || e.exportAfterKWh > 0;
-  const showShiftedSolar = hasSolar && e.shiftedSolarKWh > 0;
-  const importChanged = e.importBeforeKWh !== e.importAfterKWh;
-  const showImport = importChanged || !hasSolar;
-  const showEnergySection =
-    showSelfConsumption || showSelfSufficiency || showExport || showShiftedSolar || showImport;
-
-  const peakChanged = s.peak.peakReductionKw !== 0;
-  const showPeakSection = peakStrategyOn || peakChanged;
-  const demandSaving = s.economy.demandCostSavingSek ?? 0;
-  const fcrGross = s.fcr.enabled ? (s.fcr.grossSek ?? 0) : 0;
-  const noEconomy =
-    s.economy.energyBenefitSek === 0 && demandSaving === 0 && fcrGross === 0;
-
-  /* Customer-facing wording derived only from engine flags — no recalculation. */
   const gridLimitsBattery = g.status === "battery-limited" || g.status === "combined";
   const gridLimitsExport =
     g.status === "export-limited" ||
     g.status === "export-limited-minor" ||
     g.status === "combined";
 
-  const capacityWhy = noBattery
-    ? "Med dina uppgifter flyttar ett batteri för lite energi för att en storlek ska kunna rekommenderas."
-    : `${nf(r.capacityKWh)} kWh ger en bra balans mellan hur mycket energi batteriet kan flytta och nyttan av ytterligare kapacitet. Ett större batteri ger relativt liten ytterligare nytta med din förbrukning${hasSolar ? " och solproduktion" : ""}.`;
-  // The power wording follows the engine's own sizing driver, never a fixed phrase.
-  const powerFloorApplied = ps.productFloorAppliedKw !== null && ps.productFloorAppliedKw > 0;
-  const powerWhy = noBattery
-    ? null
-    : peakStrategyOn && peakChanged
-      ? `${nf(r.powerKw, 1)} kW effekt är vald så att batteriet kan kapa fastighetens effekttoppar. Högre effekt ger liten ytterligare nytta i beräkningen.`
-      : powerFloorApplied
-        ? `${nf(r.powerKw, 1)} kW effekt följer batteriets tekniska minimikrav i förhållande till kapaciteten. Fastighetens eget effektbehov är lägre (${nf(r.physicalPowerNeedKw, 1)} kW).`
-        : `${nf(r.powerKw, 1)} kW effekt räcker för att flytta energin under dygnet. Fastighetens beräknade effektbehov är ${nf(r.physicalPowerNeedKw, 1)} kW, så högre effekt ger liten eller ingen ytterligare nytta.`;
 
 
   return (
