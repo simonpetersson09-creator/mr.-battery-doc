@@ -106,18 +106,17 @@ function ResultStep() {
       intro="Så här ser förslaget ut för din fastighet."
       footerAction={restart}
     >
-      <div className="hero-metric rounded-[22px] p-4 text-center">
-        <p className="text-[11px] font-bold tracking-widest text-foreground/60 uppercase">
-          Rekommenderat batteri
-        </p>
-        <p className="mt-2 font-display text-5xl font-extrabold tracking-tight tabular-nums">
+      <div className="hero-metric rounded-[1.25rem] px-4 py-4 text-center">
+        <p className="ui-caption">Rekommenderat batteri</p>
+        <p className="ui-hero mt-1.5 tabular-nums">
           {nf(r.capacityKWh)} <span className="text-2xl font-bold">kWh</span>
         </p>
-        <p className="mt-1 text-lg font-bold tabular-nums">{nf(r.powerKw, 1)} kW effekt</p>
-        <p className="mt-2 text-[13px] text-foreground/70">
+        <p className="ui-section-title mt-0.5 tabular-nums">{nf(r.powerKw, 1)} kW effekt</p>
+        <p className="ui-help mt-1 text-foreground/70">
           Rimligt intervall {nf(r.reasonableRangeKWh[0])}–{nf(r.reasonableRangeKWh[1])} kWh
         </p>
       </div>
+
 
       <SectionCard title="Energi">
         <div className="space-y-2.5">
