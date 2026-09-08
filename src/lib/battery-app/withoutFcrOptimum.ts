@@ -136,9 +136,10 @@ export function computeWithoutFcrOptimum(
         sim.dispatchPower.maxDischargeKw,
       ),
       totalUsefulKWh: sim.totalUsefulKWh,
-      importKWh: sim.importAfterKWh,
-      exportKWh: sim.exportAfterKWh,
-      peakAfterKw: sim.peakAfterKw,
+      importKWh: sim.importKWh,
+      exportKWh: sim.exportKWh,
+      peakAfterKw: sim.modelledPeakKw,
+
       selected: false,
     };
   });
