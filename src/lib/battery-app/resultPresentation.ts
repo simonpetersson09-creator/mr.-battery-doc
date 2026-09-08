@@ -200,10 +200,10 @@ export function buildResultPresentation(
     if (showPhysicalNeedRow) {
       fcrPowerLevels.push({ label: "Fysiskt effektbehov", kw: r.physicalPowerNeedKw });
       fcrPowerLevels.push({ label: "Utan FCR-D upp", kw: propertyOnlyPowerKw });
-      fcrPowerLevels.push({ label: "Med historiskt FCR-scenario", kw: recommendedPowerKw });
+      fcrPowerLevels.push({ label: "Med stödtjänst", kw: recommendedPowerKw });
     } else {
       fcrPowerLevels.push({ label: "För fastighetens eget behov", kw: propertyOnlyPowerKw });
-      fcrPowerLevels.push({ label: "Med historiskt FCR-scenario", kw: recommendedPowerKw });
+      fcrPowerLevels.push({ label: "Med stödtjänst", kw: recommendedPowerKw });
     }
   }
   const fcrPowerExplanation = showFcrPowerCard
