@@ -8,6 +8,10 @@
 import type { BatteryEngineResult } from "@/lib/battery-engine";
 import type { WithoutFcrOptimum } from "./withoutFcrOptimum";
 
+export interface PowerLevelRow {
+  label: string;
+  kw: number;
+}
 
 const nf = (v: number, digits = 0) =>
   v.toLocaleString("sv-SE", { minimumFractionDigits: digits, maximumFractionDigits: digits });
