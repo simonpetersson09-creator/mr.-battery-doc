@@ -192,8 +192,8 @@ export function buildResultPresentation(
     : `${nf(r.capacityKWh)} kWh ger en bra balans mellan hur mycket energi batteriet kan flytta och nyttan av ytterligare kapacitet. Ett större batteri ger relativt liten ytterligare nytta med din förbrukning${hasSolar ? " och solproduktion" : ""}.`;
 
   const fcrCardText = showPhysicalNeedRow
-    ? `Fastighetens fysiska effektbehov är cirka ${physKw} kW. Utan FCR-D upp ger ${propKw} kW högst beräknad årlig nytta. Med historiska FCR-D upp-priser från 2025 ger ${recKw} kW högst beräknad årlig nytta. Framtida priser och intäkter kan avvika.`
-    : `För fastighetens eget behov räcker ${propKw} kW. Den högre systemeffekten ${recKw} kW ger större beräknad årlig nytta när historiska FCR-D upp-priser från 2025 ingår. Framtida priser och intäkter kan avvika.`;
+    ? `Fastighetens fysiska effektbehov är cirka ${physKw} kW. Utan FCR-D upp ger ${propKw} kW högst beräknad årlig nytta. Med historiska stödtjänst-priser från 2025 ger ${recKw} kW högst beräknad årlig nytta. Framtida priser och intäkter kan avvika.`
+    : `För fastighetens eget behov räcker ${propKw} kW. Den högre systemeffekten ${recKw} kW ger större beräknad årlig nytta när historiska stödtjänst-priser från 2025 ingår. Framtida priser och intäkter kan avvika.`;
 
   const fcrPowerLevels: PowerLevelRow[] = [];
   if (showFcrPowerCard && propertyOnlyPowerKw !== null) {
