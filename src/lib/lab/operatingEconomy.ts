@@ -219,7 +219,14 @@ export function energyEconomy(r: SimResult, econ: OperatingEconomyConfig): Energ
 export function peakEconomy(r: SimResult, econ: OperatingEconomyConfig): PeakEconomy {
   const base = r.baseMonthlyPeakKw;
   const bat = r.monthlyPeakKw;
-  const monthlyReductionKw = base.map((b, i) => Math.max(0, b - (bat[i] ?? 0)));
+  /**
+   * SIGNED per month: positive = the battery lowered that month's billing peak, negative
+   * = it RAISED it. The negative months are kept, because a raised peak is a real extra
+   * cost under the same tariff. Clamping them to 0 would hand out credit for reductions
+   * while hiding the increases. Each month enters the annual sum exactly once, and the
+   * demand charge is the only place a kW quantity is priced.
+   */
+  const monthlyReductionKw = base.map((b, i) => b - (bat[i] ?? 0));
   const tariff = econ.peakDemandChargeSekPerKwMonth;
   const valued = tariff !== null && Number.isFinite(tariff) && tariff > 0;
   const monthlyBenefitSek = valued ? monthlyReductionKw.map((kw) => kw * tariff!) : null;
@@ -590,7 +597,7 @@ export function optimizeFcrReservation(
     recommendationText:
       best.offeredPowerKw <= 0
         ? FCR_NO_RESERVATION_TEXT
-        : `Historiskt optimal reservation: ${best.offeredPowerKw.toFixed(2)} kW av batteriets ${powerKw.toFixed(2)} kW effekt.`,
+        : `Bäst av de prövade nivåerna under dessa antaganden: ${best.offeredPowerKw.toFixed(2)} kW av batteriets ${powerKw.toFixed(2)} kW effekt (2025 års FCR-D upp-priser). Inte en generell rekommendation.`,
     disclaimer: FCR_HISTORICAL_DISCLAIMER,
     notes,
   };

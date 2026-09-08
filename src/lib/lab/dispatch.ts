@@ -482,6 +482,15 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
   const planUpStoredKWh = planActive
     ? plan!.upEnergyKWh / Math.max(win.dischargeEff, 1e-9) + planHeadroomKWh
     : 0;
+  /**
+   * STRICT delivery requirement, i.e. the same stored energy WITHOUT the planning
+   * headroom. The headroom is a design buffer on the operating floor, not part of what
+   * the service must be able to deliver. Availability is therefore judged against this
+   * strict floor, while the dispatch still defends the wider floor above.
+   */
+  const planUpStoredStrictKWh = planActive
+    ? plan!.upEnergyKWh / Math.max(win.dischargeEff, 1e-9)
+    : 0;
   // Free SOC room needed to absorb the down-regulation AC energy.
   const planDownRoomKWh = planActive
     ? plan!.downEnergyKWh * win.chargeEff + planHeadroomKWh
@@ -518,13 +527,26 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
     // ---------- ancillary reservation for THIS hour ----------
     const hod = h % 24;
     const resNow = planReservedHour(hod, month);
-    const resNext = planReservedHour((h + 1) % 24, series.monthOfHour[h + 1] ?? month);
     const upFloorKWh = plan && plan.upPowerKw > 0 ? planUpStoredKWh : 0;
+    const upStrictKWh = plan && plan.upPowerKw > 0 ? planUpStoredStrictKWh : 0;
     const downRoomKWh = plan && plan.downPowerKw > 0 ? planDownRoomKWh : 0;
     const hourFloor = resNow
       ? Math.min(
           win.socCeilKWh,
           Math.max(win.socFloorKWh, planServiceFloor, win.socFloorKWh + upFloorKWh),
+        )
+      : win.socFloorKWh;
+    /**
+     * The floor the reservation must ACTUALLY stay above to be deliverable (no headroom).
+     * Never above `hourFloor`, so it can only relax the readiness test, never tighten it.
+     */
+    const hourFloorStrict = resNow
+      ? Math.min(
+          hourFloor,
+          Math.min(
+            win.socCeilKWh,
+            Math.max(win.socFloorKWh, planServiceFloor, win.socFloorKWh + upStrictKWh),
+          ),
         )
       : win.socFloorKWh;
     const hourCeil = resNow
@@ -533,29 +555,59 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
           Math.min(win.socCeilKWh, planServiceCeil, win.socCeilKWh - downRoomKWh),
         )
       : win.socCeilKWh;
+    /**
+     * The floor the DISPATCH defends, grossed up by one hour of passive self-discharge.
+     * Root cause of the old availability gap: the strategies were allowed to empty the
+     * battery down to exactly `hourFloor`, and the self-discharge at the start of the NEXT
+     * hour — which is applied before anything else — then pushed the SOC just below the
+     * reservation floor. The reservation therefore lost its readiness through a passive
+     * loss the model knows about in advance. Reserving the loss up front uses only known
+     * model parameters (no foresight), and the extra energy is genuinely withheld from the
+     * other strategies, so nothing is used twice.
+     */
+    const hourFloorDefended = resNow
+      ? Math.min(hourCeil, hourFloor / Math.max(1e-9, 1 - selfDischargeRate))
+      : win.socFloorKWh;
     const dischargeLimitKw = resNow
       ? Math.max(0, win.dischargeKw - (plan?.upPowerKw ?? 0))
       : win.dischargeKw;
     const chargeLimitKw = resNow
       ? Math.max(0, win.chargeKw - (plan?.downPowerKw ?? 0))
       : win.chargeKw;
-    if (resNow) {
-      t.ancillaryReservedHours++;
-      const powerOk =
-        (plan?.upPowerKw ?? 0) <= win.dischargeKw + 1e-9 &&
-        (plan?.downPowerKw ?? 0) <= win.chargeKw + 1e-9;
-      const energyOk = soc >= hourFloor - 1e-9 && soc <= hourCeil + 1e-9 && hourCeil > hourFloor - 1e-9;
-      if (powerOk && energyOk) {
-        t.ancillaryReadyHours++;
-        ancillaryReservedPowerKwByHour[h] = plan?.upPowerKw ?? 0;
-      }
-    }
+    if (resNow) t.ancillaryReservedHours++;
+    /**
+     * SOC at the START of the hour, i.e. after the passive self-discharge and before any
+     * dispatch decision. Together with the SOC at the END of the hour it bounds the whole
+     * hour, because charging and discharging can never happen in the same hour: the SOC
+     * path inside an hour is monotone, so min/max of the two endpoints IS the min/max of
+     * the hour. Readiness is judged on that worst case, never on the end value alone.
+     */
+    const socHourStart = soc;
 
     const direct = Math.min(load, pv);
     let surplus = pv - direct;
     let deficit = load - direct;
     // PV that served load directly (standby share excluded: it is a loss, not use).
     t.directPvToLoadKWh += Math.min(direct, seriesLoad);
+
+    /**
+     * Charging must always eat FREE PV surplus before it imports a single kWh: the meter
+     * nets the two flows, so importing while surplus is exported in the same hour is not
+     * a physical state. Used by every grid-charging step below, whatever strategy asked
+     * for the charge. Returns the AC kWh actually taken from the surplus.
+     */
+    const takeFromSurplus = (wantedKWh: number): number => {
+      if (wantedKWh <= 1e-12 || surplus <= 1e-12) return 0;
+      const take = Math.min(wantedKWh, surplus);
+      const wouldCurtail = Math.max(0, surplus - limits.maxExportKw);
+      const recovered = Math.min(take, wouldCurtail);
+      t.chargedFromPvKWh += take;
+      t.curtailmentRecoveredKWh += recovered;
+      t.chargedFromPvWouldCurtailKWh += recovered;
+      t.chargedFromPvWouldExportKWh += take - recovered;
+      surplus -= take;
+      return take;
+    };
 
     /**
      * Flex availability: the service is only available in an hour when the battery
@@ -605,10 +657,10 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
     let toGrid = 0;
     if (wantDischarge > 0 && canCycle(h)) {
       const powerLimit = dischargeLimitKw;
-      const energyAvailable = Math.max(0, (soc - hourFloor) * win.dischargeEff);
+      const energyAvailable = Math.max(0, (soc - hourFloorDefended) * win.dischargeEff);
       const energyUnreserved = Math.max(
         0,
-        (soc - hourFloor - peakReserveKWh) * win.dischargeEff,
+        (soc - hourFloorDefended - peakReserveKWh) * win.dischargeEff,
       );
       const possible = Math.min(wantDischarge, powerLimit, energyAvailable);
       // Power binding: energy and SOC would have allowed more, only kW stopped it.
@@ -696,24 +748,32 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
           if (need > 0) {
             const targetSoc = Math.min(
               hourCeil,
-              hourFloor + need / Math.max(win.dischargeEff, 1e-9),
+              hourFloorDefended + need / Math.max(win.dischargeEff, 1e-9),
             );
             const shortfall = targetSoc - soc;
             if (shortfall > 1e-9) {
               const wanted = Math.min(powerLeft, acceptable, shortfall / win.chargeEff);
+              // Free PV surplus first — importing while exporting is not a physical state.
+              const fromPvFirst = takeFromSurplus(wanted);
+              if (fromPvFirst > 0) {
+                powerLeft -= fromPvFirst;
+                acceptable -= fromPvFirst;
+                charged += fromPvFirst;
+              }
+              const rest = Math.max(0, wanted - fromPvFirst);
               const headroomKw = Math.min(
                 gridChargeHeadroomKw(deficit, limits.maxImportKw),
                 Number.isFinite(thr) ? Math.max(0, thr - deficit) : Infinity,
               );
-              if (wanted - headroomKw > 1e-9) {
+              if (rest - headroomKw > 1e-9) {
                 t.gridImportBoundHours++;
-                t.gridImportLimitedKWh += wanted - headroomKw;
+                t.gridImportLimitedKWh += rest - headroomKw;
                 const physHeadroom = gridChargeHeadroomKw(deficit, limits.physicalImportKw);
                 t.gridImportLimitedByMarginKWh +=
-                  Math.min(wanted, physHeadroom) - Math.min(wanted, headroomKw);
-                if (wanted - physHeadroom > 1e-9) t.physicalImportWouldBindHours++;
+                  Math.min(rest, physHeadroom) - Math.min(rest, headroomKw);
+                if (rest - physHeadroom > 1e-9) t.physicalImportWouldBindHours++;
               }
-              const fromGrid = Math.min(wanted, headroomKw);
+              const fromGrid = Math.min(rest, headroomKw);
               if (fromGrid > 0) {
                 t.chargedFromGridKWh += fromGrid;
                 deficit += fromGrid;
@@ -733,23 +793,46 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
          * and the free import headroom. If the headroom is not enough the readiness is
          * simply not held that hour, which lowers the availability instead of pretending
          * the service was delivered.
+         *
+         * EXPLICIT PRIORITY RULE (intended, not a code-order accident): the FCR-D up
+         * readiness has precedence over the peak-shaving target. It may therefore use the
+         * full battery charge power and is NOT capped by the monthly peak threshold — only
+         * by the hard battery and grid limits. The consequences are priced, not hidden:
+         * the imported kWh lowers the energy benefit, and any monthly peak the readiness
+         * charging raises now costs money through the signed monthly peak difference in
+         * the economy layer. Neither effect is counted twice (energy is an import/export
+         * delta, the peak is a kW quantity).
+         *
+         * MODEL LIMITATION: no PRE-CHARGING ahead of a future reserved hour is modelled.
+         * The only reservation profile in this version covers every hour of the year, so a
+         * "coming" reserved hour is always the current one. A pre-charge branch would need
+         * foresight the model does not assume, and it is therefore left out rather than
+         * left dormant.
          */
-        if ((resNow || resNext) && upFloorKWh > 0) {
-          const targetSoc = Math.min(hourCeil, resNow ? hourFloor : hourFloor);
+        if (resNow && upFloorKWh > 0) {
+          const targetSoc = Math.min(hourCeil, hourFloorDefended);
           const shortfall = targetSoc - soc;
           if (shortfall > 1e-9) {
             const readinessPowerLeft = Math.max(0, win.chargeKw - charged);
             const wanted = Math.min(readinessPowerLeft, shortfall / win.chargeEff);
+            // Free PV surplus before any import, same rule as every other charge step.
+            const fromPvFirst = takeFromSurplus(wanted);
+            if (fromPvFirst > 0) {
+              powerLeft = Math.max(0, powerLeft - fromPvFirst);
+              acceptable = Math.max(0, acceptable - fromPvFirst);
+              charged += fromPvFirst;
+            }
+            const rest = Math.max(0, wanted - fromPvFirst);
             const headroomKw = gridChargeHeadroomKw(deficit, limits.maxImportKw);
-            if (wanted - headroomKw > 1e-9) {
+            if (rest - headroomKw > 1e-9) {
               t.gridImportBoundHours++;
-              t.gridImportLimitedKWh += wanted - headroomKw;
+              t.gridImportLimitedKWh += rest - headroomKw;
               const physHeadroom = gridChargeHeadroomKw(deficit, limits.physicalImportKw);
               t.gridImportLimitedByMarginKWh +=
-                Math.min(wanted, physHeadroom) - Math.min(wanted, headroomKw);
-              if (wanted - physHeadroom > 1e-9) t.physicalImportWouldBindHours++;
+                Math.min(rest, physHeadroom) - Math.min(rest, headroomKw);
+              if (rest - physHeadroom > 1e-9) t.physicalImportWouldBindHours++;
             }
-            const fromGrid = Math.min(wanted, headroomKw);
+            const fromGrid = Math.min(rest, headroomKw);
             if (fromGrid > 0) {
               t.chargedFromGridKWh += fromGrid;
               t.ancillaryReadinessChargeKWh += fromGrid;
@@ -774,18 +857,26 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
           acceptable > 0 &&
           powerLeft > 0
         ) {
-          const headroomKw = gridChargeHeadroomKw(deficit, limits.maxImportKw);
           const wanted = Math.min(powerLeft, acceptable);
-          if (wanted - headroomKw > 1e-9) {
+          // Free PV surplus before any import, same rule as every other charge step.
+          const fromPvFirst = takeFromSurplus(wanted);
+          if (fromPvFirst > 0) {
+            powerLeft -= fromPvFirst;
+            acceptable -= fromPvFirst;
+            charged += fromPvFirst;
+          }
+          const rest = Math.max(0, wanted - fromPvFirst);
+          const headroomKw = gridChargeHeadroomKw(deficit, limits.maxImportKw);
+          if (rest - headroomKw > 1e-9) {
             // The operational import limit throttled grid charging (not a fault).
             t.gridImportBoundHours++;
-            t.gridImportLimitedKWh += wanted - headroomKw;
+            t.gridImportLimitedKWh += rest - headroomKw;
             const physHeadroom = gridChargeHeadroomKw(deficit, limits.physicalImportKw);
             t.gridImportLimitedByMarginKWh +=
-              Math.min(wanted, physHeadroom) - Math.min(wanted, headroomKw);
-            if (wanted - physHeadroom > 1e-9) t.physicalImportWouldBindHours++;
+              Math.min(rest, physHeadroom) - Math.min(rest, headroomKw);
+            if (rest - physHeadroom > 1e-9) t.physicalImportWouldBindHours++;
           }
-          const fromGrid = Math.min(wanted, headroomKw);
+          const fromGrid = Math.min(rest, headroomKw);
           if (fromGrid > 0) {
             t.chargedFromGridKWh += fromGrid;
             arbCost += fromGrid * (price + spot.importMarkup);
@@ -833,6 +924,40 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
     imp[h] = importNow;
     if (importNow > t.maxImportKw) t.maxImportKw = importNow;
     if (exportNow > t.maxExportKw) t.maxExportKw = exportNow;
+
+    /**
+     * ---------- FCR-D up readiness for the hour that just finished ----------
+     * DEFINITION. "Held FCR power" in this hourly model = the offered up-power was
+     * available for the WHOLE hour. Two things must hold:
+     *   1. power: the offered up/down power fits inside the battery power rating, and it
+     *      was withheld from the other strategies all hour (the reduced kW limits above);
+     *   2. energy: the stored energy needed to deliver the up-regulation was present
+     *      during the whole hour.
+     * The SOC path inside an hour is monotone (charging and discharging can never happen
+     * in the same hour), so the worst case is min(SOC at hour start, SOC at hour end).
+     * Judging on the END value alone would let a future charge pay for an hour that
+     * started empty; judging on the START value alone (the previous behaviour) let the
+     * passive self-discharge, which happens before anything else, disqualify an hour whose
+     * SOC never actually fell below the deliverable energy.
+     * CONSERVATIVE by construction: the strict floor is never above the operating floor,
+     * the reserved power is never released to another strategy, and an hour whose worst
+     * case is below the strict floor is still counted as not held (availability < 100 %).
+     */
+    if (resNow) {
+      const powerOk =
+        (plan?.upPowerKw ?? 0) <= win.dischargeKw + 1e-9 &&
+        (plan?.downPowerKw ?? 0) <= win.chargeKw + 1e-9;
+      const socLow = Math.min(socHourStart, soc);
+      const socHigh = Math.max(socHourStart, soc);
+      const energyOk =
+        socLow >= hourFloorStrict - 1e-9 &&
+        socHigh <= hourCeil + 1e-9 &&
+        hourCeil > hourFloor - 1e-9;
+      if (powerOk && energyOk) {
+        t.ancillaryReadyHours++;
+        ancillaryReservedPowerKwByHour[h] = plan?.upPowerKw ?? 0;
+      }
+    }
     socSeries[h] = soc;
   }
 
