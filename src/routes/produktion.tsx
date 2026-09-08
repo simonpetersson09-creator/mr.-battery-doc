@@ -107,7 +107,7 @@ function ProductionStep() {
                           return { ...s, production: { ...s.production, monthlyKwh: next } };
                         })
                       }
-                      className="mt-1.5 h-12 w-full rounded-2xl border border-foreground/15 bg-surface-cream px-3 text-base font-semibold outline-none focus:border-accent"
+                      className="mt-1.5 h-10 w-full rounded-xl border border-foreground/15 bg-surface-cream px-2.5 text-sm font-semibold outline-none focus:border-accent"
                     />
                   </label>
                 ))}
