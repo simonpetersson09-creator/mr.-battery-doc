@@ -46,6 +46,11 @@ const CASES: Record<string, { label: string; input: BatteryEngineInput }> = {
  *     booked as a connection limitation, so GM03/GM04/GM06 report gridStatus "none";
  *  2. OPTIMISATION: the FCR reservation sweep uses 10 % resolution instead of 25 %, so
  *     GM06 picks 1,8 kW instead of 1,5 kW and its dispatch/economy follow.
+ * Physical FCR gate (grid-headroom gating of the reservation):
+ *   - GM06.fcrGrossSek 1082,07 -> 1082,06. INTENDED and minimal: the reservation is now
+ *     also capped by the grid headroom in the paid direction, which clips ~0,000012 kW in
+ *     a couple of hours (held 1,79999 kW instead of 1,8 kW). No other golden master moves,
+ *     no physical dispatch value moves, and no energy balance changes.
  * Regenerated again after the Swedish demand-charge schablon changed from 55 to
  * 30 SEK/kW/month. ONLY `demandCostSavingSek` (scaled by 30/55) and the
  * `totalOperatingBenefitSek` that contains it moved; every physical field, the sizing,
@@ -213,7 +218,7 @@ const EXPECTED = {
     "fcrEnabled": true,
     "fcrOfferedKw": 1.8,
     "fcrHeldKw": 1.8,
-    "fcrGrossSek": 1082.07,
+    "fcrGrossSek": 1082.06,
     "fcrOptimisedKw": 1.8,
     "energyBenefitSek": 1527.84,
     "totalOperatingBenefitSek": 2981.39,
