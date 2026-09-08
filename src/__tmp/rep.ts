@@ -1,0 +1,12 @@
+import { runBatteryApp } from "../lib/battery-app";
+import { buildResultPresentation } from "../lib/battery-app/resultPresentation";
+import { createInitialState } from "../state/wizard";
+const s = createInitialState("SE");
+s.grid.mainFuseA = 25;
+s.consumption.mode="annual"; s.consumption.annualKwh=20000; s.consumption.profileId="normal";
+s.production.mode="manual"; s.production.dcKwp=14; s.production.acKw=14; s.production.annualKwh=14000;
+s.strategies.fcrDUp=true; s.strategies.peakShaving=true;
+const o:any = runBatteryApp(s);
+const r=o.result.summary.recommendation;
+const p=buildResultPresentation(o.result,{peakShavingSelected:true,demandChargeTouched:false});
+console.log(JSON.stringify({cap:r.capacityKWh,phys:r.physicalPowerNeedKw,product:r.productPowerKw,withoutFcr:p.withoutFcrPowerKw,rec:r.recommendedPowerKw,productCRate:p.productCRate,systemCRate:p.systemCRate,baseUtility:p.baseUtilityPct,lines:p.sizingMethodLines},null,1));
