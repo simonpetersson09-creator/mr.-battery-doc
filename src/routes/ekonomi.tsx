@@ -38,7 +38,7 @@ function EconomyStep() {
     <WizardShell
       stepIndex={4}
       title="Ekonomi"
-      intro={`Standardvärden för ${country.name}. Du kan ändra allt själv.`}
+      intro={`Standardvärden för ${country.name}. Ändra om du vill.`}
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
     >
