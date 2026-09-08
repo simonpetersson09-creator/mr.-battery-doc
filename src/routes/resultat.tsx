@@ -238,7 +238,7 @@ function ResultStep() {
                   label="Minskning"
                   value={`${nf(s.peak.peakReductionKw, 2)} kW (${nf(peakPct, 1)} %)`}
                 />
-                <Row label="Lägre effektkostnad" value={`${money(s.peak.demandCostSavingSek)}/år`} />
+                <Row label="Minskad effektkostnad" value={`${money(s.peak.demandCostSavingSek)}/år`} />
                 <p className="ui-help">
                   {state.economy.demandChargeTouched
                     ? "Beräknat med den effektavgift du angett."
