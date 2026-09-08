@@ -93,9 +93,13 @@ function ResultStep() {
   }
 
   const s = outcome.result.summary;
+  const d = outcome.result.diagnostics;
+  const ps = d.powerSizing;
+  const ga = d.gridAssessment;
   const r = s.recommendation;
   const e = s.energy;
   const g = s.grid;
+
 
   const peakPct =
     g.importPeakBeforeKw > 0 ? (s.peak.peakReductionKw / g.importPeakBeforeKw) * 100 : 0;
@@ -131,11 +135,16 @@ function ResultStep() {
   const capacityWhy = noBattery
     ? "Med dina uppgifter flyttar ett batteri för lite energi för att en storlek ska kunna rekommenderas."
     : `${nf(r.capacityKWh)} kWh ger en bra balans mellan hur mycket energi batteriet kan flytta och nyttan av ytterligare kapacitet. Ett större batteri ger relativt liten ytterligare nytta med din förbrukning${hasSolar ? " och solproduktion" : ""}.`;
+  // The power wording follows the engine's own sizing driver, never a fixed phrase.
+  const powerFloorApplied = ps.productFloorAppliedKw !== null && ps.productFloorAppliedKw > 0;
   const powerWhy = noBattery
     ? null
-    : peakChanged
+    : peakStrategyOn && peakChanged
       ? `${nf(r.powerKw, 1)} kW effekt är vald så att batteriet kan kapa fastighetens effekttoppar. Högre effekt ger liten ytterligare nytta i beräkningen.`
-      : `${nf(r.powerKw, 1)} kW effekt bedöms räcka för fastighetens behov. Högre batterieffekt ger därför liten eller ingen ytterligare nytta i beräkningen.`;
+      : powerFloorApplied
+        ? `${nf(r.powerKw, 1)} kW effekt följer batteriets tekniska minimikrav i förhållande till kapaciteten. Fastighetens eget effektbehov är lägre (${nf(r.physicalPowerNeedKw, 1)} kW).`
+        : `${nf(r.powerKw, 1)} kW effekt räcker för att flytta energin under dygnet. Fastighetens beräknade effektbehov är ${nf(r.physicalPowerNeedKw, 1)} kW, så högre effekt ger liten eller ingen ytterligare nytta.`;
+
 
   return (
     <WizardShell
@@ -229,7 +238,7 @@ function ResultStep() {
                   label="Minskning"
                   value={`${nf(s.peak.peakReductionKw, 2)} kW (${nf(peakPct, 1)} %)`}
                 />
-                <Row label="Lägre effektkostnad" value={`${money(s.peak.demandCostSavingSek)}/år`} />
+                <Row label="Minskad effektkostnad" value={`${money(s.peak.demandCostSavingSek)}/år`} />
                 <p className="ui-help">
                   {state.economy.demandChargeTouched
                     ? "Beräknat med den effektavgift du angett."
@@ -283,14 +292,14 @@ function ResultStep() {
           <div className="space-y-2">
             <Row label="Reserverad effekt" value={kw(s.fcr.offeredPowerKw, 1)} />
             <Row label="Tillgänglighet" value={pct(s.fcr.availabilityPct)} />
-            <Row label="Historisk intäkt" value={`${money(s.fcr.grossSek)}/år`} />
             <p className="ui-help">
               Historiskt scenario baserat på FCR-D upp-priser från 2025. Framtida intäkt kan
-              avvika.
+              avvika. Intäkten finns redan i ”Beräknad nytta”.
             </p>
           </div>
         </SectionCard>
       ) : null}
+
 
       <SectionCard title="Elanslutning">
         {gridLimitsBattery ? (
@@ -317,30 +326,76 @@ function ResultStep() {
 
       <details className="ui-card">
         <summary className="ui-label cursor-pointer list-none">Visa tekniska detaljer</summary>
-        <div className="mt-3 space-y-2">
-          <Row
-            label="Rimligt intervall"
-            value={`${nf(r.reasonableRangeKWh[0])}–${nf(r.reasonableRangeKWh[1])} kWh`}
-          />
-          <Row label="Nyttjandegrad" value={pct(e.utilisationPct)} />
-          <Row label="Cykler per år" value={nf(e.equivalentFullCycles, 1)} />
-          <Row label="Otäckt last" value={`${kwh(g.unservedLoadKWh)}/år`} />
+
+        <div className="mt-3 space-y-4">
+          {/* All key figures below come from the FINAL simulation of the recommended system. */}
+          <TechGroup title="Batterianvändning">
+            <Row label="Nyttjandegrad" value={pct(e.utilisationPct)} />
+            <Row label="Cykler per år" value={nf(e.equivalentFullCycles, 1)} />
+            <Row
+              label="Rimligt kapacitetsintervall"
+              value={`${nf(r.reasonableRangeKWh[0])}–${nf(r.reasonableRangeKWh[1])} kWh`}
+            />
+          </TechGroup>
+
+          <TechGroup title="Effektdimensionering">
+            <Row label="Rekommenderad effekt" value={kw(r.powerKw, 1)} />
+            <Row label="Fysiskt effektbehov" value={kw(r.physicalPowerNeedKw, 1)} />
+            <Row label="C-rate" value={`${nf(ps.productCRate, 2)} C`} />
+            <Row
+              label="Nytta jämfört med obegränsad effekt"
+              value={pct(ps.utilityPctOfReference)}
+            />
+          </TechGroup>
+
+          <TechGroup title="Elanslutning">
+            <Row label="Nätstatus" value={g.headline} />
+            <Row label="Begränsad laddning" value={`${kwh(ga.batteryChargeBlockedKWh)}/år`} />
+            <Row
+              label="Andel av laddad energi"
+              value={`${nf(ga.batteryBlockedPctOfCharge, 1)} %`}
+            />
+            <Row label="Importgränsen nådd" value={`${nf(ga.importBoundHours)} timmar/år`} />
+            <Row label="Exportgränsen nådd" value={`${nf(ga.exportBoundHours)} timmar/år`} />
+            <Row label="Otäckt last" value={`${kwh(g.unservedLoadKWh)}/år`} />
+            {g.detail ? <p className="ui-help">{g.detail}</p> : null}
+          </TechGroup>
+
           {s.fcr.enabled ? (
-            <Row label="Genomsnittligt hållen effekt" value={kw(s.fcr.avgHeldPowerKw, 2)} />
+            <TechGroup title="FCR-D upp">
+              <Row label="Erbjuden/reserverad effekt" value={kw(s.fcr.offeredPowerKw, 1)} />
+              <Row label="Genomsnittligt hållen effekt" value={kw(s.fcr.avgHeldPowerKw, 2)} />
+              <Row label="Tillgänglighet" value={pct(s.fcr.availabilityPct)} />
+              <Row label="Reserverade timmar" value={`${nf(s.fcr.reservedHours)} timmar/år`} />
+              {s.fcr.blockers.map((b) => (
+                <p key={b} className="ui-help">
+                  {b}
+                </p>
+              ))}
+            </TechGroup>
           ) : null}
-          <Row label="Nätstatus" value={g.headline} />
-          {g.detail ? <p className="ui-help">{g.detail}</p> : null}
-          {s.peak.tariffNote ? <p className="ui-help">{s.peak.tariffNote}</p> : null}
-          {r.utilisationWarning ? <p className="ui-help">{r.utilisationWarning}</p> : null}
-          {[r.explanation, r.powerExplanation, ...g.consequences]
-            .filter((x): x is string => Boolean(x))
-            .map((line) => (
-              <p key={line} className="ui-help">
-                {line}
+
+          <details className="rounded-[0.875rem] border border-border/60 p-3">
+            <summary className="ui-label cursor-pointer list-none">Dimensioneringsmetod</summary>
+            <div className="mt-2 space-y-2">
+              <p className="ui-caption">
+                Beskriver hur dimensioneringen togs fram. Nyckeltal i den här texten kommer från
+                dimensioneringsberäkningen (utan FCR-reservation) och kan därför skilja sig från
+                det slutliga scenariots värden ovan.
               </p>
-            ))}
+              {[r.explanation, r.powerExplanation, ...g.consequences]
+                .filter((x): x is string => Boolean(x))
+                .map((line) => (
+                  <p key={line} className="ui-help">
+                    {line}
+                  </p>
+                ))}
+              {s.peak.tariffNote ? <p className="ui-help">{s.peak.tariffNote}</p> : null}
+            </div>
+          </details>
         </div>
       </details>
+
     </WizardShell>
   );
 }
@@ -373,3 +428,12 @@ function BeforeAfter({
   );
 }
 
+
+function TechGroup({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="space-y-2">
+      <p className="ui-caption uppercase tracking-wide">{title}</p>
+      <div className="space-y-2">{children}</div>
+    </section>
+  );
+}
