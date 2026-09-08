@@ -1,7 +1,8 @@
 import { runBatteryApp } from "@/lib/battery-app/index";
 import { createInitialState } from "@/state/wizard";
 import { buildLoadSeries, buildPvSeries, calibrateLoadToSelfConsumption, shapeDeviationOf } from "@/lib/lab/profiles";
-import { DEFAULT_CONFIG } from "@/lib/lab/defaults";
+import { defaultConfig } from "@/lib/lab/defaults";
+const DEFAULT_CONFIG = defaultConfig();
 
 const LOAD_MONTHS = [2560, 2280, 2080, 1620, 1220, 900, 800, 860, 1160, 1620, 2120, 2760];
 const PV_MONTHS = [140, 380, 950, 1500, 1900, 2050, 2000, 1650, 1150, 620, 250, 110];
