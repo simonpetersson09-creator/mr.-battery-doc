@@ -257,7 +257,7 @@ function ResultStep() {
               ) : null}
               {s.fcr.enabled ? (
                 <Row
-                  label="FCR-D upp – historiskt 2025"
+                  label="Stödtjänster – historiskt 2025"
                   value={`${money(s.fcr.grossSek)}/år`}
                 />
               ) : null}
