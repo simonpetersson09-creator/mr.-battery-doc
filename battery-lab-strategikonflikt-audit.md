@@ -264,3 +264,117 @@ Innan externa intäktslöften görs bör F1 rättas, eftersom FCR-brutto systema
 storleksordningen 15 %.
 
 CONFLICT AUDIT: PASS
+
+---
+
+# Åtgärdsrapport — fynden F1–F6 rättade före frysning som v1.0.0
+
+Alla ändringar ligger i motorns dispatch- och ekonomilager. Ingen profil, prisdata, sizing-regel,
+default eller 200 kW-gräns har ändrats. UI-lagret är orört.
+
+## F1 — FCR-beredskapens tidsordning
+
+**Rotorsak.** Två fel samverkade. (a) Beredskapen bedömdes vid en enda tidpunkt före
+beredskapsladdningen. (b) Det verkliga felet låg tidigare i kedjan: strategierna fick tömma
+batteriet till exakt reservationsgolvet, varefter nästa timmes passiva självurladdning — som
+appliceras allra först — sköt SOC strax under golvet. Reservationen tappade alltså sin beredskap
+genom en förlust som modellen känner till i förväg.
+
+**Åtgärd.**
+1. Dispatchen försvarar nu `hourFloorDefended = hourFloor / (1 − självurladdningsgrad)`, dvs. golvet
+   plus en timmes känd passiv förlust. Ingen framåtblick används; energin hålls verkligen undan från
+   övriga strategier, så inget utrymme används två gånger.
+2. Beredskapen bedöms över **hela** timmen: effektkravet måste rymmas i batteriets märkeffekt och den
+   reserverade effekten hållas undan hela timmen, och SOC-banan inom timmen är monoton (laddning och
+   urladdning kan inte ske samma timme), varför `min(SOC vid timstart, SOC vid timslut)` är timmens
+   verkliga värsta fall. Framtida laddning kan alltså inte i efterhand bevisa tidigare beredskap.
+3. Definition: *hållen FCR-effekt* = erbjuden upp-effekt som var både effekt- och energimässigt
+   levererbar under hela timmen. *Availability* = andel reserverade timmar som uppfyller detta.
+
+**Modellbegränsning.** Timupplösningen kan inte styrka kontinuitet inom timmen. Modellen använder
+därför timmens värsta endpoint som konservativt antagande.
+
+**Före → efter (GM05, FCR-D upp 1,5 kW):** availability 64,97 % → 100 %, hållen effekt 0,9745 kW →
+1,5000 kW, FCR-brutto 610,34 → 901,72 kr/år. Energibalans OK i båda fallen.
+
+## F2 — negativa effektbesparingar räknas
+
+**Rotorsak.** `monthlyReductionKw = Math.max(0, bas − batteri)` nollade månader där batteriet höjde
+den debiteringsgrundande toppen.
+
+**Åtgärd.** Månadsvärdet är nu signerat (`bas − batteri`). Negativa månader prissätts med samma tariff
+och ingår exakt en gång i årssumman; effektposten är fortsatt den enda plats där en kW-storhet
+prissätts.
+
+**Före → efter (GM01 standardvilla):** minskad effektkostnad 508,31 → 505,01 kr/år, total operativ
+nytta 2 274,51 → 2 271,21 kr/år. GM10 visar nu en negativ effektpost, −13,20 kr/år, som tidigare var
+osynlig.
+
+## F3 — FCR-laddningens prioritet
+
+FCR-beredskapen behåller sitt avsedda företräde före peak-målet och är inte begränsad av
+månadströskeln, men lyder alltid hårda batteri- och nätgränser. Regeln är nu skriven i koden som en
+uttrycklig prioritetsregel, inte som en följd av kodordningen. Konsekvenserna prissätts en gång var:
+den importerade energin sänker energinyttan, och en höjd månadstopp kostar nu pengar via den
+signerade effektposten (F2).
+
+## F4 — samtidig import och export
+
+**Rotorsak.** När egenanvändning och curtailment recovery var avstängda kunde peak-, beredskaps- och
+arbitrageladdning importera medan samma timmes solöverskott exporterades.
+
+**Åtgärd.** All laddning går genom `takeFromSurplus()`, som först konsumerar gratis solöverskott och
+bokför export-/curtailment-andelen, innan någon nätimport sker. Rättningen sitter i flödesberäkningen,
+inte i presentationen.
+
+**Före → efter:** 3 042 timmar med samtidig import och export → 0 timmar. Timvis energibalans OK.
+
+## F5 — utebliven förladdning
+
+Grenen `resNow ? hourFloor : hourFloor` var verkningslös. Reservationsprofilen i denna version täcker
+årets alla timmar, så en ”kommande” reserverad timme är alltid den aktuella. Grenen är borttagen och
+dokumenterad som *ingen förladdning modelleras*. Ingen ny funktionalitet aktiverades och ingen
+framåtblick infördes.
+
+## F6 — reservationsbeteende
+
+Full effektreservation lämnar fortsatt noll urladdningseffekt till energistrategierna (verifierat:
+0 kWh urladdat, 0 cykler). Sweepens text beskriver nu 1,50 kW som *bäst av de prövade nivåerna under
+dessa antaganden med 2025 års FCR-D upp-priser*, inte som en generell rekommendation.
+
+## Verifiering
+
+Ny riktad regressionssvit: `src/lib/lab/strategyConflict.test.ts` (8 tester) — SOC nära FCR-golvet med
+självurladdning och beredskapsladdning, ej levererbar reservation, oreserverade timmar, signerade
+månadstoppar, prissättning exakt en gång, beredskapsladdning inom hårda gränser, avstängd solladdning
+med peak shaving (0 timmar samtidig import/export) och full effektreservation.
+
+- **216 tester passerar** (tidigare 208 + 8 nya). Typecheck passerar.
+- Alla 12 Golden Master-fall passerar mot uppdaterade referensvärden. Skillnaderna mot tidigare
+  referens är enbart de avsedda effekterna av F1, F2 och F4; sizing, gridstatus, otäckt last,
+  cykler och energibalans är oförändrade i samtliga fall.
+- Energibalans OK och residual ≈ 0 i alla fall; inga överskridna SOC-, effekt- eller nätgränser;
+  inga skyddade reserver använda av annan strategi; ingen samtidig laddning och urladdning.
+
+**FCR-priser och antaganden:** historiska svenska FCR-D upp-priser 2025, EUR/SEK 11,30, importpris
+1,50 kr/kWh, exportvärde 0,60 kr/kWh, effekttariff 55 kr/kW/månad (schablon). Aktivering simuleras
+inte — endast reservationen.
+
+**Årsekonomin** summerar energinytta + förändrad effektkostnad + FCR-brutto, varje post exakt en gång.
+Alternativkostnaden är fortsatt endast diagnostik och dras inte av igen.
+
+## Kvarstående modellbegränsningar
+
+- Timupplösning: kontinuerlig beredskap inom en timme kan inte bevisas, endast bedömas konservativt.
+- FCR-aktivering (energileverans vid frekvensavvikelse) simuleras inte.
+- Ingen förladdning inför framtida reservation; nuvarande profil gör den överflödig.
+- Effekttariffen är en schablon när användaren inte anger egen.
+
+## Bedömning
+
+Motorn är redo att frysas som v1.0.0: fysiken håller, konserveringslagarna håller, ekonomin summerar
+varje post exakt en gång, och de tidigare systematiska snedvridningarna (underskattad FCR-beredskap,
+dolda effekthöjningar, samtidig import/export) är åtgärdade vid källan. Ingen release skapad och inget
+versionsnummer ändrat i detta steg.
+
+CONFLICT AUDIT REMEDIATION: PASS
