@@ -36,14 +36,10 @@ export function validateBatteryEngineInput(state: WizardState): ValidationResult
   } else {
     if (typeof c.annualKwh !== "number" || !Number.isFinite(c.annualKwh) || c.annualKwh <= 0)
       add("consumption.annualKwh", "Ange din årsförbrukning i kWh.");
-    if (!isKnownProfile(c.profileId))
-      add("consumption.profileId", "Välj den förbrukningsprofil som liknar din fastighet.");
-    if (c.mode === "document")
-      add(
-        "consumption.document",
-        "Automatisk avläsning av uppladdade filer är inte påslagen ännu — fyll i årsförbrukning och profil.",
-      );
   }
+  // The profile shapes the hourly distribution in BOTH modes.
+  if (!isKnownProfile(c.profileId))
+    add("consumption.profileId", "Välj den förbrukningsprofil som liknar din fastighet.");
 
   /* production */
   const p = state.production;
@@ -57,11 +53,6 @@ export function validateBatteryEngineInput(state: WizardState): ValidationResult
       add("production.dcKwp", "Paneleffekten kan inte vara negativ.");
     if (typeof p.acKw === "number" && p.acKw < 0)
       add("production.acKw", "Växelriktarens effekt kan inte vara negativ.");
-    if (p.mode === "document" && !months && (typeof p.annualKwh !== "number" || p.annualKwh <= 0))
-      add(
-        "production.document",
-        "Automatisk avläsning av uppladdade filer är inte påslagen ännu — fyll i solproduktionen.",
-      );
   }
 
   /* economy */
