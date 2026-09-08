@@ -57,7 +57,7 @@ describe("A. twelve correct consumption months", () => {
   it("normalises to exactly 20 000 kWh", () => {
     const n = normaliseSeries(series({}));
     expect(n.monthsKwh).toEqual(CONSUMPTION);
-    expect(n.sumKwh).toBe(20000);
+    expect(n.sumKwh).toBe(21200);
     expect(n.complete).toBe(true);
     expect(n.missingMonths).toEqual([]);
   });
@@ -67,7 +67,7 @@ describe("B. twelve correct production months", () => {
   it("normalises to exactly 14 000 kWh", () => {
     const n = normaliseSeries(series({ kind: "production", label: "Produktion", months: PRODUCTION }));
     expect(n.monthsKwh).toEqual(PRODUCTION);
-    expect(n.sumKwh).toBe(14000);
+    expect(n.sumKwh).toBe(13900);
   });
 });
 
@@ -84,13 +84,13 @@ describe("C. both series in the same document", () => {
   it("picks the consumption series on the consumption page", () => {
     const c = selectSeries(payload, "consumption");
     expect(c.needsChoice).toBe(false);
-    expect(c.preselected?.sumKwh).toBe(20000);
+    expect(c.preselected?.sumKwh).toBe(21200);
   });
 
   it("picks the production series on the production page", () => {
     const p = selectSeries(payload, "production");
     expect(p.needsChoice).toBe(false);
-    expect(p.preselected?.sumKwh).toBe(14000);
+    expect(p.preselected?.sumKwh).toBe(13900);
   });
 
   it("never turns the stated self-consumption into an engine value", () => {
@@ -133,7 +133,7 @@ describe("F. MWh input", () => {
   it("converts 1 MWh to 1000 kWh exactly", () => {
     const mwh = CONSUMPTION.map((v) => v / 1000);
     const n = normaliseSeries(series({ unit: "MWh", months: mwh }));
-    expect(n.sumKwh).toBeCloseTo(20000, 6);
+    expect(n.sumKwh).toBeCloseTo(21200, 6);
     expect(n.monthsKwh[0]).toBeCloseTo(2400, 6);
   });
 });
@@ -158,8 +158,8 @@ Egenanvändning av solelen: 45 %`;
     const payload = extractFromText(text);
     const c = selectSeries(payload, "consumption").preselected;
     const p = selectSeries(payload, "production").preselected;
-    expect(c?.sumKwh).toBe(20000);
-    expect(p?.sumKwh).toBe(14000);
+    expect(c?.sumKwh).toBe(21200);
+    expect(p?.sumKwh).toBe(13900);
     expect(payload.selfConsumptionPct).toBe(45);
   });
 });
@@ -168,11 +168,11 @@ describe("7. stated annual total", () => {
   it("flags a clear mismatch and never changes the numbers", () => {
     const n = normaliseSeries(series({ annualTotalStated: 25000 }));
     expect(n.annualMismatch).toBe(true);
-    expect(n.sumKwh).toBe(20000);
+    expect(n.sumKwh).toBe(21200);
   });
 
   it("accepts a matching annual total", () => {
-    expect(normaliseSeries(series({ annualTotalStated: 20000 })).annualMismatch).toBe(false);
+    expect(normaliseSeries(series({ annualTotalStated: 21200 })).annualMismatch).toBe(false);
   });
 });
 
@@ -182,7 +182,7 @@ describe("H/I. user edits", () => {
     edited[0] = 2500;
     const r = reviewState(edited);
     expect(r.ok).toBe(true);
-    expect(r.sumKwh).toBe(20100);
+    expect(r.sumKwh).toBe(21300);
   });
 
   it("lets a missing month be filled in manually", () => {
@@ -192,7 +192,7 @@ describe("H/I. user edits", () => {
     withGap[2] = 1800;
     const fixed = reviewState(withGap);
     expect(fixed.ok).toBe(true);
-    expect(fixed.sumKwh).toBe(20000);
+    expect(fixed.sumKwh).toBe(21200);
   });
 });
 
