@@ -16,7 +16,7 @@ export function SectionCard({
 }) {
   return (
     <section className="card-elevated p-4">
-      {(title || action) && (
+      {(title || description || action) && (
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             {title ? (
