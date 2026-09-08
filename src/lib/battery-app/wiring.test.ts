@@ -23,6 +23,7 @@ const read = (p: string) => readFileSync(p, "utf8");
 
 function base(): WizardState {
   const s = createInitialState("SE");
+  s.grid.gridValuesConfirmed = true;
   s.consumption.mode = "annual";
   s.consumption.annualKwh = 10000;
   s.consumption.profileId = "evening-heavy";
@@ -51,7 +52,9 @@ describe("photo/file is not exposed as a working v1 feature", () => {
 
 describe("FCR-D up toggle", () => {
   it("off = no FCR at all", () => {
-    const input = normalizeWizardToEngineInput(base());
+    const s = base();
+    s.strategies.fcrDUp = false;
+    const input = normalizeWizardToEngineInput(s);
     expect(input.strategies?.fcrDUp).toBeUndefined();
     expect(input.strategies?.optimiseFcrReservation).toBeUndefined();
   });
