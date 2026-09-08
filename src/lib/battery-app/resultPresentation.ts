@@ -63,10 +63,21 @@ export interface ResultPresentation {
   fcrHistoricalNote: string | null;
   /** Power level motivated by the property itself (actual FCR-off result when available). */
   propertyOnlyPowerKw: number | null;
+  /** System power the calculation would recommend with FCR removed from the objective. */
+  withoutFcrPowerKw: number | null;
+  /** True when the physical need row differs from the FCR-off system power. */
+  showPhysicalNeedRow: boolean;
+  /** Annual benefit, SEK/year, of the FCR-off candidate (FCR revenue excluded). */
+  withoutFcrBenefitSek: number | null;
+  /** Annual benefit, SEK/year, of the recommended candidate (FCR included). */
+  withFcrBenefitSek: number | null;
+  /** withFcr - withoutFcr, SEK/year. */
+  benefitDeltaSek: number | null;
 
   capacityWhy: string;
   powerWhy: string | null;
 }
+
 
 
 export function buildResultPresentation(
