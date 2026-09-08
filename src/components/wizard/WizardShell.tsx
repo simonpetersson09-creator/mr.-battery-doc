@@ -1,4 +1,4 @@
-import { Link, useRouter } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, BatteryCharging } from "lucide-react";
 import type { ReactNode } from "react";
 import { WIZARD_STEPS } from "./steps";
@@ -11,6 +11,10 @@ interface WizardShellProps {
   children: ReactNode;
   nextLabel?: string;
   nextDisabled?: boolean;
+  /** Shown above the buttons when the step is incomplete. */
+  nextBlockedReason?: string | null;
+  /** Replaces the "Nästa" button on the last step. */
+  footerAction?: ReactNode;
 }
 
 export function WizardShell({
@@ -20,10 +24,14 @@ export function WizardShell({
   children,
   nextLabel,
   nextDisabled,
+  nextBlockedReason,
+  footerAction,
 }: WizardShellProps) {
-  const router = useRouter();
+  // Both back affordances follow the wizard's own step order.
   const prev = stepIndex > 0 ? WIZARD_STEPS[stepIndex - 1]!.path : "/";
   const next = stepIndex < WIZARD_STEPS.length - 1 ? WIZARD_STEPS[stepIndex + 1]!.path : null;
+
+
 
 
   return (
