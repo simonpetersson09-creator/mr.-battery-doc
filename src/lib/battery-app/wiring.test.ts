@@ -224,10 +224,21 @@ describe("peak tariff source", () => {
 });
 
 describe("country and currency", () => {
-  it("v1 offers Sweden only, so no non-SEK value can reach the SEK economy input", () => {
-    expect(SUPPORTED_COUNTRY_CODES).toEqual(["SE"]);
+  it("v1 offers SE/FI/DK/DE, all SEK-denominated so no non-SEK value reaches the engine", () => {
+    expect(SUPPORTED_COUNTRY_CODES).toEqual(["SE", "FI", "DK", "DE"]);
     for (const code of SUPPORTED_COUNTRY_CODES) {
       expect(getCountry(code).economy.currency).toBe("SEK");
+      expect(getCountry(code).economy.currencyLabel).toBe("kr");
+    }
+  });
+
+  it("each supported country loads its own SEK economy defaults", () => {
+    for (const code of SUPPORTED_COUNTRY_CODES) {
+      const s = createInitialState(code);
+      const c = getCountry(code).economy;
+      expect(s.economy.importPrice).toBe(c.importPrice);
+      expect(s.economy.exportPrice).toBe(c.exportPrice);
+      expect(s.economy.eurSekRate).toBe(11.3);
     }
   });
 
