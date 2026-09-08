@@ -94,3 +94,32 @@ export {
   customerSummary,
 } from "../lab/operatingEconomy";
 export type { FcrRevenueResult } from "../lab/ancillary/fcrEconomics";
+
+/* ---------------- product cost + economic power sizing (new layer) ---------------- */
+export {
+  EMPTY_PRODUCT_COST,
+  productCostConfig,
+  productCost,
+  productOptionKey,
+  capitalRecoveryFactor,
+  missingProductCostFields,
+} from "../lab/productCost";
+export type { ProductCostConfig, ProductCostBreakdown } from "../lab/productCost";
+export {
+  DEFAULT_MAX_PRODUCT_C_RATE,
+  POWER_TIE_TOLERANCE_SEK,
+  EMPTY_FCR_MARKET_REALISM,
+  buildPowerCandidates,
+  fcrMarketRealismGaps,
+  realisticFcrNetSek,
+  runEconomicPowerSizing,
+  simulateAtPower,
+} from "../lab/economicPowerSizing";
+export type {
+  EconomicPowerSizingInput,
+  EconomicPowerSizingResult,
+  EconomicPowerSizingStatus,
+  FcrMarketRealismConfig,
+  PowerOption,
+} from "../lab/economicPowerSizing";
+export type { EnginePowerOption } from "./types";
