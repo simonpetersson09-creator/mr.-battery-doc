@@ -207,7 +207,7 @@ export function buildResultPresentation(
     }
   }
   const fcrPowerExplanation = showFcrPowerCard
-    ? "Den högre systemeffekten ger större beräknad årlig nytta när historiska FCR-D upp-priser från 2025 ingår. Framtida priser och intäkter kan avvika."
+    ? "Den högre systemeffekten ger större beräknad årlig nytta när historiska stödtjänst-priser från 2025 ingår. Framtida priser och intäkter kan avvika."
     : null;
 
 
