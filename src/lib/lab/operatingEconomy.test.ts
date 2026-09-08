@@ -148,8 +148,10 @@ describe("peak shaving economy", () => {
     } else {
       expect(p.peakDirection).toBe("reduced");
     }
-    // monthly reductions are never negative and are the only priced quantity
-    p.monthlyReductionKw.forEach((kw) => expect(kw).toBeGreaterThanOrEqual(0));
+    // monthly values are SIGNED: a raised monthly peak must survive as a negative number
+    p.monthlyReductionKw.forEach((kw, i) =>
+      expect(kw).toBeCloseTo((p.baselineMonthlyPeakKw[i] ?? 0) - (p.batteryMonthlyPeakKw[i] ?? 0), 9),
+    );
   });
 
   it("names the economic item 'Minskad effektkostnad', not the peak-shaving strategy", () => {
@@ -170,7 +172,9 @@ describe("peak shaving economy", () => {
     expect(p.monthlyBenefitSek).not.toBeNull();
     const expected = p.monthlyReductionKw.reduce((a, kw) => a + kw * 55, 0);
     expect(p.annualPeakBenefitSek!).toBeCloseTo(expected, 6);
-    p.monthlyReductionKw.forEach((kw) => expect(kw).toBeGreaterThanOrEqual(0));
+    p.monthlyReductionKw.forEach((kw, i) =>
+      expect(kw).toBeCloseTo((p.baselineMonthlyPeakKw[i] ?? 0) - (p.batteryMonthlyPeakKw[i] ?? 0), 9),
+    );
   });
 
   it("cannot pay anything without a real peak reduction", () => {
