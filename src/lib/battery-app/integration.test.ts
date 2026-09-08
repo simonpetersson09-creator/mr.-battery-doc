@@ -205,10 +205,11 @@ describe("economy mapping", () => {
     });
   }, T);
 
-  it("marks edited values as user-provided", () => {
+  it("marks an edited demand charge as user-provided", () => {
     const s = standardVilla();
     s.economy.demandCharge = 40;
     s.economy.touched = true;
+    s.economy.demandChargeTouched = true;
     const input = normalizeWizardToEngineInput(s);
     expect(input.economy?.peakTariffSource).toBe("user-provided");
     expect(input.economy?.peakDemandChargeSekPerKwMonth).toBe(40);
