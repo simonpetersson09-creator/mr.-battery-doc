@@ -1,11 +1,12 @@
+import { useCallback, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { MonthlyImport } from "@/components/wizard/MonthlyImport";
+import { MonthGrid } from "@/components/wizard/MonthGrid";
 
-import { NumberField, OptionCard, SectionCard, ToggleRow } from "@/components/wizard/fields";
-import { MONTH_SHORT_SV } from "@/lib/consumption-profiles";
+import { NumberField, OptionCard, SectionCard } from "@/components/wizard/fields";
 import { validateProductionStep } from "@/lib/battery-app/stepValidation";
-import { useWizard, type ProductionMode } from "@/state/wizard";
+import { useWizard } from "@/state/wizard";
 
 export const Route = createFileRoute("/produktion")({
   head: () => ({
@@ -28,9 +29,28 @@ export const Route = createFileRoute("/produktion")({
 function ProductionStep() {
   const { state, update } = useWizard();
   const p = state.production;
-  const setMode = (mode: ProductionMode) =>
-    update((s) => ({ ...s, production: { ...s.production, mode } }));
   const validity = validateProductionStep(state);
+  const [importOpen, setImportOpen] = useState(false);
+
+  /** The three customer-facing choices map onto the existing data model. */
+  const choice: "none" | "annual" | "monthly" =
+    p.mode === "none" ? "none" : p.useMonthly ? "monthly" : "annual";
+
+  const setChoice = (next: "none" | "annual" | "monthly") =>
+    update((s) => ({
+      ...s,
+      production: {
+        ...s.production,
+        mode: next === "none" ? "none" : "manual",
+        useMonthly: next === "monthly",
+      },
+    }));
+
+  const applyImported = useCallback(
+    (vals: number[]) =>
+      update((s) => ({ ...s, production: { ...s.production, monthlyKwh: [...vals] } })),
+    [update],
+  );
 
   return (
     <WizardShell
@@ -42,95 +62,99 @@ function ProductionStep() {
     >
       <div className="space-y-2">
         <OptionCard
-          title="Jag har ingen solcellsanläggning"
-          selected={p.mode === "none"}
-          onSelect={() => setMode("none")}
+          title="Ingen solcellsanläggning"
+          selected={choice === "none"}
+          onSelect={() => setChoice("none")}
         />
         <OptionCard
-          title="Jag fyller i uppgifterna själv"
-          description="Paneleffekt, växelriktare och årsproduktion."
-          selected={p.mode === "manual"}
-          onSelect={() => setMode("manual")}
+          title="Årsproduktion"
+          description="Jag vet anläggningens storlek och ungefärlig årsproduktion."
+          selected={choice === "annual"}
+          onSelect={() => setChoice("annual")}
+        />
+        <OptionCard
+          title="Månad för månad"
+          description="Jag har faktiska produktionsvärden för alla 12 månader."
+          selected={choice === "monthly"}
+          onSelect={() => setChoice("monthly")}
         />
       </div>
 
-      {p.mode === "manual" ? (
-        <>
-          <SectionCard title="Anläggningen">
-            <NumberField
-              label="Installerad paneleffekt"
-              unit="kWp"
-              value={p.dcKwp}
-              placeholder="t.ex. 12"
-              onChange={(v) => update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))}
-            />
-            <NumberField
-              label="Växelriktarens AC-effekt"
-              unit="kW"
-              value={p.acKw}
-              placeholder="t.ex. 10"
-              onChange={(v) => update((s) => ({ ...s, production: { ...s.production, acKw: v } }))}
-            />
-            <NumberField
-              label="Årsproduktion"
-              unit="kWh/år"
-              value={p.annualKwh}
-              placeholder="t.ex. 11000"
-              onChange={(v) =>
-                update((s) => ({ ...s, production: { ...s.production, annualKwh: v } }))
-              }
-            />
-          </SectionCard>
-
-          <ToggleRow
-            title="Jag har faktiska månadsvärden"
-            description="Fyll i produktionen månad för månad."
-            checked={p.useMonthly}
+      {choice === "annual" ? (
+        <SectionCard title="Anläggning">
+          <NumberField
+            label="Installerad paneleffekt"
+            unit="kWp"
+            value={p.dcKwp}
+            placeholder="t.ex. 14"
+            onChange={(v) => update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))}
+          />
+          <NumberField
+            label="Växelriktare"
+            unit="kW"
+            value={p.acKw}
+            placeholder="t.ex. 12"
+            onChange={(v) => update((s) => ({ ...s, production: { ...s.production, acKw: v } }))}
+          />
+          <NumberField
+            label="Årsproduktion"
+            unit="kWh/år"
+            value={p.annualKwh}
+            placeholder="t.ex. 14000"
             onChange={(v) =>
-              update((s) => ({ ...s, production: { ...s.production, useMonthly: v } }))
+              update((s) => ({ ...s, production: { ...s.production, annualKwh: v } }))
             }
           />
-
-          {p.useMonthly ? (
-            <SectionCard title="Månadsproduktion">
-              <MonthlyImport
-                kind="production"
-                description="Importera en bild eller PDF med din solproduktion."
-                onApply={(vals: number[]) =>
-                  update((s) => ({
-                    ...s,
-                    production: { ...s.production, monthlyKwh: [...vals] },
-                  }))
-                }
-              />
-              <div className="grid grid-cols-2 gap-2">
-
-                {MONTH_SHORT_SV.map((m, i) => (
-                  <label key={m} className="flex items-center gap-2">
-                    <span className="field-label w-9 shrink-0">{m}</span>
-                    <input
-                      type="number"
-                      inputMode="decimal"
-                      placeholder="kWh"
-                      value={p.monthlyKwh[i] ?? ""}
-                      onChange={(e) =>
-                        update((s) => {
-                          const next = [...s.production.monthlyKwh];
-                          next[i] = e.target.value === "" ? null : Number(e.target.value);
-                          return { ...s, production: { ...s.production, monthlyKwh: next } };
-                        })
-                      }
-                      className="ui-control h-11 min-w-0 flex-1 tabular-nums"
-                    />
-                  </label>
-                ))}
-              </div>
-
-            </SectionCard>
-          ) : null}
-        </>
+        </SectionCard>
       ) : null}
 
+      {choice === "monthly" ? (
+        <>
+          <SectionCard title="Faktisk månadsproduktion">
+            <MonthlyImport
+              kind="production"
+              description="Importera en bild, PDF eller CSV — värdena fylls i månadsfälten nedan."
+              onApply={applyImported}
+              onOpenChange={setImportOpen}
+            />
+            {!importOpen ? (
+              <MonthGrid
+                values={p.monthlyKwh}
+                onChange={(i, v) =>
+                  update((s) => {
+                    const next = [...s.production.monthlyKwh];
+                    next[i] = v;
+                    return { ...s, production: { ...s.production, monthlyKwh: next } };
+                  })
+                }
+              />
+            ) : null}
+          </SectionCard>
+
+          <SectionCard title="Anläggning">
+            <div className="grid grid-cols-2 gap-2">
+              <NumberField
+                label="Paneleffekt"
+                unit="kWp"
+                value={p.dcKwp}
+                placeholder="14"
+                onChange={(v) =>
+                  update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))
+                }
+              />
+              <NumberField
+                label="Växelriktare"
+                unit="kW"
+                value={p.acKw}
+                placeholder="12"
+                onChange={(v) =>
+                  update((s) => ({ ...s, production: { ...s.production, acKw: v } }))
+                }
+              />
+            </div>
+          </SectionCard>
+        </>
+      ) : null}
     </WizardShell>
   );
 }
