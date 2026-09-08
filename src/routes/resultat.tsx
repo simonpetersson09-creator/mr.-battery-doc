@@ -474,6 +474,20 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
+function BenefitRow({ label, hint, value }: { label: string; hint: string; value: string }) {
+  return (
+    <div>
+      <div className="ui-body flex items-baseline justify-between gap-4">
+        <span className="min-w-0 text-muted-foreground">{label}</span>
+        <span className="shrink-0 font-semibold tabular-nums">{value}</span>
+      </div>
+      <p className="ui-help mt-0.5">{hint}</p>
+    </div>
+  );
+}
+
+
+
 function BeforeAfter({
   label,
   before,
