@@ -135,11 +135,16 @@ function ResultStep() {
   const capacityWhy = noBattery
     ? "Med dina uppgifter flyttar ett batteri för lite energi för att en storlek ska kunna rekommenderas."
     : `${nf(r.capacityKWh)} kWh ger en bra balans mellan hur mycket energi batteriet kan flytta och nyttan av ytterligare kapacitet. Ett större batteri ger relativt liten ytterligare nytta med din förbrukning${hasSolar ? " och solproduktion" : ""}.`;
+  // The power wording follows the engine's own sizing driver, never a fixed phrase.
+  const powerFloorApplied = ps.productFloorAppliedKw !== null && ps.productFloorAppliedKw > 0;
   const powerWhy = noBattery
     ? null
-    : peakChanged
+    : peakStrategyOn && peakChanged
       ? `${nf(r.powerKw, 1)} kW effekt är vald så att batteriet kan kapa fastighetens effekttoppar. Högre effekt ger liten ytterligare nytta i beräkningen.`
-      : `${nf(r.powerKw, 1)} kW effekt bedöms räcka för fastighetens behov. Högre batterieffekt ger därför liten eller ingen ytterligare nytta i beräkningen.`;
+      : powerFloorApplied
+        ? `${nf(r.powerKw, 1)} kW effekt följer batteriets tekniska minimikrav i förhållande till kapaciteten. Fastighetens eget effektbehov är lägre (${nf(r.physicalPowerNeedKw, 1)} kW).`
+        : `${nf(r.powerKw, 1)} kW effekt räcker för att flytta energin under dygnet. Fastighetens beräknade effektbehov är ${nf(r.physicalPowerNeedKw, 1)} kW, så högre effekt ger liten eller ingen ytterligare nytta.`;
+
 
   return (
     <WizardShell
