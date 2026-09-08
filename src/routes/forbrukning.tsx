@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { WizardShell } from "@/components/wizard/WizardShell";
+import { MonthlyImport } from "@/components/wizard/MonthlyImport";
+
 import { NumberField, OptionCard, SectionCard } from "@/components/wizard/fields";
 import { validateConsumptionStep } from "@/lib/battery-app/stepValidation";
 import {
