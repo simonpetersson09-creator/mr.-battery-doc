@@ -140,34 +140,8 @@ function ResultStep() {
         </div>
       )}
 
-      {p.showFcrPowerCard ? (
-        <details className="ui-card">
-          <summary className="ui-label cursor-pointer list-none">
-            {p.fcrPowerCardTitle ?? `Varför ${nf(p.recommendedPowerKw, 1)} kW?`}
-          </summary>
-          <div className="mt-3 space-y-1.5">
-            {p.showPhysicalNeedRow ? (
-              <>
-                <Row label="Fysiskt effektbehov" value={kw(p.physicalPowerNeedKw, 1)} />
-                <Row
-                  label="Utan FCR-D upp"
-                  value={kw(p.withoutFcrPowerKw ?? p.physicalPowerNeedKw, 1)}
-                />
-              </>
-            ) : (
-              <Row
-                label="Fastighetens eget effektbehov"
-                value={kw(p.withoutFcrPowerKw ?? p.physicalPowerNeedKw, 1)}
-              />
-            )}
-            <Row label="Med historiskt FCR-scenario" value={kw(p.recommendedPowerKw, 1)} />
-            <p className="ui-help pt-1 text-foreground/70">
-              Historiska FCR-D upp-priser från 2025 har påverkat effektvalet. Framtida intäkter kan
-              avvika.
-            </p>
-          </div>
-        </details>
-      ) : null}
+
+
 
 
 
@@ -279,20 +253,8 @@ function ResultStep() {
         )}
       </SectionCard>
 
-      {s.fcr.enabled ? (
-        <details className="ui-card">
-          <summary className="ui-label cursor-pointer list-none">Visa Stödtjänster</summary>
-          <div className="mt-3 space-y-2">
-            <Row label="Reserverad effekt" value={kw(s.fcr.offeredPowerKw, 1)} />
-            <Row label="Tillgänglighet" value={pct(s.fcr.availabilityPct)} />
-            <p className="ui-help">
-              Framtida intäkt kan avvika. Intäkten finns redan i ”Beräknad nytta”.
-            </p>
 
 
-          </div>
-        </details>
-      ) : null}
 
 
       <details className="ui-card">
