@@ -338,7 +338,7 @@ function ResultStep() {
             <Row label="Fastighetens fysiska effektbehov" value={kw(p.physicalPowerNeedKw, 1)} />
             <Row label="Max faktiskt använd effekt" value={kw(p.actualDispatchPowerKw, 2)} />
             {p.fcrHeldPowerKw !== null ? (
-              <Row label="FCR-D upp hållen effekt" value={kw(p.fcrHeldPowerKw, 2)} />
+              <Row label="Stödtjänster hållen effekt" value={kw(p.fcrHeldPowerKw, 2)} />
             ) : null}
             <Row label="C-rate" value={`${nf(ps.productCRate, 2)} C`} />
             <Row
