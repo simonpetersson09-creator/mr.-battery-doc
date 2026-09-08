@@ -100,6 +100,27 @@ function ResultStep() {
   const peakPct =
     g.importPeakBeforeKw > 0 ? (s.peak.peakReductionKw / g.importPeakBeforeKw) * 100 : 0;
 
+  /* ---- Presentation-only relevance rules. No numbers are recomputed here. ---- */
+  const noBattery = r.capacityKWh <= 0;
+  const hasSolar = e.annualPvKWh > 0;
+  const peakStrategyOn = state.strategies.peakShaving;
+
+  const showSelfConsumption = hasSolar;
+  const showSelfSufficiency = hasSolar;
+  const showExport = e.exportBeforeKWh > 0 || e.exportAfterKWh > 0;
+  const showShiftedSolar = hasSolar && e.shiftedSolarKWh > 0;
+  const importChanged = e.importBeforeKWh !== e.importAfterKWh;
+  const showImport = importChanged || !hasSolar;
+  const showEnergySection =
+    showSelfConsumption || showSelfSufficiency || showExport || showShiftedSolar || showImport;
+
+  const peakChanged = s.peak.peakReductionKw !== 0;
+  const showPeakSection = peakStrategyOn || peakChanged;
+  const demandSaving = s.economy.demandCostSavingSek ?? 0;
+  const fcrGross = s.fcr.enabled ? (s.fcr.grossSek ?? 0) : 0;
+  const noEconomy =
+    s.economy.energyBenefitSek === 0 && demandSaving === 0 && fcrGross === 0;
+
   return (
     <WizardShell
       stepIndex={5}
@@ -107,78 +128,120 @@ function ResultStep() {
       intro="Så här ser förslaget ut för din fastighet."
       footerAction={restart}
     >
-      <div className="hero-metric rounded-[1.25rem] px-4 py-4 text-center">
-        <p className="ui-caption">Rekommenderat batteri</p>
-        <p className="ui-hero mt-1.5 tabular-nums">
-          {nf(r.capacityKWh)} <span className="text-2xl font-bold">kWh</span>
-        </p>
-        <p className="ui-section-title mt-0.5 tabular-nums">{nf(r.powerKw, 1)} kW effekt</p>
-        <p className="ui-help mt-1 text-foreground/70">
-          Rimligt intervall {nf(r.reasonableRangeKWh[0])}–{nf(r.reasonableRangeKWh[1])} kWh
-        </p>
-      </div>
-
-
-      <SectionCard title="Energi">
-        <div className="space-y-2">
-          <BeforeAfter
-            label="Egenanvändning"
-            before={pct(e.selfConsumptionBeforePct)}
-            after={pct(e.selfConsumptionAfterPct)}
-          />
-          <BeforeAfter
-            label="Självförsörjning"
-            before={pct(e.selfSufficiencyBeforePct)}
-            after={pct(e.selfSufficiencyAfterPct)}
-          />
-          <BeforeAfter
-            label="Nätimport"
-            before={kwh(e.importBeforeKWh)}
-            after={kwh(e.importAfterKWh)}
-          />
-          <BeforeAfter
-            label="Nätexport"
-            before={kwh(e.exportBeforeKWh)}
-            after={kwh(e.exportAfterKWh)}
-          />
-          <Row label="Flyttad solel" value={`${kwh(e.shiftedSolarKWh)}/år`} />
-          {e.recoveredCurtailmentKWh > 0 ? (
-            <Row label="Återvunnen kapad solel" value={`${kwh(e.recoveredCurtailmentKWh)}/år`} />
-          ) : null}
+      {noBattery ? (
+        <div className="hero-metric rounded-[1.25rem] px-4 py-4 text-center">
+          <p className="ui-caption">Slutsats</p>
+          <p className="ui-section-title mt-1.5">Inget batteri rekommenderas</p>
+          <p className="ui-help mt-1 text-foreground/70">
+            Med dina nuvarande uppgifter ger ett batteri inte tillräcklig nytta för att
+            rekommenderas.
+          </p>
         </div>
-      </SectionCard>
-
-      <SectionCard title="Effekt">
-        <div className="space-y-2">
-          <BeforeAfter
-            label="Effekttopp"
-            before={kw(g.importPeakBeforeKw)}
-            after={kw(g.importPeakAfterKw)}
-          />
-          <Row
-            label="Förändring"
-            value={`${nf(s.peak.peakReductionKw, 2)} kW (${nf(peakPct, 1)} %)`}
-          />
-          <Row label="Minskad effektkostnad" value={money(s.peak.demandCostSavingSek)} />
-          {s.peak.tariffNote ? (
-            <p className="ui-help">{s.peak.tariffNote}</p>
-          ) : null}
+      ) : (
+        <div className="hero-metric rounded-[1.25rem] px-4 py-4 text-center">
+          <p className="ui-caption">Rekommenderat batteri</p>
+          <p className="ui-hero mt-1.5 tabular-nums">
+            {nf(r.capacityKWh)} <span className="text-2xl font-bold">kWh</span>
+          </p>
+          <p className="ui-section-title mt-0.5 tabular-nums">{nf(r.powerKw, 1)} kW effekt</p>
+          <p className="ui-help mt-1 text-foreground/70">
+            Rimligt intervall {nf(r.reasonableRangeKWh[0])}–{nf(r.reasonableRangeKWh[1])} kWh
+          </p>
         </div>
-      </SectionCard>
+      )}
 
-      <SectionCard title="Ekonomi" description="Varje nytta räknas bara en gång.">
-        <div className="space-y-2">
-          <Row label="Energinytta" value={money(s.economy.energyBenefitSek)} />
-          <Row label="Minskad effektkostnad" value={money(s.economy.demandCostSavingSek)} />
-          {s.fcr.enabled ? (
-            <Row label="FCR-D upp (historiskt 2025)" value={money(s.fcr.grossSek)} />
-          ) : null}
-          <div className="mt-1 flex items-center justify-between gap-3 rounded-[0.875rem] bg-accent px-3 py-2.5 text-[17px] font-extrabold text-accent-foreground">
-            <span>Total nytta per år</span>
-            <span className="tabular-nums">{money(s.economy.totalOperatingBenefitSek)}</span>
+
+      {showEnergySection ? (
+        <SectionCard title="Energi">
+          <div className="space-y-2">
+            {showSelfConsumption ? (
+              <BeforeAfter
+                label="Egenanvändning"
+                before={pct(e.selfConsumptionBeforePct)}
+                after={pct(e.selfConsumptionAfterPct)}
+              />
+            ) : null}
+            {showSelfSufficiency ? (
+              <BeforeAfter
+                label="Självförsörjning"
+                before={pct(e.selfSufficiencyBeforePct)}
+                after={pct(e.selfSufficiencyAfterPct)}
+              />
+            ) : null}
+            {showImport ? (
+              <BeforeAfter
+                label="Nätimport"
+                before={kwh(e.importBeforeKWh)}
+                after={kwh(e.importAfterKWh)}
+              />
+            ) : null}
+            {showExport ? (
+              <BeforeAfter
+                label="Nätexport"
+                before={kwh(e.exportBeforeKWh)}
+                after={kwh(e.exportAfterKWh)}
+              />
+            ) : null}
+            {showShiftedSolar ? (
+              <Row label="Flyttad solel" value={`${kwh(e.shiftedSolarKWh)}/år`} />
+            ) : null}
+            {e.recoveredCurtailmentKWh > 0 ? (
+              <Row label="Återvunnen kapad solel" value={`${kwh(e.recoveredCurtailmentKWh)}/år`} />
+            ) : null}
           </div>
-        </div>
-      </SectionCard>
+        </SectionCard>
+      ) : null}
+
+      {showPeakSection ? (
+        <SectionCard title="Effekt">
+          <div className="space-y-2">
+            <BeforeAfter
+              label="Effekttopp"
+              before={kw(g.importPeakBeforeKw)}
+              after={kw(g.importPeakAfterKw)}
+            />
+            {peakChanged ? (
+              <>
+                <Row
+                  label="Förändring"
+                  value={`${nf(s.peak.peakReductionKw, 2)} kW (${nf(peakPct, 1)} %)`}
+                />
+                <Row label="Minskad effektkostnad" value={money(s.peak.demandCostSavingSek)} />
+              </>
+            ) : (
+              <p className="ui-help">Ingen minskning av effekttoppen med de valda inställningarna.</p>
+            )}
+            {s.peak.tariffNote ? <p className="ui-help">{s.peak.tariffNote}</p> : null}
+          </div>
+        </SectionCard>
+      ) : null}
+
+      {noEconomy ? (
+        <SectionCard title="Beräknad nytta">
+          <p className="ui-section-title tabular-nums">0 kr/år</p>
+          <p className="ui-help mt-1">
+            Med de valda inställningarna ger batteriet ingen beräknad ekonomisk nytta.
+          </p>
+        </SectionCard>
+      ) : (
+        <SectionCard title="Ekonomi" description="Varje nytta räknas bara en gång.">
+          <div className="space-y-2">
+            {s.economy.energyBenefitSek !== 0 ? (
+              <Row label="Energinytta" value={money(s.economy.energyBenefitSek)} />
+            ) : null}
+            {demandSaving !== 0 ? (
+              <Row label="Minskad effektkostnad" value={money(s.economy.demandCostSavingSek)} />
+            ) : null}
+            {s.fcr.enabled ? (
+              <Row label="FCR-D upp (historiskt 2025)" value={money(s.fcr.grossSek)} />
+            ) : null}
+            <div className="mt-1 flex items-center justify-between gap-3 rounded-[0.875rem] bg-accent px-3 py-2.5 text-[17px] font-extrabold text-accent-foreground">
+              <span>Total nytta per år</span>
+              <span className="tabular-nums">{money(s.economy.totalOperatingBenefitSek)}</span>
+            </div>
+          </div>
+        </SectionCard>
+      )}
 
       {s.fcr.enabled ? (
         <SectionCard title="FCR-D upp">
@@ -194,7 +257,9 @@ function ResultStep() {
       <SectionCard title="Begränsningar">
         <div className="space-y-2">
           <Row label="Nätstatus" value={g.headline} />
-          <Row label="Otäckt last" value={`${kwh(g.unservedLoadKWh)}/år`} />
+          {g.unservedLoadKWh > 0 ? (
+            <Row label="Otäckt last" value={`${kwh(g.unservedLoadKWh)}/år`} />
+          ) : null}
           {g.detail ? <p className="ui-help">{g.detail}</p> : null}
           {r.utilisationWarning ? (
             <p className="ui-help">{r.utilisationWarning}</p>
@@ -212,14 +277,16 @@ function ResultStep() {
         </div>
       </SectionCard>
 
-      <SectionCard title="Varför den här storleken?">
+      <SectionCard title={noBattery ? "Varför ingen rekommendation?" : "Varför den här storleken?"}>
         <ul className="ui-help space-y-1.5">
-          {[r.explanation, r.powerExplanation].filter(Boolean).map((line) => (
-            <li key={line} className="flex gap-2">
-              <span className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" />
-              {line}
-            </li>
-          ))}
+          {[r.explanation, noBattery ? null : r.powerExplanation]
+            .filter((x): x is string => Boolean(x))
+            .map((line) => (
+              <li key={line} className="flex gap-2">
+                <span className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" />
+                {line}
+              </li>
+            ))}
         </ul>
       </SectionCard>
     </WizardShell>
