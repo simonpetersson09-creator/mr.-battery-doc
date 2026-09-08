@@ -215,12 +215,14 @@ function ResultStep() {
                   label="Minskning"
                   value={`${nf(s.peak.peakReductionKw, 2)} kW (${nf(peakPct, 1)} %)`}
                 />
-                <Row label="Minskad effektkostnad" value={`${money(s.peak.demandCostSavingSek)}/år`} />
-                <p className="ui-help">
-                  {state.economy.demandChargeTouched
-                    ? "Beräknat med den effektavgift du angett."
-                    : "Beräknat med ett svenskt schablonvärde för effektavgift."}
-                </p>
+                {p.showDemandSavingRow ? (
+                  <Row
+                    label="Minskad effektkostnad"
+                    value={`${money(s.peak.demandCostSavingSek)}/år`}
+                  />
+                ) : null}
+                {p.demandNote ? <p className="ui-help">{p.demandNote}</p> : null}
+
               </>
             ) : (
               <p className="ui-help">Ingen minskning av effekttoppen med de valda inställningarna.</p>
