@@ -339,13 +339,16 @@ function ResultStep() {
                   value={`${money(s.economy.demandCostSavingSek)}/år`}
                 />
               ) : null}
-              {s.fcr.enabled ? (
+              {ancillaryNote ? (
+                <p className="ui-help">{ancillaryNote}</p>
+              ) : s.fcr.enabled ? (
                 <BenefitRow
                   label="Stödtjänster – FCR-D upp"
                   hint="Ersättning för reserverad batterieffekt. Historiska priser 2025."
                   value={`${money(s.fcr.grossSek)}/år`}
                 />
               ) : null}
+
             </div>
 
           </>
