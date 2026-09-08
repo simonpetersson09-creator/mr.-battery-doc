@@ -82,7 +82,7 @@ function GridStep() {
                   }))
                 }
                 className={
-                  "h-11 min-w-[4.25rem] rounded-[0.875rem] px-3 text-[15px] font-bold transition-colors " +
+                  "h-11 min-w-[4.25rem] rounded-[0.875rem] px-3 ui-control-text font-bold transition-colors " +
                   (active ? "chip-selected" : "chip-unselected")
                 }
 

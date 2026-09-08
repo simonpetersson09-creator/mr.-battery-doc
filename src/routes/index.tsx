@@ -60,7 +60,7 @@ function Welcome() {
         <Button
           asChild
           variant="cta"
-          className="h-12 w-full rounded-[0.875rem] text-[15px] font-bold shadow-cta"
+          className="h-12 w-full rounded-[0.875rem] font-bold shadow-cta"
         >
           <Link to="/nat">
             Kom igång

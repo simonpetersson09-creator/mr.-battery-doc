@@ -71,7 +71,7 @@ export function WizardShell({
           </p>
         ) : null}
         <div className="flex gap-2">
-          <Button asChild variant="outline" className="h-12 flex-1 rounded-[0.875rem] text-[15px]">
+          <Button asChild variant="outline" className="h-12 flex-1 rounded-[0.875rem]">
             <Link to={prev}>Tillbaka</Link>
           </Button>
           {footerAction ? (
@@ -80,7 +80,7 @@ export function WizardShell({
             nextDisabled ? (
               <Button
                 variant="cta"
-                className="h-12 flex-[2] rounded-[0.875rem] text-[15px] font-bold shadow-cta"
+                className="h-12 flex-[2] rounded-[0.875rem] font-bold shadow-cta"
                 disabled
                 aria-disabled="true"
               >
@@ -91,7 +91,7 @@ export function WizardShell({
               <Button
                 asChild
                 variant="cta"
-                className="h-12 flex-[2] rounded-[0.875rem] text-[15px] font-bold shadow-cta"
+                className="h-12 flex-[2] rounded-[0.875rem] font-bold shadow-cta"
               >
                 <Link to={next}>
                   {nextLabel ?? "Nästa"}
@@ -103,7 +103,7 @@ export function WizardShell({
             <Button
               asChild
               variant="cta"
-              className="h-12 flex-[2] rounded-[0.875rem] text-[15px] font-bold shadow-cta"
+              className="h-12 flex-[2] rounded-[0.875rem] font-bold shadow-cta"
             >
               <Link to="/">Klar</Link>
             </Button>
