@@ -401,11 +401,8 @@ function ResultStep() {
             {p.fcrHeldPowerKw !== null ? (
               <Row label="Stödtjänster hållen effekt" value={kw(p.fcrHeldPowerKw, 2)} />
             ) : null}
-            <Row label="C-rate" value={`${nf(ps.productCRate, 2)} C`} />
-            <Row
-              label="Nytta jämfört med obegränsad effekt"
-              value={pct(ps.utilityPctOfReference)}
-            />
+            <Row label="Systemets C-rate" value={`${nf(p.systemCRate, 2)} C`} />
+            <Row label={p.baseUtilityLabel} value={pct(p.baseUtilityPct)} />
           </TechGroup>
 
           <TechGroup title="Elanslutning">
@@ -447,7 +444,7 @@ function ResultStep() {
                 dimensioneringsberäkningen (utan FCR-reservation) och kan därför skilja sig från
                 det slutliga scenariots värden ovan.
               </p>
-              {[r.explanation, r.powerExplanation, ...g.consequences]
+              {[...p.sizingMethodLines, ...g.consequences]
                 .filter((x): x is string => Boolean(x))
                 .map((line) => (
                   <p key={line} className="ui-help">
