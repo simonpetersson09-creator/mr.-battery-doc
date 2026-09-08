@@ -112,10 +112,11 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       standards: ["SFS 6000", "VDE-AR-N 4105"],
     },
     economy: {
-      currency: "EUR",
-      currencyLabel: "€",
-      importPrice: 0.15,
-      exportPrice: 0.05,
+      // SEK-equivalent defaults (≈ 0,15 / 0,05 EUR × 11,30). The engine is SEK-denominated.
+      currency: "SEK",
+      currencyLabel: "kr",
+      importPrice: 1.7,
+      exportPrice: 0.57,
       demandCharge: 0,
       eurSekRate: 11.3,
       demandChargeVerified: false,
@@ -135,10 +136,11 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       standards: ["DS/EN 50549-1"],
     },
     economy: {
-      currency: "DKK",
+      // SEK-equivalent defaults (≈ 2,2 / 0,5 DKK × 1,45). The engine is SEK-denominated.
+      currency: "SEK",
       currencyLabel: "kr",
-      importPrice: 2.2,
-      exportPrice: 0.5,
+      importPrice: 3.2,
+      exportPrice: 0.73,
       demandCharge: 0,
       eurSekRate: 11.3,
       demandChargeVerified: false,
@@ -158,10 +160,11 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       standards: ["VDE-AR-N 4105", "VDE-AR-N 4110"],
     },
     economy: {
-      currency: "EUR",
-      currencyLabel: "€",
-      importPrice: 0.32,
-      exportPrice: 0.08,
+      // SEK-equivalent defaults (≈ 0,32 / 0,08 EUR × 11,30). The engine is SEK-denominated.
+      currency: "SEK",
+      currencyLabel: "kr",
+      importPrice: 3.6,
+      exportPrice: 0.9,
       demandCharge: 0,
       eurSekRate: 11.3,
       demandChargeVerified: false,
@@ -172,11 +175,10 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
 export const COUNTRY_LIST = Object.values(COUNTRIES);
 
 /**
- * Countries released in v1. The engine's economy input is SEK-denominated, so a country
- * whose local currency is not SEK must NOT be offered until a verified country economy
- * config exists — otherwise EUR/DKK/NOK values would be read as SEK.
+ * Countries released in v1. The engine's economy input is SEK-denominated, so every
+ * supported country's economy defaults are stored in SEK (see each entry above).
  */
-export const SUPPORTED_COUNTRY_CODES: CountryCode[] = ["SE"];
+export const SUPPORTED_COUNTRY_CODES: CountryCode[] = ["SE", "FI", "DK", "DE"];
 
 export const SUPPORTED_COUNTRY_LIST = SUPPORTED_COUNTRY_CODES.map((c) => COUNTRIES[c]);
 
