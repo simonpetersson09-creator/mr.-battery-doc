@@ -50,6 +50,13 @@ function ResultStep() {
         : null,
     [outcome],
   );
+  /** Comparison layer: nearest simulated capacity step below/above the recommendation. */
+  const alternatives = useMemo(
+    () =>
+      outcome.status === "ok" ? computeBatteryAlternatives(outcome.input, outcome.result) : [],
+    [outcome],
+  );
+
 
 
   const restart = (
