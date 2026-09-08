@@ -95,7 +95,6 @@ function ResultStep() {
 
   const s = outcome.result.summary;
   const d = outcome.result.diagnostics;
-  const ps = d.powerSizing;
   const ga = d.gridAssessment;
   const r = s.recommendation;
   const e = s.energy;
@@ -440,9 +439,9 @@ function ResultStep() {
             <summary className="ui-label cursor-pointer list-none">Dimensioneringsmetod</summary>
             <div className="mt-2 space-y-2">
               <p className="ui-caption">
-                Beskriver hur dimensioneringen togs fram. Nyckeltal i den här texten kommer från
-                dimensioneringsberäkningen (utan FCR-reservation) och kan därför skilja sig från
-                det slutliga scenariots värden ovan.
+                Beskriver besluten i ordning: fastighetens fysiska effektbehov, grundeffekt från
+                fysisk dimensionering och därefter slutlig rekommenderad systemeffekt. Nyckeltal i
+                dimensioneringssteget beräknas utan FCR-reservation.
               </p>
               {[...p.sizingMethodLines, ...g.consequences]
                 .filter((x): x is string => Boolean(x))
