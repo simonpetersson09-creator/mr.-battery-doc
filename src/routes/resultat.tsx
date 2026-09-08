@@ -121,6 +121,22 @@ function ResultStep() {
   const noEconomy =
     s.economy.energyBenefitSek === 0 && demandSaving === 0 && fcrGross === 0;
 
+  /* Customer-facing wording derived only from engine flags — no recalculation. */
+  const gridLimitsBattery = g.status === "battery-limited" || g.status === "combined";
+  const gridLimitsExport =
+    g.status === "export-limited" ||
+    g.status === "export-limited-minor" ||
+    g.status === "combined";
+
+  const capacityWhy = noBattery
+    ? "Med dina uppgifter flyttar ett batteri för lite energi för att en storlek ska kunna rekommenderas."
+    : `${nf(r.capacityKWh)} kWh ger en bra balans mellan hur mycket energi batteriet kan flytta och nyttan av ytterligare kapacitet. Ett större batteri ger relativt liten ytterligare nytta med din förbrukning${hasSolar ? " och solproduktion" : ""}.`;
+  const powerWhy = noBattery
+    ? null
+    : peakChanged
+      ? `${nf(r.powerKw, 1)} kW effekt är vald så att batteriet kan kapa fastighetens effekttoppar. Högre effekt ger liten ytterligare nytta i beräkningen.`
+      : `${nf(r.powerKw, 1)} kW effekt bedöms räcka för fastighetens behov. Högre batterieffekt ger därför liten eller ingen ytterligare nytta i beräkningen.`;
+
   return (
     <WizardShell
       stepIndex={5}
@@ -144,12 +160,19 @@ function ResultStep() {
             {nf(r.capacityKWh)} <span className="text-2xl font-bold">kWh</span>
           </p>
           <p className="ui-section-title mt-0.5 tabular-nums">{nf(r.powerKw, 1)} kW effekt</p>
-          <p className="ui-help mt-1 text-foreground/70">
-            Rimligt intervall {nf(r.reasonableRangeKWh[0])}–{nf(r.reasonableRangeKWh[1])} kWh
-          </p>
         </div>
       )}
 
+      <SectionCard
+        title={
+          noBattery
+            ? "Varför ingen rekommendation?"
+            : `Varför ${nf(r.capacityKWh)} kWh och ${nf(r.powerKw, 1)} kW?`
+        }
+      >
+        <p className="ui-help">{capacityWhy}</p>
+        {powerWhy ? <p className="ui-help mt-1.5">{powerWhy}</p> : null}
+      </SectionCard>
 
       {showEnergySection ? (
         <SectionCard title="Energi">
@@ -203,92 +226,121 @@ function ResultStep() {
             {peakChanged ? (
               <>
                 <Row
-                  label="Förändring"
+                  label="Minskning"
                   value={`${nf(s.peak.peakReductionKw, 2)} kW (${nf(peakPct, 1)} %)`}
                 />
-                <Row label="Minskad effektkostnad" value={money(s.peak.demandCostSavingSek)} />
+                <Row label="Lägre effektkostnad" value={`${money(s.peak.demandCostSavingSek)}/år`} />
+                <p className="ui-help">
+                  {state.economy.demandChargeTouched
+                    ? "Beräknat med den effektavgift du angett."
+                    : "Beräknat med ett svenskt schablonvärde för effektavgift."}
+                </p>
               </>
             ) : (
               <p className="ui-help">Ingen minskning av effekttoppen med de valda inställningarna.</p>
             )}
-            {s.peak.tariffNote ? <p className="ui-help">{s.peak.tariffNote}</p> : null}
           </div>
         </SectionCard>
       ) : null}
 
-      {noEconomy ? (
-        <SectionCard title="Beräknad nytta">
-          <p className="ui-section-title tabular-nums">0 kr/år</p>
-          <p className="ui-help mt-1">
-            Med de valda inställningarna ger batteriet ingen beräknad ekonomisk nytta.
-          </p>
-        </SectionCard>
-      ) : (
-        <SectionCard title="Ekonomi" description="Varje nytta räknas bara en gång.">
-          <div className="space-y-2">
-            {s.economy.energyBenefitSek !== 0 ? (
-              <Row label="Energinytta" value={money(s.economy.energyBenefitSek)} />
-            ) : null}
-            {demandSaving !== 0 ? (
-              <Row label="Minskad effektkostnad" value={money(s.economy.demandCostSavingSek)} />
-            ) : null}
-            {s.fcr.enabled ? (
-              <Row label="FCR-D upp (historiskt 2025)" value={money(s.fcr.grossSek)} />
-            ) : null}
-            <div className="mt-1 flex items-center justify-between gap-3 rounded-[0.875rem] bg-accent px-3 py-2.5 text-[17px] font-extrabold text-accent-foreground">
-              <span>Total nytta per år</span>
-              <span className="tabular-nums">{money(s.economy.totalOperatingBenefitSek)}</span>
+      <SectionCard title="Beräknad nytta">
+        {noEconomy ? (
+          <>
+            <p className="ui-section-title tabular-nums">0 kr/år</p>
+            <p className="ui-help mt-1">
+              Med de valda inställningarna ger batteriet ingen beräknad ekonomisk nytta.
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="ui-hero text-[2rem] tabular-nums">
+              {money(s.economy.totalOperatingBenefitSek)}
+              <span className="ui-help font-normal"> /år</span>
+            </p>
+            <div className="mt-2 space-y-2">
+              {s.economy.energyBenefitSek !== 0 ? (
+                <Row label="Energinytta" value={`${money(s.economy.energyBenefitSek)}/år`} />
+              ) : null}
+              {demandSaving !== 0 ? (
+                <Row
+                  label="Minskad effektkostnad"
+                  value={`${money(s.economy.demandCostSavingSek)}/år`}
+                />
+              ) : null}
+              {s.fcr.enabled ? (
+                <Row
+                  label="FCR-D upp – historiskt 2025"
+                  value={`${money(s.fcr.grossSek)}/år`}
+                />
+              ) : null}
             </div>
-          </div>
-        </SectionCard>
-      )}
+          </>
+        )}
+      </SectionCard>
 
       {s.fcr.enabled ? (
         <SectionCard title="FCR-D upp">
           <div className="space-y-2">
-            <Row label="Erbjuden effekt" value={kw(s.fcr.offeredPowerKw, 1)} />
-            <Row label="Genomsnittligt hållen effekt" value={kw(s.fcr.avgHeldPowerKw, 2)} />
+            <Row label="Reserverad effekt" value={kw(s.fcr.offeredPowerKw, 1)} />
             <Row label="Tillgänglighet" value={pct(s.fcr.availabilityPct)} />
-            <p className="ui-help">{s.fcr.disclaimer}</p>
+            <Row label="Historisk intäkt" value={`${money(s.fcr.grossSek)}/år`} />
+            <p className="ui-help">
+              Historiskt scenario baserat på FCR-D upp-priser från 2025. Framtida intäkt kan
+              avvika.
+            </p>
           </div>
         </SectionCard>
       ) : null}
 
-      <SectionCard title="Begränsningar">
-        <div className="space-y-2">
-          <Row label="Nätstatus" value={g.headline} />
-          {g.unservedLoadKWh > 0 ? (
-            <Row label="Otäckt last" value={`${kwh(g.unservedLoadKWh)}/år`} />
-          ) : null}
-          {g.detail ? <p className="ui-help">{g.detail}</p> : null}
-          {r.utilisationWarning ? (
-            <p className="ui-help">{r.utilisationWarning}</p>
-          ) : null}
-          {g.consequences.length ? (
-            <ul className="ui-help space-y-1.5">
-              {g.consequences.map((line) => (
-                <li key={line} className="flex gap-2">
-                  <span className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" />
-                  {line}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
+      <SectionCard title="Elanslutning">
+        {gridLimitsBattery ? (
+          <>
+            <p className="ui-label">Elanslutningen begränsar batteriet något</p>
+            <p className="ui-help mt-1">
+              Batteriet kan fortfarande använda den rekommenderade storleken
+              {noBattery ? "" : ` ${nf(r.capacityKWh)} kWh / ${nf(r.powerKw, 1)} kW`}. Din
+              elanslutning begränsar laddning eller urladdning under vissa perioder.
+            </p>
+          </>
+        ) : gridLimitsExport ? (
+          <>
+            <p className="ui-label">Elanslutningen räcker för batteriet</p>
+            <p className="ui-help mt-1">
+              Under soliga stunder kan en del av solelen inte skickas ut på nätet. Det beror på
+              solanläggningens storlek i förhållande till elanslutningen, inte på batteriet.
+            </p>
+          </>
+        ) : (
+          <p className="ui-label">Din nuvarande elanslutning bedöms vara tillräcklig.</p>
+        )}
       </SectionCard>
 
-      <SectionCard title={noBattery ? "Varför ingen rekommendation?" : "Varför den här storleken?"}>
-        <ul className="ui-help space-y-1.5">
-          {[r.explanation, noBattery ? null : r.powerExplanation]
+      <details className="ui-card">
+        <summary className="ui-label cursor-pointer list-none">Visa tekniska detaljer</summary>
+        <div className="mt-3 space-y-2">
+          <Row
+            label="Rimligt intervall"
+            value={`${nf(r.reasonableRangeKWh[0])}–${nf(r.reasonableRangeKWh[1])} kWh`}
+          />
+          <Row label="Nyttjandegrad" value={pct(e.utilisationPct)} />
+          <Row label="Cykler per år" value={nf(e.equivalentFullCycles, 1)} />
+          <Row label="Otäckt last" value={`${kwh(g.unservedLoadKWh)}/år`} />
+          {s.fcr.enabled ? (
+            <Row label="Genomsnittligt hållen effekt" value={kw(s.fcr.avgHeldPowerKw, 2)} />
+          ) : null}
+          <Row label="Nätstatus" value={g.headline} />
+          {g.detail ? <p className="ui-help">{g.detail}</p> : null}
+          {s.peak.tariffNote ? <p className="ui-help">{s.peak.tariffNote}</p> : null}
+          {r.utilisationWarning ? <p className="ui-help">{r.utilisationWarning}</p> : null}
+          {[r.explanation, r.powerExplanation, ...g.consequences]
             .filter((x): x is string => Boolean(x))
             .map((line) => (
-              <li key={line} className="flex gap-2">
-                <span className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" />
+              <p key={line} className="ui-help">
                 {line}
-              </li>
+              </p>
             ))}
-        </ul>
-      </SectionCard>
+        </div>
+      </details>
     </WizardShell>
   );
 }
