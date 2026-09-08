@@ -49,32 +49,39 @@ function EconomyStep() {
           step="0.01"
           value={state.economy.importPrice}
           hint="Din kostnad för att köpa el från nätet."
+          badge={state.economy.importPrice === 1.5 ? "Standardvärde" : "Ditt värde"}
           onChange={(v) => setEconomy({ importPrice: v ?? 0 })}
         />
         <NumberField
-          label="Såld solel"
+          label="Ersättning för såld solel"
           unit={`${unit}/kWh`}
           step="0.01"
           value={state.economy.exportPrice}
           hint="Vad du får betalt för solel som matas ut på nätet."
+          badge={state.economy.exportPrice === 0.6 ? "Standardvärde" : "Ditt värde"}
           onChange={(v) => setEconomy({ exportPrice: v ?? 0 })}
         />
       </SectionCard>
 
-      <div className="card-yellow rounded-[26px] p-4">
-        <p className="text-sm font-bold">Värde av att använda solelen själv</p>
-        <p className="mt-1 font-display text-3xl font-extrabold tracking-tight tabular-nums">
-          {net.toFixed(2).replace(".", ",")} {unit}/kWh
-        </p>
-        <p className="mt-1.5 text-[13px] leading-snug text-foreground/70">
-          Skillnaden mellan vad det kostar att köpa el och vad du får för att sälja solel.
-        </p>
+      <div className="card-yellow flex items-center justify-between gap-3 rounded-[1.25rem] px-3.5 py-3">
+        <div className="min-w-0">
+          <p className="ui-label">Värde av egenanvänd solel</p>
+          <p className="ui-help mt-0.5 text-foreground/70">
+            Skillnaden mellan vad det kostar att köpa el och ersättningen för att sälja solel.
+          </p>
+        </div>
+        <div className="shrink-0 text-right">
+          <p className="ui-section-title tabular-nums">
+            {net.toFixed(2).replace(".", ",")} {unit}/kWh
+          </p>
+          <p className="ui-help text-foreground/70 tabular-nums">
+            {state.economy.importPrice.toFixed(2).replace(".", ",")} −{" "}
+            {state.economy.exportPrice.toFixed(2).replace(".", ",")} {unit}/kWh
+          </p>
+        </div>
       </div>
 
-      <SectionCard
-        title="Effektavgift"
-        description="Värdet av att minska debiteringsgrundande effekttoppar. Räknas separat från elpriserna."
-      >
+      <SectionCard title="Effektavgift">
         <NumberField
           label="Effektavgift"
           unit={`${unit}/kW/mån`}
@@ -82,9 +89,10 @@ function EconomyStep() {
           value={state.economy.demandCharge}
           hint={
             state.economy.demandChargeTouched
-              ? "Ditt eget värde."
-              : "Schablonvärde för Sverige – justera efter ditt nätavtal."
+              ? "Finns vanligtvis på din nätfaktura."
+              : "Schablonvärde för Sverige – finns på din nätfaktura. Lämna 55 om du inte vet."
           }
+          badge={state.economy.demandChargeTouched ? "Ditt värde" : "Standardvärde"}
           onChange={(v) => setEconomy({ demandCharge: v ?? 0, demandChargeTouched: true })}
         />
       </SectionCard>
@@ -97,12 +105,17 @@ function EconomyStep() {
             step="0.01"
             value={state.economy.eurSekRate}
             hint="Antagande för omräkning av historiska FCR-D upp-priser."
+            badge={state.economy.eurSekRate === 11.3 ? "Standardvärde" : "Ditt värde"}
             onChange={(v) => setEconomy({ eurSekRate: v ?? 0 })}
           />
         </SectionCard>
       ) : null}
 
-      <SectionCard description="Varje nytta räknas bara en gång: minskad nätimport värderas till priset på köpt el, flyttad solel till skillnaden mellan köpt och såld el, och lägre effekttoppar till effektavgiften." />
+      <p className="ui-help px-1">
+        Varje nytta räknas bara en gång: minskad nätimport värderas till priset på köpt el, flyttad
+        solel till skillnaden mellan köpt och såld el, och lägre effekttoppar till effektavgiften.
+      </p>
+
     </WizardShell>
   );
 }
