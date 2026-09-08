@@ -158,7 +158,7 @@ describe("compact power explanation card", () => {
     expect(p.fcrPowerLevels).toHaveLength(3);
     expect(p.fcrPowerLevels[0]!.label).toBe("Fysiskt effektbehov");
     expect(p.fcrPowerLevels[1]!.label).toBe("Utan FCR-D upp");
-    expect(p.fcrPowerLevels[2]!.label).toBe("Med historiskt FCR-scenario");
+    expect(p.fcrPowerLevels[2]!.label).toBe("Med stödtjänst");
   });
 
   it("explanation is short, neutral and mentions historical prices", () => {
