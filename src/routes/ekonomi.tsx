@@ -49,7 +49,7 @@ function EconomyStep() {
           step="0.01"
           value={state.economy.importPrice}
           hint="Din kostnad för att köpa el från nätet."
-          badge={state.economy.importPrice === 1.5 ? "Standardvärde" : "Ditt värde"}
+          badge={state.economy.importPrice === country.economy.importPrice ? "Standardvärde" : "Ditt värde"}
           onChange={(v) => setEconomy({ importPrice: v ?? 0 })}
         />
         <NumberField
@@ -58,7 +58,7 @@ function EconomyStep() {
           step="0.01"
           value={state.economy.exportPrice}
           hint="Vad du får betalt för solel som matas ut på nätet."
-          badge={state.economy.exportPrice === 0.6 ? "Standardvärde" : "Ditt värde"}
+          badge={state.economy.exportPrice === country.economy.exportPrice ? "Standardvärde" : "Ditt värde"}
           onChange={(v) => setEconomy({ exportPrice: v ?? 0 })}
         />
       </SectionCard>
