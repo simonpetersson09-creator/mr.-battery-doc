@@ -140,7 +140,7 @@ describe("compact power explanation card", () => {
     expect(p.fcrPowerLevels).toHaveLength(2);
     expect(p.fcrPowerLevels[0]!.label).toBe("För fastighetens eget behov");
     expect(p.fcrPowerLevels[0]!.kw).toBeCloseTo(3.5, 6);
-    expect(p.fcrPowerLevels[1]!.label).toBe("Med historiskt FCR-scenario");
+    expect(p.fcrPowerLevels[1]!.label).toBe("Med stödtjänst");
     expect(p.fcrPowerLevels[1]!.kw).toBeCloseTo(12.5, 6);
     // The old stale 10 kW level must never appear.
     for (const lvl of p.fcrPowerLevels) {
@@ -158,7 +158,7 @@ describe("compact power explanation card", () => {
     expect(p.fcrPowerLevels).toHaveLength(3);
     expect(p.fcrPowerLevels[0]!.label).toBe("Fysiskt effektbehov");
     expect(p.fcrPowerLevels[1]!.label).toBe("Utan FCR-D upp");
-    expect(p.fcrPowerLevels[2]!.label).toBe("Med historiskt FCR-scenario");
+    expect(p.fcrPowerLevels[2]!.label).toBe("Med stödtjänst");
   });
 
   it("explanation is short, neutral and mentions historical prices", () => {
@@ -167,7 +167,7 @@ describe("compact power explanation card", () => {
       demandChargeTouched: false,
       withoutFcr: wo,
     });
-    expect(p.fcrPowerExplanation).toContain("historiska FCR-D upp-priser");
+    expect(p.fcrPowerExplanation).toContain("historiska stödtjänst-priser");
     expect(p.fcrPowerExplanation).toContain("Framtida priser");
   });
 
