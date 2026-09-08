@@ -63,8 +63,8 @@ function GridStep() {
           </SelectContent>
         </Select>
 
-        <details className="ui-details">
-          <summary className="ui-summary">Visa nätvärden</summary>
+        <details className="ui-card mt-2">
+          <summary className="ui-label cursor-pointer list-none">Visa nätvärden</summary>
           <dl className="grid grid-cols-2 gap-2">
             <Value label="Spänning" value={`${country.grid.voltage} V`} />
             <Value label="Faser" value={`${country.grid.phases}-fas`} />
