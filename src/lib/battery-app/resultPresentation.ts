@@ -8,6 +8,10 @@
 import type { BatteryEngineResult } from "@/lib/battery-engine";
 import type { WithoutFcrOptimum } from "./withoutFcrOptimum";
 
+export interface PowerLevelRow {
+  label: string;
+  kw: number;
+}
 
 const nf = (v: number, digits = 0) =>
   v.toLocaleString("sv-SE", { minimumFractionDigits: digits, maximumFractionDigits: digits });
@@ -69,6 +73,10 @@ export interface ResultPresentation {
   fcrPowerCardText: string | null;
   fcrPowerCardNeutralText: string | null;
   fcrHistoricalNote: string | null;
+  /** Structured power-level rows for the compact "Varför X kW?" card. */
+  fcrPowerLevels: PowerLevelRow[];
+  /** Short neutral explanation shown under the power-level rows. */
+  fcrPowerExplanation: string | null;
   /** Power level motivated by the property itself (actual FCR-off result when available). */
   propertyOnlyPowerKw: number | null;
   /** System power the calculation would recommend with FCR removed from the objective. */
@@ -187,6 +195,21 @@ export function buildResultPresentation(
     ? `Fastighetens fysiska effektbehov är cirka ${physKw} kW. Utan FCR-D upp ger ${propKw} kW högst beräknad årlig nytta. Med historiska FCR-D upp-priser från 2025 ger ${recKw} kW högst beräknad årlig nytta. Framtida priser och intäkter kan avvika.`
     : `För fastighetens eget behov räcker ${propKw} kW. Den högre systemeffekten ${recKw} kW ger större beräknad årlig nytta när historiska FCR-D upp-priser från 2025 ingår. Framtida priser och intäkter kan avvika.`;
 
+  const fcrPowerLevels: PowerLevelRow[] = [];
+  if (showFcrPowerCard && propertyOnlyPowerKw !== null) {
+    if (showPhysicalNeedRow) {
+      fcrPowerLevels.push({ label: "Fysiskt effektbehov", kw: r.physicalPowerNeedKw });
+      fcrPowerLevels.push({ label: "Utan FCR-D upp", kw: propertyOnlyPowerKw });
+      fcrPowerLevels.push({ label: "Med historiskt FCR-scenario", kw: recommendedPowerKw });
+    } else {
+      fcrPowerLevels.push({ label: "För fastighetens eget behov", kw: propertyOnlyPowerKw });
+      fcrPowerLevels.push({ label: "Med historiskt FCR-scenario", kw: recommendedPowerKw });
+    }
+  }
+  const fcrPowerExplanation = showFcrPowerCard
+    ? "Den högre systemeffekten ger större beräknad årlig nytta när historiska FCR-D upp-priser från 2025 ingår. Framtida priser och intäkter kan avvika."
+    : null;
+
 
   let powerWhy: string | null;
   if (noBattery) {
@@ -290,6 +313,8 @@ export function buildResultPresentation(
     fcrHistoricalNote: showFcrPowerCard
       ? "Framtida FCR-priser och intäkter kan bli både högre och lägre."
       : null,
+    fcrPowerLevels,
+    fcrPowerExplanation,
     propertyOnlyPowerKw,
     withoutFcrPowerKw: propertyOnlyPowerKw,
     showPhysicalNeedRow,
