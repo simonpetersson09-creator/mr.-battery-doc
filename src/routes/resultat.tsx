@@ -361,7 +361,7 @@ function ResultStep() {
           </TechGroup>
 
           {s.fcr.enabled ? (
-            <TechGroup title="FCR-D upp">
+            <TechGroup title="Stödtjänster">
               <Row label="Erbjuden/reserverad effekt" value={kw(s.fcr.offeredPowerKw, 1)} />
               <Row label="Genomsnittligt hållen effekt" value={kw(s.fcr.avgHeldPowerKw, 2)} />
               <Row label="Tillgänglighet" value={pct(s.fcr.availabilityPct)} />
