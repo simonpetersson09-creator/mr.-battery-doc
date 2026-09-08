@@ -32,13 +32,31 @@ const kw = (v: number, d = 2) => `${nf(v, d)} kW`;
 const pct = (v: number) => `${nf(v, 0)} %`;
 
 function ResultStep() {
-  const { state } = useWizard();
+  const { state, reset } = useWizard();
+  const navigate = useNavigate();
   // Single integration point: wizard -> adapter -> frozen Battery Engine.
   const outcome = useMemo(() => runBatteryApp(state), [state]);
 
+  const restart = (
+    <Button
+      className="h-11 flex-[2]"
+      onClick={() => {
+        reset();
+        void navigate({ to: "/" });
+      }}
+    >
+      Börja om
+    </Button>
+  );
+
   if (outcome.status === "incomplete") {
     return (
-      <WizardShell stepIndex={5} title="Resultat" intro="Vi behöver lite mer information.">
+      <WizardShell
+        stepIndex={5}
+        title="Resultat"
+        intro="Vi behöver lite mer information."
+        footerAction={restart}
+      >
         <SectionCard
           title="Fyll i det som saknas"
           description="Beräkningen startar först när alla uppgifter finns — vi gissar aldrig åt dig."
