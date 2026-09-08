@@ -292,14 +292,14 @@ function ResultStep() {
           <div className="space-y-2">
             <Row label="Reserverad effekt" value={kw(s.fcr.offeredPowerKw, 1)} />
             <Row label="Tillgänglighet" value={pct(s.fcr.availabilityPct)} />
-            <Row label="Historisk intäkt" value={`${money(s.fcr.grossSek)}/år`} />
             <p className="ui-help">
               Historiskt scenario baserat på FCR-D upp-priser från 2025. Framtida intäkt kan
-              avvika.
+              avvika. Intäkten finns redan i ”Beräknad nytta”.
             </p>
           </div>
         </SectionCard>
       ) : null}
+
 
       <SectionCard title="Elanslutning">
         {gridLimitsBattery ? (
