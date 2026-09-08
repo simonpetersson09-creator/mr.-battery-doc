@@ -61,12 +61,12 @@ function EconomyStep() {
         />
       </SectionCard>
 
-      <div className="card-surface border-primary/40 bg-primary-soft p-3">
-        <p className="text-sm font-semibold">Värde av att använda solelen själv</p>
-        <p className="mt-0.5 text-2xl font-bold tracking-tight">
+      <div className="card-yellow rounded-[26px] p-4">
+        <p className="text-sm font-bold">Värde av att använda solelen själv</p>
+        <p className="mt-1 font-display text-3xl font-extrabold tracking-tight tabular-nums">
           {net.toFixed(2).replace(".", ",")} {unit}/kWh
         </p>
-        <p className="mt-1.5 text-sm text-muted-foreground">
+        <p className="mt-1.5 text-[13px] leading-snug text-foreground/70">
           Skillnaden mellan vad det kostar att köpa el och vad du får för att sälja solel.
         </p>
       </div>
