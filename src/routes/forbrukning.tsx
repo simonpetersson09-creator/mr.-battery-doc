@@ -111,35 +111,21 @@ function ConsumptionStep() {
               {c.monthlyKwh.reduce<number>((a, b) => a + (b ?? 0), 0).toLocaleString("sv-SE")} kWh
             </p>
           </SectionCard>
-        </>
-      ) : null}
-
-      {c.mode === "document" ? (
-        <>
-          <SectionCard title="Ladda upp underlag">
-            <AttachmentPicker
-              label="Elräkning eller förbrukningsrapport"
-              hint="Automatisk avläsning är inte påslagen ännu — filen sparas för kommande tolkning."
-              attachments={c.attachments}
-              onChange={(attachments) =>
-                update((s) => ({ ...s, consumption: { ...s.consumption, attachments } }))
-              }
-            />
-          </SectionCard>
+          <ProfilePicker note="Profilen används för att fördela varje månads förbrukning över dygnets timmar. Dina månadsvärden styr månadsenergin." />
         </>
       ) : null}
     </WizardShell>
   );
 }
 
-function ProfilePicker({ optional, note }: { optional?: boolean; note?: string }) {
+function ProfilePicker({ note }: { note?: string }) {
   const { state, update } = useWizard();
   const selected = state.consumption.profileId
     ? getProfile(state.consumption.profileId)
     : null;
   return (
     <SectionCard
-      title={optional ? "Förbrukningsprofil (valfri)" : "Förbrukningsprofil"}
+      title="Förbrukningsprofil"
       description={note ?? "Välj den beskrivning som liknar din fastighet mest."}
     >
       <Select
