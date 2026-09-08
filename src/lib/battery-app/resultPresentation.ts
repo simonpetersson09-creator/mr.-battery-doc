@@ -55,9 +55,19 @@ export interface ResultPresentation {
   fcrPowerNote: string | null;
   fcrPowerNoteSecondary: string | null;
 
+  /** The "Varför X kW?" card, only when FCR actually raised the system power. */
+  showFcrPowerCard: boolean;
+  fcrPowerCardTitle: string | null;
+  fcrPowerCardText: string | null;
+  fcrPowerCardNeutralText: string | null;
+  fcrHistoricalNote: string | null;
+  /** Power level motivated by the property itself (actual FCR-off result when available). */
+  propertyOnlyPowerKw: number | null;
+
   capacityWhy: string;
   powerWhy: string | null;
 }
+
 
 export function buildResultPresentation(
   result: BatteryEngineResult,
