@@ -74,6 +74,18 @@ export interface ResultPresentation {
   /** withFcr - withoutFcr, SEK/year. */
   benefitDeltaSek: number | null;
 
+  /** Base power chosen by the physical product sizing step. */
+  productPowerKw: number;
+  /** productPowerKw / capacityKWh. */
+  productCRate: number;
+  /** recommendedPowerKw / capacityKWh — the C-rate of the FINAL recommendation. */
+  systemCRate: number;
+  /** Sizing-method paragraphs, rewritten so "recommended" always means the final power. */
+  sizingMethodLines: string[];
+  /** What utilityPctOfReference actually measures (physical useful energy at base power). */
+  baseUtilityPct: number;
+  baseUtilityLabel: string;
+
   capacityWhy: string;
   powerWhy: string | null;
 }
@@ -190,6 +202,45 @@ export function buildResultPresentation(
 
 
 
+  const capacityKWh = r.capacityKWh;
+  const productPowerKw = r.productPowerKw;
+  const systemCRate = capacityKWh > 0 ? recommendedPowerKw / capacityKWh : 0;
+  const productCRate = capacityKWh > 0 ? productPowerKw / capacityKWh : 0;
+
+  /**
+   * The engine's sizing narrative describes the PHYSICAL product step. It must not use the
+   * word "recommended" when a later operating-benefit step selected a higher system power.
+   * Purely a relabelling of existing engine text — no value is recomputed.
+   */
+  const rewrittenPower = (r.powerExplanation ?? "")
+    .replace(
+      /Rekommenderad effekt [^.]*\.\s*/,
+      `Grundeffekt från fysisk dimensionering: ${nf(productPowerKw, 1)} kW (${nf(productCRate, 2)} C). `,
+    )
+    .replace(/Nyttan vid rekommenderad effekt/, "Fysisk energinytta vid grundeffekten");
+
+  const sizingMethodLines: string[] = [];
+  if (r.explanation) sizingMethodLines.push(r.explanation);
+  if (rewrittenPower) sizingMethodLines.push(rewrittenPower);
+  if (
+    propertyOnlyPowerKw !== null &&
+    propertyOnlyPowerKw > productPowerKw + 1e-9 &&
+    recommendedPowerKw > propertyOnlyPowerKw + 1e-9 &&
+    capacityKWh > 0
+  ) {
+    sizingMethodLines.push(
+      `Systemeffekt med högst beräknad årlig nytta utan FCR-D upp: ${nf(propertyOnlyPowerKw, 1)} kW (${nf(propertyOnlyPowerKw / capacityKWh, 2)} C).`,
+    );
+  }
+  if (!noBattery && recommendedPowerKw > productPowerKw + 1e-9) {
+    sizingMethodLines.push(
+      `Efter utvärdering av den beräknade årliga nyttan valdes ${nf(recommendedPowerKw, 1)} kW (${nf(systemCRate, 2)} C) som rekommenderad systemeffekt.`,
+    );
+    if (fcrDrivesPower) {
+      sizingMethodLines.push("Historisk FCR-D upp-intäkt påverkade effektvalet.");
+    }
+  }
+
   return {
     noBattery,
     capacityKWh: r.capacityKWh,
@@ -247,6 +298,13 @@ export function buildResultPresentation(
 
 
 
+
+    productPowerKw,
+    productCRate,
+    systemCRate,
+    sizingMethodLines,
+    baseUtilityPct: ps.utilityPctOfReference,
+    baseUtilityLabel: "Fysisk energinytta vid grundeffekten",
 
     capacityWhy,
     powerWhy,

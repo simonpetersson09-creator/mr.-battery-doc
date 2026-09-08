@@ -231,3 +231,52 @@ describe("solar relevance is unchanged", () => {
     expect(p.showSelfConsumption).toBe(true);
   });
 });
+
+describe("FINAL POWER SEMANTICS: C-rate and sizing-method wording", () => {
+  const cr = (p: ResultPresentation) => p.recommendedPowerKw / p.capacityKWh;
+
+  it("case A (FCR on): system C-rate follows the FINAL recommended power", () => {
+    const p = present({ ...REF, fcr: true });
+    expect(p.systemCRate).toBeCloseTo(cr(p), 9);
+    expect(p.productCRate).toBeCloseTo(p.productPowerKw / p.capacityKWh, 9);
+    if (p.recommendedPowerKw > p.productPowerKw) {
+      expect(p.systemCRate).toBeGreaterThan(p.productCRate);
+    }
+  });
+
+  it("case B/C (FCR off): system C-rate equals recommended power over capacity", () => {
+    const p = present({ ...REF, fcr: false });
+    expect(p.systemCRate).toBeCloseTo(cr(p), 9);
+  });
+
+  it("sizing method never calls the base power 'Rekommenderad effekt'", () => {
+    for (const fcr of [true, false]) {
+      const p = present({ ...REF, fcr });
+      const text = p.sizingMethodLines.join(" ");
+      expect(text).not.toMatch(/Rekommenderad effekt/);
+      if (p.recommendedPowerKw > p.productPowerKw) {
+        expect(text).toMatch(/Grundeffekt från fysisk dimensionering/);
+        expect(text).toMatch(/som rekommenderad systemeffekt/);
+      }
+    }
+  });
+
+  it("case D (FCR off): no FCR-driven power claim in the sizing method", () => {
+    const p = present({ ...REF, fcr: false });
+    expect(p.sizingMethodLines.join(" ")).not.toMatch(/FCR/);
+  });
+
+  it("case E (FCR on but not power-driving): no false FCR explanation", () => {
+    const p = present({ consumption: 4000, fcr: true, peak: true, fuseA: 16 });
+    if (!p.fcrDrivesPower) {
+      expect(p.sizingMethodLines.join(" ")).not.toMatch(/påverkade effektvalet/);
+      expect(p.showFcrPowerCard).toBe(false);
+    }
+  });
+
+  it("the unlimited-power KPI is labelled as base-power physical energy utility", () => {
+    const p = present({ ...REF, fcr: true });
+    expect(p.baseUtilityLabel).toMatch(/grundeffekten/);
+    expect(p.baseUtilityPct).toBeGreaterThan(0);
+  });
+});

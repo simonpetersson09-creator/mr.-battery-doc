@@ -95,7 +95,6 @@ function ResultStep() {
 
   const s = outcome.result.summary;
   const d = outcome.result.diagnostics;
-  const ps = d.powerSizing;
   const ga = d.gridAssessment;
   const r = s.recommendation;
   const e = s.energy;
@@ -401,11 +400,8 @@ function ResultStep() {
             {p.fcrHeldPowerKw !== null ? (
               <Row label="Stödtjänster hållen effekt" value={kw(p.fcrHeldPowerKw, 2)} />
             ) : null}
-            <Row label="C-rate" value={`${nf(ps.productCRate, 2)} C`} />
-            <Row
-              label="Nytta jämfört med obegränsad effekt"
-              value={pct(ps.utilityPctOfReference)}
-            />
+            <Row label="Systemets C-rate" value={`${nf(p.systemCRate, 2)} C`} />
+            <Row label={p.baseUtilityLabel} value={pct(p.baseUtilityPct)} />
           </TechGroup>
 
           <TechGroup title="Elanslutning">
@@ -443,11 +439,11 @@ function ResultStep() {
             <summary className="ui-label cursor-pointer list-none">Dimensioneringsmetod</summary>
             <div className="mt-2 space-y-2">
               <p className="ui-caption">
-                Beskriver hur dimensioneringen togs fram. Nyckeltal i den här texten kommer från
-                dimensioneringsberäkningen (utan FCR-reservation) och kan därför skilja sig från
-                det slutliga scenariots värden ovan.
+                Beskriver besluten i ordning: fastighetens fysiska effektbehov, grundeffekt från
+                fysisk dimensionering och därefter slutlig rekommenderad systemeffekt. Nyckeltal i
+                dimensioneringssteget beräknas utan FCR-reservation.
               </p>
-              {[r.explanation, r.powerExplanation, ...g.consequences]
+              {[...p.sizingMethodLines, ...g.consequences]
                 .filter((x): x is string => Boolean(x))
                 .map((line) => (
                   <p key={line} className="ui-help">
