@@ -83,8 +83,37 @@ describe("EUR/SEK", () => {
     expect(createInitialState("SE").economy.eurSekRate).toBe(11.3);
   });
 
-  it("is editable on the economy page when FCR is on", () => {
-    expect(read("src/routes/ekonomi.tsx")).toMatch(/EUR\/SEK/);
+  it("is an internal assumption only — never shown or editable in the customer UI", () => {
+    const page = read("src/routes/ekonomi.tsx");
+    expect(page).not.toMatch(/EUR\/SEK/);
+    expect(page).not.toMatch(/Valutakurs/);
+    expect(page).not.toMatch(/11[.,]3/);
+    // Still reaches the engine from state.
+    expect(normalizeWizardToEngineInput(base()).economy?.eurSekRate).toBe(11.3);
+  });
+
+  it("keeps 30 kr/kW/month as the schablon and no 55 text remains", () => {
+    const page = read("src/routes/ekonomi.tsx");
+    expect(page).not.toMatch(/55/);
+    expect(normalizeWizardToEngineInput(base()).economy?.peakDemandChargeSekPerKwMonth).toBe(30);
+  });
+
+  it("editing an energy price does not make the demand charge user-provided", () => {
+    const s = base();
+    s.economy.importPrice = 2.1;
+    s.economy.touched = true;
+    const input = normalizeWizardToEngineInput(s);
+    expect(input.economy?.peakTariffSource).toBe("default-estimate");
+    expect(input.economy?.peakDemandChargeSekPerKwMonth).toBe(30);
+  });
+
+  it("accepts 0 kr/kW/month as a valid user value", () => {
+    const s = base();
+    s.economy.demandCharge = 0;
+    s.economy.demandChargeTouched = true;
+    const input = normalizeWizardToEngineInput(s);
+    expect(input.economy?.peakDemandChargeSekPerKwMonth).toBe(0);
+    expect(input.economy?.peakTariffSource).toBe("user-provided");
   });
 });
 
@@ -205,7 +234,7 @@ describe("country and currency", () => {
     const s = createInitialState("SE");
     expect(s.economy.importPrice).toBe(1.5);
     expect(s.economy.exportPrice).toBe(0.6);
-    expect(s.economy.demandCharge).toBe(55);
+    expect(s.economy.demandCharge).toBe(30);
     expect(s.economy.eurSekRate).toBe(11.3);
     expect(s.grid.mainFuseA).toBeGreaterThan(0);
     const input = normalizeWizardToEngineInput(base());

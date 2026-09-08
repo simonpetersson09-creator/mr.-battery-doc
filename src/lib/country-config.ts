@@ -70,7 +70,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       currencyLabel: "kr",
       importPrice: 1.5,
       exportPrice: 0.6,
-      demandCharge: 55,
+      demandCharge: 30,
       eurSekRate: 11.3,
       demandChargeVerified: false,
     },
