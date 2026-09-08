@@ -36,14 +36,16 @@ function runAtCapacity(
   level: AlternativeLevel,
 ): BatteryAlternative | null {
   try {
+    const { fixedPowerKw: _ignored, ...battery } = input.battery ?? {};
     const res = runBatteryEngine({
       ...input,
-      battery: { ...(input.battery ?? {}), fixedCapacityKWh: capacityKWh, fixedPowerKw: undefined },
+      battery: { ...battery, fixedCapacityKWh: capacityKWh },
     });
+    const r = res.summary.recommendation;
     return {
       level,
-      capacityKWh: res.summary.recommendation.capacityKWh,
-      powerKw: res.summary.recommendation.recommendedPowerKw,
+      capacityKWh: r.capacityKWh,
+      powerKw: r.recommendedPowerKw ?? r.productPowerKw,
       annualBenefitSek: res.summary.economy.totalOperatingBenefitSek,
     };
   } catch {
@@ -63,7 +65,7 @@ export function computeBatteryAlternatives(
   const middle: BatteryAlternative = {
     level: "recommended",
     capacityKWh: rec.capacityKWh,
-    powerKw: rec.recommendedPowerKw,
+    powerKw: rec.recommendedPowerKw ?? rec.productPowerKw,
     annualBenefitSek: result.summary.economy.totalOperatingBenefitSek,
   };
   if (!(rec.capacityKWh > 0) || rec.sizingWasFixed) return [middle];
