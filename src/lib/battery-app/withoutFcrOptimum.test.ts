@@ -167,7 +167,7 @@ describe("compact power explanation card", () => {
       demandChargeTouched: false,
       withoutFcr: wo,
     });
-    expect(p.fcrPowerExplanation).toContain("historiska FCR-D upp-priser");
+    expect(p.fcrPowerExplanation).toContain("historiska stödtjänst-priser");
     expect(p.fcrPowerExplanation).toContain("Framtida priser");
   });
 
