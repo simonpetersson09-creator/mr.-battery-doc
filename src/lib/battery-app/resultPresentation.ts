@@ -6,6 +6,8 @@
  */
 
 import type { BatteryEngineResult } from "@/lib/battery-engine";
+import type { WithoutFcrOptimum } from "./withoutFcrOptimum";
+
 
 const nf = (v: number, digits = 0) =>
   v.toLocaleString("sv-SE", { minimumFractionDigits: digits, maximumFractionDigits: digits });
@@ -15,7 +17,13 @@ export interface ResultPresentationOptions {
   peakShavingSelected: boolean;
   /** True when the customer typed their own demand charge. */
   demandChargeTouched: boolean;
+  /**
+   * Genuine FCR-off counterfactual for the SAME capacity. Omit it and no "utan FCR"
+   * level is presented — a reconstructed level is never acceptable.
+   */
+  withoutFcr?: WithoutFcrOptimum | null;
 }
+
 
 export interface ResultPresentation {
   noBattery: boolean;
@@ -131,26 +139,18 @@ export function buildResultPresentation(
   const raisedAbovePhysical = recommendedPowerKw > r.productPowerKw + 1e-9;
 
   /**
-   * The power level the property alone motivates. Prefer the ACTUAL simulated candidate that
-   * wins once the historical FCR revenue is taken out of the objective (same 25 kr/år tie
-   * tolerance the engine uses); fall back to the engine's physical need. No recomputation:
-   * every number is read from the already simulated candidates.
+   * The power level the property alone motivates. This MUST come from a genuine FCR-off
+   * counterfactual (`computeWithoutFcrOptimum`), never from "FCR-influenced total minus FCR
+   * revenue" — the reservation also changes dispatch, SOC, energy, peak and import/export.
+   * When no counterfactual is supplied, no "utan FCR" level is shown at all.
    */
-  const TIE = 25;
-  const withoutFcr = s.powerOptions.map((o) => ({
-    powerKw: o.powerKw,
-    benefit: o.totalOperatingBenefitSek - o.fcrRevenueSek,
-  }));
-  let propertyOnlyPowerKw: number | null = null;
-  let withoutFcrBenefitSek: number | null = null;
-  if (withoutFcr.length > 0) {
-    const best = Math.max(...withoutFcr.map((o) => o.benefit));
-    const pick = withoutFcr.find((o) => o.benefit >= best - TIE) ?? withoutFcr[0]!;
-    propertyOnlyPowerKw = pick.powerKw;
-    withoutFcrBenefitSek = pick.benefit;
-  } else if (r.physicalPowerNeedKw > 0) {
-    propertyOnlyPowerKw = r.physicalPowerNeedKw;
-  }
+  const propertyOnlyPowerKw: number | null = opts.withoutFcr
+    ? opts.withoutFcr.withoutFcrOptimalPowerKw
+    : null;
+  const withoutFcrBenefitSek: number | null = opts.withoutFcr
+    ? opts.withoutFcr.withoutFcrBenefitSek
+    : null;
+
 
   const selectedOption =
     s.powerOptions.find((o) => o.selected) ??
@@ -184,8 +184,9 @@ export function buildResultPresentation(
     : `${nf(r.capacityKWh)} kWh ger en bra balans mellan hur mycket energi batteriet kan flytta och nyttan av ytterligare kapacitet. Ett större batteri ger relativt liten ytterligare nytta med din förbrukning${hasSolar ? " och solproduktion" : ""}.`;
 
   const fcrCardText = showPhysicalNeedRow
-    ? `Fastighetens fysiska effektbehov är cirka ${physKw} kW. Utan FCR-D upp skulle systemeffekten vara ${propKw} kW. Med historiska FCR-D upp-priser från 2025 ger ${recKw} kW högst beräknad årlig nytta.`
-    : `Fastighetens fysiska effektbehov är cirka ${physKw} kW. Med historiska FCR-D upp-priser från 2025 ger ${recKw} kW högst beräknad årlig nytta.`;
+    ? `Fastighetens fysiska effektbehov är cirka ${physKw} kW. Utan FCR-D upp ger ${propKw} kW högst beräknad årlig nytta. Med historiska FCR-D upp-priser från 2025 ger ${recKw} kW högst beräknad årlig nytta. Framtida priser och intäkter kan avvika.`
+    : `För fastighetens eget behov räcker ${propKw} kW. Den högre systemeffekten ${recKw} kW ger större beräknad årlig nytta när historiska FCR-D upp-priser från 2025 ingår. Framtida priser och intäkter kan avvika.`;
+
 
   let powerWhy: string | null;
   if (noBattery) {
