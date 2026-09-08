@@ -156,14 +156,17 @@ function ResultStep() {
         </div>
       )}
 
-
-
-
-
+      {p.showFcrPowerCard ? (
+        <details className="ui-card">
+          <summary className="ui-label cursor-pointer list-none">{p.fcrPowerCardTitle}</summary>
+          <p className="ui-help mt-3">{p.fcrPowerCardText}</p>
+        </details>
+      ) : null}
 
       {p.limitedBenefit ? (
         <SectionCard title={p.limitedBenefitTitle ?? ""} description={p.limitedBenefitText ?? ""} />
       ) : null}
+
 
 
       {p.showEnergySection ? (
