@@ -60,6 +60,8 @@ export function toLabConfig(input: BatteryEngineInput = {}): LabConfig {
       monthlyKWh: pvEnabled ? pv.monthlyKWh : new Array(12).fill(0),
       kWp: prod.kWp ?? (pvEnabled ? base.solar.kWp : 0),
       inverterAcKw: prod.inverterAcKw ?? base.solar.inverterAcKw,
+      // Optional MEASURED self-consumption share. Calibrates the intraday load shape only.
+      measuredSelfConsumptionPct: prod.measuredSelfConsumptionPct ?? null,
       monthlyIsModelled: pv.modelled,
     },
     battery: {
