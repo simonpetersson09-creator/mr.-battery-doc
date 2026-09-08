@@ -101,7 +101,7 @@ function ConsumptionStep() {
                         return { ...s, consumption: { ...s.consumption, monthlyKwh: next } };
                       })
                     }
-                    className="mt-1.5 h-12 w-full rounded-xl border border-input bg-background px-3 text-base outline-none focus:border-primary"
+                    className="mt-1.5 h-12 w-full rounded-2xl border border-foreground/15 bg-surface-cream px-3 text-base font-semibold outline-none focus:border-accent"
                   />
                 </label>
               ))}
@@ -140,7 +140,7 @@ function ProfilePicker({ note }: { note?: string }) {
           }))
         }
       >
-        <SelectTrigger className="h-12 w-full rounded-xl text-base">
+        <SelectTrigger className="h-12 w-full rounded-2xl border-foreground/15 bg-surface-cream text-base font-semibold">
           <SelectValue placeholder="Välj profil">
             {selected ? selected.name : null}
           </SelectValue>

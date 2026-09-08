@@ -31,54 +31,69 @@ export function WizardShell({
   const prev = stepIndex > 0 ? WIZARD_STEPS[stepIndex - 1]!.path : "/";
   const next = stepIndex < WIZARD_STEPS.length - 1 ? WIZARD_STEPS[stepIndex + 1]!.path : null;
 
-
-
-
   return (
-    <div className="app-shell">
-      <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur-md">
-        <div className="flex items-center gap-2 px-3 pt-2 pb-1.5">
+    <div className="app-shell surface-sun">
+      <header className="pt-safe sticky top-0 z-20 px-5 pb-2 backdrop-blur-md">
+        <div className="flex items-center gap-3 pt-1">
           <Link
             to={prev}
             aria-label="Tillbaka"
-            className="flex size-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground transition-colors active:bg-muted"
+            className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-sm transition-colors hover:bg-secondary"
           >
             <ArrowLeft className="size-4" />
           </Link>
-          <div className="flex items-center gap-1.5 text-[13px] font-semibold">
-            <BatteryCharging className="size-4 text-primary" />
-            Mr. Battery Doc
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground">
+              <BatteryCharging className="size-4" />
+            </span>
+            <span className="truncate font-display text-sm font-bold tracking-tight">
+              Mr. Battery Doc
+            </span>
           </div>
         </div>
         <StepIndicator stepIndex={stepIndex} />
       </header>
 
-      <main className="flex-1 px-3 pt-3 pb-24">
-        <h1 className="text-xl leading-tight font-bold tracking-tight">{title}</h1>
-        {intro ? <p className="mt-1 text-[13px] text-muted-foreground">{intro}</p> : null}
-        <div className="mt-3 space-y-3">{children}</div>
+      <main className="flex-1 px-5 pt-1 pb-32">
+        <p className="text-[11px] font-bold tracking-widest text-foreground/55 uppercase">
+          Steg {stepIndex + 1} av {WIZARD_STEPS.length}
+        </p>
+        <h1 className="mt-1 text-2xl leading-tight font-extrabold tracking-tight">{title}</h1>
+        {intro ? (
+          <p className="mt-1.5 text-[13px] leading-snug text-muted-foreground">{intro}</p>
+        ) : null}
+        <div className="mt-4 space-y-3">{children}</div>
       </main>
 
-      <div className="fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-[30rem] border-t border-border bg-background/95 px-3 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-md">
+      <div className="pb-safe fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-[32rem] border-t border-border/70 bg-background/90 px-5 pt-3 backdrop-blur-md">
         {nextDisabled && nextBlockedReason ? (
-          <p className="mb-1.5 text-xs text-muted-foreground" role="status">
+          <p className="mb-2 text-xs text-muted-foreground" role="status">
             {nextBlockedReason}
           </p>
         ) : null}
         <div className="flex gap-2">
-          <Button asChild variant="outline" className="h-11 flex-1">
+          <Button asChild variant="outline" className="h-auto flex-1 rounded-[24px] py-3.5">
             <Link to={prev}>Tillbaka</Link>
           </Button>
           {footerAction ? (
             footerAction
           ) : next ? (
             nextDisabled ? (
-              <Button className="h-11 flex-[2]" disabled aria-disabled="true">
+              <Button
+                variant="cta"
+                className="h-auto flex-[2] rounded-[24px] py-3.5 text-base font-bold shadow-cta"
+                disabled
+                aria-disabled="true"
+              >
                 {nextLabel ?? "Nästa"}
                 <ArrowRight className="size-4" />
               </Button>
             ) : (
-              <Button asChild className="h-11 flex-[2]">
+              <Button
+                asChild
+                variant="cta"
+                className="h-auto flex-[2] rounded-[24px] py-3.5 text-base font-bold shadow-cta"
+              >
                 <Link to={next}>
                   {nextLabel ?? "Nästa"}
                   <ArrowRight className="size-4" />
@@ -86,7 +101,11 @@ export function WizardShell({
               </Button>
             )
           ) : (
-            <Button asChild className="h-11 flex-[2]">
+            <Button
+              asChild
+              variant="cta"
+              className="h-auto flex-[2] rounded-[24px] py-3.5 text-base font-bold shadow-cta"
+            >
               <Link to="/">Klar</Link>
             </Button>
           )}
@@ -98,24 +117,19 @@ export function WizardShell({
 
 function StepIndicator({ stepIndex }: { stepIndex: number }) {
   return (
-    <div className="flex items-center gap-1 px-3 pb-2">
+    <div className="mt-3 flex items-center gap-1.5">
       {WIZARD_STEPS.map((step, i) => (
-        <div key={step.path} className="flex flex-1 flex-col gap-0.5">
-          <div
-            className={
-              "h-1 rounded-full transition-colors " +
-              (i <= stepIndex ? "bg-primary" : "bg-border")
-            }
-          />
-          <span
-            className={
-              "truncate text-[10px] font-medium " +
-              (i === stepIndex ? "text-primary" : "text-muted-foreground")
-            }
-          >
-            {step.label}
-          </span>
-        </div>
+        <div
+          key={step.path}
+          className={
+            "h-1.5 flex-1 rounded-full transition-colors " +
+            (i < stepIndex
+              ? "bg-foreground"
+              : i === stepIndex
+                ? "bg-accent"
+                : "bg-foreground/12")
+          }
+        />
       ))}
     </div>
   );

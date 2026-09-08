@@ -39,7 +39,8 @@ function ResultStep() {
 
   const restart = (
     <Button
-      className="h-11 flex-[2]"
+      variant="cta"
+      className="h-auto flex-[2] rounded-[24px] py-3.5 text-base font-bold shadow-cta"
       onClick={() => {
         reset();
         void navigate({ to: "/" });
@@ -64,7 +65,7 @@ function ResultStep() {
           <ul className="space-y-2 text-sm text-muted-foreground">
             {outcome.issues.map((i) => (
               <li key={i.field} className="flex gap-2">
-                <span className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" />
+                <span className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" />
                 {i.message}
               </li>
             ))}
@@ -105,11 +106,15 @@ function ResultStep() {
       intro="Så här ser förslaget ut för din fastighet."
       footerAction={restart}
     >
-      <div className="card-surface bg-primary-soft border-primary/40 p-4 text-center">
-        <p className="text-sm font-semibold text-muted-foreground">Rekommenderat batteri</p>
-        <p className="mt-2 text-4xl font-bold tracking-tight">{nf(r.capacityKWh)} kWh</p>
-        <p className="mt-1 text-lg font-semibold">{nf(r.powerKw, 1)} kW effekt</p>
-        <p className="mt-2 text-sm text-muted-foreground">
+      <div className="hero-metric rounded-[28px] p-5 text-center">
+        <p className="text-[11px] font-bold tracking-widest text-foreground/60 uppercase">
+          Rekommenderat batteri
+        </p>
+        <p className="mt-2 font-display text-5xl font-extrabold tracking-tight tabular-nums">
+          {nf(r.capacityKWh)} <span className="text-2xl font-bold">kWh</span>
+        </p>
+        <p className="mt-1 text-lg font-bold tabular-nums">{nf(r.powerKw, 1)} kW effekt</p>
+        <p className="mt-2 text-[13px] text-foreground/70">
           Rimligt intervall {nf(r.reasonableRangeKWh[0])}–{nf(r.reasonableRangeKWh[1])} kWh
         </p>
       </div>
@@ -168,9 +173,9 @@ function ResultStep() {
           {s.fcr.enabled ? (
             <Row label="FCR-D upp (historiskt 2025)" value={money(s.fcr.grossSek)} />
           ) : null}
-          <div className="flex items-center justify-between border-t border-border pt-3 text-base font-bold">
+          <div className="mt-1 flex items-center justify-between rounded-2xl bg-accent px-3 py-2.5 text-base font-extrabold text-accent-foreground">
             <span>Total nytta per år</span>
-            <span>{money(s.economy.totalOperatingBenefitSek)}</span>
+            <span className="tabular-nums">{money(s.economy.totalOperatingBenefitSek)}</span>
           </div>
         </div>
       </SectionCard>
@@ -198,7 +203,7 @@ function ResultStep() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               {g.consequences.map((line) => (
                 <li key={line} className="flex gap-2">
-                  <span className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" />
+                  <span className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" />
                   {line}
                 </li>
               ))}
@@ -211,7 +216,7 @@ function ResultStep() {
         <ul className="space-y-2 text-sm text-muted-foreground">
           {[r.explanation, r.powerExplanation].filter(Boolean).map((line) => (
             <li key={line} className="flex gap-2">
-              <span className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" />
+              <span className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" />
               {line}
             </li>
           ))}

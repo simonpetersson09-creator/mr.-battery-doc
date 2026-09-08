@@ -49,7 +49,7 @@ function GridStep() {
           value={state.grid.country}
           onValueChange={(v) => setCountry(v as CountryCode)}
         >
-          <SelectTrigger className="h-12 w-full rounded-xl text-base">
+          <SelectTrigger className="h-12 w-full rounded-2xl border-foreground/15 bg-surface-cream text-base font-semibold">
             <SelectValue>
               {country.flag} {country.name}
             </SelectValue>
@@ -82,10 +82,8 @@ function GridStep() {
                   }))
                 }
                 className={
-                  "rounded-full border px-4 py-2 text-sm font-semibold transition-colors " +
-                  (active
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-card active:bg-secondary")
+                  "min-h-11 rounded-[14px] px-4 py-2 text-sm font-bold transition-colors " +
+                  (active ? "chip-selected" : "chip-unselected")
                 }
               >
                 {a} A
@@ -131,9 +129,9 @@ function GridStep() {
 
 function Value({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-secondary px-3 py-2">
+    <div className="rounded-2xl bg-secondary px-3 py-2.5">
       <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="font-semibold">{value}</dd>
+      <dd className="font-display font-bold tracking-tight">{value}</dd>
     </div>
   );
 }
