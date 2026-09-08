@@ -49,7 +49,7 @@ function GridStep() {
           value={state.grid.country}
           onValueChange={(v) => setCountry(v as CountryCode)}
         >
-          <SelectTrigger className="h-10 w-full rounded-xl border-foreground/15 bg-surface-cream text-sm font-semibold">
+          <SelectTrigger className="ui-control">
             <SelectValue>
               {country.flag} {country.name}
             </SelectValue>
@@ -82,9 +82,10 @@ function GridStep() {
                   }))
                 }
                 className={
-                  "min-h-11 rounded-[14px] px-4 py-2 text-sm font-bold transition-colors " +
+                  "h-11 min-w-[4.25rem] rounded-[0.875rem] px-3 text-[15px] font-bold transition-colors " +
                   (active ? "chip-selected" : "chip-unselected")
                 }
+
               >
                 {a} A
               </button>
@@ -113,15 +114,13 @@ function GridStep() {
         title="Nätvärden"
         description="Sätts automatiskt utifrån valt land."
       >
-        <dl className="grid grid-cols-2 gap-3 text-sm">
+        <dl className="grid grid-cols-2 gap-2">
           <Value label="Spänning" value={`${country.grid.voltage} V`} />
           <Value label="Faser" value={`${country.grid.phases}-fas`} />
           <Value label="Frekvens" value={`${country.grid.frequency} Hz`} />
           <Value label="Valuta" value={country.economy.currency} />
         </dl>
-        <p className="text-xs text-muted-foreground">
-          Standarder: {country.grid.standards.join(", ")}
-        </p>
+        <p className="ui-help">Standarder: {country.grid.standards.join(", ")}</p>
       </SectionCard>
     </WizardShell>
   );
@@ -129,9 +128,10 @@ function GridStep() {
 
 function Value({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-secondary px-3 py-2.5">
-      <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="font-display font-bold tracking-tight">{value}</dd>
+    <div className="rounded-[0.875rem] bg-secondary px-3 py-2">
+      <dt className="ui-help">{label}</dt>
+      <dd className="ui-label font-display">{value}</dd>
     </div>
   );
 }
+

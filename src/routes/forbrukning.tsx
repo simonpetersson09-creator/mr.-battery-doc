@@ -47,7 +47,8 @@ function ConsumptionStep() {
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
     >
-      <div className="space-y-3">
+      <div className="space-y-2">
+
         <OptionCard
           title="Årsförbrukning"
           description="Jag vet ungefär hur många kWh vi använder per år."
