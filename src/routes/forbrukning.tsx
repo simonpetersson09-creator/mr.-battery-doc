@@ -92,20 +92,17 @@ function ConsumptionStep() {
       </div>
 
       {c.mode === "annual" ? (
-        <>
-          <SectionCard title="Årsförbrukning">
-            <NumberField
-              label="Förbrukning"
-              unit="kWh/år"
-              value={c.annualKwh}
-              placeholder="t.ex. 20000"
-              onChange={(v) =>
-                update((s) => ({ ...s, consumption: { ...s.consumption, annualKwh: v } }))
-              }
-            />
-          </SectionCard>
-          <ProfilePicker />
-        </>
+        <SectionCard title="Årsförbrukning">
+          <NumberField
+            label="Förbrukning"
+            unit="kWh/år"
+            value={c.annualKwh}
+            placeholder="t.ex. 20000"
+            onChange={(v) =>
+              update((s) => ({ ...s, consumption: { ...s.consumption, annualKwh: v } }))
+            }
+          />
+        </SectionCard>
       ) : null}
 
       {c.mode === "monthly" ? (
@@ -130,6 +127,9 @@ function ConsumptionStep() {
           ) : null}
         </SectionCard>
       ) : null}
+
+      <ProfilePicker />
+
     </WizardShell>
   );
 }
