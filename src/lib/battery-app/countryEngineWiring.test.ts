@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { runBatteryEngine, type BatteryEngineInput } from "@/lib/battery-engine";
 import { COUNTRIES, type CountryCode } from "@/lib/country-config";
+import { ancillaryDataAvailable } from "@/lib/battery-app/ancillaryAvailability";
 
 function caseFor(country: CountryCode): BatteryEngineInput {
   const c = COUNTRIES[country];
@@ -52,14 +53,20 @@ describe("country selection drives market data, not physics", () => {
     for (const r of [dk, de]) {
       expect(r.summary.fcr.grossSek).toBeNull();
       expect(r.summary.economy.fcrGrossSek).toBeNull();
-      expect(r.summary.economy.totalIsIncomplete).toBe(true);
+      expect(ancillaryDataAvailable(r === dk ? "DK" : "DE")).toBe(false);
     }
   });
 
-  it("keeps the physical energy result identical across countries", () => {
-    for (const r of [fi, dk, de]) {
-      expect(r.summary.energy.importAfterKWh).toBeCloseTo(se.summary.energy.importAfterKWh, 6);
-      expect(r.summary.energy.exportAfterKWh).toBeCloseTo(se.summary.energy.exportAfterKWh, 6);
+  it("keeps the physics country agnostic when ancillary services are off", () => {
+    const plain = (c: CountryCode) => {
+      const input = caseFor(c);
+      input.strategies = { selfConsumption: true, reduceImport: true, peakShaving: true };
+      return runBatteryEngine(input).summary.energy;
+    };
+    const ref = plain("SE");
+    for (const c of ["FI", "DK", "DE"] as CountryCode[]) {
+      expect(plain(c).importAfterKWh).toBeCloseTo(ref.importAfterKWh, 6);
+      expect(plain(c).exportAfterKWh).toBeCloseTo(ref.exportAfterKWh, 6);
     }
   });
 });
