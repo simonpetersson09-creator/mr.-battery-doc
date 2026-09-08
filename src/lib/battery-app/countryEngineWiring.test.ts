@@ -38,7 +38,7 @@ describe("country selection drives market data, not physics", () => {
   const de = runBatteryEngine(caseFor("DE"));
 
   it("uses the same grid limits for all four at 25 A", () => {
-    const fuse = [se, fi, dk, de].map((r) => r.summary.grid.fuseKw);
+    const fuse = [se, fi, dk, de].map((r) => r.summary.grid.physicalImportKw);
     for (const kw of fuse) expect(kw).toBeCloseTo(17.32, 2);
   });
 
@@ -58,8 +58,8 @@ describe("country selection drives market data, not physics", () => {
 
   it("keeps the physical energy result identical across countries", () => {
     for (const r of [fi, dk, de]) {
-      expect(r.summary.energy.importKWh).toBeCloseTo(se.summary.energy.importKWh, 6);
-      expect(r.summary.energy.exportKWh).toBeCloseTo(se.summary.energy.exportKWh, 6);
+      expect(r.summary.energy.importAfterKWh).toBeCloseTo(se.summary.energy.importAfterKWh, 6);
+      expect(r.summary.energy.exportAfterKWh).toBeCloseTo(se.summary.energy.exportAfterKWh, 6);
     }
   });
 });
