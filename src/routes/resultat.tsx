@@ -172,16 +172,6 @@ function ResultStep() {
         </div>
       )}
 
-      <SectionCard
-        title={
-          noBattery
-            ? "Varför ingen rekommendation?"
-            : `Varför ${nf(r.capacityKWh)} kWh och ${nf(r.powerKw, 1)} kW?`
-        }
-      >
-        <p className="ui-help">{capacityWhy}</p>
-        {powerWhy ? <p className="ui-help mt-1.5">{powerWhy}</p> : null}
-      </SectionCard>
 
       {showEnergySection ? (
         <SectionCard title="Energi">
@@ -288,8 +278,9 @@ function ResultStep() {
       </SectionCard>
 
       {s.fcr.enabled ? (
-        <SectionCard title="FCR-D upp">
-          <div className="space-y-2">
+        <details className="ui-card">
+          <summary className="ui-label cursor-pointer list-none">Visa FCR-D upp</summary>
+          <div className="mt-3 space-y-2">
             <Row label="Reserverad effekt" value={kw(s.fcr.offeredPowerKw, 1)} />
             <Row label="Tillgänglighet" value={pct(s.fcr.availabilityPct)} />
             <p className="ui-help">
@@ -297,32 +288,47 @@ function ResultStep() {
               avvika. Intäkten finns redan i ”Beräknad nytta”.
             </p>
           </div>
-        </SectionCard>
+        </details>
       ) : null}
 
 
-      <SectionCard title="Elanslutning">
-        {gridLimitsBattery ? (
-          <>
-            <p className="ui-label">Elanslutningen begränsar batteriet något</p>
-            <p className="ui-help mt-1">
-              Batteriet kan fortfarande använda den rekommenderade storleken
-              {noBattery ? "" : ` ${nf(r.capacityKWh)} kWh / ${nf(r.powerKw, 1)} kW`}. Din
-              elanslutning begränsar laddning eller urladdning under vissa perioder.
-            </p>
-          </>
-        ) : gridLimitsExport ? (
-          <>
-            <p className="ui-label">Elanslutningen räcker för batteriet</p>
-            <p className="ui-help mt-1">
-              Under soliga stunder kan en del av solelen inte skickas ut på nätet. Det beror på
-              solanläggningens storlek i förhållande till elanslutningen, inte på batteriet.
-            </p>
-          </>
-        ) : (
-          <p className="ui-label">Din nuvarande elanslutning bedöms vara tillräcklig.</p>
-        )}
-      </SectionCard>
+      <details className="ui-card">
+        <summary className="ui-label cursor-pointer list-none">Visa Elanslutning</summary>
+        <div className="mt-3">
+          {gridLimitsBattery ? (
+            <>
+              <p className="ui-label">Elanslutningen begränsar batteriet något</p>
+              <p className="ui-help mt-1">
+                Batteriet kan fortfarande använda den rekommenderade storleken
+                {noBattery ? "" : ` ${nf(r.capacityKWh)} kWh / ${nf(r.powerKw, 1)} kW`}. Din
+                elanslutning begränsar laddning eller urladdning under vissa perioder.
+              </p>
+            </>
+          ) : gridLimitsExport ? (
+            <>
+              <p className="ui-label">Elanslutningen räcker för batteriet</p>
+              <p className="ui-help mt-1">
+                Under soliga stunder kan en del av solelen inte skickas ut på nätet. Det beror på
+                solanläggningens storlek i förhållande till elanslutningen, inte på batteriet.
+              </p>
+            </>
+          ) : (
+            <p className="ui-label">Din nuvarande elanslutning bedöms vara tillräcklig.</p>
+          )}
+        </div>
+      </details>
+
+      <details className="ui-card">
+        <summary className="ui-label cursor-pointer list-none">
+          {noBattery
+            ? "Visa varför ingen rekommendation"
+            : `Visa varför ${nf(r.capacityKWh)} kWh och ${nf(r.powerKw, 1)} kW`}
+        </summary>
+        <div className="mt-3 space-y-1.5">
+          <p className="ui-help">{capacityWhy}</p>
+          {powerWhy ? <p className="ui-help">{powerWhy}</p> : null}
+        </div>
+      </details>
 
       <details className="ui-card">
         <summary className="ui-label cursor-pointer list-none">Visa tekniska detaljer</summary>
