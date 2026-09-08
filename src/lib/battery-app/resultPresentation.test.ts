@@ -280,3 +280,52 @@ describe("FINAL POWER SEMANTICS: C-rate and sizing-method wording", () => {
     expect(p.baseUtilityPct).toBeGreaterThan(0);
   });
 });
+
+describe("RESULT PAGE CUSTOMER SIMPLIFICATION", () => {
+  const page = () =>
+    require("node:fs").readFileSync("src/routes/resultat.tsx", "utf8") as string;
+
+  it("case D/E: no customer-visible Elanslutning or Dimensioneringsmetod section", () => {
+    const src = page();
+    expect(src).not.toMatch(/Visa Elanslutning/);
+    expect(src).not.toMatch(/Dimensioneringsmetod/);
+    expect(src).not.toMatch(/Nätstatus/);
+    expect(src).not.toMatch(/sizingMethodLines/);
+    expect(src).not.toMatch(/baseUtilityLabel/);
+  });
+
+  it("case I: Nätexport is not rendered in the main view", () => {
+    expect(page()).not.toMatch(/Nätexport/);
+  });
+
+  it("case H: the demand-charge amount is only shown under Beräknad nytta", () => {
+    const src = page();
+    expect(src).not.toMatch(/Minskad effektkostnad/);
+    expect((src.match(/demandCostSavingSek/g) ?? []).length).toBe(1);
+  });
+
+  it("case F: 20 kWh / 10 kW gives a 0.50 C system C-rate", () => {
+    const p = present({ ...REF, fcr: true });
+    expect(p.systemCRate).toBeCloseTo(p.recommendedPowerKw / p.capacityKWh, 9);
+  });
+
+  it("case A: the why-card shows distinct levels only", () => {
+    const p = present({ ...REF, fcr: true });
+    if (p.showFcrPowerCard) {
+      const levels = new Set(
+        [
+          p.showPhysicalNeedRow ? p.physicalPowerNeedKw : null,
+          p.withoutFcrPowerKw,
+          p.recommendedPowerKw,
+        ].filter((v): v is number => v !== null),
+      );
+      expect(levels.size).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it("case C: FCR off gives no FCR card and no ancillary section", () => {
+    const p = present({ ...REF, fcr: false });
+    expect(p.showFcr).toBe(false);
+    expect(p.showFcrPowerCard).toBe(false);
+  });
+});
