@@ -2,7 +2,9 @@
  * WIZARD -> ADAPTER -> BATTERY ENGINE integration tests.
  *
  * These verify that the app-layer adapter does not change the frozen engine's results.
- * GM01 must still produce 15 kWh / 3 kW and 2 274,51 kr/year total operating benefit.
+ * GM01 must still produce 15 kWh / 3 kW. Total operating benefit is 2 271,21 kr/year after the
+ * strategy-conflict audit fix F2 (a raised monthly peak is now a real cost instead of being
+ * clamped to zero); before the fix the same case reported 2 274,51 kr/year.
  */
 
 import { describe, expect, it } from "vitest";
@@ -39,11 +41,11 @@ function ok(state: WizardState, options = {}) {
 }
 
 describe("GM01 through the wizard adapter", () => {
-  it("standardvilla: 15 kWh / 3 kW and 2 274,51 kr/year", () => {
+  it("standardvilla: 15 kWh / 3 kW and 2 271,21 kr/year", () => {
     const r = ok(standardVilla(), { fixedCapacityKWh: 15, fixedPowerKw: 3 });
     expect(r.summary.recommendation.capacityKWh).toBe(15);
     expect(r.summary.recommendation.powerKw).toBe(3);
-    expect(r.summary.economy.totalOperatingBenefitSek).toBeCloseTo(2274.51, 2);
+    expect(r.summary.economy.totalOperatingBenefitSek).toBeCloseTo(2271.21, 2);
     expect(r.summary.economy.energyBenefitSek).toBeCloseTo(1766.2, 2);
     expect(r.summary.energyBalance.ok).toBe(true);
     expect(Math.abs(r.summary.energyBalance.residualKWh)).toBeLessThan(1);
