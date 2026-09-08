@@ -78,7 +78,18 @@ function economyFromCountry(code: CountryCode) {
     demandCharge: c.demandCharge,
     eurSekRate: c.eurSekRate,
     touched: false,
+    demandChargeTouched: false,
   };
+}
+
+/** v1 exposes no document parser — coerce any persisted "document" mode. */
+function coerceSupportedModes(s: WizardState): WizardState {
+  const next = { ...s };
+  if (next.consumption?.mode === "document")
+    next.consumption = { ...next.consumption, mode: "annual" };
+  if (next.production?.mode === "document")
+    next.production = { ...next.production, mode: "manual" };
+  return next;
 }
 
 export function createInitialState(country: CountryCode = DEFAULT_COUNTRY): WizardState {
@@ -133,7 +144,13 @@ export function WizardProvider({ children }: { children: ReactNode }) {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as WizardState;
-        setState((current) => ({ ...current, ...parsed }));
+        setState((current) =>
+          coerceSupportedModes({
+            ...current,
+            ...parsed,
+            economy: { ...current.economy, ...parsed.economy },
+          }),
+        );
       }
     } catch {
       /* ignore corrupt storage */
