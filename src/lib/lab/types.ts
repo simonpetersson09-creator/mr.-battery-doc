@@ -372,14 +372,20 @@ export interface SelfConsumptionCalibration {
   achievedPct: number;
   /** achieved - requested, percentage points. */
   residualPct: number;
-  /** Shape exponent that was applied (0 = untouched). */
+  /** Applied solar tilt strength (0 = untouched). Internal diagnostics only. */
   exponent: number;
+  /** Normalised L1 shape deviation from the selected profile, 0..1. */
+  shapeDeviation: number;
+  /** Maximum allowed shape deviation. */
+  shapeDeviationCap: number;
   /** Physically reachable window for this load/PV combination, %. */
   feasibleMinPct: number;
   feasibleMaxPct: number;
   tolerancePct: number;
-  status: "applied" | "clamped";
+  /** "matched" = target reached, "partial" = stopped at the shape-preservation cap. */
+  status: "matched" | "partial";
 }
+
 
 export interface TimeSeries {
   /** 8760 hourly load values, kWh. */
