@@ -367,8 +367,8 @@ function ResultStep() {
               <Row label="Tillgänglighet" value={pct(s.fcr.availabilityPct)} />
               <Row label="Reserverade timmar" value={`${nf(s.fcr.reservedHours)} timmar/år`} />
               <p className="ui-help">
-                Modellnotering: FCR-D upp är i modellen en beredskaps- och effektintäkt. Den ger
-                ingen egen energimängd och räknas därför inte som cykler.
+                Modellnotering: Stödtjänster (FCR-D upp) är i modellen en beredskaps- och
+                effektintäkt. Den ger ingen egen energimängd och räknas därför inte som cykler.
               </p>
               {s.fcr.blockers.map((b) => (
                 <p key={b} className="ui-help">
