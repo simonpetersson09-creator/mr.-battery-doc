@@ -151,6 +151,12 @@ export interface EngineRecommendation {
   utilisationWarning: string | null;
   /** True when the sizing was supplied by the caller instead of recommended. */
   sizingWasFixed: boolean;
+  /**
+   * DIAGNOSTIC ONLY: the highest battery AC power the dispatch actually used in the
+   * recommended system. Never mixed up with the product rating (`powerKw`) or with the
+   * property's calculated need (`physicalPowerNeedKw`).
+   */
+  actualDispatchPowerKw: number;
 }
 
 export interface EngineEnergySummary {
@@ -209,7 +215,25 @@ export interface EnginePeakSummary {
 
 export interface EngineFcrSummary {
   enabled: boolean;
+  /** What the optimiser/user offers to the market, kW. */
   offeredPowerKw: number;
+  /**
+   * What the system can PHYSICALLY reserve: min(battery power headroom, SOC/endurance
+   * energy headroom, grid headroom in the paid direction). Mean/max over the scheduled
+   * hours. Payment can never exceed this.
+   */
+  reservablePowerAvgKw: number;
+  reservablePowerMaxKw: number;
+  /** Mean grid-side up-regulation headroom and the kW the grid gate removed. */
+  gridHeadroomAvgKw: number;
+  gridClippedAvgKw: number;
+  /** Which physical factor bound most scheduled hours. */
+  limitingFactor: "power" | "energy" | "grid" | "none";
+  powerLimitedHours: number;
+  energyLimitedHours: number;
+  gridLimitedHours: number;
+  /** The power the economics is actually paid on = the held power. */
+  monetizedPowerKw: number;
   avgHeldPowerKw: number;
   reservedEnergyKWh: number;
   reservedHours: number;

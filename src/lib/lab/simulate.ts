@@ -296,6 +296,7 @@ export function simulate(
     },
     flexAvailabilityPct,
     flexReservedKWh: d.window.reservedKWh,
+    dispatchPower: { maxChargeKw: t.maxChargePowerKw, maxDischargeKw: t.maxDischargePowerKw },
     ancillary: {
       enabled: cfg.strategies.ancillaryServices && plan !== null,
       hypotheticalScenario: ancillaryOutcome?.hypotheticalScenario ?? false,
@@ -320,6 +321,17 @@ export function simulate(
       disclaimer: ancillaryOutcome?.disclaimer ?? "",
       fcr,
       avgReservedPowerUpKw: fcr?.avgReservedPowerKw ?? 0,
+      reservablePowerAvgKw: d.fcrGate.avgReservablePowerKw,
+      reservablePowerMaxKw: d.fcrGate.maxReservablePowerKw,
+      heldPowerAvgKw: fcr?.avgReservedPowerKw ?? 0,
+      // The economics is paid on the held series and on nothing else.
+      monetizedPowerAvgKw: fcr?.avgReservedPowerKw ?? 0,
+      gridHeadroomAvgKw: d.fcrGate.avgGridHeadroomKw,
+      gridClippedAvgKw: d.fcrGate.avgGridClippedKw,
+      powerLimitedHours: d.fcrGate.powerLimitedHours,
+      energyLimitedHours: d.fcrGate.energyLimitedHours,
+      gridLimitedHours: d.fcrGate.gridLimitedHours,
+      limitingFactor: d.fcrGate.bindingFactor,
     },
     energyBalance: {
       ok: Math.abs(residual) <= tolerance,

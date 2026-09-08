@@ -548,6 +548,11 @@ export interface SimResult {
   };
   flexAvailabilityPct: number;
   flexReservedKWh: number;
+  /**
+   * DIAGNOSTIC ONLY: the highest battery AC power the dispatch actually used. Separate
+   * from the product rating (powerKw) and from the property's power need.
+   */
+  dispatchPower: { maxChargeKw: number; maxDischargeKw: number };
 
   /**
    * Ancillary services (frequency market). Reservation is simulated physically;
@@ -584,6 +589,26 @@ export interface SimResult {
     fcr: FcrRevenueResult | null;
     /** Mean actually held reserved up-power over the whole year, kW. */
     avgReservedPowerUpKw: number;
+    /**
+     * POWER CONCEPTS, deliberately kept apart (see dispatch.ts, PHYSICAL FCR GATE):
+     *  - offeredPowerKw       what the optimiser/user asked the market for
+     *  - reservablePowerKw    what the system can physically reserve (min of battery
+     *                         power headroom, SOC/endurance energy headroom and the grid
+     *                         headroom in the paid direction), mean over the hours
+     *  - heldPowerKw          what the dispatch actually managed to hold, hour by hour
+     *  - monetizedPowerKw     what the economics is allowed to be paid on = held power
+     */
+    reservablePowerAvgKw: number;
+    reservablePowerMaxKw: number;
+    heldPowerAvgKw: number;
+    monetizedPowerAvgKw: number;
+    /** Mean grid-side up-regulation headroom, and the kW the grid gate removed. */
+    gridHeadroomAvgKw: number;
+    gridClippedAvgKw: number;
+    powerLimitedHours: number;
+    energyLimitedHours: number;
+    gridLimitedHours: number;
+    limitingFactor: "power" | "energy" | "grid" | "none";
   };
 
 

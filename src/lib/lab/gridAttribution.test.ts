@@ -75,12 +75,55 @@ describe("grid limitation attribution", () => {
       base.summary.recommendation.capacityKWh,
     );
     expect(big.summary.recommendation.powerKw).toBe(base.summary.recommendation.powerKw);
-    expect(big.summary.economy.totalOperatingBenefitSek ?? 0).toBeCloseTo(
-      base.summary.economy.totalOperatingBenefitSek ?? 0,
+    // The PHYSICAL dispatch is unchanged by the bigger fuse; only the FCR reservation
+    // may grow, because after the physical FCR gate the grid headroom is part of what can
+    // be reserved. The energy benefit is therefore the invariant to assert here.
+    expect(big.summary.economy.energyBenefitSek).toBeCloseTo(
+      base.summary.economy.energyBenefitSek,
       2,
     );
     expect(base.summary.grid.status).not.toBe("battery-limited");
     expect(base.summary.grid.status).not.toBe("combined");
+  });
+
+  it("K: the FCR reservation is physically gated by the grid connection", () => {
+    // ROOT CAUSE regression: a battery far bigger than the connection used to be paid for
+    // up-regulation it could never push through the meter.
+    const tiny = runBatteryEngine({
+      site: { mainFuseA: 16 },
+      battery: { fixedCapacityKWh: 75, fixedPowerKw: 150 },
+      strategies: { fcrDUp: true, fcrOfferedPowerKw: 150 },
+    });
+    const huge = runBatteryEngine({
+      site: { mainFuseA: 630 },
+      battery: { fixedCapacityKWh: 75, fixedPowerKw: 150 },
+      strategies: { fcrDUp: true, fcrOfferedPowerKw: 150 },
+    });
+    const f = tiny.summary.fcr;
+    expect(f.offeredPowerKw).toBe(150);
+    // held/monetized power must stay in the order of the connection, not the inverter
+    expect(f.avgHeldPowerKw).toBeLessThan(25);
+    expect(f.monetizedPowerKw).toBeLessThanOrEqual(f.reservablePowerAvgKw + 1e-6);
+    expect(f.limitingFactor).toBe("grid");
+    expect(f.gridClippedAvgKw).toBeGreaterThan(100);
+    // and a real connection must let far more through
+    expect(huge.summary.fcr.avgHeldPowerKw).toBeGreaterThan(f.avgHeldPowerKw * 5);
+    expect(huge.summary.fcr.limitingFactor).not.toBe("grid");
+  });
+
+  it("L: monetized FCR power never exceeds the physically reservable power", () => {
+    for (const kw of [5, 7.5, 10, 12.5]) {
+      const r = runBatteryEngine({
+        consumption: { annualKWh: 20000, profile: "villa" },
+        production: { annualKWh: 14000, kWp: 14, inverterAcKw: 12 },
+        strategies: { peakShaving: true, fcrDUp: true, optimiseFcrReservation: true },
+        battery: { fixedCapacityKWh: 25, fixedPowerKw: kw },
+      });
+      const f = r.summary.fcr;
+      expect(f.monetizedPowerKw).toBeLessThanOrEqual(f.offeredPowerKw + 1e-6);
+      expect(f.monetizedPowerKw).toBeLessThanOrEqual(f.reservablePowerMaxKw + 1e-6);
+      expect(r.summary.recommendation.actualDispatchPowerKw).toBeLessThanOrEqual(kw + 1e-6);
+    }
   });
 
   it("D/E: customer grid diagnostics come from the final simulation, not the sizing sweep", () => {
