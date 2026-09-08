@@ -12,6 +12,7 @@ export * from "./types";
 export * from "./ingest";
 export * from "./revenue";
 export * from "./fcrEconomics";
+export * from "./prices";
 export { MARKETS, SE_MARKET };
 
 /**
@@ -48,6 +49,7 @@ export function defaultAncillaryConfig(): AncillaryConfig {
     reservationHours: [...ALL_HOURS_OF_DAY],
     reservationMonths: [...ALL_MONTHS_OF_YEAR],
     eurSekRate: DEFAULT_EUR_SEK_RATE,
+    priceCountry: "SE",
     aggregatorSharePct: null,
     aggregatorFixedKrPerYear: null,
     aggregatorAccessConfirmed: false,

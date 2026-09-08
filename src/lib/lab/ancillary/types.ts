@@ -140,6 +140,11 @@ export interface AncillaryConfig {
    * external FX data.
    */
   eurSekRate: number;
+  /**
+   * Which country's HISTORICAL FCR-D up price series to apply on top of the held
+   * reservation. Physics and sizing are unaffected. Defaults to "SE".
+   */
+  priceCountry?: "SE" | "FI" | "DK" | "DE";
   /** Ingested dataset. Null until the user supplies prices. */
   dataset: PriceDataset | null;
 }
