@@ -10,6 +10,7 @@ import { describe, expect, it } from "vitest";
 
 import { runBatteryApp } from "./index";
 import { buildResultPresentation, type ResultPresentation } from "./resultPresentation";
+import { computeWithoutFcrOptimum } from "./withoutFcrOptimum";
 import { createInitialState, type WizardState } from "@/state/wizard";
 
 interface CaseOpts {
@@ -52,6 +53,9 @@ function present(o: CaseOpts): ResultPresentation {
   return buildResultPresentation(outcome.result, {
     peakShavingSelected: state.strategies.peakShaving,
     demandChargeTouched: state.economy.demandChargeTouched,
+    withoutFcr: outcome.result.summary.fcr.enabled
+      ? computeWithoutFcrOptimum(outcome.input, outcome.result)
+      : null,
   });
 }
 
@@ -66,6 +70,7 @@ describe("main recommendation reads the engine's recommended system power", () =
     const p = buildResultPresentation(outcome.result, {
       peakShavingSelected: true,
       demandChargeTouched: false,
+      withoutFcr: computeWithoutFcrOptimum(outcome.input, outcome.result),
     });
     expect(p.recommendedPowerKw).toBe(r.recommendedPowerKw);
     expect(p.recommendedPowerKw).toBeGreaterThan(r.physicalPowerNeedKw);
@@ -93,13 +98,13 @@ describe("FCR-driven power explanation", () => {
     const without = f(p.withoutFcrPowerKw!);
 
     expect(p.fcrPowerCardTitle).toBe(`Varför ${rec} kW?`);
-    expect(p.fcrPowerCardText).toContain(`cirka ${phys} kW`);
+    if (p.showPhysicalNeedRow) expect(p.fcrPowerCardText).toContain(`cirka ${phys} kW`);
     expect(p.fcrPowerCardText).toContain(`${rec} kW högst beräknad årlig nytta`);
     // B: the FCR-off level only appears as its own sentence when it differs from the physical need.
     if (p.showPhysicalNeedRow) {
-      expect(p.fcrPowerCardText).toContain(`Utan FCR-D upp skulle systemeffekten vara ${without} kW`);
+      expect(p.fcrPowerCardText).toContain(`Utan FCR-D upp ger ${without} kW`);
     } else {
-      expect(p.fcrPowerCardText).not.toContain("Utan FCR-D upp skulle");
+      expect(p.fcrPowerCardText).not.toContain("Utan FCR-D upp ger");
     }
     expect(p.powerWhy).toBe(p.fcrPowerCardText);
     // Repetition removed.
@@ -202,6 +207,7 @@ describe("negative or zero calculated benefit", () => {
     const p = buildResultPresentation(outcome.result, {
       peakShavingSelected: true,
       demandChargeTouched: false,
+      withoutFcr: computeWithoutFcrOptimum(outcome.input, outcome.result),
     });
     if (total !== null && total <= 0 && !p.noEconomy && !p.noBattery) {
       expect(p.limitedBenefit).toBe(true);
