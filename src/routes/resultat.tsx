@@ -280,23 +280,34 @@ function ResultStep() {
               {money(s.economy.totalOperatingBenefitSek)}
               <span className="ui-help font-normal"> /år</span>
             </p>
-            <div className="mt-2 space-y-2">
+            <div className="mt-2 space-y-2.5">
               {s.economy.energyBenefitSek !== 0 ? (
-                <Row label="Energinytta" value={`${money(s.economy.energyBenefitSek)}/år`} />
+                <BenefitRow
+                  label={p.hasSolar ? "Flyttad solel och minskat elköp" : "Minskat elköp"}
+                  hint={
+                    p.hasSolar
+                      ? "Lagrad solel används när den behövs."
+                      : "Batteriet laddas när elen är billigare och används senare."
+                  }
+                  value={`${money(s.economy.energyBenefitSek)}/år`}
+                />
               ) : null}
               {p.showDemandSavingRow ? (
-                <Row
-                  label="Minskad effektkostnad"
+                <BenefitRow
+                  label="Peak shaving"
+                  hint="Kapar effekttoppar och minskar effektavgiften."
                   value={`${money(s.economy.demandCostSavingSek)}/år`}
                 />
               ) : null}
               {s.fcr.enabled ? (
-                <Row
-                  label="Stödtjänster – historiskt 2025"
+                <BenefitRow
+                  label="Stödtjänster – FCR-D upp"
+                  hint="Ersättning för reserverad batterieffekt. Historiska priser 2025."
                   value={`${money(s.fcr.grossSek)}/år`}
                 />
               ) : null}
             </div>
+
           </>
         )}
       </SectionCard>
@@ -308,10 +319,9 @@ function ResultStep() {
             <Row label="Reserverad effekt" value={kw(s.fcr.offeredPowerKw, 1)} />
             <Row label="Tillgänglighet" value={pct(s.fcr.availabilityPct)} />
             <p className="ui-help">
-              {p.showFcrPowerCard
-                ? "Intäkten finns redan i ”Beräknad nytta”."
-                : "Historiskt scenario baserat på FCR-D upp-priser från 2025. Framtida intäkt kan avvika. Intäkten finns redan i ”Beräknad nytta”."}
+              Framtida intäkt kan avvika. Intäkten finns redan i ”Beräknad nytta”.
             </p>
+
 
           </div>
         </details>
@@ -462,6 +472,20 @@ function Row({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+function BenefitRow({ label, hint, value }: { label: string; hint: string; value: string }) {
+  return (
+    <div>
+      <div className="ui-body flex items-baseline justify-between gap-4">
+        <span className="min-w-0 text-muted-foreground">{label}</span>
+        <span className="shrink-0 font-semibold tabular-nums">{value}</span>
+      </div>
+      <p className="ui-help mt-0.5">{hint}</p>
+    </div>
+  );
+}
+
+
 
 function BeforeAfter({
   label,
