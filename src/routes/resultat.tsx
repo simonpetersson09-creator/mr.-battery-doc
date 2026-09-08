@@ -289,7 +289,7 @@ function ResultStep() {
               <p className="ui-label">Elanslutningen begränsar batteriet något</p>
               <p className="ui-help mt-1">
                 Batteriet kan fortfarande använda den rekommenderade storleken
-                {noBattery ? "" : ` ${nf(r.capacityKWh)} kWh / ${nf(r.powerKw, 1)} kW`}. Din
+                {noBattery ? "" : ` ${nf(p.capacityKWh)} kWh / ${nf(p.recommendedPowerKw, 1)} kW`}. Din
                 elanslutning begränsar laddning eller urladdning under vissa perioder.
               </p>
             </>
@@ -311,7 +311,7 @@ function ResultStep() {
         <summary className="ui-label cursor-pointer list-none">
           {noBattery
             ? "Visa varför ingen rekommendation"
-            : `Visa varför ${nf(r.capacityKWh)} kWh och ${nf(r.powerKw, 1)} kW`}
+            : `Visa varför ${nf(p.capacityKWh)} kWh och ${nf(p.recommendedPowerKw, 1)} kW`}
         </summary>
         <div className="mt-3 space-y-1.5">
           <p className="ui-help">{p.capacityWhy}</p>
@@ -334,8 +334,12 @@ function ResultStep() {
           </TechGroup>
 
           <TechGroup title="Effektdimensionering">
-            <Row label="Rekommenderad effekt" value={kw(r.powerKw, 1)} />
-            <Row label="Fysiskt effektbehov" value={kw(r.physicalPowerNeedKw, 1)} />
+            <Row label="Rekommenderad systemeffekt" value={kw(p.recommendedPowerKw, 1)} />
+            <Row label="Fastighetens fysiska effektbehov" value={kw(p.physicalPowerNeedKw, 1)} />
+            <Row label="Max faktiskt använd effekt" value={kw(p.actualDispatchPowerKw, 2)} />
+            {p.fcrHeldPowerKw !== null ? (
+              <Row label="FCR-D upp hållen effekt" value={kw(p.fcrHeldPowerKw, 2)} />
+            ) : null}
             <Row label="C-rate" value={`${nf(ps.productCRate, 2)} C`} />
             <Row
               label="Nytta jämfört med obegränsad effekt"
@@ -362,6 +366,10 @@ function ResultStep() {
               <Row label="Genomsnittligt hållen effekt" value={kw(s.fcr.avgHeldPowerKw, 2)} />
               <Row label="Tillgänglighet" value={pct(s.fcr.availabilityPct)} />
               <Row label="Reserverade timmar" value={`${nf(s.fcr.reservedHours)} timmar/år`} />
+              <p className="ui-help">
+                Modellnotering: FCR-D upp är i modellen en beredskaps- och effektintäkt. Den ger
+                ingen egen energimängd och räknas därför inte som cykler.
+              </p>
               {s.fcr.blockers.map((b) => (
                 <p key={b} className="ui-help">
                   {b}
