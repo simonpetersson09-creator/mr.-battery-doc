@@ -42,7 +42,10 @@ function EconomyStep() {
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
     >
-      <SectionCard title="Elpriser">
+      <SectionCard
+        title="Elpriser"
+        description="Schablonvärden för att jämföra olika batterilösningar. Se din faktiska elräkning för köpt el, och utgå från vad du tror om framtida priser för såld solel."
+      >
         <div className="grid grid-cols-2 gap-2">
           <NumberField
             dense
@@ -50,6 +53,7 @@ function EconomyStep() {
             unit={`${unit}/kWh`}
             step="0.01"
             value={state.economy.importPrice}
+            hint="Kolla din elräkning."
             onChange={(v) => setEconomy({ importPrice: v ?? 0 })}
           />
           <NumberField
@@ -58,6 +62,7 @@ function EconomyStep() {
             unit={`${unit}/kWh`}
             step="0.01"
             value={state.economy.exportPrice}
+            hint="Utgå från vad du tror om framtiden."
             onChange={(v) => setEconomy({ exportPrice: v ?? 0 })}
           />
         </div>
@@ -67,7 +72,7 @@ function EconomyStep() {
           unit={`${unit}/kW/mån`}
           step="1"
           value={state.economy.demandCharge}
-          hint="Schablonvärde. Ändra om du känner till din effektavgift."
+          hint="Schablon. Ändra om du känner till din effektavgift."
           onChange={(v) => setEconomy({ demandCharge: v ?? 0, demandChargeTouched: true })}
         />
       </SectionCard>
