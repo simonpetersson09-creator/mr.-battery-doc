@@ -1,8 +1,6 @@
-import { Camera, Paperclip } from "lucide-react";
 import type { ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import type { AttachmentMeta } from "@/state/wizard";
 
 export function SectionCard({
   title,
