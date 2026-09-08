@@ -542,6 +542,9 @@ export interface SimResult {
     /** Hours where the absolute physical limit would otherwise have been exceeded. */
     physicalImportWouldBindHours: number;
     physicalExportWouldBindHours: number;
+    /** Grid charging capped by the PEAK-SHAVING threshold, not by the connection. */
+    peakThresholdLimitedKWh: number;
+    peakThresholdBoundHours: number;
   };
   flexAvailabilityPct: number;
   flexReservedKWh: number;

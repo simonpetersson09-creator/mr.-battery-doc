@@ -16,6 +16,7 @@ import {
   otherBenefitSek,
 } from "../lab/operatingEconomy";
 import type { FcrOptimisationResult, OperatingEconomyResult } from "../lab/operatingEconomy";
+import { assessGrid } from "../lab/gridAssessment";
 import { simulate } from "../lab/simulate";
 import { runSweep } from "../lab/sweep";
 import type { SweepResult } from "../lab/sweep";
@@ -110,6 +111,13 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       otherBenefitWithFcrSek: otherBenefitSek(result, econ),
     });
 
+  /**
+   * SOURCE OF TRUTH: every customer-facing diagnostic describes the FINAL recommended
+   * system (final capacity, power, strategies, FCR reservation and dispatch). The sizing
+   * sweep's own assessment run may differ and is kept only under sizing diagnostics.
+   */
+  const gridAssessment = assessGrid(result, sweep.baseline, cfg.gridAssessment);
+
   const a = result.ancillary;
   const peak = economy.peak;
   const summary: BatteryEngineSummary = {
@@ -157,10 +165,10 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       exportCurtailedKWh: result.grid.exportCurtailedKWh,
       unservedLoadKWh: result.gridUnservedKWh,
       unservedIsGridBound: result.unservedIsGridBound,
-      status: sweep.gridAssessment.status,
-      headline: sweep.gridAssessment.headline,
-      detail: sweep.gridAssessment.detail,
-      consequences: sweep.gridAssessment.consequences,
+      status: gridAssessment.status,
+      headline: gridAssessment.headline,
+      detail: gridAssessment.detail,
+      consequences: gridAssessment.consequences,
     },
     peak: {
       peakReductionKw: peak.peakReductionKw,
@@ -216,7 +224,7 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       sweep,
       simulation: result,
       powerSizing: sweep.powerSizing,
-      gridAssessment: sweep.gridAssessment,
+      gridAssessment,
       operatingEconomy: economy,
       operatingEconomyWithoutFcr: economyWithoutFcr,
       fcrOptimisation,

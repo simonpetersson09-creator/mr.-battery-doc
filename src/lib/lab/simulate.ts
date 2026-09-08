@@ -291,6 +291,8 @@ export function simulate(
       exportCurtailedByMarginKWh: t.gridBlockedByMarginKWh,
       physicalImportWouldBindHours: t.physicalImportWouldBindHours,
       physicalExportWouldBindHours: t.physicalExportWouldBindHours,
+      peakThresholdLimitedKWh: t.peakThresholdLimitedKWh,
+      peakThresholdBoundHours: t.peakThresholdBoundHours,
     },
     flexAvailabilityPct,
     flexReservedKWh: d.window.reservedKWh,

@@ -206,6 +206,10 @@ export interface DispatchTallies {
   /** Hours where the OPERATIONAL limit bound the real net grid flow. */
   gridImportBoundHours: number;
   gridExportBoundHours: number;
+  /** Hours the PEAK-SHAVING threshold (not the connection) capped grid charging. */
+  peakThresholdBoundHours: number;
+  /** kWh not charged because of the peak-shaving threshold. Never a grid limitation. */
+  peakThresholdLimitedKWh: number;
   gridBlockedKWh: number;
   /** kWh of load the operational import limit could not cover. */
   gridImportLimitedKWh: number;
@@ -419,6 +423,8 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
     powerMissedKWh: 0,
     gridImportBoundHours: 0,
     gridExportBoundHours: 0,
+    peakThresholdBoundHours: 0,
+    peakThresholdLimitedKWh: 0,
     gridBlockedKWh: 0,
     gridImportLimitedKWh: 0,
     gridBlockedByMarginKWh: 0,
@@ -761,19 +767,39 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
                 charged += fromPvFirst;
               }
               const rest = Math.max(0, wanted - fromPvFirst);
-              const headroomKw = Math.min(
-                gridChargeHeadroomKw(deficit, limits.maxImportKw),
-                Number.isFinite(thr) ? Math.max(0, thr - deficit) : Infinity,
-              );
-              if (rest - headroomKw > 1e-9) {
+              /**
+               * DIAGNOSTIC ATTRIBUTION (physics unchanged): the charge is capped by the
+               * smaller of the physical/operational grid headroom and the peak-shaving
+               * threshold headroom. Only the part that the GRID limit actually causes may
+               * be booked as a grid limitation — otherwise peak shaving would make the
+               * connection look undersized even when a bigger fuse changes nothing.
+               */
+              const gridHeadroomKw = gridChargeHeadroomKw(deficit, limits.maxImportKw);
+              const peakHeadroomKw = Number.isFinite(thr)
+                ? Math.max(0, thr - deficit)
+                : Infinity;
+              const headroomKw = Math.min(gridHeadroomKw, peakHeadroomKw);
+              // Counterfactual: what the peak-limited charge would have been with an
+              // unlimited connection, minus what actually happened.
+              const gridCausedKWh =
+                Math.min(rest, peakHeadroomKw) - Math.min(rest, gridHeadroomKw);
+              if (gridCausedKWh > 1e-9) {
                 t.gridImportBoundHours++;
-                t.gridImportLimitedKWh += rest - headroomKw;
+                t.gridImportLimitedKWh += gridCausedKWh;
                 const physHeadroom = gridChargeHeadroomKw(deficit, limits.physicalImportKw);
                 t.gridImportLimitedByMarginKWh +=
-                  Math.min(rest, physHeadroom) - Math.min(rest, headroomKw);
-                if (rest - physHeadroom > 1e-9) t.physicalImportWouldBindHours++;
+                  Math.min(rest, Math.min(peakHeadroomKw, physHeadroom)) -
+                  Math.min(rest, headroomKw);
+                if (rest - Math.min(peakHeadroomKw, physHeadroom) > 1e-9)
+                  t.physicalImportWouldBindHours++;
+              }
+              const peakCausedKWh = Math.max(0, rest - Math.min(rest, peakHeadroomKw));
+              if (peakCausedKWh > 1e-9) {
+                t.peakThresholdBoundHours++;
+                t.peakThresholdLimitedKWh += peakCausedKWh;
               }
               const fromGrid = Math.min(rest, headroomKw);
+
               if (fromGrid > 0) {
                 t.chargedFromGridKWh += fromGrid;
                 deficit += fromGrid;

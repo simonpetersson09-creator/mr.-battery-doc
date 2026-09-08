@@ -437,8 +437,15 @@ export function evaluateOperatingEconomy(
  * untouched — every candidate goes through the normal simulation.
  * ========================================================================== */
 
-/** Default candidate reservation levels, as a share of the offerable power. */
-export const FCR_SWEEP_FRACTIONS = [0, 0.25, 0.5, 0.75, 1] as const;
+/**
+ * Default candidate reservation levels, as a share of the offerable power.
+ * 10 % resolution: the coarser 25 % grid provably missed better candidates
+ * (reference case: 70 % beat 75 % by ~57 SEK/year). Objective, physics,
+ * reservation logic, tie-break and prices are unchanged — only the search grid.
+ */
+export const FCR_SWEEP_FRACTIONS = [
+  0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1,
+] as const;
 
 /**
  * Tie-break tolerance in SEK/year. Two candidates whose total operating benefit differs
