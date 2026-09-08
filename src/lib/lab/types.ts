@@ -55,6 +55,13 @@ export interface SolarInput {
   inverterAcKw: number;
   /** Reported today's self-consumption share, % — informational only. */
   currentSelfConsumptionPct: number;
+  /**
+   * MEASURED self-consumption share, % of PV used directly by the load. Optional.
+   * When set, the intraday load shape is calibrated so the pre-battery baseline
+   * reproduces it. Monthly and annual energy are never changed.
+   */
+  measuredSelfConsumptionPct?: number | null;
+
   monthlyIsModelled: boolean;
 }
 
@@ -353,6 +360,27 @@ export interface LabConfig {
   sweep: SweepGrid;
 }
 
+/**
+ * Result of calibrating the intraday load shape against a MEASURED self-consumption
+ * share. Only the within-month hourly distribution of the load is reshaped; annual and
+ * monthly energy of load and PV are preserved exactly.
+ */
+export interface SelfConsumptionCalibration {
+  /** What the user reported, % of PV production used directly. */
+  requestedPct: number;
+  /** What the calibrated 8760 baseline actually reaches, %. */
+  achievedPct: number;
+  /** achieved - requested, percentage points. */
+  residualPct: number;
+  /** Shape exponent that was applied (0 = untouched). */
+  exponent: number;
+  /** Physically reachable window for this load/PV combination, %. */
+  feasibleMinPct: number;
+  feasibleMaxPct: number;
+  tolerancePct: number;
+  status: "applied" | "clamped";
+}
+
 export interface TimeSeries {
   /** 8760 hourly load values, kWh. */
   load: number[];
@@ -364,7 +392,10 @@ export interface TimeSeries {
   hourOfDay: number[];
   loadProvenance: Provenance;
   pvProvenance: Provenance;
+  /** Set only when a measured self-consumption share was supplied. */
+  selfConsumptionCalibration?: SelfConsumptionCalibration | null;
 }
+
 
 export interface GridAssessmentThresholds {
   /** Export loss below this share of annual PV (%) is treated as irrelevant. */

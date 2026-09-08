@@ -2,10 +2,12 @@ import { HOURS_PER_YEAR, MONTH_DAYS } from "./defaults";
 import { isWeekendDay, profileHourWeight } from "./loadProfiles";
 import type {
   ConsumptionInput,
+  SelfConsumptionCalibration,
   SolarInput,
   TimeSeries,
   VariabilityConfig,
 } from "./types";
+
 
 /** Modelled daylight half-width in hours, per month (Jan..Dec, mid Sweden). */
 const SOLAR_HALF_WIDTH = [3.2, 4.2, 5.4, 6.6, 7.6, 8.1, 7.9, 7.0, 5.9, 4.7, 3.5, 2.9];
@@ -259,22 +261,180 @@ export function buildPvSeries(
   return { pv, clipped };
 }
 
+/* ------------------------------------------------------------------ */
+/* Measured self-consumption calibration                               */
+/* ------------------------------------------------------------------ */
+
+/** Bounds of the blend factor that is searched. Defines the reachable window. */
+const K_LIMIT = 1;
+/** Calibration tolerance, percentage points. */
+export const SELF_CONSUMPTION_TOLERANCE_PCT = 0.1;
+
+/** Direct PV -> load overlap of two hourly series, kWh. */
+function directOverlapKWh(load: number[], pv: number[]): number {
+  let s = 0;
+  for (let h = 0; h < load.length; h++) s += Math.min(load[h] ?? 0, pv[h] ?? 0);
+  return s;
+}
+
+/**
+ * Reshapes the INTRADAY distribution of the load inside every month by blending the
+ * profile's own hourly shape with a reference shape, then renormalising the month back
+ * to its exact original energy:
+ *
+ *   k > 0 : blend towards the month's PV shape       (load follows the sun)
+ *   k < 0 : blend towards the complementary shape    (load avoids the sun)
+ *   k = 0 : the profile is untouched
+ *
+ * k = ±1 are the physical extremes: at +1 the month's load is distributed exactly like
+ * its own PV, which is the maximum overlap this monthly energy allows. Load stays
+ * non-negative and every monthly kWh — hence the annual kWh — is preserved exactly.
+ */
+function reshapeLoad(load: number[], pv: number[], k: number): number[] {
+  if (k === 0) return load;
+  const out = [...load];
+  const mix = Math.min(1, Math.abs(k));
+  for (const { start, end } of monthHourRanges()) {
+    let pvSum = 0;
+    let pvMax = 0;
+    let monthTotal = 0;
+    for (let h = start; h < end; h++) {
+      const v = pv[h] ?? 0;
+      pvSum += v;
+      if (v > pvMax) pvMax = v;
+      monthTotal += load[h] ?? 0;
+    }
+    if (pvSum <= 0 || monthTotal <= 0) continue;
+
+    // Reference shape weights for this month.
+    const refWeight = (h: number) =>
+      k > 0 ? (pv[h] ?? 0) : Math.max(0, pvMax - (pv[h] ?? 0));
+    let refSum = 0;
+    for (let h = start; h < end; h++) refSum += refWeight(h);
+    if (refSum <= 0) continue;
+
+    let sum = 0;
+    for (let h = start; h < end; h++) {
+      const v =
+        (1 - mix) * (load[h] ?? 0) + mix * monthTotal * (refWeight(h) / refSum);
+      out[h] = Math.max(0, v);
+      sum += out[h] ?? 0;
+    }
+    if (sum <= 0) {
+      for (let h = start; h < end; h++) out[h] = load[h] ?? 0;
+      continue;
+    }
+    const scale = monthTotal / sum;
+    let assigned = 0;
+    let maxHour = start;
+    let maxVal = -Infinity;
+    for (let h = start; h < end; h++) {
+      const v = (out[h] ?? 0) * scale;
+      out[h] = v;
+      assigned += v;
+      if (v > maxVal) {
+        maxVal = v;
+        maxHour = h;
+      }
+    }
+    out[maxHour] = (out[maxHour] ?? 0) + (monthTotal - assigned);
+  }
+  return out;
+}
+
+
+/**
+ * Calibrates the load shape so the PRE-BATTERY overlap between PV and load matches the
+ * measured self-consumption share (direct PV to load / PV production).
+ *
+ * Nothing but the intraday shape moves: annual load, annual PV, every monthly value and
+ * the whole PV series are untouched. An unreachable target is clamped to the closest
+ * physically possible level and reported through `residualPct`.
+ */
+export function calibrateLoadToSelfConsumption(
+  load: number[],
+  pv: number[],
+  targetPct: number,
+): { load: number[]; calibration: SelfConsumptionCalibration | null } {
+  let pvTotal = 0;
+  let loadTotal = 0;
+  for (let h = 0; h < pv.length; h++) pvTotal += pv[h] ?? 0;
+  for (let h = 0; h < load.length; h++) loadTotal += load[h] ?? 0;
+  if (pvTotal <= 0 || loadTotal <= 0 || !Number.isFinite(targetPct)) {
+    return { load, calibration: null };
+  }
+
+  const pctOf = (series: number[]) => (directOverlapKWh(series, pv) / pvTotal) * 100;
+  const pctAt = (k: number) => pctOf(reshapeLoad(load, pv, k));
+
+  const minPct = pctAt(-K_LIMIT);
+  const maxPct = pctAt(K_LIMIT);
+  const target = Math.min(Math.max(targetPct, 0), 100);
+
+  const finish = (k: number) => {
+    const calibrated = reshapeLoad(load, pv, k);
+    const achieved = pctOf(calibrated);
+    const residual = achieved - targetPct;
+    return {
+      load: calibrated,
+      calibration: {
+        requestedPct: targetPct,
+        achievedPct: achieved,
+        residualPct: residual,
+        exponent: k,
+        feasibleMinPct: minPct,
+        feasibleMaxPct: maxPct,
+        tolerancePct: SELF_CONSUMPTION_TOLERANCE_PCT,
+        status:
+          Math.abs(residual) <= SELF_CONSUMPTION_TOLERANCE_PCT
+            ? ("applied" as const)
+            : ("clamped" as const),
+      },
+    };
+  };
+
+  if (target <= minPct) return finish(-K_LIMIT);
+  if (target >= maxPct) return finish(K_LIMIT);
+
+  // The overlap grows monotonically with k, so a plain bisection is stable.
+  let lo = -K_LIMIT;
+  let hi = K_LIMIT;
+  for (let i = 0; i < 44; i++) {
+    const mid = (lo + hi) / 2;
+    if (pctAt(mid) < target) lo = mid;
+    else hi = mid;
+  }
+  return finish((lo + hi) / 2);
+}
+
 export function buildTimeSeries(
   consumption: ConsumptionInput,
   solar: SolarInput,
   variability?: VariabilityConfig,
 ): TimeSeries {
   const { pv, clipped } = buildPvSeries(solar, variability);
+  let load = buildLoadSeries(consumption, variability);
+  let calibration: SelfConsumptionCalibration | null = null;
+
+  const target = solar.measuredSelfConsumptionPct;
+  if (solar.enabled && typeof target === "number" && target > 0 && target <= 100) {
+    const out = calibrateLoadToSelfConsumption(load, pv, target);
+    load = out.load;
+    calibration = out.calibration;
+  }
+
   return {
-    load: buildLoadSeries(consumption, variability),
+    load,
     pv,
     pvClipped: clipped,
     monthOfHour: monthOfHourArray(),
     hourOfDay: hourOfDayArray(),
     loadProvenance: "modelled",
     pvProvenance: "modelled",
+    selfConsumptionCalibration: calibration,
   };
 }
+
 
 export function monthlySums(series: number[]): number[] {
   return monthHourRanges().map(({ start, end }) => {

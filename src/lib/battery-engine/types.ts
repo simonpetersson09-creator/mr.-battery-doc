@@ -33,9 +33,12 @@ import type {
   LabConfig,
   LoadProfileShape,
   PowerSizing,
+  SelfConsumptionCalibration,
   SimResult,
   TimeSeries,
 } from "../lab/types";
+
+export type { SelfConsumptionCalibration } from "../lab/types";
 
 export type CountryCode = "SE";
 
@@ -77,6 +80,12 @@ export interface EngineProductionInput {
   inverterAcKw?: number;
   /** Ready-made 8760 hourly AC production series, kWh/h. Overrides profile generation. */
   hourlyKWh?: number[];
+  /**
+   * MEASURED self-consumption of solar, % (direct PV to load / PV production).
+   * Optional. When given, the intraday load shape is calibrated so the pre-battery
+   * baseline reproduces it; monthly and annual energy are never changed.
+   */
+  measuredSelfConsumptionPct?: number;
 }
 
 export interface EngineBatteryInput {
@@ -325,6 +334,8 @@ export interface EngineEconomySummary {
 
 export interface BatteryEngineSummary {
   recommendation: EngineRecommendation;
+  /** Set only when a measured self-consumption share was supplied. */
+  selfConsumptionCalibration: SelfConsumptionCalibration | null;
   energy: EngineEnergySummary;
   grid: EngineGridSummary;
   peak: EnginePeakSummary;

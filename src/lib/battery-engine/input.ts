@@ -60,6 +60,8 @@ export function toLabConfig(input: BatteryEngineInput = {}): LabConfig {
       monthlyKWh: pvEnabled ? pv.monthlyKWh : new Array(12).fill(0),
       kWp: prod.kWp ?? (pvEnabled ? base.solar.kWp : 0),
       inverterAcKw: prod.inverterAcKw ?? base.solar.inverterAcKw,
+      // Optional MEASURED self-consumption share. Calibrates the intraday load shape only.
+      measuredSelfConsumptionPct: prod.measuredSelfConsumptionPct ?? null,
       monthlyIsModelled: pv.modelled,
     },
     battery: {
@@ -147,7 +149,10 @@ export function toTimeSeries(cfg: LabConfig, input: BatteryEngineInput = {}): Ti
   if (load && load.length === HOURS_PER_YEAR) {
     series.load = [...load];
     series.loadProvenance = "verified";
+    // A verified hourly series IS the measurement; nothing may reshape it.
+    series.selfConsumptionCalibration = null;
   }
+
   if (pv && pv.length === HOURS_PER_YEAR) {
     series.pv = [...pv];
     series.pvClipped = new Array(HOURS_PER_YEAR).fill(0);

@@ -173,7 +173,21 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
 
   const a = result.ancillary;
   const peak = economy.peak;
+  /**
+   * The calibration is a property of the 8760 baseline the run used. `achievedPct` is
+   * re-read from the FINAL simulation's pre-battery self-consumption, so the reported
+   * level is the one the recommendation was actually built on.
+   */
+  const calibration = series.selfConsumptionCalibration
+    ? {
+        ...series.selfConsumptionCalibration,
+        achievedPct: result.baseSelfConsumptionPct,
+        residualPct: result.baseSelfConsumptionPct - series.selfConsumptionCalibration.requestedPct,
+      }
+    : null;
+
   const summary: BatteryEngineSummary = {
+    selfConsumptionCalibration: calibration,
     recommendation: {
       capacityKWh,
       powerKw,
