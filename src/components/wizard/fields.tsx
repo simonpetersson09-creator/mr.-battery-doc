@@ -42,6 +42,7 @@ export function NumberField({
   hint,
   step,
   badge,
+  dense,
 }: {
   label: string;
   unit?: string;
@@ -52,7 +53,20 @@ export function NumberField({
   step?: string;
   /** Purely visual marker, e.g. "Standardvärde" / "Ditt värde". */
   badge?: string;
+  /** Compact variant: unit is rendered under the input so the field fits a 2-column grid. */
+  dense?: boolean;
 }) {
+  const input = (
+    <input
+      inputMode="decimal"
+      type="number"
+      step={step}
+      className="ui-control tabular-nums"
+      value={value ?? ""}
+      placeholder={placeholder}
+      onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
+    />
+  );
   return (
     <label className="block">
       <span className="flex items-center justify-between gap-2">
@@ -63,26 +77,26 @@ export function NumberField({
           </span>
         ) : null}
       </span>
-      <span className="mt-1.5 flex items-center gap-2">
-        <input
-          inputMode="decimal"
-          type="number"
-          step={step}
-          className="ui-control tabular-nums"
-          value={value ?? ""}
-          placeholder={placeholder}
-          onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
-        />
-        {unit ? (
-          <span className="ui-body w-[5.5rem] shrink-0 font-medium text-muted-foreground">
-            {unit}
-          </span>
-        ) : null}
-      </span>
+      {dense ? (
+        <span className="mt-1 block">
+          {input}
+          {unit ? <span className="ui-help mt-0.5 block">{unit}</span> : null}
+        </span>
+      ) : (
+        <span className="mt-1.5 flex items-center gap-2">
+          {input}
+          {unit ? (
+            <span className="ui-body w-[5.5rem] shrink-0 font-medium text-muted-foreground">
+              {unit}
+            </span>
+          ) : null}
+        </span>
+      )}
       {hint ? <span className="ui-help mt-1 block">{hint}</span> : null}
     </label>
   );
 }
+
 
 export function OptionCard({
   title,

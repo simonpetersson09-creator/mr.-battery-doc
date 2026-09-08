@@ -150,9 +150,11 @@ function ResultStep() {
       )}
 
       {p.showFcrPowerCard ? (
-        <SectionCard title={p.fcrPowerCardTitle ?? ""}>
-          <p className="ui-help">{p.fcrPowerCardText}</p>
-          <div className="mt-2.5 space-y-1.5">
+        <details className="ui-card">
+          <summary className="ui-label cursor-pointer list-none">
+            {p.fcrPowerCardTitle ?? `Varför ${nf(p.recommendedPowerKw, 1)} kW?`}
+          </summary>
+          <div className="mt-3 space-y-1.5">
             {p.showPhysicalNeedRow ? (
               <Row label="Fysiskt effektbehov" value={kw(p.physicalPowerNeedKw, 1)} />
             ) : null}
@@ -160,32 +162,31 @@ function ResultStep() {
               label={p.showPhysicalNeedRow ? "Utan FCR-D upp" : "Fysiskt behov / utan FCR-D upp"}
               value={kw(p.withoutFcrPowerKw ?? p.physicalPowerNeedKw, 1)}
             />
-            <Row
-              label="Med historiskt FCR-scenario"
-              value={kw(p.recommendedPowerKw, 1)}
-            />
-          </div>
-          {p.withoutFcrBenefitSek !== null && p.withFcrBenefitSek !== null ? (
-            <div className="mt-2.5 space-y-1.5">
-              <Row
-                label="Beräknad nytta utan FCR-D upp"
-                value={`${nf(p.withoutFcrBenefitSek)} kr/år`}
-              />
-              <Row
-                label="Beräknad nytta med FCR-scenario"
-                value={`${nf(p.withFcrBenefitSek)} kr/år`}
-              />
-              {p.benefitDeltaSek !== null ? (
+            <Row label="Med historiskt FCR-scenario" value={kw(p.recommendedPowerKw, 1)} />
+            {p.withoutFcrBenefitSek !== null && p.withFcrBenefitSek !== null ? (
+              <>
                 <Row
-                  label="Skillnad"
-                  value={`${p.benefitDeltaSek > 0 ? "+" : ""}${nf(p.benefitDeltaSek)} kr/år`}
+                  label="Nytta utan FCR-D upp"
+                  value={`${nf(p.withoutFcrBenefitSek)} kr/år`}
                 />
-              ) : null}
-            </div>
-          ) : null}
-          <p className="ui-help mt-2 text-foreground/70">{p.fcrHistoricalNote}</p>
-        </SectionCard>
+                <Row
+                  label="Nytta med FCR-scenario"
+                  value={`${nf(p.withFcrBenefitSek)} kr/år`}
+                />
+                {p.benefitDeltaSek !== null ? (
+                  <Row
+                    label="Skillnad"
+                    value={`${p.benefitDeltaSek > 0 ? "+" : ""}${nf(p.benefitDeltaSek)} kr/år`}
+                  />
+                ) : null}
+              </>
+            ) : null}
+            <p className="ui-help pt-1">{p.fcrPowerCardText}</p>
+            <p className="ui-help text-foreground/70">{p.fcrHistoricalNote}</p>
+          </div>
+        </details>
       ) : null}
+
 
 
       {p.limitedBenefit ? (
