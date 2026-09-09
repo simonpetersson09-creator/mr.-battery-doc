@@ -370,6 +370,11 @@ export interface BatteryEngineDiagnostics {
   config: LabConfig;
   /** Full economic power-sizing evaluation, including every simulated candidate. */
   economicPowerSizing: EconomicPowerSizingResult;
+  /**
+   * Physics-only reserve simulation for markets without verified price data (symmetric
+   * FCR in Germany/DK1, and DK2). Null when prices exist. Diagnostics only.
+   */
+  reservePhysicalPreview: SimResult["ancillary"] | null;
 }
 
 export interface BatteryEngineResult {
