@@ -59,7 +59,7 @@ function BatteryStep() {
       />
 
       {noSolar && s.solarSelfConsumption ? (
-        <SectionCard description={t("strategies.noSolarNote")} />
+        <SectionCard compact description={t("strategies.noSolarNote")} />
       ) : null}
     </WizardShell>
   );
