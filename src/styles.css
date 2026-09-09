@@ -555,6 +555,11 @@ html[data-native="true"] {
   border-color: oklch(0.3172 0 0 / 0.3);
   color: var(--brand-black);
 }
+.ui-control.ui-control-active {
+  background-color: var(--brand-yellow);
+  border-color: oklch(0.3172 0 0 / 0.3);
+  color: var(--brand-black);
+}
 
 @utility field-label {
   font-size: 0.8125rem;
