@@ -54,8 +54,9 @@ function GridStep() {
       intro={t("network.intro")}
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
+      compact
     >
-      <SectionCard title={t("network.country.title")} description={t("network.country.description")}>
+      <SectionCard compact title={t("network.country.title")} description={t("network.country.description")}>
         <Select
           value={state.grid.country}
           onValueChange={(v) => setCountry(v as CountryCode)}
@@ -76,7 +77,7 @@ function GridStep() {
       </SectionCard>
 
       {areaOptions.length > 0 ? (
-        <SectionCard title={t("network.area.title")} description={t("network.area.description")}>
+        <SectionCard compact title={t("network.area.title")} description={t("network.area.description")}>
           <Select
             value={state.grid.marketArea ?? ""}
             onValueChange={(v) =>
@@ -102,7 +103,7 @@ function GridStep() {
         </SectionCard>
       ) : null}
 
-      <SectionCard title={t("network.fuse.title")} description={t("network.fuse.description")}>
+      <SectionCard compact title={t("network.fuse.title")} description={t("network.fuse.description")}>
         <Select
           value={state.grid.mainFuseManual ? "custom" : String(state.grid.mainFuseA)}
           onValueChange={(v) =>
@@ -152,8 +153,8 @@ function GridStep() {
         ) : null}
       </SectionCard>
 
-      <SectionCard title={t("network.values.title")} description={t("network.values.description")}>
-        <dl className="grid grid-cols-2 gap-2">
+      <SectionCard compact title={t("network.values.title")} description={t("network.values.description")}>
+        <dl className="grid grid-cols-2 gap-1.5">
           <Value label={t("network.values.voltage")} value={`${country.grid.voltage} V`} />
           <Value
             label={t("network.values.phases")}
@@ -166,7 +167,7 @@ function GridStep() {
           {t("network.values.standards", { list: country.grid.standards.join(", ") })}
         </p>
 
-        <label className="flex items-start gap-2.5 rounded-[1.25rem] px-3.5 py-3 transition-colors chip-unselected cursor-pointer">
+        <label className="flex items-start gap-2.5 rounded-[1.0625rem] px-3 py-2.5 transition-colors chip-unselected cursor-pointer">
           <input
             type="checkbox"
             className="mt-0.5 size-4 shrink-0 accent-foreground"
@@ -187,7 +188,7 @@ function GridStep() {
 
 function Value({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[0.875rem] bg-secondary px-3 py-2">
+    <div className="rounded-[0.75rem] bg-secondary px-2.5 py-1.5">
       <dt className="ui-help">{label}</dt>
       <dd className="ui-label font-display">{value}</dd>
     </div>
