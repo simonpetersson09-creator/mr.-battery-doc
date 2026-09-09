@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, BatteryCharging } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import type { ReactNode } from "react";
 import { WIZARD_STEPS } from "./steps";
 import { Button } from "@/components/ui/button";
@@ -36,22 +36,10 @@ export function WizardShell({
   return (
     <div className="app-shell surface-sun">
       <header className="pt-safe sticky top-0 z-20 px-4 pb-1.5 backdrop-blur-md">
-        <div className="flex items-center gap-3 pt-1">
-          <Link
-            to={prev}
-            aria-label={t("common.back")}
-            className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-sm transition-colors hover:bg-secondary"
-          >
-            <ArrowLeft className="size-4" />
-          </Link>
-          <div className="flex min-w-0 items-center gap-2">
-            <span className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground">
-              <BatteryCharging className="size-4" />
-            </span>
-            <span className="truncate font-display text-sm font-bold tracking-tight">
-              {t("common.appName")}
-            </span>
-          </div>
+        <div className="flex items-center justify-center pt-1">
+          <span className="truncate font-display text-sm font-bold tracking-tight">
+            {t("common.appName")}
+          </span>
         </div>
         <StepIndicator stepIndex={stepIndex} />
       </header>
