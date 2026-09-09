@@ -187,7 +187,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       // Tyska schablonvärden i EUR.
       currency: currencyForCountry("DE"),
       currencyLabel: CURRENCY_SUFFIX[currencyForCountry("DE")],
-      importPrice: 0.32,
+      importPrice: 0.4,
       exportPrice: 0.08,
       demandCharge: 0,
       eurSekRate: localUnitsPerEur("DE"),
