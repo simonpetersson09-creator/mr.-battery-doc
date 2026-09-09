@@ -7,23 +7,32 @@ export function SectionCard({
   description,
   children,
   action,
+  icon,
   compact,
 }: {
   title?: string;
   description?: string;
   children?: ReactNode;
   action?: ReactNode;
+  icon?: ReactNode;
   compact?: boolean;
 }) {
   return (
     <section className={compact ? "ui-card ui-card-compact" : "ui-card"}>
       {(title || description || action) && (
         <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            {title ? <h2 className="ui-card-title">{title}</h2> : null}
-            {description ? (
-              <p className={title ? "ui-help mt-0.5" : "ui-help"}>{description}</p>
+          <div className="flex min-w-0 items-start gap-2">
+            {icon ? (
+              <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent [&_svg]:size-4">
+                {icon}
+              </span>
             ) : null}
+            <div className="min-w-0">
+              {title ? <h2 className="ui-card-title">{title}</h2> : null}
+              {description ? (
+                <p className={title ? "ui-help mt-0.5" : "ui-help"}>{description}</p>
+              ) : null}
+            </div>
           </div>
           {action}
         </div>
