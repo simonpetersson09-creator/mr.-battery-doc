@@ -39,7 +39,7 @@ export function WizardShell({
 
   return (
     <div className="app-shell surface-sun">
-      <header className="pt-safe sticky top-0 z-20 px-4 pb-1.5 backdrop-blur-md">
+      <header className="pt-safe px-4 pb-1.5">
         <div className="flex items-center justify-center pt-1">
           <Link to="/" className="flex items-center">
             <img
@@ -54,7 +54,7 @@ export function WizardShell({
         <StepIndicator stepIndex={stepIndex} />
       </header>
 
-      <main className="flex-1 px-4 pt-1 pb-32">
+      <main className="flex-1 px-4 pt-1 pb-4">
         <p className="ui-caption">
           {t("common.step", { current: stepIndex + 1, total: WIZARD_STEPS.length })}
         </p>
@@ -63,7 +63,7 @@ export function WizardShell({
         <div className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}>{children}</div>
       </main>
 
-      <div className="pb-safe fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-[32rem] border-t border-border/70 bg-background/90 px-4 pt-2 backdrop-blur-md">
+      <div className="pb-safe mt-auto w-full border-t border-border/70 px-4 pt-2">
         {nextDisabled && nextBlockedReason ? (
           <p className="ui-help mb-2" role="status">
             {nextBlockedReason}
