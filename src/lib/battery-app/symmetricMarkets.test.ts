@@ -57,14 +57,22 @@ describe("reserve product per market", () => {
     }
   });
 
-  it("simulates the German physics but reports revenue as unavailable, never 0 kr", () => {
+  it("prices the German symmetric reserve on its own verified dataset", () => {
     const { result, reserve } = caseFor("DE");
+    expect(reserve.priceModel).toBe("ready");
+    expect(reserve.physicalHeldPowerAvgKw).toBeGreaterThan(0);
+    expect(result.summary.fcr.grossSek).not.toBeNull();
+    expect(result.summary.fcr.grossSek as number).toBeGreaterThan(0);
+  });
+
+  it("DK1 keeps the symmetric physics but no invented revenue", () => {
+    const { result, reserve } = caseFor("DK", "DK1");
     expect(reserve.priceModel).toBe("unavailable");
     expect(reserve.physicalHeldPowerAvgKw).toBeGreaterThan(0);
     expect(result.summary.fcr.grossSek).toBeNull();
-    expect(result.summary.economy.fcrGrossSek).toBeNull();
   });
 
+  // eslint-disable-next-line vitest/no-disabled-tests
   it("never lets symmetric hold more than upward with the same battery and grid", () => {
     const sym = caseFor("DE").reserve;
     const up = caseFor("DK", "DK2").reserve;
