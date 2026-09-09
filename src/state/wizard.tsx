@@ -9,6 +9,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { DEFAULT_COUNTRY, getCountry, type CountryCode } from "@/lib/country-config";
 import type { ProfileId } from "@/lib/consumption-profiles";
+import { isValidMarketArea, requiresMarketArea, type MarketArea } from "@/lib/reserve-market";
 
 /**
  * "document" is kept for the future document parser but is NOT exposed in the v1 UI.
@@ -29,6 +30,8 @@ export interface AttachmentMeta {
 export interface WizardState {
   grid: {
     country: CountryCode;
+    /** Geographic market area, only used by countries that need one (DK1/DK2). */
+    marketArea: MarketArea | null;
     mainFuseA: number;
     mainFuseManual: boolean;
     /** User has confirmed the auto-derived grid values are correct. */
@@ -93,6 +96,10 @@ function coerceSupportedModes(s: WizardState): WizardState {
     next.consumption = { ...next.consumption, mode: "annual" };
   if (next.production?.mode === "document")
     next.production = { ...next.production, mode: "manual" };
+  // Never let a stale/foreign market area survive (old cases, country switches).
+  const area = (next.grid?.marketArea ?? null) as MarketArea | null;
+  if (!isValidMarketArea(next.grid.country, area))
+    next.grid = { ...next.grid, marketArea: requiresMarketArea(next.grid.country) ? null : null };
   return next;
 }
 
@@ -100,6 +107,7 @@ export function createInitialState(country: CountryCode = DEFAULT_COUNTRY): Wiza
   return {
     grid: {
       country,
+      marketArea: null,
       mainFuseA: getCountry(country).grid.defaultMainFuse,
       mainFuseManual: false,
       gridValuesConfirmed: false,
@@ -183,6 +191,8 @@ export function WizardProvider({ children }: { children: ReactNode }) {
           ...s,
           grid: {
             country: code,
+            // Country change always drops the previous area — never carried over hidden.
+            marketArea: null,
             mainFuseA: s.grid.mainFuseManual
               ? s.grid.mainFuseA
               : getCountry(code).grid.defaultMainFuse,
