@@ -392,7 +392,7 @@ const ENGINE_HOURS = 8760;
 
 export const FCR_SYMMETRIC_DE_2025: FcrPriceSeries = {
   market: "Tyskland",
-  service: "FCR (symmetrisk)",
+  service: "FCR",
   referenceYear: 2025,
   currency: "EUR",
   unit: "EUR/MW/h",
