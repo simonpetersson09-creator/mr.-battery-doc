@@ -143,9 +143,10 @@ export function reserveMarketConfig(
 
 /**
  * Can we actually calculate revenue for this market?
- * Requires BOTH a verified imported price dataset AND an implemented reserve model.
- * The symmetric FCR model (DE, DK1) is not built yet — it is "market configured,
- * calculation unavailable", never a fabricated revenue.
+ * Requires BOTH an implemented reserve model AND a verified imported price dataset.
+ * Both the upward (SE/FI/DK2) and the symmetric (DE/DK1) model are implemented, so the
+ * price dataset is the only gate. DK1/DK2 have no verified dataset yet and stay at
+ * "market configured, calculation unavailable" — never a fabricated revenue.
  */
 export function reserveCalculationAvailable(
   code: CountryCode,
@@ -153,6 +154,5 @@ export function reserveCalculationAvailable(
 ): boolean {
   const cfg = reserveMarketConfig(code, area);
   if (!cfg) return false;
-  if (cfg.physics === "symmetric") return false;
   return hasVerifiedFcrPrices(cfg.priceArea);
 }
