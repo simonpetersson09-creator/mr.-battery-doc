@@ -45,13 +45,16 @@ function Welcome() {
         />
       </div>
 
-      <ul className="mt-4 space-y-2">
+      <ul className="mt-4 space-y-3">
         {POINTS.map(({ icon: Icon, key }) => (
-          <li key={key} className="ui-card flex items-center gap-3 py-3">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-[0.875rem] bg-accent text-accent-foreground">
-              <Icon className="size-4.5" />
+          <li
+            key={key}
+            className="ui-card flex items-center gap-4 rounded-2xl px-4 py-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)]"
+          >
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground">
+              <Icon className="size-5" strokeWidth={2.5} />
             </span>
-            <span className="ui-label">{t(key)}</span>
+            <span className="ui-card-title">{t(key)}</span>
           </li>
         ))}
       </ul>
