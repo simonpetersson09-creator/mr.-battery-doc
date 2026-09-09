@@ -58,12 +58,15 @@ function EconomyStep() {
       nextBlockedReason={validity.message}
     >
       <SectionCard
+        compact
+        icon={<Coins className="size-4" />}
         title={t("economics.prices.title")}
         description={t("economics.prices.description")}
       >
         <div className="grid grid-cols-2 gap-2">
           <NumberField
             dense
+            compact
             label={t("economics.importPrice.label")}
             unit={t("units.perKwh", { currency: unit })}
             step="0.01"
@@ -73,6 +76,7 @@ function EconomyStep() {
           />
           <NumberField
             dense
+            compact
             label={t("economics.exportPrice.label")}
             unit={t("units.perKwh", { currency: unit })}
             step="0.01"
@@ -83,6 +87,7 @@ function EconomyStep() {
         </div>
         <NumberField
           dense
+          compact
           label={t("economics.demandCharge.label")}
           unit={t("units.perKwMonth", { currency: unit })}
           step="1"
@@ -100,11 +105,14 @@ function EconomyStep() {
       */}
       {state.strategies.fcrDUp ? (
         <SectionCard
+          compact
+          icon={<HandCoins className="size-4" />}
           title={t("economics.customerShare.title")}
           description={t("economics.customerShare.description")}
         >
           <NumberField
             dense
+            compact
             label={t("economics.customerShare.label")}
             unit="%"
             step="1"
@@ -123,6 +131,33 @@ function EconomyStep() {
         </SectionCard>
       ) : null}
 
+      {/* Desired payback horizon — presentation preference, no engine input. */}
+      <SectionCard compact icon={<Timer className="size-4" />} title={t("payback.card")}>
+        <p className="ui-hero text-[1.5rem] tabular-nums">
+          {t("payback.years", { years: formatNumber(years, 0) })}
+        </p>
+        <Slider
+          className="mt-2"
+          value={[years]}
+          min={MIN_TARGET_PAYBACK_YEARS}
+          max={MAX_TARGET_PAYBACK_YEARS}
+          step={1}
+          aria-label={t("payback.card")}
+          onValueChange={(v) =>
+            update((s) => ({
+              ...s,
+              preferences: {
+                ...s.preferences,
+                targetPaybackYears: clampTargetPaybackYears(v[0]),
+              },
+            }))
+          }
+        />
+        <div className="ui-help mt-1 flex justify-between tabular-nums">
+          <span>{t("payback.years", { years: formatNumber(MIN_TARGET_PAYBACK_YEARS, 0) })}</span>
+          <span>{t("payback.years", { years: formatNumber(MAX_TARGET_PAYBACK_YEARS, 0) })}</span>
+        </div>
+      </SectionCard>
     </WizardShell>
   );
 }
