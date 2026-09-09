@@ -7,27 +7,29 @@ export function SectionCard({
   description,
   children,
   action,
+  compact,
 }: {
   title?: string;
   description?: string;
   children?: ReactNode;
   action?: ReactNode;
+  compact?: boolean;
 }) {
   return (
-    <section className="ui-card">
+    <section className={compact ? "ui-card ui-card-compact" : "ui-card"}>
       {(title || description || action) && (
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             {title ? <h2 className="ui-card-title">{title}</h2> : null}
             {description ? (
-              <p className={title ? "ui-help mt-1" : "ui-help"}>{description}</p>
+              <p className={title ? "ui-help mt-0.5" : "ui-help"}>{description}</p>
             ) : null}
           </div>
           {action}
         </div>
       )}
       {children ? (
-        <div className={title || description ? "mt-3 space-y-3" : "space-y-3"}>{children}</div>
+        <div className={title || description ? (compact ? "mt-2 space-y-2" : "mt-3 space-y-3") : compact ? "space-y-2" : "space-y-3"}>{children}</div>
       ) : null}
     </section>
   );
