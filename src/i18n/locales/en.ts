@@ -132,6 +132,7 @@ export const en = {
   production: {
     title: "Production",
     intro: "Does the property have solar panels today?",
+    modeTitle: "Do you have solar panels?",
     modeNone: { title: "No solar installation" },
     modeAnnual: {
       title: "Annual production",
@@ -152,6 +153,7 @@ export const en = {
       title: "Actual monthly production",
       importDescription:
         "Import an image, PDF or CSV — the values fill the month fields below.",
+      monthsTitle: "Imported monthly data",
     },
     self: {
       title: "Self-consumption of solar power (optional)",

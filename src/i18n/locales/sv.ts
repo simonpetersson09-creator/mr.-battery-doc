@@ -135,6 +135,7 @@ export const sv = {
   production: {
     title: "Produktion",
     intro: "Har fastigheten solceller idag?",
+    modeTitle: "Har du solceller?",
     modeNone: { title: "Ingen solcellsanläggning" },
     modeAnnual: {
       title: "Årsproduktion",
@@ -155,6 +156,7 @@ export const sv = {
       title: "Faktisk månadsproduktion",
       importDescription:
         "Importera en bild, PDF eller CSV — värdena fylls i månadsfälten nedan.",
+      monthsTitle: "Importerad månadsdata",
     },
     self: {
       title: "Egenanvändning av solel (valfritt)",

@@ -132,6 +132,7 @@ export const de = {
   production: {
     title: "Erzeugung",
     intro: "Hat die Immobilie heute eine PV-Anlage?",
+    modeTitle: "Haben Sie eine PV-Anlage?",
     modeNone: { title: "Keine PV-Anlage" },
     modeAnnual: {
       title: "Jahresertrag",
@@ -152,6 +153,7 @@ export const de = {
       title: "Tatsächlicher Monatsertrag",
       importDescription:
         "Bild, PDF oder CSV importieren – die Werte füllen die Monatsfelder unten.",
+      monthsTitle: "Importierte monatliche Daten",
     },
     self: {
       title: "Eigenverbrauch des Solarstroms (optional)",
