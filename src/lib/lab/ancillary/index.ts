@@ -1,11 +1,13 @@
 import { DEFAULT_EUR_SEK_RATE } from "./fcrEconomics";
 import { MARKETS, SE_MARKET } from "./markets/se";
+import type { FcrMarketArea } from "./prices";
 import type {
   AncillaryConfig,
   AncillaryPlan,
   FlexLikeReservation,
   MarketId,
   MarketProfile,
+  ReserveMode,
 } from "./types";
 
 export * from "./types";
@@ -21,6 +23,31 @@ export { MARKETS, SE_MARKET };
  * a user choice any more: turning ancillary services on means FCR-D up.
  */
 export const ACTIVE_SERVICE_KEY = "FCR-D-up";
+
+/**
+ * WHICH RESERVE PRODUCT A MARKET USES. One table, no per-country engine:
+ *  - Nordic FCR-D up (SE, FI, DK2)  -> "upward"
+ *  - Continental FCR (DE, DK1)      -> "symmetric"
+ * Denmark must state its price area; an unknown area is never guessed and falls back
+ * to the Nordic upward product only for DK2.
+ */
+export function reserveModeForMarket(
+  country: "SE" | "FI" | "DK" | "DE" | undefined,
+  marketArea?: "DK1" | "DK2" | null,
+): ReserveMode {
+  if (country === "DE") return "symmetric";
+  if (country === "DK") return marketArea === "DK1" ? "symmetric" : "upward";
+  return "upward";
+}
+
+/** Price/market area used for the historical dataset lookup. */
+export function priceAreaForMarket(
+  country: "SE" | "FI" | "DK" | "DE" | undefined,
+  marketArea?: "DK1" | "DK2" | null,
+): FcrMarketArea {
+  if (country === "DK" && (marketArea === "DK1" || marketArea === "DK2")) return marketArea;
+  return country ?? "SE";
+}
 
 /** Services actually offered by the product, regardless of legacy saved config. */
 export function activeServices(market: MarketProfile) {
@@ -50,6 +77,7 @@ export function defaultAncillaryConfig(): AncillaryConfig {
     reservationMonths: [...ALL_MONTHS_OF_YEAR],
     eurSekRate: DEFAULT_EUR_SEK_RATE,
     priceCountry: "SE",
+    reserveMode: "upward",
     aggregatorSharePct: null,
     aggregatorFixedKrPerYear: null,
     aggregatorAccessConfirmed: false,
@@ -100,12 +128,33 @@ export function ancillaryPlan(cfg: AncillaryConfig): AncillaryPlan | null {
     );
   notes.push("Aktivering av tjänsten simuleras INTE — endast bokad beredskap.");
 
+  /**
+   * SYMMETRIC FCR: the same kW is sold in BOTH directions, so the down side mirrors
+   * the up side (power and endurance energy) even though the underlying service
+   * definition is an up-service. In "upward" mode nothing changes.
+   */
+  const symmetric = (cfg.reserveMode ?? "upward") === "symmetric";
+  const endurance = maxEndurance(selected);
+  if (symmetric)
+    notes.push(
+      "SYMMETRISK FCR: samma effekt måste kunna levereras uppåt och tas emot nedåt varje timme.",
+    );
+
   return {
     active: hoursOfDay.length > 0 && months.length > 0,
-    upPowerKw: up.length > 0 ? cfg.offeredPowerKw : 0,
-    downPowerKw: down.length > 0 ? cfg.offeredPowerKw : 0,
-    upEnergyKWh: up.length > 0 ? cfg.offeredPowerKw * maxEndurance(up) : 0,
-    downEnergyKWh: down.length > 0 ? cfg.offeredPowerKw * maxEndurance(down) : 0,
+    reserveMode: symmetric ? "symmetric" : "upward",
+    upPowerKw: symmetric ? cfg.offeredPowerKw : up.length > 0 ? cfg.offeredPowerKw : 0,
+    downPowerKw: symmetric ? cfg.offeredPowerKw : down.length > 0 ? cfg.offeredPowerKw : 0,
+    upEnergyKWh: symmetric
+      ? cfg.offeredPowerKw * endurance
+      : up.length > 0
+        ? cfg.offeredPowerKw * maxEndurance(up)
+        : 0,
+    downEnergyKWh: symmetric
+      ? cfg.offeredPowerKw * endurance
+      : down.length > 0
+        ? cfg.offeredPowerKw * maxEndurance(down)
+        : 0,
     socHeadroomPct: Math.max(...selected.map((s) => s.requirements.socHeadroomPct)),
     serviceMinSocPct: Math.max(...selected.map((s) => s.requirements.serviceMinSocPct)),
     serviceMaxSocPct: Math.min(...selected.map((s) => s.requirements.serviceMaxSocPct)),

@@ -646,6 +646,27 @@ export interface SimResult {
     energyLimitedHours: number;
     gridLimitedHours: number;
     limitingFactor: "power" | "energy" | "grid" | "none";
+    /**
+     * SYMMETRIC FCR (Germany, DK1). "upward" = classic FCR-D up. Directional fields are
+     * engine/audit diagnostics — the customer view only needs held power + availability.
+     */
+    reserveMode: "upward" | "symmetric";
+    reservableUpAvgKw: number;
+    reservableDownAvgKw: number;
+    gridUpLimitedHours: number;
+    gridDownLimitedHours: number;
+    energyUpLimitedHours: number;
+    energyDownLimitedHours: number;
+    symmetricHeldPowerKw: number;
+    /**
+     * Mean held reserve power straight from the PHYSICS, independent of any price data.
+     * heldPowerAvgKw stays price-derived so existing reporting is unchanged.
+     */
+    physicalHeldPowerAvgKw: number;
+    limitingDirection: "up" | "down" | "both" | "none";
+    /** The physics is validated independently of whether a price dataset exists. */
+    physicalModel: "ready" | "unavailable";
+    priceModel: "ready" | "unavailable";
   };
 
 

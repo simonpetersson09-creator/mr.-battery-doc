@@ -342,6 +342,23 @@ export function simulate(
       energyLimitedHours: d.fcrGate.energyLimitedHours,
       gridLimitedHours: d.fcrGate.gridLimitedHours,
       limitingFactor: d.fcrGate.bindingFactor,
+      reserveMode: d.fcrGate.reserveMode,
+      reservableUpAvgKw: d.fcrGate.reservableUpAvgKw,
+      reservableDownAvgKw: d.fcrGate.reservableDownAvgKw,
+      gridUpLimitedHours: d.fcrGate.gridUpLimitedHours,
+      gridDownLimitedHours: d.fcrGate.gridDownLimitedHours,
+      energyUpLimitedHours: d.fcrGate.energyUpLimitedHours,
+      energyDownLimitedHours: d.fcrGate.energyDownLimitedHours,
+      symmetricHeldPowerKw: d.fcrGate.symmetricHeldPowerAvgKw,
+      physicalHeldPowerAvgKw:
+        t.ancillaryReservedHours > 0
+          ? heldReservation.reduce((a, b) => a + b, 0) / t.ancillaryReservedHours
+          : 0,
+      limitingDirection: d.fcrGate.limitingDirection,
+      // The physical reservation is simulated whatever the price situation is; revenue
+      // stays unavailable until a verified national dataset exists. No SE/FI fallback.
+      physicalModel: plan !== null ? "ready" : "unavailable",
+      priceModel: fcrSeries !== null ? "ready" : "unavailable",
     },
     energyBalance: {
       ok: Math.abs(residual) <= tolerance,

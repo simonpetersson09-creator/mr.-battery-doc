@@ -54,6 +54,9 @@ export function normalizeWizardToEngineInput(
     state.grid.country === "DE"
   )
     site.country = state.grid.country;
+  // Denmark alone needs an explicit price area (DK1 = symmetric FCR, DK2 = FCR-D up).
+  if (state.grid.marketArea === "DK1" || state.grid.marketArea === "DK2")
+    site.marketArea = state.grid.marketArea;
 
 
   /* ---------------- consumption ---------------- */

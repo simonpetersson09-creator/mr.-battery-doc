@@ -1,3 +1,5 @@
+import type { FcrMarketArea } from "./prices";
+
 /**
  * Ancillary services / frequency markets — common engine types.
  *
@@ -21,6 +23,13 @@ export type PaymentKind = "capacity" | "activated-energy";
 
 /** Which way the battery has to move power when the service is called. */
 export type RegulationDirection = "up" | "down" | "symmetric";
+
+/**
+ * Generic reserve product mode. The engine has ONE ancillary architecture; the mode
+ * only decides whether the reserved power has to be physically available in one
+ * direction (upward) or in both directions at the same time (symmetric).
+ */
+export type ReserveMode = "upward" | "symmetric";
 
 /** Resolution of the supplied price data — decides how detailed we may compute. */
 export type PriceResolution = "hourly" | "daily" | "weekly" | "monthly" | "annual" | "unknown";
@@ -144,7 +153,14 @@ export interface AncillaryConfig {
    * Which country's HISTORICAL FCR-D up price series to apply on top of the held
    * reservation. Physics and sizing are unaffected. Defaults to "SE".
    */
-  priceCountry?: "SE" | "FI" | "DK" | "DE";
+  priceCountry?: FcrMarketArea;
+  /**
+   * Reserve product mode. "upward" = FCR-D up (Sweden/Finland/DK2): only the
+   * up-regulation direction is reserved and paid. "symmetric" = FCR (Germany/DK1):
+   * the SAME kW must be deliverable up AND absorbable down every hour.
+   * Defaults to "upward" so every existing configuration is unchanged.
+   */
+  reserveMode?: ReserveMode;
   /** Ingested dataset. Null until the user supplies prices. */
   dataset: PriceDataset | null;
 }
@@ -156,6 +172,8 @@ export interface AncillaryConfig {
  */
 export interface AncillaryPlan {
   active: boolean;
+  /** Upward (FCR-D up) or symmetric (FCR) reserve product. */
+  reserveMode: ReserveMode;
   /** Discharge power withheld for up-regulation, kW. */
   upPowerKw: number;
   /** Charge power withheld for down-regulation, kW. */

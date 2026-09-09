@@ -47,6 +47,11 @@ export type CountryCode = "SE" | "FI" | "DK" | "DE";
 /** Connection / grid physics. */
 export interface EngineSiteInput {
   country?: CountryCode;
+  /**
+   * Price/reserve area inside the country. Only Denmark needs it today (DK1 = symmetric
+   * continental FCR, DK2 = Nordic FCR-D up). Never guessed.
+   */
+  marketArea?: "DK1" | "DK2" | null;
   /** Nominal voltage, V (400 V for a Swedish three-phase connection). */
   voltageV?: number;
   phases?: number;
@@ -365,6 +370,11 @@ export interface BatteryEngineDiagnostics {
   config: LabConfig;
   /** Full economic power-sizing evaluation, including every simulated candidate. */
   economicPowerSizing: EconomicPowerSizingResult;
+  /**
+   * Physics-only reserve simulation for markets without verified price data (symmetric
+   * FCR in Germany/DK1, and DK2). Null when prices exist. Diagnostics only.
+   */
+  reservePhysicalPreview: SimResult["ancillary"] | null;
 }
 
 export interface BatteryEngineResult {

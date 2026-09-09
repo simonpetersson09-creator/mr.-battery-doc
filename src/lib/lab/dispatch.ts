@@ -251,6 +251,18 @@ export interface DispatchTallies {
   fcrGridHeadroomSumKw: number;
   /** kW of offered reservation that the grid gate removed, summed over the hours. */
   fcrGridClippedSumKw: number;
+  /**
+   * DIRECTIONAL diagnostics. In "upward" mode the up values mirror the classic gate and
+   * the down values stay 0 (nothing is reserved downwards).
+   */
+  fcrReservableUpSumKw: number;
+  fcrReservableDownSumKw: number;
+  fcrGridUpLimitedHours: number;
+  fcrGridDownLimitedHours: number;
+  fcrEnergyUpLimitedHours: number;
+  fcrEnergyDownLimitedHours: number;
+  fcrUpBindingHours: number;
+  fcrDownBindingHours: number;
 }
 
 export interface DispatchOutput {
@@ -292,6 +304,16 @@ export interface DispatchOutput {
     gridLimitedHours: number;
     /** Which factor bound most of the scheduled hours. */
     bindingFactor: "power" | "energy" | "grid" | "none";
+    /** Symmetric-FCR diagnostics (0 / "none" in upward mode). */
+    reserveMode: "upward" | "symmetric";
+    reservableUpAvgKw: number;
+    reservableDownAvgKw: number;
+    gridUpLimitedHours: number;
+    gridDownLimitedHours: number;
+    energyUpLimitedHours: number;
+    energyDownLimitedHours: number;
+    symmetricHeldPowerAvgKw: number;
+    limitingDirection: "up" | "down" | "both" | "none";
   };
   notes: string[];
 }
@@ -487,6 +509,14 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
     fcrGridLimitedHours: 0,
     fcrGridHeadroomSumKw: 0,
     fcrGridClippedSumKw: 0,
+    fcrReservableUpSumKw: 0,
+    fcrReservableDownSumKw: 0,
+    fcrGridUpLimitedHours: 0,
+    fcrGridDownLimitedHours: 0,
+    fcrEnergyUpLimitedHours: 0,
+    fcrEnergyDownLimitedHours: 0,
+    fcrUpBindingHours: 0,
+    fcrDownBindingHours: 0,
   };
 
   let arbCost = 0;
@@ -1045,29 +1075,118 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
        * before can pass now.
        */
       const offeredKw = plan?.upPowerKw ?? 0;
+      const symmetric = plan?.reserveMode === "symmetric";
       const enduranceHours =
         offeredKw > 0 ? (plan?.upEnergyKWh ?? 0) / offeredKw : 0;
-      const powerLimitedFcrKw = win.dischargeKw;
-      const deliverableKWh =
-        Math.max(0, socLow - Math.max(win.socFloorKWh, planServiceFloor)) * win.dischargeEff;
-      const energyLimitedFcrKw =
-        enduranceHours > 0 ? deliverableKWh / enduranceHours : powerLimitedFcrKw;
-      const gridLimitedFcrKw =
+
+      /**
+       * ---------- DIRECTIONAL CAPABILITY (one shared formula) ----------
+       * SIGN CONVENTION, used everywhere below:
+       *   UP-regulation   = more discharge / less charge → the site imports less or
+       *                     exports more. Needs STORED energy and discharge power.
+       *   DOWN-regulation = more charge / less discharge → the site imports more or
+       *                     exports less. Needs FREE SOC room and charge power.
+       */
+      const upPowerCapabilityKw = win.dischargeKw;
+      const downPowerCapabilityKw = win.chargeKw;
+
+      const serviceFloorKWh = Math.max(win.socFloorKWh, planServiceFloor);
+      const serviceCeilKWh = Math.min(win.socCeilKWh, planServiceCeil);
+      const deliverableKWh = Math.max(0, socLow - serviceFloorKWh) * win.dischargeEff;
+      const absorbableKWh =
+        Math.max(0, serviceCeilKWh - socHigh) / Math.max(win.chargeEff, 1e-9);
+      const energyUpCapabilityKw =
+        enduranceHours > 0 ? deliverableKWh / enduranceHours : upPowerCapabilityKw;
+      const energyDownCapabilityKw =
+        enduranceHours > 0 ? absorbableKWh / enduranceHours : downPowerCapabilityKw;
+
+      const gridUpHeadroomKw =
         (imp[h] ?? 0) + Math.max(0, limits.maxExportKw - (exp[h] ?? 0));
-      const finalReservableFcrKw = Math.max(
+      const gridDownHeadroomKw =
+        (exp[h] ?? 0) + Math.max(0, limits.maxImportKw - (imp[h] ?? 0));
+
+      const upReservableKw = Math.max(
         0,
-        Math.min(powerLimitedFcrKw, energyLimitedFcrKw, gridLimitedFcrKw),
+        Math.min(upPowerCapabilityKw, energyUpCapabilityKw, gridUpHeadroomKw),
       );
+      const downReservableKw = Math.max(
+        0,
+        Math.min(downPowerCapabilityKw, energyDownCapabilityKw, gridDownHeadroomKw),
+      );
+      /**
+       * UPWARD product: only the up side is sold, so the reservable power is the up side
+       * (identical to the previous gate — Sweden/Finland/DK2 are unchanged).
+       * SYMMETRIC product: the same kW must clear BOTH directions every hour, so it is
+       * min(up, down). up = 10 kW and down = 6 kW gives 6 kW, never 10 and never 16.
+       */
+      const finalReservableFcrKw = symmetric
+        ? Math.min(upReservableKw, downReservableKw)
+        : upReservableKw;
+
       t.fcrReservableSumKw += finalReservableFcrKw;
-      t.fcrGridHeadroomSumKw += gridLimitedFcrKw;
+      t.fcrReservableUpSumKw += upReservableKw;
+      t.fcrReservableDownSumKw += downReservableKw;
+      t.fcrGridHeadroomSumKw += gridUpHeadroomKw;
       if (finalReservableFcrKw > t.fcrReservableMaxKw)
         t.fcrReservableMaxKw = finalReservableFcrKw;
-      if (finalReservableFcrKw >= gridLimitedFcrKw - 1e-9) t.fcrGridLimitedHours++;
-      else if (finalReservableFcrKw >= energyLimitedFcrKw - 1e-9) t.fcrEnergyLimitedHours++;
-      else t.fcrPowerLimitedHours++;
+
+      // Which factor / direction bound this hour.
+      const upBinding = symmetric ? upReservableKw <= downReservableKw + 1e-9 : true;
+      const downBinding = symmetric ? downReservableKw <= upReservableKw + 1e-9 : false;
+      if (upBinding) t.fcrUpBindingHours++;
+      if (downBinding) t.fcrDownBindingHours++;
+      const bindOn = (
+        value: number,
+        power: number,
+        energy: number,
+        grid: number,
+        dir: "up" | "down",
+      ) => {
+        if (value >= grid - 1e-9) {
+          t.fcrGridLimitedHours++;
+          if (dir === "up") t.fcrGridUpLimitedHours++;
+          else t.fcrGridDownLimitedHours++;
+        } else if (value >= energy - 1e-9) {
+          t.fcrEnergyLimitedHours++;
+          if (dir === "up") t.fcrEnergyUpLimitedHours++;
+          else t.fcrEnergyDownLimitedHours++;
+        } else {
+          t.fcrPowerLimitedHours++;
+        }
+        void power;
+      };
+      if (!symmetric || upBinding)
+        bindOn(
+          finalReservableFcrKw,
+          upPowerCapabilityKw,
+          energyUpCapabilityKw,
+          gridUpHeadroomKw,
+          "up",
+        );
+      else
+        bindOn(
+          finalReservableFcrKw,
+          downPowerCapabilityKw,
+          energyDownCapabilityKw,
+          gridDownHeadroomKw,
+          "down",
+        );
 
       if (powerOk && energyOk) {
-        const heldKw = Math.min(offeredKw, gridLimitedFcrKw);
+        /**
+         * Monetizable power. UPWARD (unchanged): the power/energy readiness is already
+         * decided by powerOk/energyOk above, so only the grid gate clips the paid series.
+         * SYMMETRIC: the DOWN direction has no readiness test of its own, so its power,
+         * energy and grid capability clip the paid series here — held is then
+         * min(offered, up grid gate, down capability) and can never exceed the upward
+         * result under identical conditions.
+         */
+        const heldKw = Math.max(
+          0,
+          symmetric
+            ? Math.min(offeredKw, gridUpHeadroomKw, downReservableKw)
+            : Math.min(offeredKw, gridUpHeadroomKw),
+        );
         t.fcrGridClippedSumKw += Math.max(0, offeredKw - heldKw);
         if (heldKw > 1e-9) {
           t.ancillaryReadyHours++;
@@ -1109,8 +1228,26 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
           number,
         ][]).reduce((a, b) => (b[1] > a[1] ? b : a))[0];
       }
+      let limitingDirection: "up" | "down" | "both" | "none" = "none";
+      if (n > 0 && plan?.reserveMode === "symmetric") {
+        const bothHours = t.fcrUpBindingHours + t.fcrDownBindingHours - n;
+        if (bothHours >= Math.max(t.fcrUpBindingHours, t.fcrDownBindingHours) - 1e-9)
+          limitingDirection = "both";
+        else limitingDirection = t.fcrDownBindingHours > t.fcrUpBindingHours ? "down" : "up";
+      } else if (n > 0) limitingDirection = "up";
+      const heldSum = ancillaryReservedPowerKwByHour.reduce((a, b) => a + b, 0);
       return {
         scheduledHours: n,
+        reserveMode: plan?.reserveMode ?? "upward",
+        reservableUpAvgKw: n > 0 ? t.fcrReservableUpSumKw / n : 0,
+        reservableDownAvgKw: n > 0 ? t.fcrReservableDownSumKw / n : 0,
+        gridUpLimitedHours: t.fcrGridUpLimitedHours,
+        gridDownLimitedHours: t.fcrGridDownLimitedHours,
+        energyUpLimitedHours: t.fcrEnergyUpLimitedHours,
+        energyDownLimitedHours: t.fcrEnergyDownLimitedHours,
+        symmetricHeldPowerAvgKw:
+          plan?.reserveMode === "symmetric" && n > 0 ? heldSum / n : 0,
+        limitingDirection,
         avgReservablePowerKw: n > 0 ? t.fcrReservableSumKw / n : 0,
         maxReservablePowerKw: t.fcrReservableMaxKw,
         avgGridHeadroomKw: n > 0 ? t.fcrGridHeadroomSumKw / n : 0,
