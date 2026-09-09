@@ -27,6 +27,11 @@ export interface GridDefaults {
   frequency: number;
   /** Common main fuse ratings (A) shown as quick choices */
   commonMainFuses: number[];
+  /**
+   * Less common but fully valid ratings for the country. Shown in the same list as the
+   * common ones (sorted), so the user never has to type a standard size manually.
+   */
+  additionalMainFuses?: number[];
   defaultMainFuse: number;
   /** Grid standards relevant for battery/inverter connection */
   standards: string[];
