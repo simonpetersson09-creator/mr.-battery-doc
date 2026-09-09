@@ -22,10 +22,10 @@ export const Route = createFileRoute("/")({
 });
 
 const POINTS = [
-  { icon: BatteryCharging, text: "Hur stort batteri i kWh som passar din fastighet" },
-  { icon: Gauge, text: "Vilken effekt i kW du behöver" },
-  { icon: Sun, text: "Hur batteriet kan användas i vardagen" },
-  { icon: PiggyBank, text: "Vilken nytta batteriet kan skapa" },
+  { icon: BatteryCharging, text: "Hur stort batteri i kWh din fastighet behöver" },
+  { icon: Gauge, text: "Vilken effekt i kW som passar" },
+  { icon: Sun, text: "Hur batteriet kan användas" },
+  { icon: PiggyBank, text: "Vilken ekonomisk nytta batteriet kan ge" },
 ];
 
 function Welcome() {
@@ -41,7 +41,7 @@ function Welcome() {
           Doc
         </h1>
         <p className="ui-body mt-2 text-muted-foreground">
-          Svara på några enkla frågor om din fastighet, så visar vi vilket batteri som passar dig.
+          Svara på några enkla frågor om din fastighet, så hjälper vi dig att hitta en lämplig batteristorlek.
         </p>
 
         <ul className="mt-4 space-y-2">
