@@ -149,7 +149,7 @@ function ConsumptionStep() {
               onOpenChange={setImportOpen}
             />
           </SectionCard>
-          {!importOpen ? (
+          {!importOpen && hasImported ? (
             <SectionCard compact icon={<CalendarRange />} title={t("consumption.monthly.monthsTitle")}>
               <MonthGrid
                 values={c.monthlyKwh}
