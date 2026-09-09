@@ -50,6 +50,12 @@ export interface WizardState {
     mainFuseManual: boolean;
     /** User has confirmed the auto-derived grid values are correct. */
     gridValuesConfirmed: boolean;
+    /**
+     * true once the user has picked a country themselves on step 1.
+     * Until then the language choice may suggest a default country.
+     * Language NEVER follows the country — only this one-way suggestion exists.
+     */
+    countryTouched: boolean;
   };
   consumption: {
     mode: ConsumptionMode;
@@ -127,6 +133,7 @@ function coerceSupportedModes(s: WizardState): WizardState {
     next.production = { ...next.production, mode: "manual" };
   // Old persisted states (before the customer-share / payback step) have no
   // `preferences` at all, and a corrupt one must never reach the UI.
+  next.grid = { ...next.grid, countryTouched: next.grid?.countryTouched ?? false };
   next.preferences = {
     customerAncillaryShare: clampCustomerAncillaryShare(
       next.preferences?.customerAncillaryShare ?? DEFAULT_CUSTOMER_ANCILLARY_SHARE,
@@ -150,6 +157,7 @@ export function createInitialState(country: CountryCode = DEFAULT_COUNTRY): Wiza
       mainFuseA: getCountry(country).grid.defaultMainFuse,
       mainFuseManual: false,
       gridValuesConfirmed: false,
+      countryTouched: false,
     },
     consumption: {
       mode: "annual",
@@ -187,6 +195,8 @@ interface WizardContextValue {
   state: WizardState;
   update: (patch: (s: WizardState) => WizardState) => void;
   setCountry: (code: CountryCode) => void;
+  /** Applies a language-derived default country only while the user hasn't chosen one. */
+  suggestCountry: (code: CountryCode) => void;
   reset: () => void;
   hydrated: boolean;
 }
@@ -237,7 +247,28 @@ export function WizardProvider({ children }: { children: ReactNode }) {
       hydrated,
       update: (patch) => setState((s) => patch(s)),
       setCountry: (code) =>
-        setState((s) => ({
+        setState((s) => applyCountry(s, code, true)),
+      suggestCountry: (code) =>
+        setState((s) =>
+          s.grid.countryTouched || s.grid.country === code ? s : applyCountry(s, code, false),
+        ),
+      reset: () => {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch {
+          /* storage unavailable */
+        }
+        setState(createInitialState());
+      },
+    };
+  }, [state, hydrated]);
+
+  return <WizardContext.Provider value={value}>{children}</WizardContext.Provider>;
+}
+
+/** Shared country switch used by both the explicit pick and the language suggestion. */
+function applyCountry(s: WizardState, code: CountryCode, touched: boolean): WizardState {
+  return ({
           ...s,
           grid: {
             country: code,
@@ -252,6 +283,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
               s.grid.mainFuseManual || !isListedFuse(code, s.grid.mainFuseA),
 
             gridValuesConfirmed: false,
+            countryTouched: touched || s.grid.countryTouched,
           },
           // CURRENCY POLICY: a country change that changes currency ALWAYS resets the
           // economy to the new country's own defaults — a value entered as 1,50 SEK/kWh
@@ -263,19 +295,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
               : s.economy.touched
                 ? s.economy
                 : economyFromCountry(code),
-        })),
-      reset: () => {
-        try {
-          localStorage.removeItem(STORAGE_KEY);
-        } catch {
-          /* storage unavailable */
-        }
-        setState(createInitialState());
-      },
-    };
-  }, [state, hydrated]);
-
-  return <WizardContext.Provider value={value}>{children}</WizardContext.Provider>;
+  });
 }
 
 export function useWizard() {
