@@ -493,6 +493,12 @@ html[data-native="true"] {
   padding: 0.875rem;
 }
 
+/* Compact card variant: tighter padding for dense steps. */
+@utility ui-card-compact {
+  padding: 0.625rem;
+  border-radius: 1.0625rem;
+}
+
 /* Expandable details: chevron rotates when open. */
 @utility ui-expandable {
   & > summary {
