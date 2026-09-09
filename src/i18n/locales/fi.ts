@@ -123,7 +123,7 @@ export const fi = {
       title: "Todellinen kuukausikulutus",
       importDescription:
         "Tuo kuva, PDF tai CSV — arvot täyttyvät alla oleviin kuukausikenttiin.",
-      monthsTitle: "Kuukausi kuukaudelta",
+      monthsTitle: "Tuodut tiedot",
     },
     profile: { title: "Kulutusprofiili", placeholder: "Valitse profiili" },
   },
