@@ -134,6 +134,8 @@ function ConsumptionStep() {
         </SectionCard>
       ) : null}
 
+      <ProfilePicker />
+
       {c.mode === "monthly" ? (
         <SectionCard compact icon={<CalendarRange />} title={t("consumption.monthly.title")}>
           <MonthlyImport
@@ -156,8 +158,6 @@ function ConsumptionStep() {
           ) : null}
         </SectionCard>
       ) : null}
-
-      <ProfilePicker />
 
     </WizardShell>
   );
