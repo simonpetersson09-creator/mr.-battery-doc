@@ -10,6 +10,6 @@ for (const c of ["SE","FI","DK","DE"] as const) {
   if (o.status !== "ok") { console.log(c, o.status, JSON.stringify(o).slice(0,200)); continue; }
   const e = o.result.summary;
   console.log(c, s.economy.currency, "rate", s.economy.eurSekRate,
-    "| fcrEUR", e.fcr.grossEur, "| fcrLocal", e.fcr.grossSek,
+    "| fcrEUR", (e.fcr as any).grossEur ?? JSON.stringify(Object.keys(e.fcr)), "| fcrLocal", e.fcr.grossSek,
     "| total", e.economy.totalOperatingBenefitSek);
 }
