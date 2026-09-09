@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { WIZARD_STEPS } from "./steps";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/i18n";
+import logo from "@/assets/mr-battery-doc-logo.png.asset.json";
 
 interface WizardShellProps {
   stepIndex: number;
