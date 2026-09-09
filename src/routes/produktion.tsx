@@ -58,7 +58,8 @@ function ProductionStep() {
     }));
 
   const applyImported = useCallback(
-    (vals: number[], selfPct?: number | null) =>
+    (vals: number[], selfPct?: number | null) => {
+      setHasImported(true);
       update((s) => ({
         ...s,
         production: {
@@ -69,17 +70,19 @@ function ProductionStep() {
               ? selfPct
               : s.production.selfConsumptionPct,
         },
-      })),
+      }));
+    },
     [update],
   );
 
   const selfConsumptionField = (
-    <SectionCard title={t("production.self.title")}>
+    <SectionCard compact icon={<SunMedium />} title={t("production.self.title")}>
       <NumberField
         label={t("production.self.label")}
         unit="%"
         value={p.selfConsumptionPct}
         placeholder={t("production.self.placeholder")}
+        compact
         onChange={(v) =>
           update((s) => ({ ...s, production: { ...s.production, selfConsumptionPct: v } }))
         }
@@ -88,6 +91,13 @@ function ProductionStep() {
     </SectionCard>
   );
 
+  const modeLabel =
+    choice === "none"
+      ? t("production.modeNone.title")
+      : choice === "annual"
+        ? t("production.modeAnnual.title")
+        : t("production.modeMonthly.title");
+
   return (
     <WizardShell
       stepIndex={2}
@@ -95,34 +105,57 @@ function ProductionStep() {
       intro={t("production.intro")}
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
+      compact
     >
-      <div className="space-y-2">
-        <OptionCard
-          title={t("production.modeNone.title")}
-          selected={choice === "none"}
-          onSelect={() => setChoice("none")}
-        />
-        <OptionCard
-          title={t("production.modeAnnual.title")}
-          description={t("production.modeAnnual.description")}
-          selected={choice === "annual"}
-          onSelect={() => setChoice("annual")}
-        />
-        <OptionCard
-          title={t("production.modeMonthly.title")}
-          description={t("production.modeMonthly.description")}
-          selected={choice === "monthly"}
-          onSelect={() => setChoice("monthly")}
-        />
-      </div>
+      <SectionCard compact icon={<ListChecks />} title={t("production.modeTitle")}>
+        <Select
+          value={choice}
+          onValueChange={(v) => setChoice(v as "none" | "annual" | "monthly")}
+        >
+          <SelectTrigger className="ui-control ui-control-active">
+            <SelectValue>{modeLabel}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">
+              <span className="flex items-start gap-2">
+                <Sun className="mt-0.5 size-4 shrink-0 text-accent" />
+                <span className="block font-medium">{t("production.modeNone.title")}</span>
+              </span>
+            </SelectItem>
+            <SelectItem value="annual">
+              <span className="flex items-start gap-2">
+                <Zap className="mt-0.5 size-4 shrink-0 text-accent" />
+                <span>
+                  <span className="block font-medium">{t("production.modeAnnual.title")}</span>
+                  <span className="block text-muted-foreground">
+                    {t("production.modeAnnual.description")}
+                  </span>
+                </span>
+              </span>
+            </SelectItem>
+            <SelectItem value="monthly">
+              <span className="flex items-start gap-2">
+                <CalendarRange className="mt-0.5 size-4 shrink-0 text-accent" />
+                <span>
+                  <span className="block font-medium">{t("production.modeMonthly.title")}</span>
+                  <span className="block text-muted-foreground">
+                    {t("production.modeMonthly.description")}
+                  </span>
+                </span>
+              </span>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </SectionCard>
 
       {choice === "annual" ? (
-        <SectionCard title={t("production.plant.title")}>
+        <SectionCard compact icon={<Zap />} title={t("production.plant.title")}>
           <NumberField
             label={t("production.plant.dcKwp")}
             unit="kWp"
             value={p.dcKwp}
             placeholder="t.ex. 14"
+            compact
             onChange={(v) => update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))}
           />
           <NumberField
@@ -130,6 +163,7 @@ function ProductionStep() {
             unit="kW"
             value={p.acKw}
             placeholder="t.ex. 12"
+            compact
             onChange={(v) => update((s) => ({ ...s, production: { ...s.production, acKw: v } }))}
           />
           <NumberField
@@ -137,6 +171,7 @@ function ProductionStep() {
             unit={t("units.kwhPerYear")}
             value={p.annualKwh}
             placeholder="t.ex. 14000"
+            compact
             onChange={(v) =>
               update((s) => ({ ...s, production: { ...s.production, annualKwh: v } }))
             }
@@ -145,16 +180,47 @@ function ProductionStep() {
       ) : null}
 
       {choice === "monthly" ? (
-
         <>
-          <SectionCard title={t("production.monthly.title")}>
+          <SectionCard compact icon={<Zap />} title={t("production.plant.title")}>
+            <div className="grid grid-cols-2 gap-2">
+              <NumberField
+                label={t("production.plant.dcKwpShort")}
+                unit="kWp"
+                value={p.dcKwp}
+                placeholder="14"
+                compact
+                onChange={(v) =>
+                  update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))
+                }
+              />
+              <NumberField
+                label={t("production.plant.acKw")}
+                unit="kW"
+                value={p.acKw}
+                placeholder="12"
+                compact
+                onChange={(v) =>
+                  update((s) => ({ ...s, production: { ...s.production, acKw: v } }))
+                }
+              />
+            </div>
+          </SectionCard>
+
+          <SectionCard compact icon={<CalendarRange />} title={t("production.monthly.title")}>
             <MonthlyImport
               kind="production"
               description={t("production.monthly.importDescription")}
               onApply={applyImported}
               onOpenChange={setImportOpen}
             />
-            {!importOpen ? (
+          </SectionCard>
+
+          {!importOpen && hasImported ? (
+            <SectionCard
+              compact
+              icon={<CalendarRange />}
+              title={t("production.monthly.monthsTitle")}
+            >
               <MonthGrid
                 values={p.monthlyKwh}
                 onChange={(i, v) =>
@@ -165,31 +231,8 @@ function ProductionStep() {
                   })
                 }
               />
-            ) : null}
-          </SectionCard>
-
-          <SectionCard title={t("production.plant.title")}>
-            <div className="grid grid-cols-2 gap-2">
-              <NumberField
-                label={t("production.plant.dcKwpShort")}
-                unit="kWp"
-                value={p.dcKwp}
-                placeholder="14"
-                onChange={(v) =>
-                  update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))
-                }
-              />
-              <NumberField
-                label={t("production.plant.acKw")}
-                unit="kW"
-                value={p.acKw}
-                placeholder="12"
-                onChange={(v) =>
-                  update((s) => ({ ...s, production: { ...s.production, acKw: v } }))
-                }
-              />
-            </div>
-          </SectionCard>
+            </SectionCard>
+          ) : null}
         </>
       ) : null}
 
@@ -197,4 +240,5 @@ function ProductionStep() {
     </WizardShell>
   );
 }
+
 
