@@ -81,7 +81,7 @@ export const sv = {
     footnote: "Tar ungefär tre minuter. Dina svar sparas medan du fyller i.",
   },
   network: {
-    title: "Nät",
+    title: "Elnät och huvudsäkring",
     intro: "Börja med att välja land. Då sätts rätt nätvärden och standardpriser automatiskt.",
     country: { title: "Land", description: "Var ligger fastigheten?" },
     area: {
