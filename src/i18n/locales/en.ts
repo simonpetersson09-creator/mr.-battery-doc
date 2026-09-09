@@ -399,6 +399,7 @@ export const en = {
     importNoData:
       "We found no monthly data in the file. Check that the months are clearly visible.",
     importUnreadable: "The file could not be read. Try a clearer image or a PDF.",
+    importTooLarge: "The file is too large. Use a file smaller than 15 MB.",
   },
   validation: {
     customerShare: "The share must be between 0 and 100 %.",

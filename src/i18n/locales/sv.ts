@@ -400,6 +400,7 @@ export const sv = {
     importNoData:
       "Vi hittade ingen månadsdata i filen. Kontrollera att månaderna syns tydligt.",
     importUnreadable: "Filen kunde inte läsas. Försök med en tydligare bild eller en PDF.",
+    importTooLarge: "Filen är för stor. Använd en fil som är mindre än 15 MB.",
   },
   validation: {
     customerShare: "Andelen måste vara mellan 0 och 100 %.",

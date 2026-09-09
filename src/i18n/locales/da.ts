@@ -399,6 +399,7 @@ export const da = {
     importNoData:
       "Vi fandt ingen månedsdata i filen. Kontrollér, at månederne er tydeligt synlige.",
     importUnreadable: "Filen kunne ikke læses. Prøv med et tydeligere billede eller en PDF.",
+    importTooLarge: "Filen er for stor. Brug en fil på under 15 MB.",
   },
   validation: {
     customerShare: "Andelen skal være mellem 0 og 100 %.",
