@@ -1173,8 +1173,20 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
         );
 
       if (powerOk && energyOk) {
-        // Monetizable power = what physically cleared every gate in every paid direction.
-        const heldKw = Math.max(0, Math.min(offeredKw, finalReservableFcrKw));
+        /**
+         * Monetizable power. UPWARD (unchanged): the power/energy readiness is already
+         * decided by powerOk/energyOk above, so only the grid gate clips the paid series.
+         * SYMMETRIC: the DOWN direction has no readiness test of its own, so its power,
+         * energy and grid capability clip the paid series here — held is then
+         * min(offered, up grid gate, down capability) and can never exceed the upward
+         * result under identical conditions.
+         */
+        const heldKw = Math.max(
+          0,
+          symmetric
+            ? Math.min(offeredKw, gridUpHeadroomKw, downReservableKw)
+            : Math.min(offeredKw, gridUpHeadroomKw),
+        );
         t.fcrGridClippedSumKw += Math.max(0, offeredKw - heldKw);
         if (heldKw > 1e-9) {
           t.ancillaryReadyHours++;
