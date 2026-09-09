@@ -10,5 +10,5 @@ for (const a of ["DK1","DK2"] as const) {
   const r = c(a);
   const s = r.summary;
   console.log(a, JSON.stringify({
-    sizing: s.sizing, }, null, 1));
+    all: Object.keys(s), }, null, 1));
 }
