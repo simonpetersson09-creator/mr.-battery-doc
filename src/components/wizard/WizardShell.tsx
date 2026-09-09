@@ -29,6 +29,7 @@ export function WizardShell({
   nextDisabled,
   nextBlockedReason,
   footerAction,
+  compact,
 }: WizardShellProps) {
   const t = useT();
   // Both back affordances follow the wizard's own step order.
@@ -52,7 +53,7 @@ export function WizardShell({
         </p>
         <h1 className="ui-page-title mt-1">{title}</h1>
         {intro ? <p className="ui-help mt-1">{intro}</p> : null}
-        <div className="mt-4 space-y-3">{children}</div>
+        <div className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}>{children}</div>
       </main>
 
       <div className="pb-safe fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-[32rem] border-t border-border/70 bg-background/90 px-4 pt-2 backdrop-blur-md">
