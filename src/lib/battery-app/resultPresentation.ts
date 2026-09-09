@@ -26,6 +26,11 @@ export interface ResultPresentationOptions {
    * level is presented — a reconstructed level is never acceptable.
    */
   withoutFcr?: WithoutFcrOptimum | null;
+  /**
+   * Customer-facing reserve product name from the central market config
+   * ("FCR-D upp" for SE/FI/DK2, "FCR" for DE/DK1).
+   */
+  reserveProductLabel?: string;
 }
 
 
@@ -112,6 +117,11 @@ export function buildResultPresentation(
   result: BatteryEngineResult,
   opts: ResultPresentationOptions,
 ): ResultPresentation {
+  /**
+   * PRODUCT NAME comes from the central reserve market config (SE/FI/DK2 = "FCR-D upp",
+   * DE/DK1 = "FCR"). Never hardcoded per string.
+   */
+  const productLabel = opts.reserveProductLabel ?? "FCR-D upp";
   const s = result.summary;
   const r = s.recommendation;
   const e = s.energy;
@@ -192,14 +202,14 @@ export function buildResultPresentation(
     : `${nf(r.capacityKWh)} kWh ger en bra balans mellan hur mycket energi batteriet kan flytta och nyttan av ytterligare kapacitet. Ett större batteri ger relativt liten ytterligare nytta med din förbrukning${hasSolar ? " och solproduktion" : ""}.`;
 
   const fcrCardText = showPhysicalNeedRow
-    ? `Fastighetens fysiska effektbehov är cirka ${physKw} kW. Utan FCR-D upp ger ${propKw} kW högst beräknad årlig nytta. Med historiska stödtjänst-priser från 2025 ger ${recKw} kW högst beräknad årlig nytta. Framtida priser och intäkter kan avvika.`
+    ? `Fastighetens fysiska effektbehov är cirka ${physKw} kW. Utan ${productLabel} ger ${propKw} kW högst beräknad årlig nytta. Med historiska stödtjänst-priser från 2025 ger ${recKw} kW högst beräknad årlig nytta. Framtida priser och intäkter kan avvika.`
     : `För fastighetens eget behov räcker ${propKw} kW. Den högre systemeffekten ${recKw} kW ger större beräknad årlig nytta när historiska stödtjänst-priser från 2025 ingår. Framtida priser och intäkter kan avvika.`;
 
   const fcrPowerLevels: PowerLevelRow[] = [];
   if (showFcrPowerCard && propertyOnlyPowerKw !== null) {
     if (showPhysicalNeedRow) {
       fcrPowerLevels.push({ label: "Fysiskt effektbehov", kw: r.physicalPowerNeedKw });
-      fcrPowerLevels.push({ label: "Utan FCR-D upp", kw: propertyOnlyPowerKw });
+      fcrPowerLevels.push({ label: `Utan ${productLabel}`, kw: propertyOnlyPowerKw });
       fcrPowerLevels.push({ label: "Med stödtjänst", kw: recommendedPowerKw });
     } else {
       fcrPowerLevels.push({ label: "För fastighetens eget behov", kw: propertyOnlyPowerKw });
@@ -253,7 +263,7 @@ export function buildResultPresentation(
     capacityKWh > 0
   ) {
     sizingMethodLines.push(
-      `Systemeffekt med högst beräknad årlig nytta utan FCR-D upp: ${nf(propertyOnlyPowerKw, 1)} kW (${nf(propertyOnlyPowerKw / capacityKWh, 2)} C).`,
+      `Systemeffekt med högst beräknad årlig nytta utan ${productLabel}: ${nf(propertyOnlyPowerKw, 1)} kW (${nf(propertyOnlyPowerKw / capacityKWh, 2)} C).`,
     );
   }
   if (!noBattery && recommendedPowerKw > productPowerKw + 1e-9) {
@@ -261,7 +271,7 @@ export function buildResultPresentation(
       `Efter utvärdering av den beräknade årliga nyttan valdes ${nf(recommendedPowerKw, 1)} kW (${nf(systemCRate, 2)} C) som rekommenderad systemeffekt.`,
     );
     if (fcrDrivesPower) {
-      sizingMethodLines.push("Historisk FCR-D upp-intäkt påverkade effektvalet.");
+      sizingMethodLines.push(`Historisk ${productLabel}-intäkt påverkade effektvalet.`);
     }
   }
 
