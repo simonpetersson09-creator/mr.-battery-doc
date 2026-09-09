@@ -121,8 +121,7 @@ export const fi = {
     },
     monthly: {
       title: "Todellinen kuukausikulutus",
-      importDescription:
-        "Tuo kuva, PDF tai CSV — arvot täyttyvät alla oleviin kuukausikenttiin.",
+      importDescription: "Tuo kuva, PDF tai CSV",
       monthsTitle: "Tuodut kuukausitiedot",
     },
     profile: { title: "Milloin käytät eniten sähköä?", placeholder: "Valitse profiili" },
@@ -149,8 +148,7 @@ export const fi = {
     },
     monthly: {
       title: "Todellinen kuukausituotanto",
-      importDescription:
-        "Tuo kuva, PDF tai CSV — arvot täyttyvät alla oleviin kuukausikenttiin.",
+      importDescription: "Tuo kuva, PDF tai CSV",
       monthsTitle: "Tuodut kuukausitiedot",
     },
     self: {
