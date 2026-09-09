@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BatteryCharging, PiggyBank, Sun, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LanguageSelect } from "@/components/LanguageSelect";
 import logo from "@/assets/mr-battery-doc-logo.png.asset.json";
 import { useT } from "@/i18n";
 
@@ -66,17 +67,18 @@ function Welcome() {
         ))}
       </ul>
 
-      <div className="pt-6">
+      <div className="flex items-stretch gap-2 pt-6">
         <Button
           asChild
           variant="cta"
-          className="h-12 w-full rounded-[0.875rem] font-bold shadow-cta"
+          className="h-12 flex-1 rounded-[0.875rem] font-bold shadow-cta"
         >
           <Link to="/nat">
             {t("intro.cta")}
             <ArrowRight className="size-4" />
           </Link>
         </Button>
+        <LanguageSelect />
       </div>
     </div>
   );
