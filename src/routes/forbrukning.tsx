@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { Activity, CalendarRange, Gauge, ListChecks } from "lucide-react";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { MonthlyImport } from "@/components/wizard/MonthlyImport";
 import { MonthGrid } from "@/components/wizard/MonthGrid";
 
-import { NumberField, OptionCard, SectionCard } from "@/components/wizard/fields";
+import { NumberField, SectionCard } from "@/components/wizard/fields";
 import { validateConsumptionStep } from "@/lib/battery-app/stepValidation";
 import {
   Select,
@@ -77,24 +78,49 @@ function ConsumptionStep() {
       intro={t("consumption.intro")}
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
+      compact
     >
-      <div className="space-y-2">
-        <OptionCard
-          title={t("consumption.modeAnnual.title")}
-          description={t("consumption.modeAnnual.description")}
-          selected={c.mode === "annual"}
-          onSelect={() => setMode("annual")}
-        />
-        <OptionCard
-          title={t("consumption.modeMonthly.title")}
-          description={t("consumption.modeMonthly.description")}
-          selected={c.mode === "monthly"}
-          onSelect={() => setMode("monthly")}
-        />
-      </div>
+      <SectionCard compact icon={<ListChecks />} title={t("consumption.modeTitle")}>
+        <Select
+          value={c.mode}
+          onValueChange={(v) => setMode(v as ConsumptionMode)}
+        >
+          <SelectTrigger className="ui-control">
+            <SelectValue>
+              {c.mode === "annual"
+                ? t("consumption.modeAnnual.title")
+                : t("consumption.modeMonthly.title")}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="annual">
+              <span className="flex items-start gap-2">
+                <Gauge className="mt-0.5 size-4 shrink-0 text-accent" />
+                <span>
+                  <span className="block font-medium">{t("consumption.modeAnnual.title")}</span>
+                  <span className="block text-muted-foreground">
+                    {t("consumption.modeAnnual.description")}
+                  </span>
+                </span>
+              </span>
+            </SelectItem>
+            <SelectItem value="monthly">
+              <span className="flex items-start gap-2">
+                <CalendarRange className="mt-0.5 size-4 shrink-0 text-accent" />
+                <span>
+                  <span className="block font-medium">{t("consumption.modeMonthly.title")}</span>
+                  <span className="block text-muted-foreground">
+                    {t("consumption.modeMonthly.description")}
+                  </span>
+                </span>
+              </span>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </SectionCard>
 
       {c.mode === "annual" ? (
-        <SectionCard title={t("consumption.annual.title")}>
+        <SectionCard compact icon={<Gauge />} title={t("consumption.annual.title")}>
           <NumberField
             label={t("consumption.annual.label")}
             unit={t("units.kwhPerYear")}
@@ -108,7 +134,7 @@ function ConsumptionStep() {
       ) : null}
 
       {c.mode === "monthly" ? (
-        <SectionCard title={t("consumption.monthly.title")}>
+        <SectionCard compact icon={<CalendarRange />} title={t("consumption.monthly.title")}>
           <MonthlyImport
             kind="consumption"
             description={t("consumption.monthly.importDescription")}
@@ -143,7 +169,7 @@ function ProfilePicker() {
     ? getProfile(state.consumption.profileId)
     : null;
   return (
-    <SectionCard title={t("consumption.profile.title")}>
+    <SectionCard compact icon={<Activity />} title={t("consumption.profile.title")}>
       <Select
         value={state.consumption.profileId ?? ""}
         onValueChange={(v) =>

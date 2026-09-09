@@ -105,6 +105,7 @@ export const fi = {
   consumption: {
     title: "Kulutus",
     intro: "Valitse sinulle sopivin tapa. Voit vaihtaa myöhemmin.",
+    modeTitle: "Miten haluat syöttää kulutuksen?",
     modeAnnual: {
       title: "Vuosikulutus",
       description: "Tiedän suunnilleen, montako kilowattituntia käytämme vuodessa.",
