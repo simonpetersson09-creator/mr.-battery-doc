@@ -46,7 +46,7 @@ export function WizardShell({
             <img
               src={logo.url}
               alt="Mr. Battery Doc"
-              className="h-11 w-auto"
+              className="h-14 w-auto"
               width={1536}
               height={1024}
             />
