@@ -77,7 +77,7 @@ export const de = {
     footnote: "Dauert etwa drei Minuten. Ihre Angaben werden währenddessen gespeichert.",
   },
   network: {
-    title: "Netz",
+    title: "Stromnetz und Hauptsicherung",
     intro:
       "Wählen Sie zuerst das Land. Danach werden Netzwerte und Standardpreise automatisch gesetzt.",
     country: { title: "Land", description: "Wo liegt die Immobilie?" },

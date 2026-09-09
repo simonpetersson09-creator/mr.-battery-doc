@@ -77,7 +77,7 @@ export const da = {
     footnote: "Tager cirka tre minutter. Dine svar gemmes undervejs.",
   },
   network: {
-    title: "Net",
+    title: "ElNet og hovedsikring",
     intro:
       "Start med at vælge land. Så sættes de rigtige netværdier og standardpriser automatisk.",
     country: { title: "Land", description: "Hvor ligger ejendommen?" },

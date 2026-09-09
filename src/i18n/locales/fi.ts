@@ -76,7 +76,7 @@ export const fi = {
     footnote: "Kestää noin kolme minuuttia. Vastauksesi tallentuvat matkan varrella.",
   },
   network: {
-    title: "Verkko",
+    title: "Sähköverkko ja pääsulake",
     intro: "Valitse ensin maa. Silloin verkkoarvot ja oletushinnat asetetaan automaattisesti.",
     country: { title: "Maa", description: "Missä kiinteistö sijaitsee?" },
     area: {
