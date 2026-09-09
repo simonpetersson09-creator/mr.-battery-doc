@@ -10,7 +10,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { LANGUAGE_NAMES, SUPPORTED_LANGUAGES, type Language } from "@/i18n";
+import {
+  LANGUAGE_FLAGS,
+  LANGUAGE_NAMES,
+  SUPPORTED_LANGUAGES,
+  type Language,
+} from "@/i18n";
 import { useLanguage } from "@/i18n/LanguageProvider";
 
 export function LanguageSelect() {
@@ -19,13 +24,21 @@ export function LanguageSelect() {
     <Select value={language} onValueChange={(v) => setLanguage(v as Language)}>
       <SelectTrigger
         aria-label={LANGUAGE_NAMES[language]}
-        className="size-12 shrink-0 justify-center rounded-full border-input bg-secondary px-0 font-bold text-foreground shadow-sm [&_svg]:hidden"
+        className="size-12 shrink-0 justify-center rounded-full border-input bg-accent px-0 text-lg leading-none text-accent-foreground shadow-sm [&_svg]:hidden"
       >
-        <SelectValue>{language.toUpperCase()}</SelectValue>
+        <SelectValue>
+          <span aria-hidden>{LANGUAGE_FLAGS[language]}</span>
+        </SelectValue>
       </SelectTrigger>
-      <SelectContent side="top" align="center" className="min-w-[9rem]">
+      <SelectContent side="top" align="center" className="min-w-[10rem]">
         {SUPPORTED_LANGUAGES.map((l) => (
           <SelectItem key={l} value={l}>
+            <span className="mr-2 text-base leading-none" aria-hidden>
+              {LANGUAGE_FLAGS[l]}
+            </span>
+            <span className="bg-accent px-1 text-accent-foreground">
+              {LANGUAGE_FLAGS[l]}
+            </span>
             {LANGUAGE_NAMES[l]}
           </SelectItem>
         ))}
