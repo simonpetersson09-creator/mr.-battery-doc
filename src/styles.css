@@ -559,4 +559,7 @@ html[data-native="true"] {
   textarea {
     font-size: var(--ui-control-text);
   }
+  input.ui-control-sm {
+    font-size: var(--ui-control-text-sm);
+  }
 }
