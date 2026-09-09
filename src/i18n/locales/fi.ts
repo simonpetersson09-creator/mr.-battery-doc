@@ -130,7 +130,7 @@ export const fi = {
   production: {
     title: "Tuotanto",
     intro: "Onko kiinteistössä aurinkopaneeleita tällä hetkellä?",
-    modeTitle: "Onko sinulla aurinkopaneeleita?",
+    modeTitle: "Miten haluat syöttää tuotantosi?",
     modeNone: { title: "Ei aurinkosähköjärjestelmää" },
     modeAnnual: {
       title: "Vuosituotanto",

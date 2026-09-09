@@ -135,7 +135,7 @@ export const sv = {
   production: {
     title: "Produktion",
     intro: "Har fastigheten solceller idag?",
-    modeTitle: "Har du solceller?",
+    modeTitle: "Hur vill du ange din produktion?",
     modeNone: { title: "Ingen solcellsanläggning" },
     modeAnnual: {
       title: "Årsproduktion",
