@@ -183,7 +183,7 @@ export function ToggleRow({
       <Switch
         checked={checked}
         onCheckedChange={onChange}
-        className="shrink-0 data-[state=checked]:bg-foreground"
+        className="shrink-0 data-[state=checked]:border-[oklch(0.3172_0_0/0.3)] data-[state=checked]:bg-[var(--brand-yellow)]"
       />
     </div>
   );
