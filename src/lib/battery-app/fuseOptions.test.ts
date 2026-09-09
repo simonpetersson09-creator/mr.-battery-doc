@@ -89,6 +89,13 @@ describe("country specific main fuse options", () => {
     const se = runBatteryEngine(input("SE"));
     const de = runBatteryEngine(input("DE"));
     expect(de.summary.grid.physicalImportKw).toBeCloseTo(se.summary.grid.physicalImportKw, 6);
-    expect(de.summary.battery.capacityKWh).toBeCloseTo(se.summary.battery.capacityKWh, 6);
+    expect(de.summary.recommendation.capacityKWh).toBeCloseTo(
+      se.summary.recommendation.capacityKWh,
+      6,
+    );
+    expect(de.summary.recommendation.recommendedPowerKw).toBeCloseTo(
+      se.summary.recommendation.recommendedPowerKw,
+      6,
+    );
   });
 });
