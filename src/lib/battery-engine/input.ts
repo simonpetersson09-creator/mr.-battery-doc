@@ -13,6 +13,7 @@ import {
   spreadAnnual,
 } from "../lab/defaults";
 import { buildSeries } from "../lab/simulate";
+import { priceAreaForMarket, reserveModeForMarket } from "../lab/ancillary";
 import { SWEDISH_OPERATING_ECONOMY } from "../lab/operatingEconomy";
 import type { OperatingEconomyConfig } from "../lab/operatingEconomy";
 import type { LabConfig, TimeSeries } from "../lab/types";
@@ -106,7 +107,9 @@ export function toLabConfig(input: BatteryEngineInput = {}): LabConfig {
       offeredPowerKw: st.fcrOfferedPowerKw ?? base.ancillary.offeredPowerKw,
       eurSekRate: input.economy?.eurSekRate ?? base.ancillary.eurSekRate,
       // Country only selects the historical price series; no physics depends on it.
-      priceCountry: site.country ?? base.ancillary.priceCountry ?? "SE",
+      priceCountry: priceAreaForMarket(site.country, site.marketArea),
+      // Reserve product follows the market, not a hardcoded country branch.
+      reserveMode: reserveModeForMarket(site.country, site.marketArea),
     },
     sweep: {
       capacitiesKWh: bat.capacityStepsKWh ?? base.sweep.capacitiesKWh,

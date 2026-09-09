@@ -47,6 +47,11 @@ export type CountryCode = "SE" | "FI" | "DK" | "DE";
 /** Connection / grid physics. */
 export interface EngineSiteInput {
   country?: CountryCode;
+  /**
+   * Price/reserve area inside the country. Only Denmark needs it today (DK1 = symmetric
+   * continental FCR, DK2 = Nordic FCR-D up). Never guessed.
+   */
+  marketArea?: "DK1" | "DK2" | null;
   /** Nominal voltage, V (400 V for a Swedish three-phase connection). */
   voltageV?: number;
   phases?: number;
