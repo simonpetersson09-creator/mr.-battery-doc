@@ -127,7 +127,7 @@ export const da = {
         "Importér et billede, en PDF eller CSV — værdierne udfylder månedsfelterne nedenfor.",
       monthsTitle: "Importeret månedlig data",
     },
-    profile: { title: "Forbrugsprofil", placeholder: "Vælg profil" },
+    profile: { title: "Hvornår bruger du mest strøm?", placeholder: "Vælg profil" },
   },
   production: {
     title: "Produktion",

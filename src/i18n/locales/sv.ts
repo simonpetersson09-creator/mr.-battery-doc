@@ -130,7 +130,7 @@ export const sv = {
         "Importera en bild, PDF eller CSV — värdena fylls i månadsfälten nedan.",
       monthsTitle: "Importerad månadsdata",
     },
-    profile: { title: "Förbrukningsprofil", placeholder: "Välj profil" },
+    profile: { title: "När använder du mest el?", placeholder: "Välj profil" },
   },
   production: {
     title: "Produktion",
