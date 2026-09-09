@@ -1,3 +1,4 @@
+import { reserveProductLabel } from "@/lib/reserve-market";
 import { createFileRoute } from "@tanstack/react-router";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { SectionCard, ToggleRow } from "@/components/wizard/fields";
@@ -54,7 +55,7 @@ function BatteryStep() {
       </div>
 
       <ToggleRow
-        title="Stödtjänster – FCR-D upp"
+        title={`Stödtjänster – ${reserveProductLabel(state.grid.country, state.grid.marketArea)}`}
         description="Reserverar effekt för att stödja elnätet. Appen optimerar reservationen automatiskt."
         checked={s.fcrDUp}
         onChange={set("fcrDUp")}

@@ -36,6 +36,8 @@ export interface ReserveMarketConfig {
   priceArea: FcrMarketArea;
   /** Short customer-facing market name. */
   marketLabel: string;
+  /** Customer-facing PRODUCT name. The UI must never hardcode this. */
+  productLabel: string;
 }
 
 export interface MarketAreaOption {
@@ -51,6 +53,7 @@ const DK1: ReserveMarketConfig = {
   physics: "symmetric",
   datasetId: "DK1_FCR_2025",
   priceArea: "DK1",
+  productLabel: "FCR",
   marketLabel: "Energinet DK1 (FCR, symmetrisk)",
 };
 
@@ -62,6 +65,7 @@ const DK2: ReserveMarketConfig = {
   physics: "upward",
   datasetId: "DK2_FCR_D_UP_2025",
   priceArea: "DK2",
+  productLabel: "FCR-D upp",
   marketLabel: "Energinet DK2 (FCR-D upp)",
 };
 
@@ -73,6 +77,7 @@ const SE: ReserveMarketConfig = {
   physics: "upward",
   datasetId: "SE_FCR_D_UP_2025",
   priceArea: "SE",
+  productLabel: "FCR-D upp",
   marketLabel: "Svenska kraftnät (FCR-D upp)",
 };
 
@@ -84,6 +89,7 @@ const FI: ReserveMarketConfig = {
   physics: "upward",
   datasetId: "FI_FCR_D_UP_2025",
   priceArea: "FI",
+  productLabel: "FCR-D upp",
   marketLabel: "Fingrid (FCR-D upp)",
 };
 
@@ -95,6 +101,7 @@ const DE: ReserveMarketConfig = {
   physics: "symmetric",
   datasetId: "DE_FCR_2025",
   priceArea: "DE",
+  productLabel: "FCR",
   marketLabel: "Regelleistung / ÜNB (FCR, symmetrisk)",
 };
 
@@ -155,4 +162,16 @@ export function reserveCalculationAvailable(
   const cfg = reserveMarketConfig(code, area);
   if (!cfg) return false;
   return hasVerifiedFcrPrices(cfg.priceArea);
+}
+
+/**
+ * Customer-facing product name for a market. Falls back to the neutral "stödtjänster"
+ * when no market is resolved (e.g. Denmark before DK1/DK2 is picked) so no UI can ever
+ * show a Nordic product name for a continental market, or vice versa.
+ */
+export function reserveProductLabel(
+  code: CountryCode,
+  area: MarketArea | null = null,
+): string {
+  return reserveMarketConfig(code, area)?.productLabel ?? "stödtjänster";
 }

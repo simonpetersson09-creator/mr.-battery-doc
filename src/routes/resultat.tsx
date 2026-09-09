@@ -4,6 +4,7 @@ import { WizardShell } from "@/components/wizard/WizardShell";
 import { SectionCard } from "@/components/wizard/fields";
 import { Button } from "@/components/ui/button";
 import { runBatteryApp } from "@/lib/battery-app";
+import { reserveProductLabel } from "@/lib/reserve-market";
 import { buildResultPresentation } from "@/lib/battery-app/resultPresentation";
 import { computeWithoutFcrOptimum } from "@/lib/battery-app/withoutFcrOptimum";
 import { computeBatteryAlternatives } from "@/lib/battery-app/capacityAlternatives";
@@ -133,11 +134,15 @@ function ResultStep() {
 
   const g = s.grid;
 
+  /* Product name always comes from the central reserve market config. */
+  const productLabel = reserveProductLabel(state.grid.country, state.grid.marketArea);
+
   /* All customer-facing relevance and wording comes from one pure presentation layer. */
   const p = buildResultPresentation(outcome.result, {
     peakShavingSelected: state.strategies.peakShaving,
     demandChargeTouched: state.economy.demandChargeTouched,
     withoutFcr,
+    reserveProductLabel: productLabel,
   });
 
   const noBattery = p.noBattery;
@@ -359,11 +364,19 @@ function ResultStep() {
               {ancillaryNote ? (
                 <p className="ui-help">{ancillaryNote}</p>
               ) : s.fcr.enabled ? (
-                <BenefitRow
-                  label="Stödtjänster – FCR-D upp"
-                  hint="Ersättning för reserverad batterieffekt. Historiska priser 2025."
-                  value={moneyPerYear(s.fcr.grossSek)}
-                />
+                <>
+                  <BenefitRow
+                    label={`Stödtjänster – ${productLabel}`}
+                    hint="Beräknat marknadsvärde för reserverad batterieffekt. Historiska priser 2025."
+                    value={moneyPerYear(s.fcr.grossSek)}
+                  />
+                  <p className="ui-help">
+                    Beräknat marknadsvärde baserat på historiska priser 2025. En del av
+                    ersättningen kan tillfalla aggregator, balansansvarig eller annan
+                    marknadsaktör. Faktisk kundersättning beror på avtal, marknadstillträde
+                    och villkor.
+                  </p>
+                </>
               ) : null}
 
             </div>

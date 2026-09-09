@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   COUNTRIES,
   SUPPORTED_COUNTRY_CODES,
-  fcrMarketArea,
   gridStandardLabel,
   theoreticalGridPowerKw,
   type CountryCode,
@@ -13,6 +12,7 @@ import {
   fcrPriceSeriesForCountry,
   hasVerifiedFcrPrices,
 } from "@/lib/lab/ancillary/prices";
+import { reserveMarketConfig } from "@/lib/reserve-market";
 
 const FOUR: CountryCode[] = ["SE", "FI", "DK", "DE"];
 
@@ -54,11 +54,14 @@ describe("country grid config", () => {
 });
 
 describe("country ancillary market config", () => {
-  it("maps each country to its own market area", () => {
-    expect(fcrMarketArea("SE")).toBe("SE");
-    expect(fcrMarketArea("FI")).toBe("FI");
-    expect(fcrMarketArea("DK")).toBe("DK");
-    expect(fcrMarketArea("DE")).toBe("DE");
+  it("routes each country through the central reserve market config only", () => {
+    expect(reserveMarketConfig("SE")!.priceArea).toBe("SE");
+    expect(reserveMarketConfig("FI")!.priceArea).toBe("FI");
+    expect(reserveMarketConfig("DE")!.priceArea).toBe("DE");
+    // Denmark has no generic country-level market: DK1/DK2 must be picked first.
+    expect(reserveMarketConfig("DK")).toBeNull();
+    expect(reserveMarketConfig("DK", "DK1")!.priceArea).toBe("DK1");
+    expect(reserveMarketConfig("DK", "DK2")!.priceArea).toBe("DK2");
   });
 
   it("uses the verified national dataset, never the neighbour's", () => {
@@ -81,7 +84,9 @@ describe("country ancillary market config", () => {
     expect(fcrPriceSeriesForCountry(undefined)).toBe(FCR_D_UP_SE_2025);
   });
 
-  it("prepares Denmark for a possible price-zone split", () => {
-    expect(COUNTRIES.DK.ancillary.additionalPriceAreas).toEqual(["DK1", "DK2"]);
+  it("handles Denmark only through DK1/DK2, never a generic DK market", () => {
+    expect(reserveMarketConfig("DK")).toBeNull();
+    expect(reserveMarketConfig("DK", "DK1")!.productLabel).toBe("FCR");
+    expect(reserveMarketConfig("DK", "DK2")!.productLabel).toBe("FCR-D upp");
   });
 });
