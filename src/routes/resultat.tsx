@@ -345,7 +345,7 @@ function ResultStep() {
           <>
             <p className="ui-hero text-[2rem] tabular-nums">
               {money(s.economy.totalOperatingBenefitSek)}
-              <span className="ui-help font-normal"> /år</span>
+              <span className="ui-help font-normal">/år</span>
             </p>
             <div className="mt-2 space-y-2.5">
               {s.economy.energyBenefitSek !== 0 ? (
