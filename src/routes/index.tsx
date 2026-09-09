@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BatteryCharging, Gauge, PiggyBank, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logo from "@/assets/mr-battery-doc-logo.png.asset.json";
 import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/")({
@@ -34,14 +35,14 @@ function Welcome() {
   return (
     <div className="app-shell surface-sun pt-safe pb-safe max-w-md justify-between px-5">
       <div className="flex flex-col items-center pt-8 text-center">
-        <div className="flex size-16 items-center justify-center rounded-[1.25rem] bg-accent text-accent-foreground shadow-[var(--shadow-card)]">
-          <BatteryCharging className="size-8" />
-        </div>
-        <h1 className="ink-gloss mt-4 font-display text-[2.25rem] leading-[1.05] font-extrabold tracking-tight">
-          Mr. Battery
-          <br />
-          Doc
-        </h1>
+        <h1 className="sr-only">Mr. Battery Doc</h1>
+        <img
+          src={logo.url}
+          alt="Mr. Battery Doc"
+          className="w-full max-w-[17rem]"
+          width={1536}
+          height={1024}
+        />
         <p className="ui-body mt-3 text-muted-foreground">{t("intro.lead")}</p>
       </div>
 
