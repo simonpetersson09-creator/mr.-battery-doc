@@ -1,11 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Coins, HandCoins, Timer } from "lucide-react";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { NumberField, SectionCard } from "@/components/wizard/fields";
+import { Slider } from "@/components/ui/slider";
 import { getCountry } from "@/lib/country-config";
 import { demandChargeHint } from "@/lib/battery-app/economyCopy";
-import { validateEconomyStep } from "@/lib/battery-app/stepValidation";
+import {
+  clampTargetPaybackYears,
+  MAX_TARGET_PAYBACK_YEARS,
+  MIN_TARGET_PAYBACK_YEARS,
+} from "@/lib/battery-app/customerEconomy";
+import { validateEconomyStep, validatePaybackStep } from "@/lib/battery-app/stepValidation";
 import { useWizard } from "@/state/wizard";
-import { useT } from "@/i18n";
+import { formatNumber, useT } from "@/i18n";
 import { countryName } from "@/i18n/labels";
 
 export const Route = createFileRoute("/ekonomi")({
@@ -33,13 +40,17 @@ function EconomyStep() {
   const country = getCountry(state.grid.country);
   /* CURRENCY STAYS COUNTRY-DRIVEN — the UI language never changes it. */
   const unit = country.economy.currencyLabel;
+  const years = state.preferences.targetPaybackYears;
 
   const setEconomy = (patch: Partial<typeof state.economy>) =>
     update((s) => ({ ...s, economy: { ...s.economy, ...patch, touched: true } }));
-  const validity = validateEconomyStep(state);
+  const economyValidity = validateEconomyStep(state);
+  const paybackValidity = validatePaybackStep(state);
+  const validity = economyValidity.ok ? paybackValidity : economyValidity;
 
   return (
     <WizardShell
+      compact
       stepIndex={4}
       title={t("economics.title")}
       intro={t("economics.intro", { country: countryName(state.grid.country) })}
