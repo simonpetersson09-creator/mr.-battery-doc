@@ -56,10 +56,22 @@ export const da = {
   intro: {
     lead: "Svar på nogle enkle spørgsmål om din ejendom, så hjælper vi dig med at finde en passende batteristørrelse.",
     points: {
-      capacity: "Hvor stort et batteri i kWh din ejendom har brug for",
-      power: "Hvilken effekt i kW der passer",
-      usage: "Hvordan batteriet kan bruges",
-      economy: "Hvilken økonomisk nytte batteriet kan give",
+      capacity: {
+        title: "Anbefalet batteristorrelse og effekt",
+        desc: "Hvor mange kWh og kW der passer til din ejendom.",
+      },
+      usage: {
+        title: "Hvordan batteriet kan bruges",
+        desc: "Egenforbrug, mindsket netimport, spidslastafskæring og systemtjenester.",
+      },
+      economy: {
+        title: "Anslået økonomisk nytte",
+        desc: "Hvad batteriet kan give i årlig kundenytte.",
+      },
+      investment: {
+        title: "Fornuftig investeringsomkostning",
+        desc: "Hvad batteriet må koste ud fra din ønskede tilbagebetalingstid.",
+      },
     },
     cta: "Kom i gang",
     footnote: "Tager cirka tre minutter. Dine svar gemmes undervejs.",
