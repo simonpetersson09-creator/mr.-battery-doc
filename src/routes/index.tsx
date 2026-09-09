@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BatteryCharging, PiggyBank, Sun, Wallet } from "lucide-react";
+import { ArrowRight, BatteryFull, Gauge, TrendingUp, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LanguageSelect } from "@/components/LanguageSelect";
 import logo from "@/assets/mr-battery-doc-logo.png.asset.json";
@@ -25,9 +25,9 @@ export const Route = createFileRoute("/")({
 });
 
 const POINTS = [
-  { icon: BatteryCharging, key: "intro.points.capacity" },
-  { icon: Sun, key: "intro.points.usage" },
-  { icon: PiggyBank, key: "intro.points.economy" },
+  { icon: BatteryFull, key: "intro.points.capacity" },
+  { icon: Gauge, key: "intro.points.usage" },
+  { icon: TrendingUp, key: "intro.points.economy" },
   { icon: Wallet, key: "intro.points.investment" },
 ];
 
