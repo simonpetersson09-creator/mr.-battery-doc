@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { FileText } from "lucide-react";
 import { useMemo } from "react";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { SectionCard } from "@/components/wizard/fields";
@@ -15,8 +16,9 @@ import {
 
 import { ancillaryUnavailableText } from "@/lib/battery-app/ancillaryAvailability";
 import { formatMoney } from "@/lib/country-config";
-import { formatNumber, useT } from "@/i18n";
+import { currentLanguage, formatNumber, useT } from "@/i18n";
 import { reserveProductName } from "@/i18n/labels";
+import { PDF_REPORT_AVAILABLE, generatePdfReport } from "@/lib/report/pdfReport";
 import { useWizard } from "@/state/wizard";
 
 export const Route = createFileRoute("/resultat")({
@@ -439,7 +441,7 @@ function ResultStep() {
           aria-disabled={!PDF_REPORT_AVAILABLE}
           onClick={() => {
             if (!PDF_REPORT_AVAILABLE) return;
-            generatePdfReport({ outcome, language: i18n.language });
+            generatePdfReport({ outcome, language: currentLanguage() });
           }}
         >
           <FileText className="size-4" />
