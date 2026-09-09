@@ -115,8 +115,8 @@ export function MonthlyImport({
     <div className="space-y-2">
       <Button
         type="button"
-        variant="outline"
-        className="w-full"
+        variant="ghost"
+        className="cta-primary w-full"
         disabled={busy}
         onClick={() => inputRef.current?.click()}
       >
