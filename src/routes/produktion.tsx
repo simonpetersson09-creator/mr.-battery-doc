@@ -7,6 +7,7 @@ import { MonthGrid } from "@/components/wizard/MonthGrid";
 import { NumberField, OptionCard, SectionCard } from "@/components/wizard/fields";
 import { validateProductionStep } from "@/lib/battery-app/stepValidation";
 import { useWizard } from "@/state/wizard";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/produktion")({
   head: () => ({
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/produktion")({
 });
 
 function ProductionStep() {
+  const t = useT();
   const { state, update } = useWizard();
   const p = state.production;
   const validity = validateProductionStep(state);
@@ -63,70 +65,67 @@ function ProductionStep() {
   );
 
   const selfConsumptionField = (
-    <SectionCard title="Egenanvändning av solel (valfritt)">
+    <SectionCard title={t("production.self.title")}>
       <NumberField
-        label="Egenanvändning"
+        label={t("production.self.label")}
         unit="%"
         value={p.selfConsumptionPct}
-        placeholder="t.ex. 45"
+        placeholder={t("production.self.placeholder")}
         onChange={(v) =>
           update((s) => ({ ...s, production: { ...s.production, selfConsumptionPct: v } }))
         }
       />
-      <p className="ui-help">
-        Andelen av din producerade solel som används direkt i fastigheten. Om du inte vet
-        värdet beräknar vi det utifrån din förbrukning och produktion.
-      </p>
+      <p className="ui-help">{t("production.self.hint")}</p>
     </SectionCard>
   );
 
   return (
     <WizardShell
       stepIndex={2}
-      title="Produktion"
-      intro="Har fastigheten solceller idag?"
+      title={t("production.title")}
+      intro={t("production.intro")}
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
     >
       <div className="space-y-2">
         <OptionCard
-          title="Ingen solcellsanläggning"
+          title={t("production.modeNone.title")}
           selected={choice === "none"}
           onSelect={() => setChoice("none")}
         />
         <OptionCard
-          title="Årsproduktion"
-          description="Jag vet anläggningens storlek och ungefärlig årsproduktion."
+          title={t("production.modeAnnual.title")}
+          description={t("production.modeAnnual.description")}
           selected={choice === "annual"}
           onSelect={() => setChoice("annual")}
         />
         <OptionCard
-          title="Månad för månad"
-          description="Jag har faktiska produktionsvärden för alla 12 månader."
+          title={t("production.modeMonthly.title")}
+          description={t("production.modeMonthly.description")}
           selected={choice === "monthly"}
           onSelect={() => setChoice("monthly")}
         />
       </div>
 
       {choice === "annual" ? (
-        <SectionCard title="Anläggning">
+        <SectionCard title={t("production.plant.title")}>
           <NumberField
-            label="Installerad paneleffekt"
+            label={t("production.plant.dcKwp")}
             unit="kWp"
             value={p.dcKwp}
             placeholder="t.ex. 14"
             onChange={(v) => update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))}
           />
           <NumberField
-            label="Växelriktare"
+            label={t("production.plant.acKw")}
             unit="kW"
             value={p.acKw}
             placeholder="t.ex. 12"
             onChange={(v) => update((s) => ({ ...s, production: { ...s.production, acKw: v } }))}
           />
           <NumberField
-            label="Årsproduktion"
-            unit="kWh/år"
+            label={t("production.plant.annual")}
+            unit={t("units.kwhPerYear")}
             value={p.annualKwh}
             placeholder="t.ex. 14000"
             onChange={(v) =>
@@ -139,10 +138,10 @@ function ProductionStep() {
       {choice === "monthly" ? (
 
         <>
-          <SectionCard title="Faktisk månadsproduktion">
+          <SectionCard title={t("production.monthly.title")}>
             <MonthlyImport
               kind="production"
-              description="Importera en bild, PDF eller CSV — värdena fylls i månadsfälten nedan."
+              description={t("production.monthly.importDescription")}
               onApply={applyImported}
               onOpenChange={setImportOpen}
             />
@@ -160,10 +159,10 @@ function ProductionStep() {
             ) : null}
           </SectionCard>
 
-          <SectionCard title="Anläggning">
+          <SectionCard title={t("production.plant.title")}>
             <div className="grid grid-cols-2 gap-2">
               <NumberField
-                label="Paneleffekt"
+                label={t("production.plant.dcKwpShort")}
                 unit="kWp"
                 value={p.dcKwp}
                 placeholder="14"
@@ -172,7 +171,7 @@ function ProductionStep() {
                 }
               />
               <NumberField
-                label="Växelriktare"
+                label={t("production.plant.acKw")}
                 unit="kW"
                 value={p.acKw}
                 placeholder="12"

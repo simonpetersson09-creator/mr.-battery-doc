@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { PROFILE_CATALOG, getProfile, isKnownProfile } from "@/lib/consumption-profiles";
 import { useWizard, type ConsumptionMode } from "@/state/wizard";
+import { useT } from "@/i18n";
 
 /**
  * Hour-shape fallback used when the customer supplies actual monthly values.
@@ -43,6 +44,7 @@ export const Route = createFileRoute("/forbrukning")({
 });
 
 function ConsumptionStep() {
+  const t = useT();
   const { state, update } = useWizard();
   const c = state.consumption;
   const validity = validateConsumptionStep(state);
@@ -71,33 +73,33 @@ function ConsumptionStep() {
   return (
     <WizardShell
       stepIndex={1}
-      title="Förbrukning"
-      intro="Välj det sätt som passar dig bäst. Du kan ändra dig senare."
+      title={t("consumption.title")}
+      intro={t("consumption.intro")}
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
     >
       <div className="space-y-2">
         <OptionCard
-          title="Årsförbrukning"
-          description="Jag vet ungefär hur många kWh vi använder per år."
+          title={t("consumption.modeAnnual.title")}
+          description={t("consumption.modeAnnual.description")}
           selected={c.mode === "annual"}
           onSelect={() => setMode("annual")}
         />
         <OptionCard
-          title="Månad för månad"
-          description="Jag har faktiska värden för alla 12 månader."
+          title={t("consumption.modeMonthly.title")}
+          description={t("consumption.modeMonthly.description")}
           selected={c.mode === "monthly"}
           onSelect={() => setMode("monthly")}
         />
       </div>
 
       {c.mode === "annual" ? (
-        <SectionCard title="Årsförbrukning">
+        <SectionCard title={t("consumption.annual.title")}>
           <NumberField
-            label="Förbrukning"
-            unit="kWh/år"
+            label={t("consumption.annual.label")}
+            unit={t("units.kwhPerYear")}
             value={c.annualKwh}
-            placeholder="t.ex. 20000"
+            placeholder={t("consumption.annual.placeholder")}
             onChange={(v) =>
               update((s) => ({ ...s, consumption: { ...s.consumption, annualKwh: v } }))
             }
@@ -106,10 +108,10 @@ function ConsumptionStep() {
       ) : null}
 
       {c.mode === "monthly" ? (
-        <SectionCard title="Faktisk månadsförbrukning">
+        <SectionCard title={t("consumption.monthly.title")}>
           <MonthlyImport
             kind="consumption"
-            description="Importera en bild, PDF eller CSV — värdena fylls i månadsfälten nedan."
+            description={t("consumption.monthly.importDescription")}
             onApply={applyImported}
             onOpenChange={setImportOpen}
           />
@@ -135,12 +137,13 @@ function ConsumptionStep() {
 }
 
 function ProfilePicker() {
+  const t = useT();
   const { state, update } = useWizard();
   const selected = state.consumption.profileId
     ? getProfile(state.consumption.profileId)
     : null;
   return (
-    <SectionCard title="Förbrukningsprofil">
+    <SectionCard title={t("consumption.profile.title")}>
       <Select
         value={state.consumption.profileId ?? ""}
         onValueChange={(v) =>
@@ -151,7 +154,7 @@ function ProfilePicker() {
         }
       >
         <SelectTrigger className="ui-control">
-          <SelectValue placeholder="Välj profil">{selected ? selected.name : null}</SelectValue>
+          <SelectValue placeholder={t("consumption.profile.placeholder")}>{selected ? selected.name : null}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           {PROFILE_CATALOG.map((p) => (

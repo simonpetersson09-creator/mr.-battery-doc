@@ -18,6 +18,9 @@ import {
 import { marketAreaOptions, type MarketArea } from "@/lib/reserve-market";
 import { validateGridStep } from "@/lib/battery-app/stepValidation";
 import { useWizard } from "@/state/wizard";
+import { LANGUAGE_NAMES, SUPPORTED_LANGUAGES, useT, type Language } from "@/i18n";
+import { countryName, marketAreaName } from "@/i18n/labels";
+import { useLanguage } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/nat")({
   head: () => ({
@@ -39,7 +42,9 @@ export const Route = createFileRoute("/nat")({
 });
 
 function GridStep() {
+  const t = useT();
   const { state, setCountry, update } = useWizard();
+  const { language, setLanguage } = useLanguage();
   const country = getCountry(state.grid.country);
   const validity = validateGridStep(state);
   const areaOptions = marketAreaOptions(state.grid.country);
@@ -47,25 +52,41 @@ function GridStep() {
   return (
     <WizardShell
       stepIndex={0}
-      title="Nät"
-      intro="Börja med att välja land. Då sätts rätt nätvärden och standardpriser automatiskt."
+      title={t("network.title")}
+      intro={t("network.intro")}
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
     >
-      <SectionCard title="Land" description="Var ligger fastigheten?">
+      {/* LANGUAGE IS A SEPARATE CHOICE: it never touches country, currency or market. */}
+      <SectionCard title={t("language.title")} description={t("language.description")}>
+        <Select value={language} onValueChange={(v) => setLanguage(v as Language)}>
+          <SelectTrigger className="ui-control" aria-label={t("language.title")}>
+            <SelectValue>{LANGUAGE_NAMES[language]}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {SUPPORTED_LANGUAGES.map((l) => (
+              <SelectItem key={l} value={l}>
+                {LANGUAGE_NAMES[l]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </SectionCard>
+
+      <SectionCard title={t("network.country.title")} description={t("network.country.description")}>
         <Select
           value={state.grid.country}
           onValueChange={(v) => setCountry(v as CountryCode)}
         >
           <SelectTrigger className="ui-control">
             <SelectValue>
-              {country.flag} {country.name}
+              {country.flag} {countryName(state.grid.country)}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {SUPPORTED_COUNTRY_LIST.map((c) => (
               <SelectItem key={c.code} value={c.code}>
-                {c.flag} {c.name}
+                {c.flag} {countryName(c.code)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -73,7 +94,7 @@ function GridStep() {
       </SectionCard>
 
       {areaOptions.length > 0 ? (
-        <SectionCard title="Elområde" description="Välj var i landet fastigheten ligger.">
+        <SectionCard title={t("network.area.title")} description={t("network.area.description")}>
           <Select
             value={state.grid.marketArea ?? ""}
             onValueChange={(v) =>
@@ -84,14 +105,14 @@ function GridStep() {
             }
           >
             <SelectTrigger className="ui-control">
-              <SelectValue placeholder="Välj elområde">
-                {areaOptions.find((o) => o.value === state.grid.marketArea)?.label}
+              <SelectValue placeholder={t("network.area.placeholder")}>
+                {state.grid.marketArea ? marketAreaName(state.grid.marketArea) : null}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {areaOptions.map((o) => (
                 <SelectItem key={o.value} value={o.value}>
-                  {o.label}
+                  {marketAreaName(o.value)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -99,7 +120,7 @@ function GridStep() {
         </SectionCard>
       ) : null}
 
-      <SectionCard title="Huvudsäkring" description="Finns oftast på elnätsfakturan.">
+      <SectionCard title={t("network.fuse.title")} description={t("network.fuse.description")}>
         <Select
           value={state.grid.mainFuseManual ? "custom" : String(state.grid.mainFuseA)}
           onValueChange={(v) =>
@@ -115,7 +136,7 @@ function GridStep() {
           <SelectTrigger className="ui-control">
             <SelectValue>
               {state.grid.mainFuseManual
-                ? `Annan huvudsäkring (${state.grid.mainFuseA} A)`
+                ? t("network.fuse.otherWith", { amps: state.grid.mainFuseA })
                 : `${state.grid.mainFuseA} A`}
             </SelectValue>
           </SelectTrigger>
@@ -125,16 +146,16 @@ function GridStep() {
                 {a} A
               </SelectItem>
             ))}
-            <SelectItem value="custom">Annan huvudsäkring</SelectItem>
+            <SelectItem value="custom">{t("network.fuse.other")}</SelectItem>
           </SelectContent>
         </Select>
 
         {state.grid.mainFuseManual ? (
           <NumberField
-            label="Annan huvudsäkring"
+            label={t("network.fuse.other")}
             unit="A"
             value={state.grid.mainFuseA}
-            placeholder="Ange manuellt"
+            placeholder={t("network.fuse.manualPlaceholder")}
             onChange={(v) =>
               update((s) => ({
                 ...s,
@@ -149,18 +170,19 @@ function GridStep() {
         ) : null}
       </SectionCard>
 
-
-      <SectionCard
-        title="Nätvärden"
-        description="Automatiskt baserat på valt land."
-      >
+      <SectionCard title={t("network.values.title")} description={t("network.values.description")}>
         <dl className="grid grid-cols-2 gap-2">
-          <Value label="Spänning" value={`${country.grid.voltage} V`} />
-          <Value label="Faser" value={`${country.grid.phases}-fas`} />
-          <Value label="Frekvens" value={`${country.grid.frequency} Hz`} />
-          <Value label="Valuta" value={country.economy.currency} />
+          <Value label={t("network.values.voltage")} value={`${country.grid.voltage} V`} />
+          <Value
+            label={t("network.values.phases")}
+            value={t("units.phases", { count: country.grid.phases })}
+          />
+          <Value label={t("network.values.frequency")} value={`${country.grid.frequency} Hz`} />
+          <Value label={t("network.values.currency")} value={country.economy.currency} />
         </dl>
-        <p className="ui-help">Standarder: {country.grid.standards.join(", ")}</p>
+        <p className="ui-help">
+          {t("network.values.standards", { list: country.grid.standards.join(", ") })}
+        </p>
 
         <label className="flex items-start gap-2.5 rounded-[1.25rem] px-3.5 py-3 transition-colors chip-unselected cursor-pointer">
           <input
@@ -174,10 +196,9 @@ function GridStep() {
               }))
             }
           />
-          <span className="ui-label">Jag har kontrollerat att nätvärdena stämmer</span>
+          <span className="ui-label">{t("network.values.confirm")}</span>
         </label>
       </SectionCard>
-
     </WizardShell>
   );
 }
@@ -190,4 +211,3 @@ function Value({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-

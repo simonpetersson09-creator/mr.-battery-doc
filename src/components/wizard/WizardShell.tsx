@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, BatteryCharging } from "lucide-react";
 import type { ReactNode } from "react";
 import { WIZARD_STEPS } from "./steps";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/i18n";
 
 interface WizardShellProps {
   stepIndex: number;
@@ -13,7 +14,7 @@ interface WizardShellProps {
   nextDisabled?: boolean;
   /** Shown above the buttons when the step is incomplete. */
   nextBlockedReason?: string | null;
-  /** Replaces the "Nästa" button on the last step. */
+  /** Replaces the "Next" button on the last step. */
   footerAction?: ReactNode;
 }
 
@@ -27,6 +28,7 @@ export function WizardShell({
   nextBlockedReason,
   footerAction,
 }: WizardShellProps) {
+  const t = useT();
   // Both back affordances follow the wizard's own step order.
   const prev = stepIndex > 0 ? WIZARD_STEPS[stepIndex - 1]!.path : "/";
   const next = stepIndex < WIZARD_STEPS.length - 1 ? WIZARD_STEPS[stepIndex + 1]!.path : null;
@@ -37,7 +39,7 @@ export function WizardShell({
         <div className="flex items-center gap-3 pt-1">
           <Link
             to={prev}
-            aria-label="Tillbaka"
+            aria-label={t("common.back")}
             className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-sm transition-colors hover:bg-secondary"
           >
             <ArrowLeft className="size-4" />
@@ -47,7 +49,7 @@ export function WizardShell({
               <BatteryCharging className="size-4" />
             </span>
             <span className="truncate font-display text-sm font-bold tracking-tight">
-              Mr. Battery Doc
+              {t("common.appName")}
             </span>
           </div>
         </div>
@@ -56,13 +58,12 @@ export function WizardShell({
 
       <main className="flex-1 px-4 pt-1 pb-32">
         <p className="ui-caption">
-          Steg {stepIndex + 1} av {WIZARD_STEPS.length}
+          {t("common.step", { current: stepIndex + 1, total: WIZARD_STEPS.length })}
         </p>
         <h1 className="ui-page-title mt-1">{title}</h1>
         {intro ? <p className="ui-help mt-1">{intro}</p> : null}
         <div className="mt-4 space-y-3">{children}</div>
       </main>
-
 
       <div className="pb-safe fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-[32rem] border-t border-border/70 bg-background/90 px-4 pt-2 backdrop-blur-md">
         {nextDisabled && nextBlockedReason ? (
@@ -72,7 +73,7 @@ export function WizardShell({
         ) : null}
         <div className="flex gap-2">
           <Button asChild variant="outline" className="h-12 flex-1 rounded-[0.875rem]">
-            <Link to={prev}>Tillbaka</Link>
+            <Link to={prev}>{t("common.back")}</Link>
           </Button>
           {footerAction ? (
             footerAction
@@ -84,7 +85,7 @@ export function WizardShell({
                 disabled
                 aria-disabled="true"
               >
-                {nextLabel ?? "Nästa"}
+                {nextLabel ?? t("common.next")}
                 <ArrowRight className="size-4" />
               </Button>
             ) : (
@@ -94,7 +95,7 @@ export function WizardShell({
                 className="h-12 flex-[2] rounded-[0.875rem] font-bold shadow-cta"
               >
                 <Link to={next}>
-                  {nextLabel ?? "Nästa"}
+                  {nextLabel ?? t("common.next")}
                   <ArrowRight className="size-4" />
                 </Link>
               </Button>
@@ -105,12 +106,11 @@ export function WizardShell({
               variant="cta"
               className="h-12 flex-[2] rounded-[0.875rem] font-bold shadow-cta"
             >
-              <Link to="/">Klar</Link>
+              <Link to="/">{t("common.done")}</Link>
             </Button>
           )}
         </div>
       </div>
-
     </div>
   );
 }

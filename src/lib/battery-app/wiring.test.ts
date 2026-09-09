@@ -71,7 +71,7 @@ describe("FCR-D up toggle", () => {
   it("the battery page exposes exactly one ancillary service", () => {
     const page = read("src/routes/batteri.tsx");
     // The product name now comes from the central market config (FCR-D upp / FCR).
-    expect(page).toMatch(/reserveProductLabel/);
+    expect(page).toMatch(/reserveProductName/);
     expect(page).not.toMatch(/FCR-D ned|FCR-N|FFR|mFRR/);
   });
 });
