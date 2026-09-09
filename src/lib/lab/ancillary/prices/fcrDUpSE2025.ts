@@ -24,7 +24,8 @@
 
 export interface FcrPriceSeries {
   market: string;
-  service: "FCR-D up";
+  /** "FCR-D up" = nordisk uppåtriktad produkt, "FCR" = kontinental symmetrisk produkt. */
+  service: "FCR-D up" | "FCR";
   referenceYear: number;
   currency: "EUR";
   unit: "EUR/MW/h";

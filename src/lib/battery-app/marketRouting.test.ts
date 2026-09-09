@@ -37,7 +37,7 @@ describe("country + market area routing", () => {
     expect(reserveCalculationAvailable("FI")).toBe(true);
   });
 
-  it("DE: no area, symmetric FCR, no fabricated revenue", () => {
+  it("DE: no area, symmetric FCR, priced on its own dataset", () => {
     expect(requiresMarketArea("DE")).toBe(false);
     const c = reserveMarketConfig("DE")!;
     expect([c.product, c.physics, c.synchronousArea, c.datasetId]).toEqual([
@@ -46,8 +46,8 @@ describe("country + market area routing", () => {
       "continental",
       "DE_FCR_2025",
     ]);
-    expect(reserveCalculationAvailable("DE")).toBe(false);
-    expect(ancillaryDataAvailable("DE")).toBe(false);
+    expect(reserveCalculationAvailable("DE")).toBe(true);
+    expect(ancillaryDataAvailable("DE")).toBe(true);
   });
 
   it("DK1: continental, symmetric FCR", () => {
