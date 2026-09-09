@@ -110,6 +110,10 @@ export function MonthlyImport({
   };
 
   const handleFile = async (file: File) => {
+    if (file.size > MAX_FILE_BYTES) {
+      setError(t("errors.importTooLarge"));
+      return;
+    }
     setBusy(true);
     setError(null);
     setApplied(false);
@@ -118,9 +122,9 @@ export function MonthlyImport({
       if (TEXT_TYPES.test(file.type) || /\.(csv|txt|tsv)$/i.test(file.name)) {
         payload = extractFromText(await file.text());
       } else {
-        const dataUrl = await readAsDataUrl(file);
+        const upload = await toUploadDataUrl(file);
         const result = await extractMonthlyFromDocument({
-          data: { dataUrl, mimeType: file.type || "image/jpeg", fileName: file.name },
+          data: { dataUrl: upload.dataUrl, mimeType: upload.mimeType, fileName: file.name },
         });
         if ("error" in result && result.error) {
           setError(result.error);
@@ -129,6 +133,7 @@ export function MonthlyImport({
         }
         payload = result;
       }
+
 
       setSelfPct(payload.selfConsumptionPct);
       const choice = selectSeries(payload, kind);
