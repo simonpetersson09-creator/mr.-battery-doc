@@ -169,6 +169,24 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
    * system (final capacity, power, strategies, FCR reservation and dispatch). The sizing
    * sweep's own assessment run may differ and is kept only under sizing diagnostics.
    */
+  /**
+   * PHYSICAL RESERVE PREVIEW. When a market has no verified price dataset (Germany, DK1,
+   * DK2 today) the economic sweep can never justify a reservation, so the recommended
+   * system runs with FCR off. The PHYSICS is still simulated here, at the full offerable
+   * power, so the symmetric/upward reserve model can be validated and reported
+   * independently of prices. It is diagnostics only: it never touches the recommendation,
+   * the sizing or the economy.
+   */
+  let reservePhysicalPreview: SimResult["ancillary"] | null = null;
+  if (cfg.strategies.ancillaryServices && result.ancillary.priceModel === "unavailable") {
+    const previewCfg: LabConfig = {
+      ...cfg,
+      strategies: { ...cfg.strategies, ancillaryServices: true },
+      ancillary: { ...cfg.ancillary, enabled: true, offeredPowerKw: powerKw },
+    };
+    reservePhysicalPreview = simulate(previewCfg, series, capacityKWh, powerKw).ancillary;
+  }
+
   const gridAssessment = assessGrid(result, sweep.baseline, cfg.gridAssessment);
 
   const a = result.ancillary;
@@ -342,6 +360,7 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       series,
       config: runCfg,
       economicPowerSizing,
+      reservePhysicalPreview,
     },
   };
 }
