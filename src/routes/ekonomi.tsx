@@ -72,7 +72,7 @@ function EconomyStep() {
           unit={`${unit}/kW/mån`}
           step="1"
           value={state.economy.demandCharge}
-          hint="Schablon. Ändra om du känner till din effektavgift."
+          hint={demandChargeHint(state.economy.demandCharge)}
           onChange={(v) => setEconomy({ demandCharge: v ?? 0, demandChargeTouched: true })}
         />
       </SectionCard>
