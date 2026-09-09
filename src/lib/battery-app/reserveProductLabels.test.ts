@@ -1,3 +1,4 @@
+import { sv } from "@/i18n/locales/sv";
 import { describe, expect, it } from "vitest";
 import { reserveMarketConfig, reserveProductLabel } from "@/lib/reserve-market";
 import { buildResultPresentation } from "@/lib/battery-app/resultPresentation";
@@ -32,7 +33,8 @@ describe("reserve product labels come from the market config", () => {
     expect(resultatSource).not.toContain('"Stödtjänster – FCR-D upp"');
     expect(batteriSource).not.toContain('"Stödtjänster – FCR-D upp"');
     expect(resultatSource).toContain("reserveProductLabel");
-    expect(batteriSource).toContain("reserveProductLabel");
+    // The battery page renders the localized name of the same canonical product.
+    expect(batteriSource).toContain("reserveProductName");
   });
 
   it("uses the supplied product name in the power explanation", () => {
@@ -61,19 +63,19 @@ describe("reserve product labels come from the market config", () => {
 
   it("H+I+J: the market-value note is tied to the ancillary row and changes no number", () => {
     // The note lives inside the same conditional block as the ancillary benefit row.
-    const block = resultatSource.slice(
-      resultatSource.indexOf("Stödtjänster – ${productLabel}"),
-      resultatSource.indexOf("Stödtjänster – ${productLabel}") + 1200,
-    );
-    expect(block).toContain("Beräknat marknadsvärde");
-    expect(block).toContain("aggregator, balansansvarig");
-    expect(block).toContain("avtal, marknadstillträde");
+    const anchor = resultatSource.indexOf("results.benefit.ancillary");
+    const block = resultatSource.slice(anchor, anchor + 1200);
     expect(block).toContain("moneyPerYear(s.fcr.grossSek)");
+    expect(block).toContain("results.benefit.ancillaryNote");
     // No fee/percentage is ever subtracted from the engine figure.
     expect(block).not.toMatch(/0\.\d+\s*\*\s*s\.fcr/);
     // J: nothing outside `s.fcr.enabled` prints the note.
-    expect(resultatSource.indexOf("aggregator, balansansvarig")).toBeGreaterThan(
+    expect(resultatSource.indexOf("results.benefit.ancillaryNote")).toBeGreaterThan(
       resultatSource.indexOf("s.fcr.enabled ?"),
     );
+    // The customer-facing wording itself is unchanged, now centralized in the locale.
+    expect(sv.results.benefit.ancillaryHint).toContain("Beräknat marknadsvärde");
+    expect(sv.results.benefit.ancillaryNote).toContain("aggregator, balansansvarig");
+    expect(sv.results.benefit.ancillaryNote).toContain("avtal, marknadstillträde");
   });
 });
