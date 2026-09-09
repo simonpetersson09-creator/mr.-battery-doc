@@ -189,6 +189,8 @@ export const da = {
   results: {
     title: "Resultat",
     intro: "Sådan ser forslaget ud for din ejendom.",
+    pdfReport: "Vis PDF-rapport",
+    pdfReportPending: "PDF-rapporten er på vej og kan endnu ikke vises.",
     incomplete: {
       intro: "Vi mangler lidt mere information.",
       title: "Udfyld det, der mangler",

@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { FileText } from "lucide-react";
 import { useMemo } from "react";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { SectionCard } from "@/components/wizard/fields";
@@ -15,8 +16,9 @@ import {
 
 import { ancillaryUnavailableText } from "@/lib/battery-app/ancillaryAvailability";
 import { formatMoney } from "@/lib/country-config";
-import { formatNumber, useT } from "@/i18n";
+import { currentLanguage, formatNumber, useT } from "@/i18n";
 import { reserveProductName } from "@/i18n/labels";
+import { PDF_REPORT_AVAILABLE, generatePdfReport } from "@/lib/report/pdfReport";
 import { useWizard } from "@/state/wizard";
 
 export const Route = createFileRoute("/resultat")({
@@ -426,6 +428,31 @@ function ResultStep() {
         <p className="ui-help mt-3 text-muted-foreground/80">{importantInfoFooter()}</p>
       </details>
 
+      {/*
+        Report entry point. The report must always be built from `outcome` — the current
+        simulation rendered above — never from a cached or recalculated result.
+      */}
+      <div className="pt-1">
+        <Button
+          type="button"
+          variant="outline"
+          className="h-12 w-full rounded-[0.875rem] font-semibold"
+          disabled={!PDF_REPORT_AVAILABLE}
+          aria-disabled={!PDF_REPORT_AVAILABLE}
+          onClick={() => {
+            if (!PDF_REPORT_AVAILABLE) return;
+            generatePdfReport({ outcome, language: currentLanguage() });
+          }}
+        >
+          <FileText className="size-4" />
+          {t("results.pdfReport")}
+        </Button>
+        {PDF_REPORT_AVAILABLE ? null : (
+          <p className="ui-help mt-2 text-center" role="status">
+            {t("results.pdfReportPending")}
+          </p>
+        )}
+      </div>
     </WizardShell>
   );
 }

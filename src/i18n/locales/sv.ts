@@ -191,6 +191,8 @@ export const sv = {
   results: {
     title: "Resultat",
     intro: "Så här ser förslaget ut för din fastighet.",
+    pdfReport: "Visa PDF-rapport",
+    pdfReportPending: "PDF-rapporten är på väg och kan inte visas ännu.",
     incomplete: {
       intro: "Vi behöver lite mer information.",
       title: "Fyll i det som saknas",
