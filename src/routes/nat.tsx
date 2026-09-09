@@ -108,16 +108,18 @@ function GridStep() {
         >
           <SelectTrigger className="ui-control">
             <SelectValue>
-              {state.grid.mainFuseManual ? "Annan" : `${state.grid.mainFuseA} A`}
+              {state.grid.mainFuseManual
+                ? `Annan huvudsäkring (${state.grid.mainFuseA} A)`
+                : `${state.grid.mainFuseA} A`}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            {country.grid.commonMainFuses.map((a) => (
+            {fuseOptions(state.grid.country).map((a) => (
               <SelectItem key={a} value={String(a)}>
                 {a} A
               </SelectItem>
             ))}
-            <SelectItem value="custom">Annan</SelectItem>
+            <SelectItem value="custom">Annan huvudsäkring</SelectItem>
           </SelectContent>
         </Select>
 
@@ -132,7 +134,7 @@ function GridStep() {
                 ...s,
                 grid: {
                   ...s.grid,
-                  mainFuseA: v ?? country.grid.defaultMainFuse,
+                  mainFuseA: v ?? defaultFuseA(s.grid.country),
                   mainFuseManual: true,
                 },
               }))
@@ -140,6 +142,7 @@ function GridStep() {
           />
         ) : null}
       </SectionCard>
+
 
       <SectionCard
         title="Nätvärden"
