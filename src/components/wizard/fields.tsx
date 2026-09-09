@@ -66,13 +66,15 @@ export function NumberField({
   badge?: string;
   /** Compact variant: unit is rendered under the input so the field fits a 2-column grid. */
   dense?: boolean;
+  /** Smaller height + text to match compact month grids. */
+  compact?: boolean;
 }) {
   const input = (
     <input
       inputMode="decimal"
       type="number"
       step={step}
-      className="ui-control tabular-nums"
+      className={`ui-control tabular-nums ${compact ? "h-9 ui-control-text-sm" : ""}`}
       value={value ?? ""}
       placeholder={placeholder}
       onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
