@@ -54,6 +54,7 @@ export function NumberField({
   step,
   badge,
   dense,
+  compact,
 }: {
   label: string;
   unit?: string;
