@@ -132,7 +132,7 @@ export const en = {
   production: {
     title: "Production",
     intro: "Does the property have solar panels today?",
-    modeTitle: "Do you have solar panels?",
+    modeTitle: "How do you want to enter your production?",
     modeNone: { title: "No solar installation" },
     modeAnnual: {
       title: "Annual production",

@@ -132,7 +132,7 @@ export const da = {
   production: {
     title: "Produktion",
     intro: "Har ejendommen solceller i dag?",
-    modeTitle: "Har du solceller?",
+    modeTitle: "Hvordan vil du angive din produktion?",
     modeNone: { title: "Intet solcelleanlæg" },
     modeAnnual: {
       title: "Årsproduktion",

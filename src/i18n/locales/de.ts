@@ -132,7 +132,7 @@ export const de = {
   production: {
     title: "Erzeugung",
     intro: "Hat die Immobilie heute eine PV-Anlage?",
-    modeTitle: "Haben Sie eine PV-Anlage?",
+    modeTitle: "Wie möchten Sie Ihre Erzeugung angeben?",
     modeNone: { title: "Keine PV-Anlage" },
     modeAnnual: {
       title: "Jahresertrag",
