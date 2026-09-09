@@ -36,9 +36,6 @@ export function LanguageSelect() {
             <span className="mr-2 text-base leading-none" aria-hidden>
               {LANGUAGE_FLAGS[l]}
             </span>
-            <span className="bg-accent px-1 text-accent-foreground">
-              {LANGUAGE_FLAGS[l]}
-            </span>
             {LANGUAGE_NAMES[l]}
           </SelectItem>
         ))}
