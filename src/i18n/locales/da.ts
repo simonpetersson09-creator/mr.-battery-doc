@@ -132,6 +132,7 @@ export const da = {
   production: {
     title: "Produktion",
     intro: "Har ejendommen solceller i dag?",
+    modeTitle: "Har du solceller?",
     modeNone: { title: "Intet solcelleanlæg" },
     modeAnnual: {
       title: "Årsproduktion",
@@ -152,6 +153,7 @@ export const da = {
       title: "Faktisk månedsproduktion",
       importDescription:
         "Importér et billede, en PDF eller CSV — værdierne udfylder månedsfelterne nedenfor.",
+      monthsTitle: "Importeret månedlig data",
     },
     self: {
       title: "Egetforbrug af solstrøm (valgfrit)",

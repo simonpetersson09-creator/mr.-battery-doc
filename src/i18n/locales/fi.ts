@@ -130,6 +130,7 @@ export const fi = {
   production: {
     title: "Tuotanto",
     intro: "Onko kiinteistössä aurinkopaneeleita tällä hetkellä?",
+    modeTitle: "Onko sinulla aurinkopaneeleita?",
     modeNone: { title: "Ei aurinkosähköjärjestelmää" },
     modeAnnual: {
       title: "Vuosituotanto",
@@ -150,6 +151,7 @@ export const fi = {
       title: "Todellinen kuukausituotanto",
       importDescription:
         "Tuo kuva, PDF tai CSV — arvot täyttyvät alla oleviin kuukausikenttiin.",
+      monthsTitle: "Tuodut kuukausitiedot",
     },
     self: {
       title: "Aurinkosähkön oma käyttö (valinnainen)",
