@@ -8,7 +8,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SUPPORTED_COUNTRY_LIST, getCountry, type CountryCode } from "@/lib/country-config";
+import {
+  SUPPORTED_COUNTRY_LIST,
+  defaultFuseA,
+  fuseOptions,
+  getCountry,
+  type CountryCode,
+} from "@/lib/country-config";
 import { marketAreaOptions, type MarketArea } from "@/lib/reserve-market";
 import { validateGridStep } from "@/lib/battery-app/stepValidation";
 import { useWizard } from "@/state/wizard";
