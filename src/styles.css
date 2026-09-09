@@ -523,13 +523,13 @@ html[data-native="true"] {
 
 /* One control height everywhere: 48px touch target, 14px text. */
 @utility ui-control {
-  height: 3rem;
+  height: 2.25rem;
   width: 100%;
   border-radius: 0.875rem;
   border: 1px solid oklch(0.3172 0 0 / 0.15);
   background-color: var(--surface-cream);
   padding-inline: 0.75rem;
-  font-size: var(--ui-control-text);
+  font-size: var(--ui-control-text-sm);
   font-weight: 600;
   color: var(--color-foreground);
   outline: none;
@@ -570,13 +570,3 @@ html[data-native="true"] {
 
 
 /* Touch devices need >=16px on form fields to avoid iOS auto-zoom. */
-@media (pointer: coarse) {
-  input,
-  select,
-  textarea {
-    font-size: var(--ui-control-text);
-  }
-  input.ui-control-sm {
-    font-size: var(--ui-control-text-sm);
-  }
-}
