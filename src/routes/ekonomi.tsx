@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { NumberField, SectionCard } from "@/components/wizard/fields";
 import { getCountry } from "@/lib/country-config";
+import { demandChargeHint } from "@/lib/battery-app/economyCopy";
 import { validateEconomyStep } from "@/lib/battery-app/stepValidation";
 import { useWizard } from "@/state/wizard";
 
@@ -72,7 +73,7 @@ function EconomyStep() {
           unit={`${unit}/kW/mån`}
           step="1"
           value={state.economy.demandCharge}
-          hint="Schablon. Ändra om du känner till din effektavgift."
+          hint={demandChargeHint(state.economy.demandCharge)}
           onChange={(v) => setEconomy({ demandCharge: v ?? 0, demandChargeTouched: true })}
         />
       </SectionCard>
