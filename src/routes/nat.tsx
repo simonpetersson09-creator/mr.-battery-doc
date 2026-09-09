@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Globe, MapPin, ShieldCheck, PlugZap } from "lucide-react";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { NumberField, SectionCard } from "@/components/wizard/fields";
 import {
@@ -56,7 +57,7 @@ function GridStep() {
       nextBlockedReason={validity.message}
       compact
     >
-      <SectionCard compact title={t("network.country.title")} description={t("network.country.description")}>
+      <SectionCard compact icon={<Globe />} title={t("network.country.title")} description={t("network.country.description")}>
         <Select
           value={state.grid.country}
           onValueChange={(v) => setCountry(v as CountryCode)}
@@ -77,7 +78,7 @@ function GridStep() {
       </SectionCard>
 
       {areaOptions.length > 0 ? (
-        <SectionCard compact title={t("network.area.title")} description={t("network.area.description")}>
+        <SectionCard compact icon={<MapPin />} title={t("network.area.title")} description={t("network.area.description")}>
           <Select
             value={state.grid.marketArea ?? ""}
             onValueChange={(v) =>
@@ -103,7 +104,7 @@ function GridStep() {
         </SectionCard>
       ) : null}
 
-      <SectionCard compact title={t("network.fuse.title")} description={t("network.fuse.description")}>
+      <SectionCard compact icon={<ShieldCheck />} title={t("network.fuse.title")} description={t("network.fuse.description")}>
         <Select
           value={state.grid.mainFuseManual ? "custom" : String(state.grid.mainFuseA)}
           onValueChange={(v) =>
@@ -153,7 +154,7 @@ function GridStep() {
         ) : null}
       </SectionCard>
 
-      <SectionCard compact title={t("network.values.title")} description={t("network.values.description")}>
+      <SectionCard compact icon={<PlugZap />} title={t("network.values.title")} description={t("network.values.description")}>
         <dl className="grid grid-cols-2 gap-1.5">
           <Value label={t("network.values.voltage")} value={`${country.grid.voltage} V`} />
           <Value
