@@ -6,7 +6,9 @@
  * 0 kr, and never with another market's prices.
  */
 
-import { getCountry, type CountryCode } from "@/lib/country-config";
+import { t } from "@/i18n";
+import { countryName } from "@/i18n/labels";
+import { type CountryCode } from "@/lib/country-config";
 import {
   reserveCalculationAvailable,
   reserveMarketConfig,
@@ -27,9 +29,9 @@ export function ancillaryUnavailableText(
 ): string | null {
   if (ancillaryDataAvailable(code, area)) return null;
   const cfg = reserveMarketConfig(code, area);
-  const where = area ? `${getCountry(code).name} ${area}` : getCountry(code).name;
+  const where = area ? `${countryName(code)} ${area}` : countryName(code);
   if (cfg && cfg.physics === "symmetric") {
-    return `${where} använder symmetrisk FCR. Marknaden är konfigurerad men beräkningen är ännu inte tillgänglig – ingen intäkt antas.`;
+    return t("ancillary.unavailableSymmetric", { where });
   }
-  return `Stödtjänster kan inte beräknas för ${where} ännu – verifierat historiskt prisunderlag saknas. Ingen intäkt antas.`;
+  return t("ancillary.unavailableNoData", { where });
 }

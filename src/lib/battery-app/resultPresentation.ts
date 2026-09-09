@@ -5,6 +5,7 @@
  * semantics can be regression tested without rendering React.
  */
 
+import { formatNumber, t } from "@/i18n";
 import type { BatteryEngineResult } from "@/lib/battery-engine";
 import type { WithoutFcrOptimum } from "./withoutFcrOptimum";
 
@@ -13,8 +14,7 @@ export interface PowerLevelRow {
   kw: number;
 }
 
-const nf = (v: number, digits = 0) =>
-  v.toLocaleString("sv-SE", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+const nf = (v: number, digits = 0) => formatNumber(v, digits);
 
 export interface ResultPresentationOptions {
   /** The customer's peak-shaving strategy toggle (UI state, not engine physics). */
@@ -121,7 +121,7 @@ export function buildResultPresentation(
    * PRODUCT NAME comes from the central reserve market config (SE/FI/DK2 = "FCR-D upp",
    * DE/DK1 = "FCR"). Never hardcoded per string.
    */
-  const productLabel = opts.reserveProductLabel ?? "FCR-D upp";
+  const productLabel = opts.reserveProductLabel ?? t("reserveProduct.FCR_D_UP");
   const s = result.summary;
   const r = s.recommendation;
   const e = s.energy;
@@ -198,27 +198,35 @@ export function buildResultPresentation(
     Math.abs(propertyOnlyPowerKw - r.physicalPowerNeedKw) > 0.05;
 
   const capacityWhy = noBattery
-    ? "Med dina uppgifter flyttar ett batteri för lite energi för att en storlek ska kunna rekommenderas."
-    : `${nf(r.capacityKWh)} kWh ger en bra balans mellan hur mycket energi batteriet kan flytta och nyttan av ytterligare kapacitet. Ett större batteri ger relativt liten ytterligare nytta med din förbrukning${hasSolar ? " och solproduktion" : ""}.`;
+    ? t("results.capacityWhy.none")
+    : t(hasSolar ? "results.capacityWhy.withSolar" : "results.capacityWhy.withoutSolar", {
+        capacity: nf(r.capacityKWh),
+      });
 
   const fcrCardText = showPhysicalNeedRow
-    ? `Fastighetens fysiska effektbehov är cirka ${physKw} kW. Utan ${productLabel} ger ${propKw} kW högst beräknad årlig nytta. Med historiska stödtjänst-priser från 2025 ger ${recKw} kW högst beräknad årlig nytta. Framtida priser och intäkter kan avvika.`
-    : `För fastighetens eget behov räcker ${propKw} kW. Den högre systemeffekten ${recKw} kW ger större beräknad årlig nytta när historiska stödtjänst-priser från 2025 ingår. Framtida priser och intäkter kan avvika.`;
+    ? t("results.why.textSplit", {
+        physical: physKw,
+        product: productLabel,
+        without: propKw,
+        recommended: recKw,
+      })
+    : t("results.why.textSimple", { without: propKw, recommended: recKw });
 
   const fcrPowerLevels: PowerLevelRow[] = [];
   if (showFcrPowerCard && propertyOnlyPowerKw !== null) {
     if (showPhysicalNeedRow) {
-      fcrPowerLevels.push({ label: "Fysiskt effektbehov", kw: r.physicalPowerNeedKw });
-      fcrPowerLevels.push({ label: `Utan ${productLabel}`, kw: propertyOnlyPowerKw });
-      fcrPowerLevels.push({ label: "Med stödtjänst", kw: recommendedPowerKw });
+      fcrPowerLevels.push({ label: t("results.why.physicalNeed"), kw: r.physicalPowerNeedKw });
+      fcrPowerLevels.push({
+        label: t("results.why.without", { product: productLabel }),
+        kw: propertyOnlyPowerKw,
+      });
+      fcrPowerLevels.push({ label: t("results.why.with"), kw: recommendedPowerKw });
     } else {
-      fcrPowerLevels.push({ label: "För fastighetens eget behov", kw: propertyOnlyPowerKw });
-      fcrPowerLevels.push({ label: "Med stödtjänst", kw: recommendedPowerKw });
+      fcrPowerLevels.push({ label: t("results.why.ownNeed"), kw: propertyOnlyPowerKw });
+      fcrPowerLevels.push({ label: t("results.why.with"), kw: recommendedPowerKw });
     }
   }
-  const fcrPowerExplanation = showFcrPowerCard
-    ? "Den högre systemeffekten ger större beräknad årlig nytta när historiska stödtjänst-priser från 2025 ingår. Framtida priser och intäkter kan avvika."
-    : null;
+  const fcrPowerExplanation = showFcrPowerCard ? t("results.why.explanation") : null;
 
 
   let powerWhy: string | null;
@@ -227,11 +235,11 @@ export function buildResultPresentation(
   } else if (showFcrPowerCard) {
     powerWhy = fcrCardText;
   } else if (raisedAbovePhysical) {
-    powerWhy = `${recKw} kW ger högst beräknad årlig nytta av de systemeffekter som har jämförts. Fastighetens eget effektbehov är lägre (${physKw} kW).`;
+    powerWhy = t("results.powerWhy.raised", { recommended: recKw, physical: physKw });
   } else if (powerFloorApplied) {
-    powerWhy = `${recKw} kW följer batteriets tekniska minimikrav i förhållande till kapaciteten. Fastighetens eget effektbehov är lägre (${physKw} kW). Högre systemeffekt ger inte tillräckligt större beräknad årlig nytta.`;
+    powerWhy = t("results.powerWhy.floor", { recommended: recKw, physical: physKw });
   } else {
-    powerWhy = `${recKw} kW är dimensionerad efter fastighetens energiflöden och beräknade effektbehov (${physKw} kW). Högre systemeffekt ger inte tillräckligt större beräknad årlig nytta.`;
+    powerWhy = t("results.powerWhy.matched", { recommended: recKw, physical: physKw });
   }
 
 
@@ -249,9 +257,9 @@ export function buildResultPresentation(
   const rewrittenPower = (r.powerExplanation ?? "")
     .replace(
       /Rekommenderad effekt [^.]*\.\s*/,
-      `Grundeffekt från fysisk dimensionering: ${nf(productPowerKw, 1)} kW (${nf(productCRate, 2)} C). `,
+      t("results.sizing.basePower", { power: nf(productPowerKw, 1), crate: nf(productCRate, 2) }),
     )
-    .replace(/Nyttan vid rekommenderad effekt/, "Fysisk energinytta vid grundeffekten");
+    .replace(/Nyttan vid rekommenderad effekt/, t("results.sizing.basePhysicalUtility"));
 
   const sizingMethodLines: string[] = [];
   if (r.explanation) sizingMethodLines.push(r.explanation);
@@ -263,15 +271,22 @@ export function buildResultPresentation(
     capacityKWh > 0
   ) {
     sizingMethodLines.push(
-      `Systemeffekt med högst beräknad årlig nytta utan ${productLabel}: ${nf(propertyOnlyPowerKw, 1)} kW (${nf(propertyOnlyPowerKw / capacityKWh, 2)} C).`,
+      t("results.sizing.withoutProduct", {
+        product: productLabel,
+        power: nf(propertyOnlyPowerKw, 1),
+        crate: nf(propertyOnlyPowerKw / capacityKWh, 2),
+      }),
     );
   }
   if (!noBattery && recommendedPowerKw > productPowerKw + 1e-9) {
     sizingMethodLines.push(
-      `Efter utvärdering av den beräknade årliga nyttan valdes ${nf(recommendedPowerKw, 1)} kW (${nf(systemCRate, 2)} C) som rekommenderad systemeffekt.`,
+      t("results.sizing.selected", {
+        power: nf(recommendedPowerKw, 1),
+        crate: nf(systemCRate, 2),
+      }),
     );
     if (fcrDrivesPower) {
-      sizingMethodLines.push(`Historisk ${productLabel}-intäkt påverkade effektvalet.`);
+      sizingMethodLines.push(t("results.sizing.fcrInfluenced", { product: productLabel }));
     }
   }
 
@@ -297,19 +312,17 @@ export function buildResultPresentation(
     showDemandSavingRow,
     demandNote: showDemandSavingRow
       ? opts.demandChargeTouched
-        ? "Beräknat med den effektavgift du angett."
-        : "Beräknat med ett svenskt schablonvärde för effektavgift."
+        ? t("results.demandNote.entered")
+        : t("results.demandNote.standard")
       : peakChanged
-        ? "Effekttoppen minskar, men ingen effektavgift är prissatt — därför räknas ingen ekonomisk effektbesparing."
+        ? t("results.demandNote.noTariff")
         : null,
 
     totalBenefitSek: total,
     noEconomy,
     limitedBenefit,
-    limitedBenefitTitle: limitedBenefit ? "Begränsad ekonomisk nytta" : null,
-    limitedBenefitText: limitedBenefit
-      ? "Beräkningen visar ingen positiv beräknad årlig nytta med dina nuvarande förutsättningar och valda strategier."
-      : null,
+    limitedBenefitTitle: limitedBenefit ? t("results.limited.title") : null,
+    limitedBenefitText: limitedBenefit ? t("results.limited.text") : null,
 
     showFcr,
     fcrDrivesPower,
@@ -317,12 +330,10 @@ export function buildResultPresentation(
     fcrPowerNoteSecondary: null,
 
     showFcrPowerCard,
-    fcrPowerCardTitle: showFcrPowerCard ? `Varför ${recKw} kW?` : null,
+    fcrPowerCardTitle: showFcrPowerCard ? t("results.why.title", { power: recKw }) : null,
     fcrPowerCardText: showFcrPowerCard ? fcrCardText : null,
     fcrPowerCardNeutralText: null,
-    fcrHistoricalNote: showFcrPowerCard
-      ? "Framtida FCR-priser och intäkter kan bli både högre och lägre."
-      : null,
+    fcrHistoricalNote: showFcrPowerCard ? t("results.why.historicalNote") : null,
     fcrPowerLevels,
     fcrPowerExplanation,
     propertyOnlyPowerKw,
@@ -340,7 +351,7 @@ export function buildResultPresentation(
     systemCRate,
     sizingMethodLines,
     baseUtilityPct: ps.utilityPctOfReference,
-    baseUtilityLabel: "Fysisk energinytta vid grundeffekten",
+    baseUtilityLabel: t("results.sizing.basePhysicalUtility"),
 
     capacityWhy,
     powerWhy,
