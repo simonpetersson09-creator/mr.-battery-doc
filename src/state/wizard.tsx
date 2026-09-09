@@ -199,8 +199,16 @@ export function WizardProvider({ children }: { children: ReactNode }) {
             mainFuseManual: s.grid.mainFuseManual,
             gridValuesConfirmed: false,
           },
-          // Country defaults only overwrite untouched economy values.
-          economy: s.economy.touched ? s.economy : economyFromCountry(code),
+          // CURRENCY POLICY: a country change that changes currency ALWAYS resets the
+          // economy to the new country's own defaults — a value entered as 1,50 SEK/kWh
+          // must never silently be reinterpreted as 1,50 EUR/kWh. When the currency is
+          // unchanged, manually edited values are preserved as before.
+          economy:
+            countryCurrency(s.grid.country) !== countryCurrency(code)
+              ? economyFromCountry(code)
+              : s.economy.touched
+                ? s.economy
+                : economyFromCountry(code),
         })),
       reset: () => {
         try {
