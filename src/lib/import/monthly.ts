@@ -233,21 +233,80 @@ function kindOfLabel(label: string): SeriesKind {
   return "unknown";
 }
 
+/** Splits one text line into cells for both delimited and whitespace tables. */
+function splitCells(line: string): string[] {
+  return line
+    .split(/[;\t|]|,(?=\s*[A-Za-zÅÄÖåäö])|\s{2,}/)
+    .map((c) => c.trim())
+    .filter((c, i, arr) => !(c === "" && i === arr.length - 1));
+}
+
+/** Unit for one column: an explicit MWh in the header wins over the document default. */
+function unitOfLabel(label: string, fallback: EnergyUnit): EnergyUnit {
+  if (/\bMWh\b/i.test(label)) return "MWh";
+  if (/\bkWh\b/i.test(label)) return "kWh";
+  return fallback;
+}
+
+/**
+ * Column-oriented layout: month names on one row, one series per following row.
+ *   Månad;jan;feb;...;dec
+ *   Förbrukning;2400;2000;...
+ */
+function extractTransposed(lines: string[], fallbackUnit: EnergyUnit): ExtractedSeries[] {
+  for (let h = 0; h < lines.length; h++) {
+    const header = splitCells(lines[h] ?? "");
+    const monthAt = header.map((c) => monthIndexOf(c.split(/\s+/)[0] ?? ""));
+    if (monthAt.filter((m) => m !== null).length < 6) continue;
+
+    const series: ExtractedSeries[] = [];
+    for (let r = h + 1; r < lines.length; r++) {
+      const cells = splitCells(lines[r] ?? "");
+      if (cells.length < 2) continue;
+      const label = cells[0] ?? `Rad ${r}`;
+      if (monthIndexOf(label.split(/\s+/)[0] ?? "") !== null) continue;
+      const months: (number | null)[] = Array(12).fill(null);
+      let seen = 0;
+      for (let c = 1; c < cells.length; c++) {
+        const mi = monthAt[c];
+        if (mi === null || mi === undefined) continue;
+        const parsed = parseSwedishNumber(cells[c] ?? "");
+        if (parsed.value === null) continue;
+        months[mi] = parsed.value;
+        seen++;
+      }
+      if (seen === 0) continue;
+      series.push({
+        kind: kindOfLabel(label),
+        label,
+        unit: unitOfLabel(label, fallbackUnit),
+        months,
+        annualTotalStated: null,
+      });
+    }
+    if (series.length > 0) return series;
+  }
+  return [];
+}
+
 /**
  * Extracts monthly series from plain text (CSV, TSV, pasted tables, PDF text).
- * Row-oriented: one month per line, one column per series.
+ * Handles both row-oriented tables (one month per line) and column-oriented
+ * tables (month names in a header row).
  */
 export function extractFromText(text: string): ExtractionPayload {
   const notes: string[] = [];
   const lines = text.split(/\r?\n/).filter((l) => l.trim() !== "");
   const unit: EnergyUnit = /\bMWh\b/i.test(text) && !/\bkWh\b/i.test(text) ? "MWh" : "kWh";
+  const selfMatch = /egenanvändning[^0-9]{0,30}(\d{1,3})\s*%/i.exec(text);
+  const selfConsumptionPct = selfMatch ? Number(selfMatch[1]) : null;
 
   // Column labels come from the first line that has no month name in it.
   let headers: string[] = [];
   const rows: { month: number; cells: string[] }[] = [];
 
   for (const line of lines) {
-    const cells = line.split(/[;\t|]|,(?=\s*[A-Za-zÅÄÖåäö])|\s{2,}/).map((c) => c.trim());
+    const cells = splitCells(line);
     const first = cells[0] ?? "";
     const mi = monthIndexOf(first.split(/\s+/)[0] ?? "");
     if (mi === null) {
@@ -257,7 +316,11 @@ export function extractFromText(text: string): ExtractionPayload {
     rows.push({ month: mi, cells: cells.slice(1) });
   }
 
-  if (rows.length === 0) return { series: [], selfConsumptionPct: null, notes: ["Inga månadsrader hittades."] };
+  if (rows.length === 0) {
+    const transposed = extractTransposed(lines, unit);
+    if (transposed.length > 0) return { series: transposed, selfConsumptionPct, notes };
+    return { series: [], selfConsumptionPct, notes: ["Inga månadsrader hittades."] };
+  }
 
   const columnCount = Math.max(...rows.map((r) => r.cells.length));
   const series: ExtractedSeries[] = [];
@@ -277,16 +340,18 @@ export function extractFromText(text: string): ExtractionPayload {
     }
     if (duplicate) notes.push("Dokumentet innehåller flera värden för samma månad — kontrollera värdena.");
     if (seen === 0) continue;
-    series.push({ kind: kindOfLabel(label), label, unit, months, annualTotalStated: null });
+    series.push({
+      kind: kindOfLabel(label),
+      label,
+      unit: unitOfLabel(label, unit),
+      months,
+      annualTotalStated: null,
+    });
   }
 
-  const selfMatch = /egenanvändning[^0-9]{0,30}(\d{1,3})\s*%/i.exec(text);
-  return {
-    series,
-    selfConsumptionPct: selfMatch ? Number(selfMatch[1]) : null,
-    notes,
-  };
+  return { series, selfConsumptionPct, notes };
 }
+
 
 /* --------------------------- Review-step helpers -------------------------- */
 
