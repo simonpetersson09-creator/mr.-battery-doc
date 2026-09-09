@@ -51,6 +51,7 @@ export function WizardShell({
             />
           </Link>
         </div>
+        <StepIndicator stepIndex={stepIndex} />
 
         <section className="mt-2">
           <p className="ui-caption">
@@ -58,11 +59,8 @@ export function WizardShell({
           </p>
           <h1 className="ui-page-title mt-1">{title}</h1>
           {intro ? <p className="ui-help mt-1">{intro}</p> : null}
+          <div className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}>{children}</div>
         </section>
-
-        <StepIndicator stepIndex={stepIndex} />
-
-        <div className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}>{children}</div>
 
         <nav className="pb-safe mt-4 pt-1" aria-label={t("common.step", { current: stepIndex + 1, total: WIZARD_STEPS.length })}>
           {nextDisabled && nextBlockedReason ? (
