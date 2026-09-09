@@ -70,12 +70,18 @@ export function NumberField({
   /** Smaller height + text to match compact month grids. */
   compact?: boolean;
 }) {
+  const suffix = unit ? (
+    <span className="ui-control-text-sm pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 font-medium text-muted-foreground">
+      {unit}
+    </span>
+  ) : null;
+
   const input = (
     <input
       inputMode="decimal"
       type="number"
       step={step}
-      className={`ui-control tabular-nums ${compact ? "h-9 ui-control-text-sm" : ""}`}
+      className={`ui-control tabular-nums ${compact ? "h-9 ui-control-text-sm" : ""} ${unit ? "pr-[4.5rem]" : ""}`}
       value={value ?? ""}
       placeholder={placeholder}
       onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
@@ -92,9 +98,9 @@ export function NumberField({
         ) : null}
       </span>
       {dense ? (
-        <span className="mt-1 block">
+        <span className="relative mt-1 block">
           {input}
-          {unit ? <span className="ui-help mt-0.5 block">{unit}</span> : null}
+          {suffix}
         </span>
       ) : (
         <span className="mt-1.5 flex items-center gap-2">
