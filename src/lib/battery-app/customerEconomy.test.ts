@@ -27,7 +27,7 @@ function villa(): WizardState {
   s.grid.gridValuesConfirmed = true;
   s.consumption.mode = "annual";
   s.consumption.annualKwh = 20000;
-  s.consumption.profileId = "villa_heatpump";
+  s.consumption.profileId = "heat-pump";
   s.production.mode = "manual";
   s.production.dcKwp = 10;
   s.production.acKw = 8;
