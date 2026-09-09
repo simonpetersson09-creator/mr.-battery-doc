@@ -188,7 +188,7 @@ function GridStep() {
 
 function Value({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[0.875rem] bg-secondary px-3 py-2">
+    <div className="rounded-[0.75rem] bg-secondary px-2.5 py-1.5">
       <dt className="ui-help">{label}</dt>
       <dd className="ui-label font-display">{value}</dd>
     </div>
