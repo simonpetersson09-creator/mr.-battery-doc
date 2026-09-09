@@ -8,6 +8,11 @@ import { reserveProductLabel } from "@/lib/reserve-market";
 import { buildResultPresentation } from "@/lib/battery-app/resultPresentation";
 import { computeWithoutFcrOptimum } from "@/lib/battery-app/withoutFcrOptimum";
 import { computeBatteryAlternatives } from "@/lib/battery-app/capacityAlternatives";
+import {
+  IMPORTANT_INFO_FOOTER,
+  IMPORTANT_INFO_POINTS,
+  IMPORTANT_INFO_TITLE,
+} from "@/lib/battery-app/importantInfo";
 
 
 import { ancillaryUnavailableText } from "@/lib/battery-app/ancillaryAvailability";
@@ -431,6 +436,19 @@ function ResultStep() {
           </TechGroup>
 
         </div>
+      </details>
+
+      <details className="ui-card ui-expandable">
+        <summary className="ui-label">{IMPORTANT_INFO_TITLE}</summary>
+        <ul className="ui-help mt-3 space-y-2 leading-relaxed">
+          {IMPORTANT_INFO_POINTS.map((point) => (
+            <li key={point} className="flex gap-2">
+              <span aria-hidden="true" className="shrink-0">•</span>
+              <span>{point}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="ui-help mt-3 text-muted-foreground/80">{IMPORTANT_INFO_FOOTER}</p>
       </details>
 
     </WizardShell>
