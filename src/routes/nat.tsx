@@ -18,9 +18,8 @@ import {
 import { marketAreaOptions, type MarketArea } from "@/lib/reserve-market";
 import { validateGridStep } from "@/lib/battery-app/stepValidation";
 import { useWizard } from "@/state/wizard";
-import { LANGUAGE_NAMES, SUPPORTED_LANGUAGES, useT, type Language } from "@/i18n";
+import { useT } from "@/i18n";
 import { countryName, marketAreaName } from "@/i18n/labels";
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 export const Route = createFileRoute("/nat")({
   head: () => ({
@@ -44,7 +43,6 @@ export const Route = createFileRoute("/nat")({
 function GridStep() {
   const t = useT();
   const { state, setCountry, update } = useWizard();
-  const { language, setLanguage } = useLanguage();
   const country = getCountry(state.grid.country);
   const validity = validateGridStep(state);
   const areaOptions = marketAreaOptions(state.grid.country);
@@ -57,22 +55,6 @@ function GridStep() {
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
     >
-      {/* LANGUAGE IS A SEPARATE CHOICE: it never touches country, currency or market. */}
-      <SectionCard title={t("language.title")} description={t("language.description")}>
-        <Select value={language} onValueChange={(v) => setLanguage(v as Language)}>
-          <SelectTrigger className="ui-control" aria-label={t("language.title")}>
-            <SelectValue>{LANGUAGE_NAMES[language]}</SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {SUPPORTED_LANGUAGES.map((l) => (
-              <SelectItem key={l} value={l}>
-                {LANGUAGE_NAMES[l]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </SectionCard>
-
       <SectionCard title={t("network.country.title")} description={t("network.country.description")}>
         <Select
           value={state.grid.country}
