@@ -7,7 +7,13 @@
  */
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { DEFAULT_COUNTRY, getCountry, type CountryCode } from "@/lib/country-config";
+import {
+  countryCurrency,
+  DEFAULT_COUNTRY,
+  getCountry,
+  type CountryCode,
+} from "@/lib/country-config";
+import type { Currency } from "@/lib/currency";
 import type { ProfileId } from "@/lib/consumption-profiles";
 import { isValidMarketArea, requiresMarketArea, type MarketArea } from "@/lib/reserve-market";
 
@@ -66,7 +72,9 @@ export interface WizardState {
     importPrice: number;
     exportPrice: number;
     demandCharge: number;
-    /** Currency assumption used by the engine's FCR economics. */
+    /** Currency the values above are entered in. Decided by the country. */
+    currency: Currency;
+    /** Local currency units per EUR — used to convert reserve revenue before summing. */
     eurSekRate: number;
     /** true when the user has manually edited prices (blocks country overwrite) */
     touched: boolean;
@@ -80,6 +88,7 @@ const STORAGE_KEY = "mr-battery-doc:wizard:v2";
 function economyFromCountry(code: CountryCode) {
   const c = getCountry(code).economy;
   return {
+    currency: c.currency,
     importPrice: c.importPrice,
     exportPrice: c.exportPrice,
     demandCharge: c.demandCharge,
@@ -162,7 +171,13 @@ export function WizardProvider({ children }: { children: ReactNode }) {
           coerceSupportedModes({
             ...current,
             ...parsed,
-            economy: { ...current.economy, ...parsed.economy },
+            // Legacy/foreign-currency cases: a stored economy in another currency than
+            // the stored country's is dropped for that country's own defaults.
+            economy:
+              (parsed.economy?.currency ?? null) ===
+              countryCurrency(parsed.grid?.country ?? current.grid.country)
+                ? { ...current.economy, ...parsed.economy }
+                : economyFromCountry(parsed.grid?.country ?? current.grid.country),
           }),
         );
       }
@@ -199,8 +214,16 @@ export function WizardProvider({ children }: { children: ReactNode }) {
             mainFuseManual: s.grid.mainFuseManual,
             gridValuesConfirmed: false,
           },
-          // Country defaults only overwrite untouched economy values.
-          economy: s.economy.touched ? s.economy : economyFromCountry(code),
+          // CURRENCY POLICY: a country change that changes currency ALWAYS resets the
+          // economy to the new country's own defaults — a value entered as 1,50 SEK/kWh
+          // must never silently be reinterpreted as 1,50 EUR/kWh. When the currency is
+          // unchanged, manually edited values are preserved as before.
+          economy:
+            countryCurrency(s.grid.country) !== countryCurrency(code)
+              ? economyFromCountry(code)
+              : s.economy.touched
+                ? s.economy
+                : economyFromCountry(code),
         })),
       reset: () => {
         try {

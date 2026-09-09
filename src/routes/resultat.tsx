@@ -10,6 +10,7 @@ import { computeBatteryAlternatives } from "@/lib/battery-app/capacityAlternativ
 
 
 import { ancillaryUnavailableText } from "@/lib/battery-app/ancillaryAvailability";
+import { formatMoney, formatMoneyPerYear } from "@/lib/country-config";
 import { useWizard } from "@/state/wizard";
 
 export const Route = createFileRoute("/resultat")({
@@ -32,13 +33,21 @@ export const Route = createFileRoute("/resultat")({
 
 const nf = (v: number, digits = 0) =>
   v.toLocaleString("sv-SE", { minimumFractionDigits: digits, maximumFractionDigits: digits });
-const money = (v: number | null) => (v === null ? "—" : `${nf(v)} kr`);
 const kwh = (v: number) => `${nf(v)} kWh`;
 const kw = (v: number, d = 2) => `${nf(v, d)} kW`;
 const pct = (v: number) => `${nf(v, 0)} %`;
 
 function ResultStep() {
   const { state, reset } = useWizard();
+  /**
+   * Currency comes from the chosen country through the central currency layer — the
+   * result page never assumes SEK. Every amount here is already in local currency
+   * (reserve revenue is converted from EUR inside the economics layer).
+   */
+  const countryCode = state.grid.country;
+  const money = (v: number | null) => (v === null ? "—" : formatMoney(v, countryCode, 0));
+  const moneyPerYear = (v: number | null) =>
+    v === null ? "—" : formatMoneyPerYear(v, countryCode, 0);
   const navigate = useNavigate();
   // Single integration point: wizard -> adapter -> frozen Battery Engine.
   const outcome = useMemo(() => runBatteryApp(state), [state]);
@@ -216,7 +225,7 @@ function ResultStep() {
                         : "ui-help mt-1 tabular-nums"
                     }
                   >
-                    {alt.annualBenefitSek === null ? "—" : `${nf(alt.annualBenefitSek)} kr/år`}
+                    {moneyPerYear(alt.annualBenefitSek)}
                   </p>
                 </div>
               );
@@ -317,7 +326,7 @@ function ResultStep() {
       <SectionCard title="Beräknad nytta">
         {p.noEconomy ? (
           <>
-            <p className="ui-section-title tabular-nums">0 kr/år</p>
+            <p className="ui-section-title tabular-nums">{moneyPerYear(0)}</p>
             <p className="ui-help mt-1">
               Med de valda inställningarna ger batteriet ingen beräknad ekonomisk nytta.
             </p>
@@ -337,14 +346,14 @@ function ResultStep() {
                       ? "Lagrad solel används när den behövs."
                       : "Batteriet laddas när elen är billigare och används senare."
                   }
-                  value={`${money(s.economy.energyBenefitSek)}/år`}
+                  value={moneyPerYear(s.economy.energyBenefitSek)}
                 />
               ) : null}
               {p.showDemandSavingRow ? (
                 <BenefitRow
                   label="Peak shaving"
                   hint="Kapar effekttoppar och minskar effektavgiften."
-                  value={`${money(s.economy.demandCostSavingSek)}/år`}
+                  value={moneyPerYear(s.economy.demandCostSavingSek)}
                 />
               ) : null}
               {ancillaryNote ? (
@@ -353,7 +362,7 @@ function ResultStep() {
                 <BenefitRow
                   label="Stödtjänster – FCR-D upp"
                   hint="Ersättning för reserverad batterieffekt. Historiska priser 2025."
-                  value={`${money(s.fcr.grossSek)}/år`}
+                  value={moneyPerYear(s.fcr.grossSek)}
                 />
               ) : null}
 

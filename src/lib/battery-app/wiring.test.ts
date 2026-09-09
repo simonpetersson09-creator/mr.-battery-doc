@@ -228,21 +228,22 @@ describe("peak tariff source", () => {
 });
 
 describe("country and currency", () => {
-  it("v1 offers SE/FI/DK/DE, all SEK-denominated so no non-SEK value reaches the engine", () => {
+  it("v1 offers SE/FI/DK/DE, each with its own local display currency", () => {
     expect(SUPPORTED_COUNTRY_CODES).toEqual(["SE", "FI", "DK", "DE"]);
-    for (const code of SUPPORTED_COUNTRY_CODES) {
-      expect(getCountry(code).economy.currency).toBe("SEK");
-      expect(getCountry(code).economy.currencyLabel).toBe("kr");
-    }
+    expect(getCountry("SE").economy.currency).toBe("SEK");
+    expect(getCountry("FI").economy.currency).toBe("EUR");
+    expect(getCountry("DK").economy.currency).toBe("DKK");
+    expect(getCountry("DE").economy.currency).toBe("EUR");
   });
 
-  it("each supported country loads its own SEK economy defaults", () => {
+  it("each supported country loads its own local-currency economy defaults", () => {
     for (const code of SUPPORTED_COUNTRY_CODES) {
       const s = createInitialState(code);
       const c = getCountry(code).economy;
       expect(s.economy.importPrice).toBe(c.importPrice);
       expect(s.economy.exportPrice).toBe(c.exportPrice);
-      expect(s.economy.eurSekRate).toBe(11.3);
+      expect(s.economy.eurSekRate).toBe(c.eurSekRate);
+      expect(s.economy.currency).toBe(c.currency);
     }
   });
 
