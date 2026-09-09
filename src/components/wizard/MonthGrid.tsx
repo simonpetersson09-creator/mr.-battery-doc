@@ -23,7 +23,7 @@ export function MonthGrid({
       <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
         {months.map((m, i) => (
           <label key={m} className="flex items-center gap-1.5">
-            <span className="field-label w-8 shrink-0">{m}</span>
+            <span className="field-label w-8 shrink-0 font-normal">{m}</span>
             <input
               type="number"
               inputMode="decimal"

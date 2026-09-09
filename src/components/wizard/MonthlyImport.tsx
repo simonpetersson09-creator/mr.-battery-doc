@@ -210,7 +210,7 @@ export function MonthlyImport({
               const missing = review.missing.includes(i);
               return (
                 <label key={m} className="flex items-center gap-1.5">
-                  <span className="field-label w-8 shrink-0">{m}</span>
+                  <span className="field-label w-8 shrink-0 font-normal">{m}</span>
                   <input
                     type="number"
                     inputMode="decimal"
