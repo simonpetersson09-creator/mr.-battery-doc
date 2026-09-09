@@ -167,6 +167,12 @@ export const fi = {
       "Olet ilmoittanut, ettei kiinteistössä ole aurinkopaneeleita. Siksi aurinkosähkön oma käyttö ei tuo tällä hetkellä hyötyä — muut käyttötavat eivät muutu.",
   },
   economics: {
+    customerShare: {
+      title: "Tukipalvelut",
+      description: "Koko markkina-arvo päätyy harvoin sinulle. Anna osuus, jonka arvioit saavasi.",
+      label: "Osuutesi tukipalveluiden arvosta",
+      hint: "Ohjearvo. Todellinen osuus riippuu aggregaattorista, tasevastaavasta, maksuista ja sopimuksesta.",
+    },
     title: "Talous",
     intro: "Oletusarvot maalle {{country}}. Muuta halutessasi.",
     prices: {
@@ -183,7 +189,26 @@ export const fi = {
       hintZero: "Tehomaksua ei oleteta. Muuta, jos verkkoyhtiösi perii tehomaksun.",
     },
   },
+  payback: {
+    title: "Takaisinmaksuaika",
+    intro: "Kuinka nopeasti haluat akun maksavan itsensä takaisin?",
+    card: "Toivottu takaisinmaksuaika",
+    years: "{{years}} vuotta",
+    investment: {
+      title: "Järkevä investointikustannus",
+      hint: "Arvioitu enimmäisinvestointi valitulla takaisinmaksuajalla laskennallisen vuotuisen asiakashyödyn perusteella.",
+      note: "Tukipalvelut lasketaan osuudellasi {{share}} %.",
+      none: "Nykyisillä tiedoilla akku ei tuota positiivista laskennallista vuosihyötyä, joten järkevää investointikustannusta ei voi laskea.",
+      benefit: "Laskennallinen vuotuinen asiakashyöty",
+    },
+  },
   results: {
+    investment: {
+      title: "Investointi",
+      targetPayback: "Toivottu takaisinmaksuaika",
+      maxInvestment: "Järkevä investointikustannus",
+      benefit: "Laskennallinen vuotuinen asiakashyöty",
+    },
     title: "Tulos",
     intro: "Tältä ehdotus näyttää kiinteistöllesi.",
     pdfReport: "Näytä PDF-raportti",
@@ -228,6 +253,9 @@ export const fi = {
       noReduction: "Tehohuippu ei pienene valituilla asetuksilla.",
     },
     benefit: {
+      ancillaryMarket: "Tukipalvelut – laskennallinen markkina-arvo",
+      ancillaryShare: "Osuutesi",
+      ancillaryCustomer: "Laskennallinen korvauksesi",
       title: "Laskettu hyöty",
       none: "Valituilla asetuksilla akku ei tuo laskettua taloudellista hyötyä.",
       energyWithSolar: "Siirretty aurinkosähkö ja pienempi sähkön osto",
@@ -348,6 +376,8 @@ export const fi = {
     importUnreadable: "Tiedostoa ei voitu lukea. Kokeile selkeämpää kuvaa tai PDF-tiedostoa.",
   },
   validation: {
+    customerShare: "Osuuden on oltava 0–100 %.",
+    paybackYears: "Valitse takaisinmaksuaika 5–20 vuoden väliltä.",
     country: "Valitse maa.",
     area: "Valitse hinta-alue.",
     fuse: "Anna kelvollinen pääsulake ampeereina.",

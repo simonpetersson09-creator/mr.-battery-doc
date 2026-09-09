@@ -17,6 +17,13 @@ import {
 import type { Currency } from "@/lib/currency";
 import type { ProfileId } from "@/lib/consumption-profiles";
 import { isValidMarketArea, requiresMarketArea, type MarketArea } from "@/lib/reserve-market";
+import {
+  clampCustomerAncillaryShare,
+  clampTargetPaybackYears,
+  DEFAULT_CUSTOMER_ANCILLARY_SHARE,
+  DEFAULT_TARGET_PAYBACK_YEARS,
+} from "@/lib/battery-app/customerEconomy";
+
 
 /**
  * "document" is kept for the future document parser but is NOT exposed in the v1 UI.
@@ -82,7 +89,19 @@ export interface WizardState {
     /** true ONLY when the user edited the demand charge itself (drives peakTariffSource) */
     demandChargeTouched: boolean;
   };
+  /**
+   * Customer-facing assumptions. These NEVER reach the engine: they only shape how the
+   * already-simulated result is presented (customer share of the ancillary market value,
+   * desired payback horizon). Kept outside `economy` so a country change cannot reset them.
+   */
+  preferences: {
+    /** 0–1. Share of the ancillary MARKET value that reaches the customer. */
+    customerAncillaryShare: number;
+    /** Desired simple payback horizon in years (5–20). */
+    targetPaybackYears: number;
+  };
 }
+
 
 const STORAGE_KEY = "mr-battery-doc:wizard:v2";
 
@@ -106,6 +125,16 @@ function coerceSupportedModes(s: WizardState): WizardState {
     next.consumption = { ...next.consumption, mode: "annual" };
   if (next.production?.mode === "document")
     next.production = { ...next.production, mode: "manual" };
+  // Old persisted states (before the customer-share / payback step) have no
+  // `preferences` at all, and a corrupt one must never reach the UI.
+  next.preferences = {
+    customerAncillaryShare: clampCustomerAncillaryShare(
+      next.preferences?.customerAncillaryShare ?? DEFAULT_CUSTOMER_ANCILLARY_SHARE,
+    ),
+    targetPaybackYears: clampTargetPaybackYears(
+      next.preferences?.targetPaybackYears ?? DEFAULT_TARGET_PAYBACK_YEARS,
+    ),
+  };
   // Never let a stale/foreign market area survive (old cases, country switches).
   const area = (next.grid?.marketArea ?? null) as MarketArea | null;
   if (!isValidMarketArea(next.grid.country, area))
@@ -146,8 +175,13 @@ export function createInitialState(country: CountryCode = DEFAULT_COUNTRY): Wiza
       fcrDUp: true,
     },
     economy: economyFromCountry(country),
+    preferences: {
+      customerAncillaryShare: DEFAULT_CUSTOMER_ANCILLARY_SHARE,
+      targetPaybackYears: DEFAULT_TARGET_PAYBACK_YEARS,
+    },
   };
 }
+
 
 interface WizardContextValue {
   state: WizardState;

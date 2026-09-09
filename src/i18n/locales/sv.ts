@@ -172,6 +172,12 @@ export const sv = {
       "Du har angett att fastigheten inte har solceller. Då ger egenanvändning av solel ingen nytta idag — övriga användningssätt påverkas inte.",
   },
   economics: {
+    customerShare: {
+      title: "Stödtjänster",
+      description: "Hela stödtjänstvärdet tillfaller sällan dig. Ange hur stor del du räknar med att få.",
+      label: "Din andel av stödtjänstvärdet",
+      hint: "Schablon. Din faktiska andel beror på aggregator, balansansvarig, avgifter och avtal.",
+    },
     title: "Ekonomi",
     intro: "Standardvärden för {{country}}. Ändra om du vill.",
     prices: {
@@ -188,7 +194,26 @@ export const sv = {
       hintZero: "Ingen effektavgift antagen. Ändra om ditt elnätsföretag tar ut en effektavgift.",
     },
   },
+  payback: {
+    title: "Återbetalningstid",
+    intro: "Hur snabbt vill du att batteriet ska ha betalat sig?",
+    card: "Önskad återbetalningstid",
+    years: "{{years}} år",
+    investment: {
+      title: "Rimlig investeringskostnad",
+      hint: "Ungefärlig högsta investering för att nå vald återbetalningstid, utifrån beräknad årlig kundnytta.",
+      note: "Stödtjänster räknas med utifrån din andel på {{share}} %.",
+      none: "Med dina nuvarande uppgifter ger batteriet ingen positiv beräknad årlig nytta. Då går det inte att räkna fram någon rimlig investeringskostnad.",
+      benefit: "Beräknad årlig kundnytta",
+    },
+  },
   results: {
+    investment: {
+      title: "Investering",
+      targetPayback: "Önskad återbetalningstid",
+      maxInvestment: "Rimlig investeringskostnad",
+      benefit: "Beräknad årlig kundnytta",
+    },
     title: "Resultat",
     intro: "Så här ser förslaget ut för din fastighet.",
     pdfReport: "Visa PDF-rapport",
@@ -234,6 +259,9 @@ export const sv = {
       noReduction: "Ingen minskning av effekttoppen med de valda inställningarna.",
     },
     benefit: {
+      ancillaryMarket: "Stödtjänster – beräknat marknadsvärde",
+      ancillaryShare: "Din andel",
+      ancillaryCustomer: "Din beräknade ersättning",
       title: "Beräknad nytta",
       none: "Med de valda inställningarna ger batteriet ingen beräknad ekonomisk nytta.",
       energyWithSolar: "Flyttad solel och minskat elköp",
@@ -354,6 +382,8 @@ export const sv = {
     importUnreadable: "Filen kunde inte läsas. Försök med en tydligare bild eller en PDF.",
   },
   validation: {
+    customerShare: "Andelen måste vara mellan 0 och 100 %.",
+    paybackYears: "Välj en återbetalningstid mellan 5 och 20 år.",
     country: "Välj land.",
     area: "Välj elområde.",
     fuse: "Ange en giltig huvudsäkring i ampere.",

@@ -67,13 +67,14 @@ describe("reserve product labels come from the market config", () => {
     expect(text).not.toContain("FCR-D upp");
   });
 
-  it("H+I+J: the market-value note is tied to the ancillary row and changes no number", () => {
-    // The note lives inside the same conditional block as the ancillary benefit row.
-    const anchor = resultatSource.indexOf("results.benefit.ancillary");
-    const block = resultatSource.slice(anchor, anchor + 1200);
-    expect(block).toContain("moneyPerYear(s.fcr.grossSek)");
+  it("H+I+J: the market-value note is tied to the ancillary rows and changes no engine number", () => {
+    // The note lives inside the same conditional block as the ancillary rows.
+    const anchor = resultatSource.indexOf("results.benefit.ancillaryMarket");
+    const block = resultatSource.slice(anchor, anchor + 1400);
+    // The MARKET value row is still the untouched engine figure.
+    expect(block).toContain("moneyPerYear(ce.ancillaryMarketValueSek)");
     expect(block).toContain("results.benefit.ancillaryNote");
-    // No fee/percentage is ever subtracted from the engine figure.
+    // No fee/percentage is ever applied to the engine figure inline in the UI.
     expect(block).not.toMatch(/0\.\d+\s*\*\s*s\.fcr/);
     // J: nothing outside `s.fcr.enabled` prints the note.
     expect(resultatSource.indexOf("results.benefit.ancillaryNote")).toBeGreaterThan(
@@ -85,3 +86,4 @@ describe("reserve product labels come from the market config", () => {
     expect(sv.results.benefit.ancillaryNote).toContain("avtal, marknadstillträde");
   });
 });
+

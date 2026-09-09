@@ -13,6 +13,10 @@
 
 import { runBatteryEngine } from "@/lib/battery-engine";
 import type { BatteryEngineInput, BatteryEngineResult } from "@/lib/battery-engine";
+import {
+  customerBenefitFromTotals,
+  DEFAULT_CUSTOMER_ANCILLARY_SHARE,
+} from "./customerEconomy";
 
 export type AlternativeLevel = "lower" | "recommended" | "higher";
 
@@ -20,8 +24,23 @@ export interface BatteryAlternative {
   level: AlternativeLevel;
   capacityKWh: number;
   powerKw: number;
-  /** null when the economy is incomplete for that candidate. */
+  /** Engine total for that candidate (ancillary at 100 % market value). */
   annualBenefitSek: number | null;
+  /** Historical ancillary market value for that candidate, 0 when not enabled. */
+  ancillaryMarketValueSek: number;
+  /**
+   * The customer-facing annual benefit for that candidate: the same engine total with
+   * only the customer's share of the ancillary market value counted. Each candidate is
+   * still simulated independently — the share is applied afterwards, per candidate.
+   */
+  customerBenefitSek: number | null;
+}
+
+function ancillaryMarketValue(res: BatteryEngineResult): number {
+  const f = res.summary.fcr;
+  if (!f.enabled) return 0;
+  const v = f.grossSek ?? 0;
+  return Number.isFinite(v) ? v : 0;
 }
 
 /** Unique simulated capacity steps (> 0) from the engine's own sweep, ascending. */
@@ -35,6 +54,7 @@ function runAtCapacity(
   input: BatteryEngineInput,
   capacityKWh: number,
   level: AlternativeLevel,
+  share: number,
 ): BatteryAlternative | null {
   try {
     const { fixedPowerKw: _ignored, ...battery } = input.battery ?? {};
@@ -43,11 +63,15 @@ function runAtCapacity(
       battery: { ...battery, fixedCapacityKWh: capacityKWh },
     });
     const r = res.summary.recommendation;
+    const total = res.summary.economy.totalOperatingBenefitSek;
+    const market = ancillaryMarketValue(res);
     return {
       level,
       capacityKWh: r.capacityKWh,
       powerKw: r.recommendedPowerKw ?? r.productPowerKw,
-      annualBenefitSek: res.summary.economy.totalOperatingBenefitSek,
+      annualBenefitSek: total,
+      ancillaryMarketValueSek: market,
+      customerBenefitSek: customerBenefitFromTotals(total, market, share),
     };
   } catch {
     return null;
@@ -61,13 +85,22 @@ function runAtCapacity(
 export function computeBatteryAlternatives(
   input: BatteryEngineInput,
   result: BatteryEngineResult,
+  customerAncillaryShare: number = DEFAULT_CUSTOMER_ANCILLARY_SHARE,
 ): BatteryAlternative[] {
   const rec = result.summary.recommendation;
+  const middleTotal = result.summary.economy.totalOperatingBenefitSek;
+  const middleMarket = ancillaryMarketValue(result);
   const middle: BatteryAlternative = {
     level: "recommended",
     capacityKWh: rec.capacityKWh,
     powerKw: rec.recommendedPowerKw ?? rec.productPowerKw,
-    annualBenefitSek: result.summary.economy.totalOperatingBenefitSek,
+    annualBenefitSek: middleTotal,
+    ancillaryMarketValueSek: middleMarket,
+    customerBenefitSek: customerBenefitFromTotals(
+      middleTotal,
+      middleMarket,
+      customerAncillaryShare,
+    ),
   };
   if (!(rec.capacityKWh > 0) || rec.sizingWasFixed) return [middle];
 
@@ -78,12 +111,12 @@ export function computeBatteryAlternatives(
 
   const out: BatteryAlternative[] = [];
   if (lowerKWh !== undefined) {
-    const lower = runAtCapacity(input, lowerKWh, "lower");
+    const lower = runAtCapacity(input, lowerKWh, "lower", customerAncillaryShare);
     if (lower) out.push(lower);
   }
   out.push(middle);
   if (higherKWh !== undefined) {
-    const higher = runAtCapacity(input, higherKWh, "higher");
+    const higher = runAtCapacity(input, higherKWh, "higher", customerAncillaryShare);
     if (higher) out.push(higher);
   }
   return out;
