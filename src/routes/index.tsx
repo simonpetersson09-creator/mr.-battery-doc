@@ -33,28 +33,28 @@ function Welcome() {
   const t = useT();
   return (
     <div className="app-shell surface-sun pt-safe pb-safe max-w-md justify-between px-5">
-      <div className="pt-5">
-        <div className="flex size-12 items-center justify-center rounded-[1.125rem] bg-accent text-accent-foreground shadow-[var(--shadow-card)]">
-          <BatteryCharging className="size-6" />
+      <div className="flex flex-col items-center pt-8 text-center">
+        <div className="flex size-16 items-center justify-center rounded-[1.25rem] bg-accent text-accent-foreground shadow-[var(--shadow-card)]">
+          <BatteryCharging className="size-8" />
         </div>
-        <h1 className="ink-gloss mt-3 font-display text-[2rem] leading-[1.05] font-extrabold tracking-tight">
+        <h1 className="ink-gloss mt-4 font-display text-[2.25rem] leading-[1.05] font-extrabold tracking-tight">
           Mr. Battery
           <br />
           Doc
         </h1>
-        <p className="ui-body mt-2 text-muted-foreground">{t("intro.lead")}</p>
-
-        <ul className="mt-4 space-y-2">
-          {POINTS.map(({ icon: Icon, key }) => (
-            <li key={key} className="ui-card flex items-center gap-3 py-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-[0.875rem] bg-accent text-accent-foreground">
-                <Icon className="size-4.5" />
-              </span>
-              <span className="ui-label">{t(key)}</span>
-            </li>
-          ))}
-        </ul>
+        <p className="ui-body mt-3 text-muted-foreground">{t("intro.lead")}</p>
       </div>
+
+      <ul className="mt-6 space-y-2">
+        {POINTS.map(({ icon: Icon, key }) => (
+          <li key={key} className="ui-card flex items-center gap-3 py-3">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-[0.875rem] bg-accent text-accent-foreground">
+              <Icon className="size-4.5" />
+            </span>
+            <span className="ui-label">{t(key)}</span>
+          </li>
+        ))}
+      </ul>
 
       <div className="pt-6">
         <Button
