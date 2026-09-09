@@ -539,6 +539,11 @@ html[data-native="true"] {
   border-color: var(--color-accent);
 }
 
+@utility ui-control-sm {
+  font-size: var(--ui-control-text-sm);
+  font-weight: 600;
+}
+
 @utility field-label {
   font-size: 0.8125rem;
   font-weight: 600;
