@@ -40,7 +40,8 @@ export function WizardShell({
   return (
     <div className="app-shell surface-sun">
       <main className="pt-safe flex-1 px-4 pb-4">
-        <div className="flex items-center justify-center gap-3 pt-1">
+        <div className="flex items-center justify-between pt-1">
+          <h1 className="ui-page-title">{title}</h1>
           <Link to="/" className="flex items-center">
             <img
               src={logo.url}
@@ -50,7 +51,6 @@ export function WizardShell({
               height={1024}
             />
           </Link>
-          <h1 className="ui-page-title">{title}</h1>
         </div>
         <StepIndicator stepIndex={stepIndex} />
 
