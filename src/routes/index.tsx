@@ -25,9 +25,9 @@ export const Route = createFileRoute("/")({
 
 const POINTS = [
   { icon: BatteryCharging, key: "intro.points.capacity" },
-  { icon: Gauge, key: "intro.points.power" },
   { icon: Sun, key: "intro.points.usage" },
   { icon: PiggyBank, key: "intro.points.economy" },
+  { icon: Wallet, key: "intro.points.investment" },
 ];
 
 function Welcome() {
@@ -45,16 +45,23 @@ function Welcome() {
         />
       </div>
 
-      <ul className="mt-4 space-y-3">
+      <ul className="mt-4 space-y-2">
         {POINTS.map(({ icon: Icon, key }) => (
           <li
             key={key}
-            className="ui-card flex items-center gap-4 rounded-2xl px-4 py-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)]"
+            className="ui-card flex items-start gap-3 rounded-2xl px-3.5 py-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)]"
           >
-            <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground">
-              <Icon className="size-5" strokeWidth={2.5} />
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+              <Icon className="size-4" strokeWidth={2.5} />
             </span>
-            <span className="ui-card-title">{t(key)}</span>
+            <span className="flex flex-col gap-0.5 pt-0.5">
+              <span className="text-[0.875rem] font-semibold leading-tight">
+                {t(`${key}.title`)}
+              </span>
+              <span className="text-[0.75rem] leading-snug text-muted-foreground">
+                {t(`${key}.desc`)}
+              </span>
+            </span>
           </li>
         ))}
       </ul>
