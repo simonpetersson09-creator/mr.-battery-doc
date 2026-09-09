@@ -125,6 +125,7 @@ export const de = {
       title: "Tatsächlicher Monatsverbrauch",
       importDescription:
         "Bild, PDF oder CSV importieren – die Werte füllen die Monatsfelder unten.",
+      monthsTitle: "Monat für Monat",
     },
     profile: { title: "Verbrauchsprofil", placeholder: "Profil wählen" },
   },
