@@ -69,13 +69,13 @@ describe("formatting (J-L)", () => {
     expect(formatMoney(1234, "SE", 0)).toMatch(/kr/);
     expect(formatMoney(1234, "DE", 0)).toMatch(/€/);
     expect(formatMoney(1234, "FI", 0)).toMatch(/€/);
-    expect(formatMoney(1234, "DK", 0)).toMatch(/kr/);
+    expect(formatMoney(1234, "DK", 0)).toContain("DKK");
     expect(formatMoney(1234, "DE", 0)).not.toMatch(/kr/);
   });
   it("per-year form keeps the currency", () => {
     expect(formatPerYear(850, "EUR")).toMatch(/€/);
     expect(formatPerYear(850, "EUR")).toMatch(/\/år$/);
-    expect(formatCurrency(0, "DKK")).toMatch(/kr/);
+    expect(formatCurrency(0, "DKK")).toContain("DKK");
   });
 });
 

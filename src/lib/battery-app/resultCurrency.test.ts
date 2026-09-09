@@ -37,8 +37,8 @@ describe("central formatter per country", () => {
 
   it("D+E: DK uses DKK (danish kr, not SEK)", () => {
     expect(countryCurrency("DK")).toBe("DKK");
-    expect(formatMoney(11306, "DK", 0)).toMatch(/kr/);
-    expect(formatMoney(6959, "DK", 0)).toMatch(/kr/);
+    expect(formatMoney(11306, "DK", 0)).toContain("DKK");
+    expect(formatMoney(6959, "DK", 0)).toContain("DKK");
   });
 
   it("F+G+H: switching country switches the label with no leftovers", () => {
@@ -47,7 +47,7 @@ describe("central formatter per country", () => {
     const dk = formatMoneyPerYear(1000, "DK");
     const de = formatMoneyPerYear(1000, "DE");
     expect(fi).not.toMatch(/\bkr\b/); // SE -> FI leaves no SEK label
-    expect(dk).toMatch(/kr/); // FI -> DK1 becomes DKK
+    expect(dk).toContain("DKK"); // FI -> DK1 becomes DKK
     expect(de).not.toMatch(/\bkr\b/); // DK1 -> DE drops every kr
     expect(se).toMatch(/kr/);
   });
