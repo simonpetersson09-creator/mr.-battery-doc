@@ -41,7 +41,7 @@ function Welcome() {
           Doc
         </h1>
         <p className="ui-body mt-2 text-muted-foreground">
-          Svara på några enkla frågor om din fastighet, så visar vi vilket batteri som passar dig.
+          Svara på några enkla frågor om din fastighet, så hjälper vi dig att hitta en lämplig batteristorlek.
         </p>
 
         <ul className="mt-4 space-y-2">
