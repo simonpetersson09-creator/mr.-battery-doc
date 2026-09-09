@@ -378,20 +378,25 @@ function ResultStep() {
                 <p className="ui-help">{ancillaryNote}</p>
               ) : s.fcr.enabled ? (
                 <>
+                  {/* The customer's own ancillary compensation is the row that adds to the total. */}
                   <BenefitRow
-                    label={t("results.benefit.ancillaryMarket")}
-                    hint={t("results.benefit.ancillaryHint")}
-                    value={moneyPerYear(ce.ancillaryMarketValueSek)}
-                  />
-                  <Row
-                    label={t("results.benefit.ancillaryShare")}
-                    value={`${nf(ce.customerAncillaryShare * 100, 0)} %`}
-                  />
-                  <BenefitRow
-                    label={t("results.benefit.ancillaryCustomer")}
-                    hint={t("results.benefit.ancillaryNote")}
+                    label={t("results.benefit.ancillary")}
+                    hint={t("results.benefit.ancillaryCustomerHint")}
                     value={moneyPerYear(ce.ancillaryCustomerValueSek)}
                   />
+                  {/* Background only: how that figure was derived. Never presented as an added item. */}
+                  <div className="space-y-1 rounded-xl bg-foreground/5 px-3 py-2">
+                    <Row
+                      label={t("results.benefit.ancillaryMarket")}
+                      value={moneyPerYear(ce.ancillaryMarketValueSek)}
+                    />
+                    <Row
+                      label={t("results.benefit.ancillaryShare")}
+                      value={`${nf(ce.customerAncillaryShare * 100, 0)} %`}
+                    />
+                    <p className="ui-help">{t("results.benefit.ancillaryShareHint")}</p>
+                    <p className="ui-help">{t("results.benefit.ancillaryNote")}</p>
+                  </div>
                 </>
               ) : null}
             </div>
