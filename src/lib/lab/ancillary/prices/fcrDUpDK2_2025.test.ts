@@ -47,9 +47,9 @@ describe("DK2 FCR-D up 2025 dataset", () => {
 
   it("is wired only to DK2", () => {
     expect(fcrPriceSeriesForCountry("DK2")).toBe(FCR_D_UP_DK2_2025);
-    expect(fcrPriceSeriesForCountry("DK1")).toBeNull();
+    expect(fcrPriceSeriesForCountry("DK1")).not.toBe(FCR_D_UP_DK2_2025);
     expect(fcrPriceSeriesForCountry("DK")).toBeNull();
-    expect(hasVerifiedFcrPrices("DK1")).toBe(false);
+    expect(hasVerifiedFcrPrices("DK1")).toBe(true);
     expect(FCR_D_UP_DK2_2025).not.toBe(FCR_D_UP_SE_2025);
     expect(FCR_D_UP_DK2_2025).not.toBe(FCR_D_UP_FI_2025);
     expect(FCR_D_UP_DK2_2025).not.toBe(FCR_SYMMETRIC_DE_2025);

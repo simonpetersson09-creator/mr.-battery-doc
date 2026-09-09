@@ -65,11 +65,14 @@ describe("reserve product per market", () => {
     expect(result.summary.fcr.grossSek as number).toBeGreaterThan(0);
   });
 
-  it("DK1 keeps the symmetric physics but no invented revenue", () => {
+  it("DK1 prices the symmetric reserve on its own verified Energinet dataset", () => {
     const { result, reserve } = caseFor("DK", "DK1");
-    expect(reserve.priceModel).toBe("unavailable");
+    expect(reserve.priceModel).toBe("ready");
     expect(reserve.physicalHeldPowerAvgKw).toBeGreaterThan(0);
-    expect(result.summary.fcr.grossSek).toBeNull();
+    expect(result.summary.fcr.grossSek).not.toBeNull();
+    expect(result.summary.fcr.grossSek as number).toBeGreaterThan(0);
+    // Aldrig samma intäkt som Tyskland (eget dataset, ingen fallback).
+    expect(result.summary.fcr.grossSek).not.toBe(caseFor("DE").result.summary.fcr.grossSek);
   });
 
   // eslint-disable-next-line vitest/no-disabled-tests

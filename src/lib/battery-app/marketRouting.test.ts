@@ -58,7 +58,7 @@ describe("country + market area routing", () => {
       "continental",
       "DK1_FCR_2025",
     ]);
-    expect(reserveCalculationAvailable("DK", "DK1")).toBe(false);
+    expect(reserveCalculationAvailable("DK", "DK1")).toBe(true);
   });
 
   it("DK2: nordic, upward FCR-D up", () => {

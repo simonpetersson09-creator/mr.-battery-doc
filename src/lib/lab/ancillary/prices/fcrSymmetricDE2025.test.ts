@@ -47,8 +47,8 @@ describe("Germany symmetric FCR 2025 import", () => {
     expect(fcrPriceSeriesForCountry("SE")).toBe(FCR_D_UP_SE_2025);
     expect(fcrPriceSeriesForCountry("FI")).toBe(FCR_D_UP_FI_2025);
     expect(fcrPriceSeriesForCountry("DK")).toBeNull();
-    expect(fcrPriceSeriesForCountry("DK1")).toBeNull();
-    // DK2 har ett eget verifierat upward-dataset och är alltså inte null.
+    // DK1/DK2 har egna verifierade dataset och får aldrig falla tillbaka på det tyska.
+    expect(fcrPriceSeriesForCountry("DK1")).not.toBe(FCR_SYMMETRIC_DE_2025);
   });
 
   it("1 kW held every hour is priced as kW/1000 * EUR/MW/h", () => {
