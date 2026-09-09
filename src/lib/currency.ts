@@ -73,7 +73,7 @@ export function convertCurrency(
 export const CURRENCY_SUFFIX: Record<Currency, string> = {
   SEK: "kr",
   NOK: "kr",
-  DKK: "kr",
+  DKK: "DKK",
   EUR: "€",
 };
 
@@ -94,6 +94,9 @@ export function formatCurrency(
   return new Intl.NumberFormat(opts.locale ?? LOCALE_BY_CURRENCY[currency], {
     style: "currency",
     currency,
+    // DKK's locale symbol is "kr" — indistinguishable from SEK for customers.
+    // Render the ISO code instead so Danish amounts always read "DKK".
+    currencyDisplay: currency === "DKK" ? "code" : "symbol",
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   })
