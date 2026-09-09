@@ -137,26 +137,30 @@ function ConsumptionStep() {
       <ProfilePicker />
 
       {c.mode === "monthly" ? (
-        <SectionCard compact icon={<CalendarRange />} title={t("consumption.monthly.title")}>
-          <MonthlyImport
-            kind="consumption"
-            description={t("consumption.monthly.importDescription")}
-            onApply={applyImported}
-            onOpenChange={setImportOpen}
-          />
-          {!importOpen ? (
-            <MonthGrid
-              values={c.monthlyKwh}
-              onChange={(i, v) =>
-                update((s) => {
-                  const next = [...s.consumption.monthlyKwh];
-                  next[i] = v;
-                  return { ...s, consumption: { ...s.consumption, monthlyKwh: next } };
-                })
-              }
+        <>
+          <SectionCard compact icon={<CalendarRange />} title={t("consumption.monthly.title")}>
+            <MonthlyImport
+              kind="consumption"
+              description={t("consumption.monthly.importDescription")}
+              onApply={applyImported}
+              onOpenChange={setImportOpen}
             />
+          </SectionCard>
+          {!importOpen ? (
+            <SectionCard compact icon={<CalendarRange />} title={t("consumption.monthly.monthsTitle")}>
+              <MonthGrid
+                values={c.monthlyKwh}
+                onChange={(i, v) =>
+                  update((s) => {
+                    const next = [...s.consumption.monthlyKwh];
+                    next[i] = v;
+                    return { ...s, consumption: { ...s.consumption, monthlyKwh: next } };
+                  })
+                }
+              />
+            </SectionCard>
           ) : null}
-        </SectionCard>
+        </>
       ) : null}
 
     </WizardShell>
