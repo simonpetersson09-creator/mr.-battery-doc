@@ -72,7 +72,7 @@ function ConsumptionStep() {
 
   const applyImported = useCallback(
     (vals: number[]) => {
-      setHasImported(true);
+      setJustImported(true);
       update((s) => ({ ...s, consumption: { ...s.consumption, monthlyKwh: [...vals] } }));
     },
     [update],

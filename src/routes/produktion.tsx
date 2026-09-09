@@ -41,7 +41,9 @@ function ProductionStep() {
   const p = state.production;
   const validity = validateProductionStep(state);
   const [importOpen, setImportOpen] = useState(false);
-  const [hasImported, setHasImported] = useState(false);
+  const [justImported, setJustImported] = useState(false);
+  const hasImported =
+    justImported || p.monthlyKwh.some((v) => typeof v === "number" && Number.isFinite(v));
 
   /** The three customer-facing choices map onto the existing data model. */
   const choice: "none" | "annual" | "monthly" =
@@ -59,7 +61,7 @@ function ProductionStep() {
 
   const applyImported = useCallback(
     (vals: number[], selfPct?: number | null) => {
-      setHasImported(true);
+      setJustImported(true);
       update((s) => ({
         ...s,
         production: {
