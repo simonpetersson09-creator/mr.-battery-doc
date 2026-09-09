@@ -9,25 +9,25 @@ const ZERO =
 
 describe("demandChargeHint", () => {
   it("A: Sverige default 30 → schablontext", () => {
-    const v = getCountry("SE").economy.demandChargePerKwMonth;
+    const v = getCountry("SE").economy.demandCharge;
     expect(v).toBe(30); // default oförändrat
     expect(demandChargeHint(v)).toBe(POSITIVE);
   });
 
   it("B: Finland default 0 → ingen-avgift-text", () => {
-    const v = getCountry("FI").economy.demandChargePerKwMonth;
+    const v = getCountry("FI").economy.demandCharge;
     expect(v).toBe(0);
     expect(demandChargeHint(v)).toBe(ZERO);
   });
 
   it("C: Tyskland default 0 → ingen-avgift-text", () => {
-    const v = getCountry("DE").economy.demandChargePerKwMonth;
+    const v = getCountry("DE").economy.demandCharge;
     expect(v).toBe(0);
     expect(demandChargeHint(v)).toBe(ZERO);
   });
 
   it("D/E: Danmark default 0 (gäller DK1 och DK2) → ingen-avgift-text", () => {
-    const v = getCountry("DK").economy.demandChargePerKwMonth;
+    const v = getCountry("DK").economy.demandCharge;
     expect(v).toBe(0);
     expect(demandChargeHint(v)).toBe(ZERO);
   });
