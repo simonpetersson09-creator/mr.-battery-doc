@@ -186,6 +186,7 @@ function ResultStep() {
       title={t("results.title")}
       intro={t("results.intro")}
       footerAction={restart}
+      compact
     >
       {noBattery ? (
         <div className="hero-metric rounded-[1.25rem] px-4 py-4 text-center">
@@ -194,10 +195,10 @@ function ResultStep() {
           <p className="ui-help mt-1 text-foreground/70">{t("results.noBattery.text")}</p>
         </div>
       ) : (
-        <div className="hero-metric rounded-[1.25rem] px-3 py-4">
+        <div className="hero-metric rounded-[1.0625rem] px-3 py-3">
           <p className="ui-caption text-center">{t("results.hero.title")}</p>
           <div
-            className="mt-3 grid items-end gap-2"
+            className="mt-2 grid items-end gap-2"
             style={{ gridTemplateColumns: `repeat(${alternatives.length}, minmax(0, 1fr))` }}
           >
             {alternatives.map((alt) => {
@@ -226,8 +227,8 @@ function ResultStep() {
                   <p
                     className={
                       main
-                        ? "mt-1 text-2xl font-extrabold tabular-nums leading-tight"
-                        : "mt-1 text-base font-semibold tabular-nums leading-tight"
+                        ? "mt-1 text-xl font-extrabold tabular-nums leading-tight"
+                        : "mt-1 text-sm font-semibold tabular-nums leading-tight"
                     }
                   >
                     {nf(alt.capacityKWh)} <span className="text-xs font-bold">kWh</span>
@@ -269,19 +270,19 @@ function ResultStep() {
                 : t("results.balance.higher")
               : t("results.balance.base");
             return (
-              <p className="ui-help mt-2.5 text-center text-foreground/60">{text}</p>
+              <p className="ui-help mt-1.5 text-center text-foreground/60">{text}</p>
             );
           })()}
         </div>
       )}
 
       {p.limitedBenefit ? (
-        <SectionCard title={p.limitedBenefitTitle ?? ""} description={p.limitedBenefitText ?? ""} />
+        <SectionCard compact title={p.limitedBenefitTitle ?? ""} description={p.limitedBenefitText ?? ""} />
       ) : null}
 
       {p.showEnergySection ? (
-        <SectionCard title={t("results.energy.title")}>
-          <div className="space-y-2">
+        <SectionCard compact title={t("results.energy.title")}>
+          <div className="space-y-1.5">
             {p.showSelfConsumption ? (
               <BeforeAfter
                 label={t("results.energy.selfConsumption")}
@@ -320,8 +321,8 @@ function ResultStep() {
       ) : null}
 
       {p.showPeakSection ? (
-        <SectionCard title={t("results.power.title")}>
-          <div className="space-y-2">
+        <SectionCard compact title={t("results.power.title")}>
+          <div className="space-y-1.5">
             <BeforeAfter
               label={t("results.power.peak")}
               before={kw(g.importPeakBeforeKw)}
@@ -339,7 +340,7 @@ function ResultStep() {
         </SectionCard>
       ) : null}
 
-      <SectionCard title={t("results.benefit.title")}>
+      <SectionCard compact title={t("results.benefit.title")}>
         {p.noEconomy ? (
           <>
             <p className="ui-section-title tabular-nums">{moneyPerYear(0)}</p>
@@ -347,11 +348,11 @@ function ResultStep() {
           </>
         ) : (
           <>
-            <p className="ui-hero text-[2rem] tabular-nums">
+            <p className="ui-hero text-[1.625rem] tabular-nums">
               {money(ce.totalCustomerBenefitSek)}
               <span className="ui-help font-normal">{t("units.perYear")}</span>
             </p>
-            <div className="mt-2 space-y-2.5">
+            <div className="mt-1.5 space-y-2">
               {s.economy.energyBenefitSek !== 0 ? (
                 <BenefitRow
                   label={
@@ -385,7 +386,7 @@ function ResultStep() {
                     value={moneyPerYear(ce.ancillaryCustomerValueSek)}
                   />
                   {/* Background only: how that figure was derived. Never presented as an added item. */}
-                  <div className="space-y-1 rounded-xl bg-foreground/5 px-3 py-2">
+                  <div className="space-y-1 rounded-lg bg-foreground/5 px-2.5 py-1.5">
                     <Row
                       label={t("results.benefit.ancillaryMarket")}
                       value={moneyPerYear(ce.ancillaryMarketValueSek)}
@@ -404,8 +405,8 @@ function ResultStep() {
         )}
       </SectionCard>
 
-      <SectionCard title={t("results.investment.title")}>
-        <div className="space-y-2">
+      <SectionCard compact title={t("results.investment.title")}>
+        <div className="space-y-1.5">
           <Row
             label={t("results.investment.targetPayback")}
             value={t("payback.years", { years: nf(targetYears, 0) })}
@@ -426,9 +427,9 @@ function ResultStep() {
       </SectionCard>
 
       {p.showFcrPowerCard ? (
-        <details className="ui-card ui-expandable">
+        <details className="ui-card ui-card-compact ui-expandable">
           <summary className="ui-label">{p.fcrPowerCardTitle}</summary>
-          <div className="mt-3 space-y-2">
+          <div className="mt-2 space-y-1.5">
             {p.fcrPowerLevels.map((lvl) => (
               <Row key={lvl.label} label={lvl.label} value={kw(lvl.kw, 1)} />
             ))}
@@ -437,10 +438,10 @@ function ResultStep() {
         </details>
       ) : null}
 
-      <details className="ui-card ui-expandable">
+      <details className="ui-card ui-card-compact ui-expandable">
         <summary className="ui-label">{t("technical.title")}</summary>
 
-        <div className="mt-3 space-y-4">
+        <div className="mt-2 space-y-3">
           {/* All key figures below come from the FINAL simulation of the recommended system. */}
           {cal ? (
             <TechGroup title={t("technical.calibrationGroup")}>
@@ -467,9 +468,9 @@ function ResultStep() {
         </div>
       </details>
 
-      <details className="ui-card ui-expandable">
+      <details className="ui-card ui-card-compact ui-expandable">
         <summary className="ui-label">{importantInfoTitle()}</summary>
-        <ul className="ui-help mt-3 space-y-2 leading-relaxed">
+        <ul className="ui-help mt-2 space-y-1.5 leading-relaxed">
           {importantInfoPoints().map((point: string) => (
             <li key={point} className="flex gap-2">
               <span aria-hidden="true" className="shrink-0">•</span>
@@ -477,18 +478,18 @@ function ResultStep() {
             </li>
           ))}
         </ul>
-        <p className="ui-help mt-3 text-muted-foreground/80">{importantInfoFooter()}</p>
+        <p className="ui-help mt-2 text-muted-foreground/80">{importantInfoFooter()}</p>
       </details>
 
       {/*
         Report entry point. The report must always be built from `outcome` — the current
         simulation rendered above — never from a cached or recalculated result.
       */}
-      <div className="pt-1">
+      <div className="pt-0.5">
         <Button
           type="button"
           variant="outline"
-          className="h-12 w-full rounded-[0.875rem] font-semibold"
+          className="h-11 w-full rounded-[0.875rem] font-semibold"
           disabled={!PDF_REPORT_AVAILABLE}
           aria-disabled={!PDF_REPORT_AVAILABLE}
           onClick={() => {
