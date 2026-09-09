@@ -155,7 +155,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       voltage: 400,
       phases: 3,
       frequency: 50,
-      commonMainFuses: [25, 35, 50, 63, 80],
+      commonMainFuses: [16, 20, 25, 32, 35, 40, 50, 63, 80, 100],
       defaultMainFuse: 25,
       standards: ["DS/EN 50549-1"],
     },
