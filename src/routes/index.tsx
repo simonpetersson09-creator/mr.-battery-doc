@@ -34,8 +34,8 @@ const POINTS = [
 function Welcome() {
   const t = useT();
   return (
-    <div className="app-shell surface-sun pt-safe pb-safe max-w-md justify-between px-5">
-      <div className="flex flex-col items-center pt-16 text-center">
+    <div className="app-shell surface-sun pt-safe pb-safe max-w-md flex flex-col justify-between px-5">
+      <div className="flex flex-1 flex-col items-center justify-center text-center">
         <h1 className="sr-only">Mr. Battery Doc</h1>
         <img
           src={logo.url}
@@ -44,28 +44,24 @@ function Welcome() {
           width={1536}
           height={1024}
         />
+        <ul className="mt-5 w-full space-y-3 text-left">
+          {POINTS.map(({ icon: Icon, key }) => (
+            <li key={key} className="flex items-start gap-3 px-1 py-1">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+                <Icon className="size-4" strokeWidth={2.5} />
+              </span>
+              <span className="flex flex-col gap-0.5 pt-0.5">
+                <span className="text-[0.875rem] font-semibold leading-tight">
+                  {t(`${key}.title`)}
+                </span>
+                <span className="text-[0.75rem] leading-snug text-muted-foreground">
+                  {t(`${key}.desc`)}
+                </span>
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
-
-      <ul className="mt-4 space-y-3">
-        {POINTS.map(({ icon: Icon, key }) => (
-          <li
-            key={key}
-            className="flex items-start gap-3 px-1 py-1"
-          >
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-              <Icon className="size-4" strokeWidth={2.5} />
-            </span>
-            <span className="flex flex-col gap-0.5 pt-0.5">
-              <span className="text-[0.875rem] font-semibold leading-tight">
-                {t(`${key}.title`)}
-              </span>
-              <span className="text-[0.75rem] leading-snug text-muted-foreground">
-                {t(`${key}.desc`)}
-              </span>
-            </span>
-          </li>
-        ))}
-      </ul>
 
       <div className="flex items-stretch gap-2 pt-6">
         <Button
