@@ -141,9 +141,9 @@ export function MonthlyImport({
             : t("monthlyImport.import")}
       </Button>
       {applied ? (
-        <p className="ui-help text-foreground">{t("monthlyImport.applied")}</p>
+        <p className="ui-help text-foreground text-center">{t("monthlyImport.applied")}</p>
       ) : (
-        <p className="ui-help">{description}</p>
+        <p className="ui-help text-center">{description}</p>
       )}
       {error ? <p className="ui-help text-destructive">{error}</p> : null}
 
