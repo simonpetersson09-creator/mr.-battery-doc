@@ -270,7 +270,7 @@ export const da = {
       noReduction: "Ingen reduktion af effekttoppen med de valgte indstillinger.",
     },
     benefit: {
-      ancillary: "Støttetjenester",
+      ancillaryTitle: "Støttetjenester",
       ancillaryCustomerHint: "Din beregnede betaling.",
       ancillaryMarket: "Historisk markedsværdi for støttetjenester",
       ancillaryShare: "Din andel af værdien fra støttetjenester",

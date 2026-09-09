@@ -270,7 +270,7 @@ export const en = {
       noReduction: "No reduction of the power peak with the selected settings.",
     },
     benefit: {
-      ancillary: "Ancillary services",
+      ancillaryTitle: "Ancillary services",
       ancillaryCustomerHint: "Your calculated compensation.",
       ancillaryMarket: "Historical market value of ancillary services",
       ancillaryShare: "Your share of the ancillary value",

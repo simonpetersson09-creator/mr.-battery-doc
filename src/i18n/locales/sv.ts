@@ -272,7 +272,7 @@ export const sv = {
       noReduction: "Ingen minskning av effekttoppen med de valda inställningarna.",
     },
     benefit: {
-      ancillary: "Stödtjänster",
+      ancillaryTitle: "Stödtjänster",
       ancillaryCustomerHint: "Din beräknade ersättning.",
       ancillaryMarket: "Historiskt marknadsvärde för stödtjänster",
       ancillaryShare: "Din andel av stödtjänstvärdet",

@@ -266,7 +266,7 @@ export const fi = {
       noReduction: "Tehohuippu ei pienene valituilla asetuksilla.",
     },
     benefit: {
-      ancillary: "Tukipalvelut",
+      ancillaryTitle: "Tukipalvelut",
       ancillaryCustomerHint: "Laskennallinen korvauksesi.",
       ancillaryMarket: "Tukipalveluiden historiallinen markkina-arvo",
       ancillaryShare: "Osuutesi tukipalveluiden arvosta",

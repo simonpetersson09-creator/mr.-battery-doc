@@ -273,7 +273,7 @@ export const de = {
       noReduction: "Keine Reduktion der Lastspitze mit den gewählten Einstellungen.",
     },
     benefit: {
-      ancillary: "Systemdienstleistungen",
+      ancillaryTitle: "Systemdienstleistungen",
       ancillaryCustomerHint: "Ihre berechnete Vergütung.",
       ancillaryMarket: "Historischer Marktwert der Systemdienstleistungen",
       ancillaryShare: "Ihr Anteil am Wert der Systemdienstleistungen",
