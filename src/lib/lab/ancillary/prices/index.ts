@@ -12,10 +12,11 @@
 
 import { FCR_D_UP_FI_2025 } from "./fcrDUpFI2025";
 import { FCR_SYMMETRIC_DE_2025 } from "./fcrSymmetricDE2025";
+import { FCR_D_UP_DK2_2025 } from "./fcrDUpDK2_2025";
 import { FCR_D_UP_SE_2025 } from "./fcrDUpSE2025";
 import type { FcrPriceSeries } from "./fcrDUpSE2025";
 
-export { FCR_D_UP_FI_2025, FCR_D_UP_SE_2025, FCR_SYMMETRIC_DE_2025 };
+export { FCR_D_UP_FI_2025, FCR_D_UP_SE_2025, FCR_SYMMETRIC_DE_2025, FCR_D_UP_DK2_2025 };
 export type { FcrPriceSeries };
 
 export type FcrPriceCountry = "SE" | "FI" | "DK" | "DE";
@@ -32,7 +33,9 @@ const SERIES_BY_AREA: Partial<Record<FcrMarketArea, FcrPriceSeries>> = {
   // Germany runs the SYMMETRIC product; this series is priced for symmetric capacity and
   // is never used for the Nordic upward product.
   DE: FCR_SYMMETRIC_DE_2025,
-  // DK / DK1 / DK2: no verified dataset imported yet — deliberately absent.
+  // DK2 runs the Nordic UPWARD product (FCR-D up) and has its own verified series.
+  DK2: FCR_D_UP_DK2_2025,
+  // DK (utan område) / DK1 (symmetrisk FCR): inget verifierat dataset — medvetet frånvarande.
 };
 
 /**

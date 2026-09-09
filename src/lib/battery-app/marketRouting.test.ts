@@ -69,7 +69,7 @@ describe("country + market area routing", () => {
       "nordic",
       "DK2_FCR_D_UP_2025",
     ]);
-    expect(reserveCalculationAvailable("DK", "DK2")).toBe(false);
+    expect(reserveCalculationAvailable("DK", "DK2")).toBe(true);
   });
 
   it("never guesses a Danish area", () => {
