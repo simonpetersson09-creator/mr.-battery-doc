@@ -5,7 +5,8 @@
  * values are the single source of truth handed back through `onChange`.
  */
 
-import { MONTH_SHORT_SV } from "@/lib/consumption-profiles";
+import { formatNumber, useT } from "@/i18n";
+import { monthShortLabels } from "@/i18n/labels";
 
 export function MonthGrid({
   values,
@@ -14,11 +15,13 @@ export function MonthGrid({
   values: (number | null)[];
   onChange: (index: number, value: number | null) => void;
 }) {
+  const t = useT();
+  const months = monthShortLabels();
   const sum = values.reduce<number>((a, b) => a + (b ?? 0), 0);
   return (
     <div className="space-y-2">
       <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
-        {MONTH_SHORT_SV.map((m, i) => (
+        {months.map((m, i) => (
           <label key={m} className="flex items-center gap-1.5">
             <span className="field-label w-8 shrink-0">{m}</span>
             <input
@@ -33,8 +36,8 @@ export function MonthGrid({
         ))}
       </div>
       <p className="ui-help">
-        Summa: <span className="tabular-nums text-foreground">{sum.toLocaleString("sv-SE")}</span>{" "}
-        kWh
+        {t("monthlyImport.sum")}{" "}
+        <span className="tabular-nums text-foreground">{formatNumber(sum)}</span> kWh
       </p>
     </div>
   );

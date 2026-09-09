@@ -8,11 +8,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { MONTH_SHORT_SV } from "@/lib/consumption-profiles";
+import { formatNumber, useT } from "@/i18n";
+import { monthShortLabels } from "@/i18n/labels";
 import { extractMonthlyFromDocument } from "@/lib/import/extractMonthly.functions";
 import {
   extractFromText,
-  missingMonthsMessage,
   reviewState,
   selectSeries,
   type ExtractionPayload,
@@ -43,6 +43,8 @@ export function MonthlyImport({
   /** true while the picker/review overlay owns the month values. */
   onOpenChange?: (open: boolean) => void;
 }) {
+  const t = useT();
+  const months = monthShortLabels();
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -94,14 +96,14 @@ export function MonthlyImport({
       setSelfPct(payload.selfConsumptionPct);
       const choice = selectSeries(payload, kind);
       if (choice.all.length === 0) {
-        setError("Vi hittade ingen månadsdata i filen. Kontrollera att månaderna syns tydligt.");
+        setError(t("errors.importNoData"));
       } else if (choice.preselected && !choice.needsChoice) {
         useSeries(choice.preselected);
       } else {
         setCandidates(choice.all);
       }
     } catch {
-      setError("Filen kunde inte läsas. Försök med en tydligare bild eller en PDF.");
+      setError(t("errors.importUnreadable"));
     } finally {
       setBusy(false);
     }
@@ -133,13 +135,13 @@ export function MonthlyImport({
           <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
         </svg>
         {busy
-          ? "Läser dokumentet…"
+          ? t("monthlyImport.reading")
           : applied
-            ? "Importera på nytt"
-            : "Importera månadsdata"}
+            ? t("monthlyImport.reimport")
+            : t("monthlyImport.import")}
       </Button>
       {applied ? (
-        <p className="ui-help text-foreground">✓ 12 månaders värden importerade</p>
+        <p className="ui-help text-foreground">{t("monthlyImport.applied")}</p>
       ) : (
         <p className="ui-help">{description}</p>
       )}
@@ -159,10 +161,15 @@ export function MonthlyImport({
 
       {candidates ? (
         <div className="ui-card space-y-2">
-          <p className="ui-card-title">Vilken serie ska användas?</p>
+          <p className="ui-card-title">{t("monthlyImport.chooseSeriesTitle")}</p>
           <p className="ui-help">
-            Dokumentet innehåller flera serier. Välj den som gäller{" "}
-            {kind === "consumption" ? "förbrukning" : "solproduktion"}.
+            {t("monthlyImport.chooseSeriesText", {
+              kind: t(
+                kind === "consumption"
+                  ? "monthlyImport.kindConsumption"
+                  : "monthlyImport.kindProduction",
+              ),
+            })}
           </p>
           {candidates.map((s, i) => (
             <Button
@@ -173,37 +180,33 @@ export function MonthlyImport({
               onClick={() => useSeries(s)}
             >
               <span className="truncate">{s.label}</span>
-              <span className="tabular-nums">{s.sumKwh.toLocaleString("sv-SE")} kWh</span>
+              <span className="tabular-nums">{formatNumber(s.sumKwh)} kWh</span>
             </Button>
           ))}
           <Button type="button" variant="ghost" className="w-full" onClick={close}>
-            Avbryt
+            {t("common.cancel")}
           </Button>
         </div>
       ) : null}
 
       {review ? (
         <div className="ui-card space-y-3">
-          <p className="ui-card-title">Kontrollera importerade värden</p>
+          <p className="ui-card-title">{t("monthlyImport.reviewTitle")}</p>
           {active?.label ? <p className="ui-caption">{active.label}</p> : null}
-          {missingMonthsMessage(review.missing) ? (
-            <p className="ui-help text-destructive">{missingMonthsMessage(review.missing)}</p>
+          {review.missing.length > 0 ? (
+            <p className="ui-help text-destructive">
+              {t("monthlyImport.missingMonths", { read: 12 - review.missing.length })}
+            </p>
           ) : null}
           {active?.annualMismatch ? (
-            <p className="ui-help text-destructive">
-              Summan av månadsvärdena skiljer sig från årsuppgiften i dokumentet. Kontrollera
-              värdena innan du fortsätter.
-            </p>
+            <p className="ui-help text-destructive">{t("monthlyImport.annualMismatch")}</p>
           ) : null}
           {selfPct !== null ? (
-            <p className="ui-help">
-              Dokumentet anger {selfPct} % egenanvändning. Värdet används som din faktiska
-              egenanvändning när du godkänner värdena.
-            </p>
+            <p className="ui-help">{t("monthlyImport.selfPctFound", { pct: selfPct })}</p>
           ) : null}
 
           <div className="grid grid-cols-2 gap-2">
-            {MONTH_SHORT_SV.map((m, i) => {
+            {months.map((m, i) => {
               const missing = review.missing.includes(i);
               return (
                 <label key={m} className="flex items-center gap-2">
@@ -230,7 +233,8 @@ export function MonthlyImport({
           </div>
 
           <p className="ui-help">
-            Summa: <span className="tabular-nums">{review.sumKwh.toLocaleString("sv-SE")}</span> kWh
+            {t("monthlyImport.sum")}{" "}
+            <span className="tabular-nums">{formatNumber(review.sumKwh)}</span> kWh
           </p>
 
           <div className="flex gap-2">
@@ -245,10 +249,10 @@ export function MonthlyImport({
                 close();
               }}
             >
-              Använd värden
+              {t("monthlyImport.apply")}
             </Button>
             <Button type="button" variant="outline" className="flex-1" onClick={close}>
-              Avbryt
+              {t("common.cancel")}
             </Button>
           </div>
         </div>

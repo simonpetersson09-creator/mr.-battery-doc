@@ -1,8 +1,9 @@
 /**
  * Pre-flight validation. Blocks an engine run when required data is missing.
- * It NEVER changes or invents user values.
+ * It NEVER changes or invents user values. Messages are localized; rules are not.
  */
 
+import { t } from "@/i18n";
 import { isKnownProfile } from "@/lib/consumption-profiles";
 import type { WizardState } from "@/state/wizard";
 import { completeMonths } from "./normalizeWizardToEngineInput";
@@ -20,51 +21,47 @@ export interface ValidationResult {
 
 export function validateBatteryEngineInput(state: WizardState): ValidationResult {
   const issues: ValidationIssue[] = [];
-  const add = (field: string, message: string) => issues.push({ field, message });
+  const add = (field: string, key: string) => issues.push({ field, message: t(key) });
 
   /* grid */
   const fuse = state.grid.mainFuseA;
-  if (!Number.isFinite(fuse) || fuse <= 0) add("grid.mainFuseA", "Ange en giltig huvudsäkring.");
+  if (!Number.isFinite(fuse) || fuse <= 0) add("grid.mainFuseA", "validation.fuseGeneric");
 
   /* consumption */
   const c = state.consumption;
   if (c.mode === "monthly") {
     const months = completeMonths(c.monthlyKwh);
-    if (!months) add("consumption.monthlyKwh", "Fyll i alla 12 månader med giltiga värden.");
+    if (!months) add("consumption.monthlyKwh", "validation.months");
     else if (months.reduce((a, b) => a + b, 0) <= 0)
-      add("consumption.monthlyKwh", "Månadsförbrukningen kan inte vara noll.");
+      add("consumption.monthlyKwh", "validation.monthsZero");
   } else {
     if (typeof c.annualKwh !== "number" || !Number.isFinite(c.annualKwh) || c.annualKwh <= 0)
-      add("consumption.annualKwh", "Ange din årsförbrukning i kWh.");
+      add("consumption.annualKwh", "validation.annualConsumption");
   }
   // The profile shapes the hourly distribution in BOTH modes.
-  if (!isKnownProfile(c.profileId))
-    add("consumption.profileId", "Välj den förbrukningsprofil som liknar din fastighet.");
+  if (!isKnownProfile(c.profileId)) add("consumption.profileId", "validation.profileGeneric");
 
   /* production */
   const p = state.production;
   if (p.mode !== "none") {
     const months = p.useMonthly ? completeMonths(p.monthlyKwh) : null;
-    if (p.useMonthly && !months)
-      add("production.monthlyKwh", "Fyll i alla 12 månader för solproduktionen.");
+    if (p.useMonthly && !months) add("production.monthlyKwh", "validation.productionMonths");
     if (!months && (typeof p.annualKwh !== "number" || p.annualKwh <= 0))
-      add("production.annualKwh", "Ange solcellernas årsproduktion i kWh.");
-    if (typeof p.dcKwp === "number" && p.dcKwp < 0)
-      add("production.dcKwp", "Paneleffekten kan inte vara negativ.");
-    if (typeof p.acKw === "number" && p.acKw < 0)
-      add("production.acKw", "Växelriktarens effekt kan inte vara negativ.");
+      add("production.annualKwh", "validation.productionAnnual");
+    if (typeof p.dcKwp === "number" && p.dcKwp < 0) add("production.dcKwp", "validation.dcKwp");
+    if (typeof p.acKw === "number" && p.acKw < 0) add("production.acKw", "validation.acKw");
   }
 
   /* economy */
   const e = state.economy;
   if (!Number.isFinite(e.importPrice) || e.importPrice < 0)
-    add("economy.importPrice", "Priset på köpt el kan inte vara negativt.");
+    add("economy.importPrice", "validation.importPrice");
   if (!Number.isFinite(e.exportPrice) || e.exportPrice < 0)
-    add("economy.exportPrice", "Ersättningen för såld solel kan inte vara negativ.");
+    add("economy.exportPrice", "validation.exportPrice");
   if (!Number.isFinite(e.demandCharge) || e.demandCharge < 0)
-    add("economy.demandCharge", "Effektavgiften kan inte vara negativ.");
+    add("economy.demandCharge", "validation.demandCharge");
   if (!Number.isFinite(e.eurSekRate) || e.eurSekRate <= 0)
-    add("economy.eurSekRate", "Valutakursen måste vara större än noll.");
+    add("economy.eurSekRate", "validation.fxRate");
 
   // De-duplicate identical messages.
   const seen = new Set<string>();

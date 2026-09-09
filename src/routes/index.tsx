@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BatteryCharging, Gauge, PiggyBank, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -22,13 +23,14 @@ export const Route = createFileRoute("/")({
 });
 
 const POINTS = [
-  { icon: BatteryCharging, text: "Hur stort batteri i kWh din fastighet behöver" },
-  { icon: Gauge, text: "Vilken effekt i kW som passar" },
-  { icon: Sun, text: "Hur batteriet kan användas" },
-  { icon: PiggyBank, text: "Vilken ekonomisk nytta batteriet kan ge" },
+  { icon: BatteryCharging, key: "intro.points.capacity" },
+  { icon: Gauge, key: "intro.points.power" },
+  { icon: Sun, key: "intro.points.usage" },
+  { icon: PiggyBank, key: "intro.points.economy" },
 ];
 
 function Welcome() {
+  const t = useT();
   return (
     <div className="app-shell surface-sun pt-safe pb-safe max-w-md justify-between px-5">
       <div className="pt-5">
@@ -40,17 +42,15 @@ function Welcome() {
           <br />
           Doc
         </h1>
-        <p className="ui-body mt-2 text-muted-foreground">
-          Svara på några enkla frågor om din fastighet, så hjälper vi dig att hitta en lämplig batteristorlek.
-        </p>
+        <p className="ui-body mt-2 text-muted-foreground">{t("intro.lead")}</p>
 
         <ul className="mt-4 space-y-2">
-          {POINTS.map(({ icon: Icon, text }) => (
-            <li key={text} className="ui-card flex items-center gap-3 py-3">
+          {POINTS.map(({ icon: Icon, key }) => (
+            <li key={key} className="ui-card flex items-center gap-3 py-3">
               <span className="flex size-9 shrink-0 items-center justify-center rounded-[0.875rem] bg-accent text-accent-foreground">
                 <Icon className="size-4.5" />
               </span>
-              <span className="ui-label">{text}</span>
+              <span className="ui-label">{t(key)}</span>
             </li>
           ))}
         </ul>
@@ -63,15 +63,12 @@ function Welcome() {
           className="h-12 w-full rounded-[0.875rem] font-bold shadow-cta"
         >
           <Link to="/nat">
-            Kom igång
+            {t("intro.cta")}
             <ArrowRight className="size-4" />
           </Link>
         </Button>
-        <p className="ui-help mt-2 text-center">
-          Tar ungefär tre minuter. Dina svar sparas medan du fyller i.
-        </p>
+        <p className="ui-help mt-2 text-center">{t("intro.footnote")}</p>
       </div>
-
     </div>
   );
 }
