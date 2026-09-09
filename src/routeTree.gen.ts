@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AterbetalningRouteImport } from './routes/aterbetalning'
 import { Route as BatteriRouteImport } from './routes/batteri'
 import { Route as EkonomiRouteImport } from './routes/ekonomi'
 import { Route as ForbrukningRouteImport } from './routes/forbrukning'
@@ -21,11 +20,6 @@ import { Route as ResultatRouteImport } from './routes/resultat'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AterbetalningRoute = AterbetalningRouteImport.update({
-  id: '/aterbetalning',
-  path: '/aterbetalning',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BatteriRoute = BatteriRouteImport.update({
@@ -61,7 +55,6 @@ const ResultatRoute = ResultatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/aterbetalning': typeof AterbetalningRoute
   '/batteri': typeof BatteriRoute
   '/ekonomi': typeof EkonomiRoute
   '/forbrukning': typeof ForbrukningRoute
@@ -71,7 +64,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/aterbetalning': typeof AterbetalningRoute
   '/batteri': typeof BatteriRoute
   '/ekonomi': typeof EkonomiRoute
   '/forbrukning': typeof ForbrukningRoute
@@ -82,7 +74,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/aterbetalning': typeof AterbetalningRoute
   '/batteri': typeof BatteriRoute
   '/ekonomi': typeof EkonomiRoute
   '/forbrukning': typeof ForbrukningRoute
@@ -94,7 +85,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/aterbetalning'
     | '/batteri'
     | '/ekonomi'
     | '/forbrukning'
@@ -104,7 +94,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/aterbetalning'
     | '/batteri'
     | '/ekonomi'
     | '/forbrukning'
@@ -114,7 +103,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/aterbetalning'
     | '/batteri'
     | '/ekonomi'
     | '/forbrukning'
@@ -125,7 +113,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AterbetalningRoute: typeof AterbetalningRoute
   BatteriRoute: typeof BatteriRoute
   EkonomiRoute: typeof EkonomiRoute
   ForbrukningRoute: typeof ForbrukningRoute
@@ -141,13 +128,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/aterbetalning': {
-      id: '/aterbetalning'
-      path: '/aterbetalning'
-      fullPath: '/aterbetalning'
-      preLoaderRoute: typeof AterbetalningRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/batteri': {
@@ -197,7 +177,6 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AterbetalningRoute: AterbetalningRoute,
   BatteriRoute: BatteriRoute,
   EkonomiRoute: EkonomiRoute,
   ForbrukningRoute: ForbrukningRoute,

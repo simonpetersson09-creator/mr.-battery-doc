@@ -151,13 +151,13 @@ describe("simple payback", () => {
 });
 
 describe("wizard wiring", () => {
-  it("has seven steps with payback between economy and result", () => {
+  it("has six steps with payback inside the economy step", () => {
     const paths = WIZARD_STEPS.map((s) => s.path);
-    expect(paths).toHaveLength(7);
+    expect(paths).toHaveLength(6);
     expect(paths[4]).toBe("/ekonomi");
-    expect(paths[5]).toBe("/aterbetalning");
-    expect(paths[6]).toBe("/resultat");
+    expect(paths[5]).toBe("/resultat");
   });
+
 
   it("validates share bounds and payback range", () => {
     const s = villa();

@@ -105,7 +105,7 @@ function ResultStep() {
   if (outcome.status === "incomplete") {
     return (
       <WizardShell
-        stepIndex={6}
+        stepIndex={5}
         title={t("results.title")}
         intro={t("results.incomplete.intro")}
         footerAction={restart}
@@ -130,7 +130,7 @@ function ResultStep() {
   if (outcome.status === "error") {
     return (
       <WizardShell
-        stepIndex={6}
+        stepIndex={5}
         title={t("results.title")}
         intro={t("results.error.intro")}
         footerAction={restart}
@@ -182,7 +182,7 @@ function ResultStep() {
 
   return (
     <WizardShell
-      stepIndex={6}
+      stepIndex={5}
       title={t("results.title")}
       intro={t("results.intro")}
       footerAction={restart}

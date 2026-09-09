@@ -1,11 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Coins, HandCoins, Timer } from "lucide-react";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { NumberField, SectionCard } from "@/components/wizard/fields";
+import { Slider } from "@/components/ui/slider";
 import { getCountry } from "@/lib/country-config";
 import { demandChargeHint } from "@/lib/battery-app/economyCopy";
-import { validateEconomyStep } from "@/lib/battery-app/stepValidation";
+import {
+  clampTargetPaybackYears,
+  MAX_TARGET_PAYBACK_YEARS,
+  MIN_TARGET_PAYBACK_YEARS,
+} from "@/lib/battery-app/customerEconomy";
+import { validateEconomyStep, validatePaybackStep } from "@/lib/battery-app/stepValidation";
 import { useWizard } from "@/state/wizard";
-import { useT } from "@/i18n";
+import { formatNumber, useT } from "@/i18n";
 import { countryName } from "@/i18n/labels";
 
 export const Route = createFileRoute("/ekonomi")({
@@ -33,13 +40,17 @@ function EconomyStep() {
   const country = getCountry(state.grid.country);
   /* CURRENCY STAYS COUNTRY-DRIVEN — the UI language never changes it. */
   const unit = country.economy.currencyLabel;
+  const years = state.preferences.targetPaybackYears;
 
   const setEconomy = (patch: Partial<typeof state.economy>) =>
     update((s) => ({ ...s, economy: { ...s.economy, ...patch, touched: true } }));
-  const validity = validateEconomyStep(state);
+  const economyValidity = validateEconomyStep(state);
+  const paybackValidity = validatePaybackStep(state);
+  const validity = economyValidity.ok ? paybackValidity : economyValidity;
 
   return (
     <WizardShell
+      compact
       stepIndex={4}
       title={t("economics.title")}
       intro={t("economics.intro", { country: countryName(state.grid.country) })}
@@ -47,12 +58,15 @@ function EconomyStep() {
       nextBlockedReason={validity.message}
     >
       <SectionCard
+        compact
+        icon={<Coins className="size-4" />}
         title={t("economics.prices.title")}
         description={t("economics.prices.description")}
       >
         <div className="grid grid-cols-2 gap-2">
           <NumberField
             dense
+            compact
             label={t("economics.importPrice.label")}
             unit={t("units.perKwh", { currency: unit })}
             step="0.01"
@@ -62,6 +76,7 @@ function EconomyStep() {
           />
           <NumberField
             dense
+            compact
             label={t("economics.exportPrice.label")}
             unit={t("units.perKwh", { currency: unit })}
             step="0.01"
@@ -72,6 +87,7 @@ function EconomyStep() {
         </div>
         <NumberField
           dense
+          compact
           label={t("economics.demandCharge.label")}
           unit={t("units.perKwMonth", { currency: unit })}
           step="1"
@@ -89,11 +105,14 @@ function EconomyStep() {
       */}
       {state.strategies.fcrDUp ? (
         <SectionCard
+          compact
+          icon={<HandCoins className="size-4" />}
           title={t("economics.customerShare.title")}
           description={t("economics.customerShare.description")}
         >
           <NumberField
             dense
+            compact
             label={t("economics.customerShare.label")}
             unit="%"
             step="1"
@@ -112,6 +131,33 @@ function EconomyStep() {
         </SectionCard>
       ) : null}
 
+      {/* Desired payback horizon — presentation preference, no engine input. */}
+      <SectionCard compact icon={<Timer className="size-4" />} title={t("payback.card")}>
+        <p className="ui-hero text-[1.5rem] tabular-nums">
+          {t("payback.years", { years: formatNumber(years, 0) })}
+        </p>
+        <Slider
+          className="mt-2"
+          value={[years]}
+          min={MIN_TARGET_PAYBACK_YEARS}
+          max={MAX_TARGET_PAYBACK_YEARS}
+          step={1}
+          aria-label={t("payback.card")}
+          onValueChange={(v) =>
+            update((s) => ({
+              ...s,
+              preferences: {
+                ...s.preferences,
+                targetPaybackYears: clampTargetPaybackYears(v[0]),
+              },
+            }))
+          }
+        />
+        <div className="ui-help mt-1 flex justify-between tabular-nums">
+          <span>{t("payback.years", { years: formatNumber(MIN_TARGET_PAYBACK_YEARS, 0) })}</span>
+          <span>{t("payback.years", { years: formatNumber(MAX_TARGET_PAYBACK_YEARS, 0) })}</span>
+        </div>
+      </SectionCard>
     </WizardShell>
   );
 }
