@@ -77,7 +77,7 @@ export const en = {
     footnote: "Takes about three minutes. Your answers are saved as you go.",
   },
   network: {
-    title: "Grid",
+    title: "Grid and main fuse",
     intro:
       "Start by choosing a country. The right grid values and standard prices are then set automatically.",
     country: { title: "Country", description: "Where is the property located?" },
