@@ -126,6 +126,7 @@ function ConsumptionStep() {
             unit={t("units.kwhPerYear")}
             value={c.annualKwh}
             placeholder={t("consumption.annual.placeholder")}
+            compact
             onChange={(v) =>
               update((s) => ({ ...s, consumption: { ...s.consumption, annualKwh: v } }))
             }
