@@ -30,7 +30,7 @@ export function MonthGrid({
               placeholder="kWh"
               value={values[i] ?? ""}
               onChange={(e) => onChange(i, e.target.value === "" ? null : Number(e.target.value))}
-              className="ui-control h-9 min-w-0 flex-1 tabular-nums"
+              className="ui-control ui-control-sm h-9 min-w-0 flex-1 tabular-nums"
             />
           </label>
         ))}
