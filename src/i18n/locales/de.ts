@@ -56,10 +56,22 @@ export const de = {
   intro: {
     lead: "Beantworten Sie ein paar einfache Fragen zu Ihrer Immobilie, und wir helfen Ihnen, eine passende Batteriegröße zu finden.",
     points: {
-      capacity: "Wie groß die Batterie in kWh für Ihre Immobilie sein sollte",
-      power: "Welche Leistung in kW passt",
-      usage: "Wie die Batterie genutzt werden kann",
-      economy: "Welchen wirtschaftlichen Nutzen die Batterie bringen kann",
+      capacity: {
+        title: "Empfohlene Batteriegröße und Leistung",
+        desc: "Wie viele kWh und kW zu Ihrer Immobilie passen.",
+      },
+      usage: {
+        title: "Wie die Batterie genutzt werden kann",
+        desc: "Eigenverbrauch, reduzierter Netzbezug, Spitzenlastkappung und Systemdienstleistungen.",
+      },
+      economy: {
+        title: "Geschätzter wirtschaftlicher Nutzen",
+        desc: "Welchen jährlichen Kundennutzen die Batterie bringen kann.",
+      },
+      investment: {
+        title: "Angemessene Investitionskosten",
+        desc: "Was die Batterie kosten darf, basierend auf Ihrer gewünschten Amortisationszeit.",
+      },
     },
     cta: "Loslegen",
     footnote: "Dauert etwa drei Minuten. Ihre Angaben werden währenddessen gespeichert.",

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BatteryCharging, Gauge, PiggyBank, Sun } from "lucide-react";
+import { ArrowRight, BatteryCharging, PiggyBank, Sun, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/mr-battery-doc-logo.png.asset.json";
 import { useT } from "@/i18n";

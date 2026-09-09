@@ -60,10 +60,22 @@ export const sv = {
   intro: {
     lead: "Svara på några enkla frågor om din fastighet, så hjälper vi dig att hitta en lämplig batteristorlek.",
     points: {
-      capacity: "Hur stort batteri i kWh din fastighet behöver",
-      power: "Vilken effekt i kW som passar",
-      usage: "Hur batteriet kan användas",
-      economy: "Vilken ekonomisk nytta batteriet kan ge",
+      capacity: {
+        title: "Rekommenderad batteristorlek och effekt",
+        desc: "Hur många kWh och kW som passar din fastighet.",
+      },
+      usage: {
+        title: "Hur batteriet kan användas",
+        desc: "Egenanvändning, minskad nätimport, effekttoppar och stödtjänster.",
+      },
+      economy: {
+        title: "Beräknad ekonomisk nytta",
+        desc: "Vad batteriet kan ge i årlig kundnytta.",
+      },
+      investment: {
+        title: "Rimlig investeringskostnad",
+        desc: "Vad batteriet får kosta utifrån din önskade återbetalningstid.",
+      },
     },
     cta: "Kom igång",
     footnote: "Tar ungefär tre minuter. Dina svar sparas medan du fyller i.",

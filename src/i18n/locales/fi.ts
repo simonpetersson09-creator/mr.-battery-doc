@@ -55,10 +55,22 @@ export const fi = {
   intro: {
     lead: "Vastaa muutamaan yksinkertaiseen kysymykseen kiinteistöstäsi, niin autamme löytämään sopivan akkukoon.",
     points: {
-      capacity: "Kuinka suuri akku kilowattitunteina kiinteistösi tarvitsee",
-      power: "Mikä teho kilowatteina sopii",
-      usage: "Miten akkua voi käyttää",
-      economy: "Millaisen taloudellisen hyödyn akku voi tuoda",
+      capacity: {
+        title: "Suositeltu akun koko ja teho",
+        desc: "Kuinka monta kWh ja kW sopivat kiinteistöösi.",
+      },
+      usage: {
+        title: "Miten akkua voidaan käyttää",
+        desc: "Oma kulutus, vähentynyt verkkotuonti, huippukuormituksen tasaus ja järjestelmäpalvelut.",
+      },
+      economy: {
+        title: "Arvioitu taloudellinen hyöty",
+        desc: "Mitä akku voi tuottaa vuotuisena asiakashyötynä.",
+      },
+      investment: {
+        title: "Kohtuulliset investointikustannukset",
+        desc: "Mitä akku saa maksaa halutun takaisinmaksuajan perusteella.",
+      },
     },
     cta: "Aloita",
     footnote: "Kestää noin kolme minuuttia. Vastauksesi tallentuvat matkan varrella.",

@@ -56,10 +56,22 @@ export const en = {
   intro: {
     lead: "Answer a few simple questions about your property and we will help you find a suitable battery size.",
     points: {
-      capacity: "How large a battery in kWh your property needs",
-      power: "Which power rating in kW that fits",
-      usage: "How the battery can be used",
-      economy: "What financial benefit the battery can give",
+      capacity: {
+        title: "Recommended battery size and power",
+        desc: "How many kWh and kW suit your property.",
+      },
+      usage: {
+        title: "How the battery can be used",
+        desc: "Self-consumption, reduced grid import, peak shaving and ancillary services.",
+      },
+      economy: {
+        title: "Estimated financial benefit",
+        desc: "What the battery can give in annual customer benefit.",
+      },
+      investment: {
+        title: "Reasonable investment cost",
+        desc: "What the battery may cost based on your desired payback time.",
+      },
     },
     cta: "Get started",
     footnote: "Takes about three minutes. Your answers are saved as you go.",
