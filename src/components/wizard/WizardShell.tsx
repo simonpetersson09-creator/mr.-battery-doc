@@ -45,19 +45,20 @@ export function WizardShell({
             <img
               src={logo.url}
               alt="Mr. Battery Doc"
-              className="h-9 w-auto"
+              className="h-11 w-auto"
               width={1536}
               height={1024}
             />
           </Link>
         </div>
+
+        <h1 className="ui-page-title mt-2 text-left">{title}</h1>
         <StepIndicator stepIndex={stepIndex} />
 
         <section className="mt-2">
           <p className="ui-caption">
             {t("common.step", { current: stepIndex + 1, total: WIZARD_STEPS.length })}
           </p>
-          <h1 className="ui-page-title mt-1">{title}</h1>
           {intro ? <p className="ui-help mt-1">{intro}</p> : null}
           <div className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}>{children}</div>
         </section>
