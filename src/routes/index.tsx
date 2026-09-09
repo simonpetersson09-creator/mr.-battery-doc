@@ -39,7 +39,7 @@ function Welcome() {
         <img
           src={logo.url}
           alt="Mr. Battery Doc"
-          className="w-full max-w-[17rem]"
+          className="w-full max-w-[11rem]"
           width={1536}
           height={1024}
         />
