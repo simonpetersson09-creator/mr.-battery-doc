@@ -41,6 +41,7 @@ function ProductionStep() {
   const p = state.production;
   const validity = validateProductionStep(state);
   const [importOpen, setImportOpen] = useState(false);
+  const [hasImported, setHasImported] = useState(false);
 
   /** The three customer-facing choices map onto the existing data model. */
   const choice: "none" | "annual" | "monthly" =
