@@ -223,7 +223,7 @@ export function MonthlyImport({
                         return next;
                       })
                     }
-                    className={`ui-control h-9 ui-control-text-sm min-w-0 flex-1 tabular-nums ${
+                    className={`ui-control ui-control-sm h-9 min-w-0 flex-1 tabular-nums ${
                       missing ? "border-destructive" : ""
                     }`}
                   />
