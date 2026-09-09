@@ -85,7 +85,7 @@ function ConsumptionStep() {
           value={c.mode}
           onValueChange={(v) => setMode(v as ConsumptionMode)}
         >
-          <SelectTrigger className="ui-control control-active">
+          <SelectTrigger className="ui-control ui-control-active">
             <SelectValue>
               {c.mode === "annual"
                 ? t("consumption.modeAnnual.title")

@@ -544,7 +544,7 @@ html[data-native="true"] {
   font-weight: 600;
 }
 
-@utility control-active {
+@utility ui-control-active {
   background-color: var(--brand-yellow);
   background-image: linear-gradient(
     180deg,
