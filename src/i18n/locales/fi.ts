@@ -149,20 +149,19 @@ export const fi = {
     intro: "Kaikki on aluksi päällä. Kytke pois se, mikä ei ole sinulle kiinnostavaa.",
     solar: {
       title: "Optimoitu aurinkoenergian oma käyttö",
-      description: "Varastoi aurinkoylijäämä ja käytä energia myöhemmin.",
+      description: "Varastoi aurinkosähköä ja käytä sitä, kun aurinko ei tuota.",
     },
     gridImport: {
       title: "Pienempi verkosta osto",
-      description: "Vähennä verkosta otettavan sähkön määrää.",
+      description: "Käytä akkua vähentääksesi verkosta ostetun sähkön määrää.",
     },
     peak: {
       title: "Huipputehon leikkaus",
-      description: "Leikkaa kiinteistön tehohuiput.",
+      description: "Pienennä kiinteistön tehohuippuja ja mahdollista tehomaksua.",
     },
     ancillary: {
-      title: "Reservipalvelut – {{product}}",
-      description:
-        "Varaa tehoa sähköverkon tueksi. Sovellus optimoi varauksen automaattisesti.",
+      title: "Reservipalvelut",
+      description: "Varaa akkutehoa sähköverkolle ja saa korvaus.",
     },
     noSolarNote:
       "Olet ilmoittanut, ettei kiinteistössä ole aurinkopaneeleita. Siksi aurinkosähkön oma käyttö ei tuo tällä hetkellä hyötyä — muut käyttötavat eivät muutu.",

@@ -154,20 +154,19 @@ export const sv = {
     intro: "Allt är påslaget från start. Slå av det som inte är intressant för dig.",
     solar: {
       title: "Optimerad egenanvändning av solenergi",
-      description: "Lagra solöverskott och använd energin senare.",
+      description: "Lagra solel och använd den när solen inte producerar.",
     },
     gridImport: {
       title: "Minskad nätimport",
-      description: "Minska mängden el som hämtas från elnätet.",
+      description: "Använd batteriet för att minska mängden el som köps från nätet.",
     },
     peak: {
       title: "Peak shaving",
-      description: "Kapa fastighetens effekttoppar.",
+      description: "Minska fastighetens effekttoppar och eventuell effektavgift.",
     },
     ancillary: {
-      title: "Stödtjänster – {{product}}",
-      description:
-        "Reserverar effekt för att stödja elnätet. Appen optimerar reservationen automatiskt.",
+      title: "Stödtjänster",
+      description: "Reservera batterieffekt för elnätet och få ersättning.",
     },
     noSolarNote:
       "Du har angett att fastigheten inte har solceller. Då ger egenanvändning av solel ingen nytta idag — övriga användningssätt påverkas inte.",

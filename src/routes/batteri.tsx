@@ -3,7 +3,6 @@ import { WizardShell } from "@/components/wizard/WizardShell";
 import { SectionCard, ToggleRow } from "@/components/wizard/fields";
 import { useWizard } from "@/state/wizard";
 import { useT } from "@/i18n";
-import { reserveProductName } from "@/i18n/labels";
 
 export const Route = createFileRoute("/batteri")({
   head: () => ({
@@ -53,9 +52,7 @@ function BatteryStep() {
       </div>
 
       <ToggleRow
-        title={t("strategies.ancillary.title", {
-          product: reserveProductName(state.grid.country, state.grid.marketArea),
-        })}
+        title={t("strategies.ancillary.title")}
         description={t("strategies.ancillary.description")}
         checked={s.fcrDUp}
         onChange={set("fcrDUp")}

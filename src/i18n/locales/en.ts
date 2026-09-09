@@ -151,20 +151,19 @@ export const en = {
     intro: "Everything is on from the start. Turn off what is not relevant to you.",
     solar: {
       title: "Optimised self-consumption of solar energy",
-      description: "Store surplus solar power and use it later.",
+      description: "Store solar power and use it when the sun is not producing.",
     },
     gridImport: {
       title: "Reduced grid import",
-      description: "Reduce the amount of electricity taken from the grid.",
+      description: "Use the battery to reduce the amount of electricity bought from the grid.",
     },
     peak: {
       title: "Peak shaving",
-      description: "Cut the property's power peaks.",
+      description: "Reduce the property's power peaks and any demand charge.",
     },
     ancillary: {
-      title: "Grid services – {{product}}",
-      description:
-        "Reserves power to support the electricity grid. The app optimises the reservation automatically.",
+      title: "Grid services",
+      description: "Reserve battery power for the electricity grid and get paid.",
     },
     noSolarNote:
       "You have stated that the property has no solar panels. Self-consumption of solar power therefore gives no benefit today — the other uses are unaffected.",

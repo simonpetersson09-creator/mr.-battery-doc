@@ -68,11 +68,12 @@ describe("FCR-D up toggle", () => {
     expect(input.strategies?.fcrOfferedPowerKw).toBeUndefined();
   });
 
-  it("the battery page exposes exactly one ancillary service", () => {
+  it("the battery page exposes exactly one ancillary service, with no market product name", () => {
     const page = read("src/routes/batteri.tsx");
-    // The product name now comes from the central market config (FCR-D upp / FCR).
-    expect(page).toMatch(/reserveProductName/);
-    expect(page).not.toMatch(/FCR-D ned|FCR-N|FFR|mFRR/);
+    // Step 4 is customer-facing: the canonical market product (FCR-D upp / FCR)
+    // stays internal — only the plain translated "Stödtjänster" copy is shown.
+    expect(page).not.toMatch(/reserveProductName|reserveProductLabel/);
+    expect(page).not.toMatch(/FCR|upward|symmetric|reserveMode/);
   });
 });
 

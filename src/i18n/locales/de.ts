@@ -151,20 +151,19 @@ export const de = {
     intro: "Alles ist zu Beginn aktiviert. Schalten Sie ab, was für Sie nicht relevant ist.",
     solar: {
       title: "Optimierter Eigenverbrauch von Solarenergie",
-      description: "Solarüberschuss speichern und später nutzen.",
+      description: "Solarstrom speichern und nutzen, wenn die Sonne nicht produziert.",
     },
     gridImport: {
       title: "Weniger Netzbezug",
-      description: "Die aus dem Netz bezogene Strommenge verringern.",
+      description: "Die Batterie nutzen, um die aus dem Netz gekaufte Strommenge zu verringern.",
     },
     peak: {
       title: "Lastspitzenkappung",
-      description: "Die Lastspitzen der Immobilie kappen.",
+      description: "Die Lastspitzen der Immobilie und eine eventuelle Leistungspreiskomponente senken.",
     },
     ancillary: {
-      title: "Systemdienstleistungen – {{product}}",
-      description:
-        "Reserviert Leistung zur Stützung des Stromnetzes. Die App optimiert die Reservierung automatisch.",
+      title: "Systemdienstleistungen",
+      description: "Batterieleistung für das Stromnetz reservieren und eine Vergütung erhalten.",
     },
     noSolarNote:
       "Sie haben angegeben, dass die Immobilie keine PV-Anlage hat. Eigenverbrauch von Solarstrom bringt daher heute keinen Nutzen – die übrigen Anwendungen sind davon unberührt.",

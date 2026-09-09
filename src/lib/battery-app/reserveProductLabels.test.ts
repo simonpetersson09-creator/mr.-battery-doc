@@ -29,12 +29,18 @@ describe("reserve product labels come from the market config", () => {
     expect(reserveProductLabel("DK")).toBe("stödtjänster");
   });
 
-  it("G: no route hardcodes a product name", () => {
+  it("G: no route hardcodes a product name, and Step 4 never shows it", () => {
     expect(resultatSource).not.toContain('"Stödtjänster – FCR-D upp"');
     expect(batteriSource).not.toContain('"Stödtjänster – FCR-D upp"');
+    // Technical details on the result page may name the canonical product.
     expect(resultatSource).toContain("reserveProductLabel");
-    // The battery page renders the localized name of the same canonical product.
-    expect(batteriSource).toContain("reserveProductName");
+    // Step 4 is customer-facing: it must not render or interpolate any
+    // market product name — only the plain "Stödtjänster" copy.
+    expect(batteriSource).not.toContain("reserveProductName");
+    expect(batteriSource).not.toContain("reserveProductLabel");
+    expect(sv.strategies.ancillary.title).toBe("Stödtjänster");
+    expect(sv.strategies.ancillary.title).not.toContain("{{product}}");
+    expect(sv.strategies.ancillary.description).not.toMatch(/FCR/i);
   });
 
   it("uses the supplied product name in the power explanation", () => {
