@@ -54,6 +54,7 @@ function GridStep() {
       intro={t("network.intro")}
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
+      compact
     >
       <SectionCard title={t("network.country.title")} description={t("network.country.description")}>
         <Select
