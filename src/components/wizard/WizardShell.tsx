@@ -52,7 +52,7 @@ export function WizardShell({
           </Link>
         </div>
 
-        <h1 className="ui-page-title mt-2 text-left">{title}</h1>
+        <h1 className="ui-page-title mt-2 text-center">{title}</h1>
         <StepIndicator stepIndex={stepIndex} />
 
         <section className="mt-2">
