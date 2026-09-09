@@ -186,6 +186,8 @@ export const fi = {
   results: {
     title: "Tulos",
     intro: "Tältä ehdotus näyttää kiinteistöllesi.",
+    pdfReport: "Näytä PDF-raportti",
+    pdfReportPending: "PDF-raportti on tekeillä eikä sitä voi vielä näyttää.",
     incomplete: {
       intro: "Tarvitsemme vielä hieman tietoja.",
       title: "Täytä puuttuvat tiedot",
