@@ -63,11 +63,6 @@ export function WizardShell({
         </section>
 
         <nav className="pb-safe mt-4 pt-1" aria-label={t("common.step", { current: stepIndex + 1, total: WIZARD_STEPS.length })}>
-          {nextDisabled && nextBlockedReason ? (
-            <p className="ui-help mb-2" role="status">
-              {nextBlockedReason}
-            </p>
-          ) : null}
           <div className="flex gap-2">
             <Button asChild variant="outline" className="h-12 flex-1 rounded-[0.875rem]">
               <Link to={prev}>{t("common.back")}</Link>
