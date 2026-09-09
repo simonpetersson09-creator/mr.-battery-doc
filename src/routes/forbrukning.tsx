@@ -50,6 +50,7 @@ function ConsumptionStep() {
   const c = state.consumption;
   const validity = validateConsumptionStep(state);
   const [importOpen, setImportOpen] = useState(false);
+  const [hasImported, setHasImported] = useState(false);
 
   // Monthly mode hides the profile picker, so make sure the safe hour-shape
   // default is present in state (also for older saved sessions).
@@ -66,8 +67,10 @@ function ConsumptionStep() {
     update((s) => ({ ...s, consumption: { ...s.consumption, mode } }));
 
   const applyImported = useCallback(
-    (vals: number[]) =>
-      update((s) => ({ ...s, consumption: { ...s.consumption, monthlyKwh: [...vals] } })),
+    (vals: number[]) => {
+      setHasImported(true);
+      update((s) => ({ ...s, consumption: { ...s.consumption, monthlyKwh: [...vals] } }));
+    },
     [update],
   );
 
@@ -146,7 +149,7 @@ function ConsumptionStep() {
               onOpenChange={setImportOpen}
             />
           </SectionCard>
-          {!importOpen ? (
+          {!importOpen && hasImported ? (
             <SectionCard compact icon={<CalendarRange />} title={t("consumption.monthly.monthsTitle")}>
               <MonthGrid
                 values={c.monthlyKwh}

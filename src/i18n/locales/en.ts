@@ -125,7 +125,7 @@ export const en = {
       title: "Actual monthly consumption",
       importDescription:
         "Import an image, PDF or CSV — the values fill the month fields below.",
-      monthsTitle: "Month by month",
+      monthsTitle: "Imported data",
     },
     profile: { title: "Consumption profile", placeholder: "Choose profile" },
   },
