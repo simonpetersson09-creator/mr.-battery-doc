@@ -394,6 +394,7 @@ export const fi = {
     importNoData:
       "Emme löytäneet tiedostosta kuukausitietoja. Tarkista, että kuukaudet näkyvät selvästi.",
     importUnreadable: "Tiedostoa ei voitu lukea. Kokeile selkeämpää kuvaa tai PDF-tiedostoa.",
+    importTooLarge: "Tiedosto on liian suuri. Käytä alle 15 Mt:n tiedostoa.",
   },
   validation: {
     customerShare: "Osuuden on oltava 0–100 %.",

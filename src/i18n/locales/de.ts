@@ -405,6 +405,7 @@ export const de = {
       "Wir haben in der Datei keine Monatsdaten gefunden. Prüfen Sie, ob die Monate deutlich sichtbar sind.",
     importUnreadable:
       "Die Datei konnte nicht gelesen werden. Versuchen Sie ein klareres Bild oder ein PDF.",
+    importTooLarge: "Die Datei ist zu groß. Verwenden Sie eine Datei unter 15 MB.",
   },
   validation: {
     customerShare: "Der Anteil muss zwischen 0 und 100 % liegen.",

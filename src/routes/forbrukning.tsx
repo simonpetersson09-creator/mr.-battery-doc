@@ -50,7 +50,11 @@ function ConsumptionStep() {
   const c = state.consumption;
   const validity = validateConsumptionStep(state);
   const [importOpen, setImportOpen] = useState(false);
-  const [hasImported, setHasImported] = useState(false);
+  const [justImported, setJustImported] = useState(false);
+  // Values already in state (earlier import in this session) keep the card visible.
+  const hasImported =
+    justImported || c.monthlyKwh.some((v) => typeof v === "number" && Number.isFinite(v));
+
 
   // Monthly mode hides the profile picker, so make sure the safe hour-shape
   // default is present in state (also for older saved sessions).
@@ -68,7 +72,7 @@ function ConsumptionStep() {
 
   const applyImported = useCallback(
     (vals: number[]) => {
-      setHasImported(true);
+      setJustImported(true);
       update((s) => ({ ...s, consumption: { ...s.consumption, monthlyKwh: [...vals] } }));
     },
     [update],

@@ -21,6 +21,10 @@ import {
 } from "@/lib/import/monthly";
 
 const TEXT_TYPES = /(csv|plain|tab-separated|text\/)/i;
+/** Anything larger than this never reaches the network. */
+const MAX_FILE_BYTES = 15 * 1024 * 1024;
+/** Longest edge sent to the reader — plenty for table text, far cheaper to send. */
+const MAX_IMAGE_EDGE = 1800;
 
 function readAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -30,6 +34,39 @@ function readAsDataUrl(file: File): Promise<string> {
     fr.readAsDataURL(file);
   });
 }
+
+/**
+ * Shrinks oversized photos before upload. Keeps the original when the browser
+ * cannot decode it or the image is already small.
+ */
+async function toUploadDataUrl(file: File): Promise<{ dataUrl: string; mimeType: string }> {
+  const mimeType = file.type || "image/jpeg";
+  const dataUrl = await readAsDataUrl(file);
+  if (!mimeType.startsWith("image/") || typeof document === "undefined") {
+    return { dataUrl, mimeType };
+  }
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = () => reject(new Error("decode"));
+      el.src = dataUrl;
+    });
+    const longest = Math.max(img.width, img.height);
+    if (longest <= MAX_IMAGE_EDGE) return { dataUrl, mimeType };
+    const scale = MAX_IMAGE_EDGE / longest;
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(img.width * scale);
+    canvas.height = Math.round(img.height * scale);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return { dataUrl, mimeType };
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return { dataUrl: canvas.toDataURL("image/jpeg", 0.9), mimeType: "image/jpeg" };
+  } catch {
+    return { dataUrl, mimeType };
+  }
+}
+
 
 export function MonthlyImport({
   kind,
@@ -73,6 +110,10 @@ export function MonthlyImport({
   };
 
   const handleFile = async (file: File) => {
+    if (file.size > MAX_FILE_BYTES) {
+      setError(t("errors.importTooLarge"));
+      return;
+    }
     setBusy(true);
     setError(null);
     setApplied(false);
@@ -81,9 +122,9 @@ export function MonthlyImport({
       if (TEXT_TYPES.test(file.type) || /\.(csv|txt|tsv)$/i.test(file.name)) {
         payload = extractFromText(await file.text());
       } else {
-        const dataUrl = await readAsDataUrl(file);
+        const upload = await toUploadDataUrl(file);
         const result = await extractMonthlyFromDocument({
-          data: { dataUrl, mimeType: file.type || "image/jpeg", fileName: file.name },
+          data: { dataUrl: upload.dataUrl, mimeType: upload.mimeType, fileName: file.name },
         });
         if ("error" in result && result.error) {
           setError(result.error);
@@ -92,6 +133,7 @@ export function MonthlyImport({
         }
         payload = result;
       }
+
 
       setSelfPct(payload.selfConsumptionPct);
       const choice = selectSeries(payload, kind);
