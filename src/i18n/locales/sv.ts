@@ -272,8 +272,12 @@ export const sv = {
       noReduction: "Ingen minskning av effekttoppen med de valda inställningarna.",
     },
     benefit: {
-      ancillaryMarket: "Stödtjänster – beräknat marknadsvärde",
-      ancillaryShare: "Din andel",
+      ancillary: "Stödtjänster",
+      ancillaryCustomerHint: "Din beräknade ersättning.",
+      ancillaryMarket: "Historiskt marknadsvärde för stödtjänster",
+      ancillaryShare: "Din andel av stödtjänstvärdet",
+      ancillaryShareHint:
+        "Andelen är en schablon. Faktisk ersättning beror bland annat på aggregator, balansansvarig, avgifter och avtalsvillkor.",
       ancillaryCustomer: "Din beräknade ersättning",
       title: "Beräknad nytta",
       none: "Med de valda inställningarna ger batteriet ingen beräknad ekonomisk nytta.",

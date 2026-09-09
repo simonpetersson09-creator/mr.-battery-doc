@@ -270,8 +270,12 @@ export const da = {
       noReduction: "Ingen reduktion af effekttoppen med de valgte indstillinger.",
     },
     benefit: {
-      ancillaryMarket: "Støttetjenester – beregnet markedsværdi",
-      ancillaryShare: "Din andel",
+      ancillary: "Støttetjenester",
+      ancillaryCustomerHint: "Din beregnede betaling.",
+      ancillaryMarket: "Historisk markedsværdi for støttetjenester",
+      ancillaryShare: "Din andel af værdien fra støttetjenester",
+      ancillaryShareHint:
+        "Andelen er et skøn. Den faktiske betaling afhænger blandt andet af aggregator, balanceansvarlig, gebyrer og aftalevilkår.",
       ancillaryCustomer: "Din beregnede betaling",
       title: "Beregnet nytte",
       none: "Med de valgte indstillinger giver batteriet ingen beregnet økonomisk nytte.",
