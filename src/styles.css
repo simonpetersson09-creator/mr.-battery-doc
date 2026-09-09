@@ -495,7 +495,7 @@ html[data-native="true"] {
 
 /* Compact card variant: tighter padding for dense steps. */
 @utility ui-card-compact {
-  padding: 0.625rem;
+  padding: 0.5rem;
   border-radius: 1.0625rem;
 }
 
