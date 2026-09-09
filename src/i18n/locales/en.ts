@@ -127,7 +127,7 @@ export const en = {
         "Import an image, PDF or CSV — the values fill the month fields below.",
       monthsTitle: "Imported monthly data",
     },
-    profile: { title: "Consumption profile", placeholder: "Choose profile" },
+    profile: { title: "When do you use the most electricity?", placeholder: "Choose profile" },
   },
   production: {
     title: "Production",

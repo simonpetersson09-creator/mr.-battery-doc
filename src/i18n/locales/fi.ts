@@ -125,7 +125,7 @@ export const fi = {
         "Tuo kuva, PDF tai CSV — arvot täyttyvät alla oleviin kuukausikenttiin.",
       monthsTitle: "Tuodut kuukausitiedot",
     },
-    profile: { title: "Kulutusprofiili", placeholder: "Valitse profiili" },
+    profile: { title: "Milloin käytät eniten sähköä?", placeholder: "Valitse profiili" },
   },
   production: {
     title: "Tuotanto",

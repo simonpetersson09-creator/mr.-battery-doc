@@ -127,7 +127,7 @@ export const de = {
         "Bild, PDF oder CSV importieren – die Werte füllen die Monatsfelder unten.",
       monthsTitle: "Importierte monatliche Daten",
     },
-    profile: { title: "Verbrauchsprofil", placeholder: "Profil wählen" },
+    profile: { title: "Wann verbrauchen Sie am meisten Strom?", placeholder: "Profil wählen" },
   },
   production: {
     title: "Erzeugung",
