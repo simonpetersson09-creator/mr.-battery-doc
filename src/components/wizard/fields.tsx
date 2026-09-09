@@ -38,7 +38,7 @@ export function SectionCard({
         </div>
       )}
       {children ? (
-        <div className={title || description ? (compact ? "mt-2 space-y-2" : "mt-3 space-y-3") : compact ? "space-y-2" : "space-y-3"}>{children}</div>
+        <div className={title || description ? (compact ? "mt-1.5 space-y-1.5" : "mt-3 space-y-3") : compact ? "space-y-1.5" : "space-y-3"}>{children}</div>
       ) : null}
     </section>
   );
