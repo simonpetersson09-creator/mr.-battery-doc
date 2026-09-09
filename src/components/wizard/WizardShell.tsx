@@ -16,6 +16,8 @@ interface WizardShellProps {
   nextBlockedReason?: string | null;
   /** Replaces the "Next" button on the last step. */
   footerAction?: ReactNode;
+  /** Tighter card spacing and page padding for dense steps. */
+  compact?: boolean;
 }
 
 export function WizardShell({
