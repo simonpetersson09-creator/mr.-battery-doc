@@ -169,6 +169,12 @@ export const en = {
       "You have stated that the property has no solar panels. Self-consumption of solar power therefore gives no benefit today — the other uses are unaffected.",
   },
   economics: {
+    customerShare: {
+      title: "Ancillary services",
+      description: "The full market value rarely reaches you. Enter the share you expect to receive.",
+      label: "Your share of the ancillary value",
+      hint: "Estimate. Your actual share depends on aggregator, BRP, fees and contract terms.",
+    },
     title: "Economy",
     intro: "Standard values for {{country}}. Change them if you want.",
     prices: {
@@ -186,7 +192,26 @@ export const en = {
         "No demand charge assumed. Change it if your grid operator charges for peak power.",
     },
   },
+  payback: {
+    title: "Payback period",
+    intro: "How quickly do you want the battery to pay for itself?",
+    card: "Desired payback period",
+    years: "{{years}} years",
+    investment: {
+      title: "Reasonable investment cost",
+      hint: "Approximate maximum investment to reach the chosen payback period, based on the calculated annual customer benefit.",
+      note: "Ancillary services are counted at your share of {{share}} %.",
+      none: "With your current data the battery gives no positive calculated annual benefit, so no reasonable investment cost can be derived.",
+      benefit: "Calculated annual customer benefit",
+    },
+  },
   results: {
+    investment: {
+      title: "Investment",
+      targetPayback: "Desired payback period",
+      maxInvestment: "Reasonable investment cost",
+      benefit: "Calculated annual customer benefit",
+    },
     title: "Result",
     intro: "This is the proposal for your property.",
     pdfReport: "Show PDF report",
@@ -232,6 +257,9 @@ export const en = {
       noReduction: "No reduction of the power peak with the selected settings.",
     },
     benefit: {
+      ancillaryMarket: "Ancillary services – calculated market value",
+      ancillaryShare: "Your share",
+      ancillaryCustomer: "Your calculated compensation",
       title: "Calculated benefit",
       none: "With the selected settings the battery gives no calculated financial benefit.",
       energyWithSolar: "Shifted solar power and reduced purchases",
@@ -353,6 +381,8 @@ export const en = {
     importUnreadable: "The file could not be read. Try a clearer image or a PDF.",
   },
   validation: {
+    customerShare: "The share must be between 0 and 100 %.",
+    paybackYears: "Choose a payback period between 5 and 20 years.",
     country: "Choose a country.",
     area: "Choose a price area.",
     fuse: "Enter a valid main fuse in amperes.",

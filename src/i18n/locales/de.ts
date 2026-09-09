@@ -169,6 +169,12 @@ export const de = {
       "Sie haben angegeben, dass die Immobilie keine PV-Anlage hat. Eigenverbrauch von Solarstrom bringt daher heute keinen Nutzen – die übrigen Anwendungen sind davon unberührt.",
   },
   economics: {
+    customerShare: {
+      title: "Systemdienstleistungen",
+      description: "Der volle Marktwert erreicht Sie selten. Geben Sie den Anteil an, mit dem Sie rechnen.",
+      label: "Ihr Anteil am Wert der Systemdienstleistungen",
+      hint: "Richtwert. Ihr tatsächlicher Anteil hängt von Aggregator, Bilanzkreisverantwortlichem, Gebühren und Vertrag ab.",
+    },
     title: "Wirtschaftlichkeit",
     intro: "Standardwerte für {{country}}. Bei Bedarf anpassen.",
     prices: {
@@ -189,7 +195,26 @@ export const de = {
         "Kein Leistungspreis angenommen. Ändern Sie ihn, wenn Ihr Netzbetreiber einen Leistungspreis erhebt.",
     },
   },
+  payback: {
+    title: "Amortisationszeit",
+    intro: "Wie schnell soll sich der Speicher bezahlt machen?",
+    card: "Gewünschte Amortisationszeit",
+    years: "{{years}} Jahre",
+    investment: {
+      title: "Sinnvolle Investitionskosten",
+      hint: "Ungefähre maximale Investition für die gewählte Amortisationszeit, basierend auf dem berechneten jährlichen Kundennutzen.",
+      note: "Systemdienstleistungen werden mit Ihrem Anteil von {{share}} % berücksichtigt.",
+      none: "Mit Ihren aktuellen Angaben ergibt der Speicher keinen positiven berechneten Jahresnutzen. Daher lassen sich keine sinnvollen Investitionskosten ableiten.",
+      benefit: "Berechneter jährlicher Kundennutzen",
+    },
+  },
   results: {
+    investment: {
+      title: "Investition",
+      targetPayback: "Gewünschte Amortisationszeit",
+      maxInvestment: "Sinnvolle Investitionskosten",
+      benefit: "Berechneter jährlicher Kundennutzen",
+    },
     title: "Ergebnis",
     intro: "So sieht der Vorschlag für Ihre Immobilie aus.",
     pdfReport: "PDF-Bericht anzeigen",
@@ -235,6 +260,9 @@ export const de = {
       noReduction: "Keine Reduktion der Lastspitze mit den gewählten Einstellungen.",
     },
     benefit: {
+      ancillaryMarket: "Systemdienstleistungen – berechneter Marktwert",
+      ancillaryShare: "Ihr Anteil",
+      ancillaryCustomer: "Ihre berechnete Vergütung",
       title: "Berechneter Nutzen",
       none: "Mit den gewählten Einstellungen bringt die Batterie keinen berechneten wirtschaftlichen Nutzen.",
       energyWithSolar: "Verschobener Solarstrom und weniger Strombezug",
@@ -359,6 +387,8 @@ export const de = {
       "Die Datei konnte nicht gelesen werden. Versuchen Sie ein klareres Bild oder ein PDF.",
   },
   validation: {
+    customerShare: "Der Anteil muss zwischen 0 und 100 % liegen.",
+    paybackYears: "Wählen Sie eine Amortisationszeit zwischen 5 und 20 Jahren.",
     country: "Land wählen.",
     area: "Preiszone wählen.",
     fuse: "Geben Sie eine gültige Hauptsicherung in Ampere an.",

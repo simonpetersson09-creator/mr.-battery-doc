@@ -169,6 +169,12 @@ export const da = {
       "Du har angivet, at ejendommen ikke har solceller. Derfor giver egetforbrug af solstrøm ingen nytte i dag — de øvrige anvendelser påvirkes ikke.",
   },
   economics: {
+    customerShare: {
+      title: "Støttetjenester",
+      description: "Hele markedsværdien tilfalder sjældent dig. Angiv den andel, du forventer at få.",
+      label: "Din andel af værdien fra støttetjenester",
+      hint: "Vejledende. Din faktiske andel afhænger af aggregator, balanceansvarlig, gebyrer og aftale.",
+    },
     title: "Økonomi",
     intro: "Standardværdier for {{country}}. Ret dem, hvis du vil.",
     prices: {
@@ -186,7 +192,26 @@ export const da = {
         "Ingen effektbetaling antaget. Ret den, hvis dit netselskab opkræver effektbetaling.",
     },
   },
+  payback: {
+    title: "Tilbagebetalingstid",
+    intro: "Hvor hurtigt skal batteriet have tjent sig hjem?",
+    card: "Ønsket tilbagebetalingstid",
+    years: "{{years}} år",
+    investment: {
+      title: "Rimelig investeringsomkostning",
+      hint: "Omtrentlig maksimal investering for at nå den valgte tilbagebetalingstid ud fra den beregnede årlige kundegevinst.",
+      note: "Støttetjenester regnes med din andel på {{share}} %.",
+      none: "Med dine nuværende oplysninger giver batteriet ingen positiv beregnet årlig gevinst, og derfor kan der ikke beregnes en rimelig investeringsomkostning.",
+      benefit: "Beregnet årlig kundegevinst",
+    },
+  },
   results: {
+    investment: {
+      title: "Investering",
+      targetPayback: "Ønsket tilbagebetalingstid",
+      maxInvestment: "Rimelig investeringsomkostning",
+      benefit: "Beregnet årlig kundegevinst",
+    },
     title: "Resultat",
     intro: "Sådan ser forslaget ud for din ejendom.",
     pdfReport: "Vis PDF-rapport",
@@ -232,6 +257,9 @@ export const da = {
       noReduction: "Ingen reduktion af effekttoppen med de valgte indstillinger.",
     },
     benefit: {
+      ancillaryMarket: "Støttetjenester – beregnet markedsværdi",
+      ancillaryShare: "Din andel",
+      ancillaryCustomer: "Din beregnede betaling",
       title: "Beregnet nytte",
       none: "Med de valgte indstillinger giver batteriet ingen beregnet økonomisk nytte.",
       energyWithSolar: "Flyttet solstrøm og mindre elkøb",
@@ -353,6 +381,8 @@ export const da = {
     importUnreadable: "Filen kunne ikke læses. Prøv med et tydeligere billede eller en PDF.",
   },
   validation: {
+    customerShare: "Andelen skal være mellem 0 og 100 %.",
+    paybackYears: "Vælg en tilbagebetalingstid mellem 5 og 20 år.",
     country: "Vælg land.",
     area: "Vælg prisområde.",
     fuse: "Angiv en gyldig hovedsikring i ampere.",

@@ -10,6 +10,7 @@ import { isKnownProfile } from "@/lib/consumption-profiles";
 import { marketAreaOptions, requiresMarketArea } from "@/lib/reserve-market";
 import type { WizardState } from "@/state/wizard";
 import { completeMonths } from "./normalizeWizardToEngineInput";
+import { MAX_TARGET_PAYBACK_YEARS, MIN_TARGET_PAYBACK_YEARS } from "./customerEconomy";
 
 export interface StepValidity {
   ok: boolean;
@@ -74,5 +75,16 @@ export function validateEconomyStep(s: WizardState): StepValidity {
     return fail("validation.demandCharge");
   if (s.strategies.fcrDUp && (!Number.isFinite(e.eurSekRate) || e.eurSekRate <= 0))
     return fail("validation.fxRateAncillary");
+  const share = s.preferences.customerAncillaryShare;
+  if (s.strategies.fcrDUp && (!Number.isFinite(share) || share < 0 || share > 1))
+    return fail("validation.customerShare");
+  return ok;
+}
+
+/** Desired payback horizon: only the slider range is enforced. */
+export function validatePaybackStep(s: WizardState): StepValidity {
+  const y = s.preferences.targetPaybackYears;
+  if (!Number.isFinite(y) || y < MIN_TARGET_PAYBACK_YEARS || y > MAX_TARGET_PAYBACK_YEARS)
+    return fail("validation.paybackYears");
   return ok;
 }

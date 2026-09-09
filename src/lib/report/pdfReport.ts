@@ -8,6 +8,7 @@
  * truth the UI renders), never from a second calculation.
  */
 import type { BatteryAppResult } from "@/lib/battery-app";
+import type { CustomerEconomy } from "@/lib/battery-app/customerEconomy";
 
 /** Flip to true in the same change that adds a real generator. */
 export const PDF_REPORT_AVAILABLE = false;
@@ -17,6 +18,13 @@ export interface PdfReportRequest {
   outcome: Extract<BatteryAppResult, { status: "ok" }>;
   /** UI language, for report copy only. Never affects country, currency or market. */
   language: string;
+  /**
+   * The SAME customer economics the result page renders (ancillary counted at the
+   * customer's share). The report must never recompute it.
+   */
+  customerEconomy: CustomerEconomy;
+  /** Desired payback horizon shown on the result page. */
+  targetPaybackYears: number;
 }
 
 export function generatePdfReport(_request: PdfReportRequest): never {

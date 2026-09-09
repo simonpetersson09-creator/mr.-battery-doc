@@ -80,6 +80,38 @@ function EconomyStep() {
           onChange={(v) => setEconomy({ demandCharge: v ?? 0, demandChargeTouched: true })}
         />
       </SectionCard>
+
+      {/*
+        CUSTOMER SHARE OF THE ANCILLARY VALUE.
+        Presentation-layer assumption only: the engine keeps computing the full historical
+        market value and keeps sizing on it. The share is applied afterwards, when the
+        customer-facing benefit is shown.
+      */}
+      {state.strategies.fcrDUp ? (
+        <SectionCard
+          title={t("economics.customerShare.title")}
+          description={t("economics.customerShare.description")}
+        >
+          <NumberField
+            dense
+            label={t("economics.customerShare.label")}
+            unit="%"
+            step="1"
+            value={Math.round(state.preferences.customerAncillaryShare * 100)}
+            hint={t("economics.customerShare.hint")}
+            onChange={(v) =>
+              update((s) => ({
+                ...s,
+                preferences: {
+                  ...s.preferences,
+                  customerAncillaryShare: Math.min(1, Math.max(0, (v ?? 0) / 100)),
+                },
+              }))
+            }
+          />
+        </SectionCard>
+      ) : null}
+
     </WizardShell>
   );
 }

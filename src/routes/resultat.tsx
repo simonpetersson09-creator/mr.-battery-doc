@@ -9,6 +9,10 @@ import { buildResultPresentation } from "@/lib/battery-app/resultPresentation";
 import { computeWithoutFcrOptimum } from "@/lib/battery-app/withoutFcrOptimum";
 import { computeBatteryAlternatives } from "@/lib/battery-app/capacityAlternatives";
 import {
+  customerEconomyFromResult,
+  maxInvestmentSek,
+} from "@/lib/battery-app/customerEconomy";
+import {
   importantInfoFooter,
   importantInfoPoints,
   importantInfoTitle,
@@ -75,8 +79,14 @@ function ResultStep() {
   /** Comparison layer: nearest simulated capacity step below/above the recommendation. */
   const alternatives = useMemo(
     () =>
-      outcome.status === "ok" ? computeBatteryAlternatives(outcome.input, outcome.result) : [],
-    [outcome],
+      outcome.status === "ok"
+        ? computeBatteryAlternatives(
+            outcome.input,
+            outcome.result,
+            state.preferences.customerAncillaryShare,
+          )
+        : [],
+    [outcome, state.preferences.customerAncillaryShare],
   );
 
   const restart = (
@@ -95,7 +105,7 @@ function ResultStep() {
   if (outcome.status === "incomplete") {
     return (
       <WizardShell
-        stepIndex={5}
+        stepIndex={6}
         title={t("results.title")}
         intro={t("results.incomplete.intro")}
         footerAction={restart}
@@ -120,7 +130,7 @@ function ResultStep() {
   if (outcome.status === "error") {
     return (
       <WizardShell
-        stepIndex={5}
+        stepIndex={6}
         title={t("results.title")}
         intro={t("results.error.intro")}
         footerAction={restart}
@@ -159,12 +169,20 @@ function ResultStep() {
     ? ancillaryUnavailableText(state.grid.country, state.grid.marketArea)
     : null;
 
+  /**
+   * Customer economics: the engine total with only the customer's share of the ancillary
+   * MARKET value counted. Physics, sizing and the market value itself are untouched.
+   */
+  const ce = customerEconomyFromResult(outcome.result, state.preferences.customerAncillaryShare);
+  const targetYears = state.preferences.targetPaybackYears;
+  const maxInvestment = maxInvestmentSek(ce.totalCustomerBenefitSek, targetYears);
+
   const peakPct =
     g.importPeakBeforeKw > 0 ? (s.peak.peakReductionKw / g.importPeakBeforeKw) * 100 : 0;
 
   return (
     <WizardShell
-      stepIndex={5}
+      stepIndex={6}
       title={t("results.title")}
       intro={t("results.intro")}
       footerAction={restart}
@@ -230,7 +248,7 @@ function ResultStep() {
                         : "ui-help mt-1 tabular-nums"
                     }
                   >
-                    {moneyPerYear(alt.annualBenefitSek)}
+                    {moneyPerYear(alt.customerBenefitSek)}
                   </p>
                 </div>
               );
@@ -242,9 +260,9 @@ function ResultStep() {
             if (!recommended) return null;
             const higherIsBetter =
               higher &&
-              higher.annualBenefitSek !== null &&
-              recommended.annualBenefitSek !== null &&
-              higher.annualBenefitSek > recommended.annualBenefitSek;
+              higher.customerBenefitSek !== null &&
+              recommended.customerBenefitSek !== null &&
+              higher.customerBenefitSek > recommended.customerBenefitSek;
             const text = higherIsBetter
               ? s.fcr.enabled
                 ? t("results.balance.higherAncillary")
@@ -330,7 +348,7 @@ function ResultStep() {
         ) : (
           <>
             <p className="ui-hero text-[2rem] tabular-nums">
-              {money(s.economy.totalOperatingBenefitSek)}
+              {money(ce.totalCustomerBenefitSek)}
               <span className="ui-help font-normal">{t("units.perYear")}</span>
             </p>
             <div className="mt-2 space-y-2.5">
@@ -361,16 +379,45 @@ function ResultStep() {
               ) : s.fcr.enabled ? (
                 <>
                   <BenefitRow
-                    label={t("results.benefit.ancillary", { product: productLabel })}
+                    label={t("results.benefit.ancillaryMarket")}
                     hint={t("results.benefit.ancillaryHint")}
-                    value={moneyPerYear(s.fcr.grossSek)}
+                    value={moneyPerYear(ce.ancillaryMarketValueSek)}
                   />
-                  <p className="ui-help">{t("results.benefit.ancillaryNote")}</p>
+                  <Row
+                    label={t("results.benefit.ancillaryShare")}
+                    value={`${nf(ce.customerAncillaryShare * 100, 0)} %`}
+                  />
+                  <BenefitRow
+                    label={t("results.benefit.ancillaryCustomer")}
+                    hint={t("results.benefit.ancillaryNote")}
+                    value={moneyPerYear(ce.ancillaryCustomerValueSek)}
+                  />
                 </>
               ) : null}
             </div>
           </>
         )}
+      </SectionCard>
+
+      <SectionCard title={t("results.investment.title")}>
+        <div className="space-y-2">
+          <Row
+            label={t("results.investment.targetPayback")}
+            value={t("payback.years", { years: nf(targetYears, 0) })}
+          />
+          <Row
+            label={t("results.investment.benefit")}
+            value={moneyPerYear(ce.totalCustomerBenefitSek)}
+          />
+          {maxInvestment === null ? (
+            <p className="ui-help">{t("payback.investment.none")}</p>
+          ) : (
+            <>
+              <Row label={t("results.investment.maxInvestment")} value={money(maxInvestment)} />
+              <p className="ui-help">{t("payback.investment.hint")}</p>
+            </>
+          )}
+        </div>
       </SectionCard>
 
       {p.showFcrPowerCard ? (
@@ -441,7 +488,12 @@ function ResultStep() {
           aria-disabled={!PDF_REPORT_AVAILABLE}
           onClick={() => {
             if (!PDF_REPORT_AVAILABLE) return;
-            generatePdfReport({ outcome, language: currentLanguage() });
+            generatePdfReport({
+              outcome,
+              language: currentLanguage(),
+              customerEconomy: ce,
+              targetPaybackYears: targetYears,
+            });
           }}
         >
           <FileText className="size-4" />
