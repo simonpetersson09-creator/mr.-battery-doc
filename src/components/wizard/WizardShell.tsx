@@ -40,10 +40,16 @@ export function WizardShell({
   return (
     <div className="app-shell surface-sun">
       <header className="pt-safe sticky top-0 z-20 px-4 pb-1.5 backdrop-blur-md">
-        <div className="flex items-center justify-center pt-1">
-          <span className="truncate font-display text-sm font-bold tracking-tight">
-            {t("common.appName")}
-          </span>
+        <div className="flex items-center justify-between pt-1">
+          <Link to="/" className="flex items-center">
+            <img
+              src={logo.url}
+              alt="Mr. Battery Doc"
+              className="h-7 w-auto"
+              width={1536}
+              height={1024}
+            />
+          </Link>
         </div>
         <StepIndicator stepIndex={stepIndex} />
       </header>
