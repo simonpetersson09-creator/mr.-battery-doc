@@ -1,11 +1,19 @@
 import { useCallback, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { CalendarRange, ListChecks, Sun, SunMedium, Zap } from "lucide-react";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { MonthlyImport } from "@/components/wizard/MonthlyImport";
 import { MonthGrid } from "@/components/wizard/MonthGrid";
 
-import { NumberField, OptionCard, SectionCard } from "@/components/wizard/fields";
+import { NumberField, SectionCard } from "@/components/wizard/fields";
 import { validateProductionStep } from "@/lib/battery-app/stepValidation";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useWizard } from "@/state/wizard";
 import { useT } from "@/i18n";
 
