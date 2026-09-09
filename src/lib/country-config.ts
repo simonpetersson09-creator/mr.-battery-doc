@@ -27,6 +27,11 @@ export interface GridDefaults {
   frequency: number;
   /** Common main fuse ratings (A) shown as quick choices */
   commonMainFuses: number[];
+  /**
+   * Less common but fully valid ratings for the country. Shown in the same list as the
+   * common ones (sorted), so the user never has to type a standard size manually.
+   */
+  additionalMainFuses?: number[];
   defaultMainFuse: number;
   /** Grid standards relevant for battery/inverter connection */
   standards: string[];
@@ -125,7 +130,8 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       voltage: 400,
       phases: 3,
       frequency: 50,
-      commonMainFuses: [25, 35, 50, 63, 80, 100],
+      commonMainFuses: [25, 35, 50, 63, 80, 100, 125, 160, 200],
+      additionalMainFuses: [16, 20],
       defaultMainFuse: 25,
       standards: ["SFS 6000", "VDE-AR-N 4105"],
     },
@@ -149,7 +155,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       voltage: 400,
       phases: 3,
       frequency: 50,
-      commonMainFuses: [25, 35, 50, 63, 80],
+      commonMainFuses: [16, 20, 25, 32, 35, 40, 50, 63, 80, 100],
       defaultMainFuse: 25,
       standards: ["DS/EN 50549-1"],
     },
@@ -173,7 +179,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       voltage: 400,
       phases: 3,
       frequency: 50,
-      commonMainFuses: [32, 35, 50, 63, 80, 100],
+      commonMainFuses: [16, 20, 25, 32, 35, 40, 50, 63, 80, 100],
       defaultMainFuse: 35,
       standards: ["VDE-AR-N 4105", "VDE-AR-N 4110"],
     },
@@ -253,3 +259,24 @@ export function gridStandardLabel(code: CountryCode): string {
   return `${c.grid.phases}-fas ${c.grid.voltage} V`;
 }
 
+
+/**
+ * The full list of selectable main fuse ratings for a country, ascending.
+ * Common ratings plus the country's less common but valid ones. The UI never
+ * hardcodes fuse arrays — this is the single source of truth.
+ */
+export function fuseOptions(code: CountryCode): number[] {
+  const g = getCountry(code).grid;
+  const all = [...g.commonMainFuses, ...(g.additionalMainFuses ?? [])];
+  return Array.from(new Set(all)).sort((a, b) => a - b);
+}
+
+/** The country's default main fuse rating (A). */
+export function defaultFuseA(code: CountryCode): number {
+  return getCountry(code).grid.defaultMainFuse;
+}
+
+/** True when the value is one of the country's predefined options. */
+export function isListedFuse(code: CountryCode, amps: number): boolean {
+  return fuseOptions(code).includes(amps);
+}

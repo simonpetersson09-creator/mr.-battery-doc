@@ -11,6 +11,7 @@ import {
   countryCurrency,
   DEFAULT_COUNTRY,
   getCountry,
+  isListedFuse,
   type CountryCode,
 } from "@/lib/country-config";
 import type { Currency } from "@/lib/currency";
@@ -208,10 +209,14 @@ export function WizardProvider({ children }: { children: ReactNode }) {
             country: code,
             // Country change always drops the previous area — never carried over hidden.
             marketArea: null,
-            mainFuseA: s.grid.mainFuseManual
-              ? s.grid.mainFuseA
-              : getCountry(code).grid.defaultMainFuse,
-            mainFuseManual: s.grid.mainFuseManual,
+            // FUSE POLICY ON COUNTRY CHANGE: the actual ampere value is ALWAYS kept —
+            // never silently approximated to a nearby size in the new country's list.
+            // If the value is not one of the new country's predefined options it simply
+            // becomes a manual ("Annan") value; the physics is identical either way.
+            mainFuseA: s.grid.mainFuseA,
+            mainFuseManual:
+              s.grid.mainFuseManual || !isListedFuse(code, s.grid.mainFuseA),
+
             gridValuesConfirmed: false,
           },
           // CURRENCY POLICY: a country change that changes currency ALWAYS resets the
