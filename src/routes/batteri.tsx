@@ -29,7 +29,7 @@ function BatteryStep() {
   const noSolar = state.production.mode === "none";
 
   return (
-    <WizardShell stepIndex={3} title={t("strategies.title")} intro={t("strategies.intro")}>
+    <WizardShell compact stepIndex={3} title={t("strategies.title")} intro={t("strategies.intro")}>
       <div className="space-y-2">
         <ToggleRow
           title={t("strategies.solar.title")}
@@ -59,7 +59,7 @@ function BatteryStep() {
       />
 
       {noSolar && s.solarSelfConsumption ? (
-        <SectionCard description={t("strategies.noSolarNote")} />
+        <SectionCard compact description={t("strategies.noSolarNote")} />
       ) : null}
     </WizardShell>
   );
