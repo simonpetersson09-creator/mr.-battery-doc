@@ -6,6 +6,7 @@
  */
 
 import { isKnownProfile } from "@/lib/consumption-profiles";
+import { marketAreaOptions, requiresMarketArea } from "@/lib/reserve-market";
 import type { WizardState } from "@/state/wizard";
 import { completeMonths } from "./normalizeWizardToEngineInput";
 
@@ -19,6 +20,13 @@ const fail = (message: string): StepValidity => ({ ok: false, message });
 
 export function validateGridStep(s: WizardState): StepValidity {
   if (!s.grid.country) return fail("Välj land.");
+  if (requiresMarketArea(s.grid.country) && !s.grid.marketArea)
+    return fail("Välj elområde.");
+  if (
+    s.grid.marketArea &&
+    !marketAreaOptions(s.grid.country).some((o) => o.value === s.grid.marketArea)
+  )
+    return fail("Välj elområde.");
   if (!Number.isFinite(s.grid.mainFuseA) || s.grid.mainFuseA <= 0)
     return fail("Ange en giltig huvudsäkring i ampere.");
   if (!s.grid.gridValuesConfirmed)

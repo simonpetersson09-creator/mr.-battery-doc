@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SUPPORTED_COUNTRY_LIST, getCountry, type CountryCode } from "@/lib/country-config";
+import { marketAreaOptions, type MarketArea } from "@/lib/reserve-market";
 import { validateGridStep } from "@/lib/battery-app/stepValidation";
 import { useWizard } from "@/state/wizard";
 
@@ -35,6 +36,7 @@ function GridStep() {
   const { state, setCountry, update } = useWizard();
   const country = getCountry(state.grid.country);
   const validity = validateGridStep(state);
+  const areaOptions = marketAreaOptions(state.grid.country);
 
   return (
     <WizardShell
@@ -63,6 +65,33 @@ function GridStep() {
           </SelectContent>
         </Select>
       </SectionCard>
+
+      {areaOptions.length > 0 ? (
+        <SectionCard title="Elområde" description="Välj var i landet fastigheten ligger.">
+          <Select
+            value={state.grid.marketArea ?? ""}
+            onValueChange={(v) =>
+              update((s) => ({
+                ...s,
+                grid: { ...s.grid, marketArea: v as MarketArea },
+              }))
+            }
+          >
+            <SelectTrigger className="ui-control">
+              <SelectValue placeholder="Välj elområde">
+                {areaOptions.find((o) => o.value === state.grid.marketArea)?.label}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {areaOptions.map((o) => (
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </SectionCard>
+      ) : null}
 
       <SectionCard title="Huvudsäkring" description="Finns oftast på elnätsfakturan.">
         <Select
