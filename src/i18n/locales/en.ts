@@ -107,6 +107,7 @@ export const en = {
   consumption: {
     title: "Consumption",
     intro: "Choose whichever way suits you best. You can change it later.",
+    modeTitle: "How do you want to enter your consumption?",
     modeAnnual: {
       title: "Annual consumption",
       description: "I know roughly how many kWh we use per year.",

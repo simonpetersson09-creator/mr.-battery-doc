@@ -110,6 +110,7 @@ export const sv = {
   consumption: {
     title: "Förbrukning",
     intro: "Välj det sätt som passar dig bäst. Du kan ändra dig senare.",
+    modeTitle: "Hur vill du ange förbrukningen?",
     modeAnnual: {
       title: "Årsförbrukning",
       description: "Jag vet ungefär hur många kWh vi använder per år.",

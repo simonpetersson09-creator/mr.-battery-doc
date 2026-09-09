@@ -107,6 +107,7 @@ export const de = {
   consumption: {
     title: "Verbrauch",
     intro: "Wählen Sie den Weg, der Ihnen am besten passt. Sie können später wechseln.",
+    modeTitle: "Wie möchten Sie Ihren Verbrauch angeben?",
     modeAnnual: {
       title: "Jahresverbrauch",
       description: "Ich weiß ungefähr, wie viele kWh wir pro Jahr verbrauchen.",

@@ -107,6 +107,7 @@ export const da = {
   consumption: {
     title: "Forbrug",
     intro: "Vælg den måde, der passer dig bedst. Du kan ændre det senere.",
+    modeTitle: "Hvordan vil du angive forbruget?",
     modeAnnual: {
       title: "Årsforbrug",
       description: "Jeg ved cirka, hvor mange kWh vi bruger om året.",
