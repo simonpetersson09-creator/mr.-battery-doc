@@ -4,7 +4,7 @@ export const WIZARD_STEPS = [
   { path: "/produktion", label: "Produktion" },
   { path: "/batteri", label: "Batteri" },
   { path: "/ekonomi", label: "Ekonomi" },
-  { path: "/aterbetalning", label: "Återbetalningstid" },
+  
   { path: "/resultat", label: "Resultat" },
 ] as const;
 
