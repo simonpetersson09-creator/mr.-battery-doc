@@ -350,6 +350,10 @@ export function simulate(
       energyUpLimitedHours: d.fcrGate.energyUpLimitedHours,
       energyDownLimitedHours: d.fcrGate.energyDownLimitedHours,
       symmetricHeldPowerKw: d.fcrGate.symmetricHeldPowerAvgKw,
+      physicalHeldPowerAvgKw:
+        t.ancillaryReservedHours > 0
+          ? heldReservation.reduce((a, b) => a + b, 0) / t.ancillaryReservedHours
+          : 0,
       limitingDirection: d.fcrGate.limitingDirection,
       // The physical reservation is simulated whatever the price situation is; revenue
       // stays unavailable until a verified national dataset exists. No SE/FI fallback.
