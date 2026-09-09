@@ -209,8 +209,8 @@ export function MonthlyImport({
             {months.map((m, i) => {
               const missing = review.missing.includes(i);
               return (
-                <label key={m} className="flex items-center gap-2">
-                  <span className="field-label w-9 shrink-0">{m}</span>
+                <label key={m} className="flex items-center gap-1.5">
+                  <span className="field-label w-8 shrink-0">{m}</span>
                   <input
                     type="number"
                     inputMode="decimal"
@@ -223,7 +223,7 @@ export function MonthlyImport({
                         return next;
                       })
                     }
-                    className={`ui-control h-11 min-w-0 flex-1 tabular-nums ${
+                    className={`ui-control h-9 ui-control-text-sm min-w-0 flex-1 tabular-nums ${
                       missing ? "border-destructive" : ""
                     }`}
                   />
