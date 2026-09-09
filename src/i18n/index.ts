@@ -35,6 +35,15 @@ export const LANGUAGE_NAMES: Record<Language, string> = {
   fi: "Suomi",
 };
 
+/** Country flag emoji shown beside each language — presentation only. */
+export const LANGUAGE_FLAGS: Record<Language, string> = {
+  sv: "🇸🇪",
+  en: "🇬🇧",
+  de: "🇩🇪",
+  da: "🇩🇰",
+  fi: "🇫🇮",
+};
+
 /** Number locale — presentation only. Currency stays country-driven. */
 const NUMBER_LOCALE: Record<Language, string> = {
   sv: "sv-SE",
