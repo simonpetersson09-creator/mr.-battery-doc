@@ -216,3 +216,28 @@ describe("documented test case: stated totals vs month sums", () => {
     expect(p.annualMismatch).toBe(false); // 13 900 vs 14 000 is within 2 %
   });
 });
+
+describe("column-oriented tables", () => {
+  it("reads month names from a header row", () => {
+    const text = [
+      "Månad;jan;feb;mar;apr;maj;jun;jul;aug;sep;okt;nov;dec",
+      "Förbrukning kWh;2400;2000;1800;1600;1400;1300;1200;1300;1500;1800;2200;2700",
+      "Solproduktion kWh;100;300;800;1400;1800;2200;2300;2000;1600;900;400;100",
+    ].join("\n");
+    const payload = extractFromText(text);
+    expect(payload.series).toHaveLength(2);
+    const c = selectSeries(payload, "consumption").preselected!;
+    const p = selectSeries(payload, "production").preselected!;
+    expect(c.monthsKwh).toEqual(CONSUMPTION);
+    expect(p.monthsKwh).toEqual(PRODUCTION);
+  });
+
+  it("converts an MWh column to kWh", () => {
+    const text = [
+      "Månad;jan;feb;mar;apr;maj;jun;jul;aug;sep;okt;nov;dec",
+      "Förbrukning MWh;2,4;2;1,8;1,6;1,4;1,3;1,2;1,3;1,5;1,8;2,2;2,7",
+    ].join("\n");
+    const n = selectSeries(extractFromText(text), "consumption").preselected!;
+    expect(Math.round(n.sumKwh)).toBe(21200);
+  });
+});
