@@ -151,20 +151,19 @@ export const da = {
     intro: "Alt er slået til fra start. Slå det fra, som ikke er relevant for dig.",
     solar: {
       title: "Optimeret egetforbrug af solenergi",
-      description: "Gem soloverskud og brug energien senere.",
+      description: "Gem solstrøm, og brug den, når solen ikke producerer.",
     },
     gridImport: {
       title: "Mindre netimport",
-      description: "Reducér mængden af el, der hentes fra elnettet.",
+      description: "Brug batteriet til at reducere mængden af el, der købes fra nettet.",
     },
     peak: {
       title: "Peak shaving",
-      description: "Skær toppene af ejendommens effektforbrug.",
+      description: "Reducer ejendommens effektspidser og eventuel effektbetaling.",
     },
     ancillary: {
-      title: "Systemydelser – {{product}}",
-      description:
-        "Reserverer effekt til at støtte elnettet. Appen optimerer reservationen automatisk.",
+      title: "Systemydelser",
+      description: "Reservér batterieffekt til elnettet, og få betaling.",
     },
     noSolarNote:
       "Du har angivet, at ejendommen ikke har solceller. Derfor giver egetforbrug af solstrøm ingen nytte i dag — de øvrige anvendelser påvirkes ikke.",
