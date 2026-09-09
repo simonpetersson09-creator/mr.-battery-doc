@@ -70,9 +70,11 @@ describe("country ancillary market config", () => {
 
   it("has no invented prices for countries without a verified dataset", () => {
     expect(fcrPriceSeriesForCountry("DK")).toBeNull();
-    expect(fcrPriceSeriesForCountry("DE")).toBeNull();
     expect(hasVerifiedFcrPrices("DK")).toBe(false);
-    expect(hasVerifiedFcrPrices("DE")).toBe(false);
+    // Germany has its own verified symmetric FCR dataset; it is never a Nordic fallback.
+    expect(hasVerifiedFcrPrices("DE")).toBe(true);
+    expect(fcrPriceSeriesForCountry("DE")).not.toBe(FCR_D_UP_SE_2025);
+    expect(fcrPriceSeriesForCountry("DE")).not.toBe(FCR_D_UP_FI_2025);
   });
 
   it("keeps legacy saved cases (no country tag) on the Swedish series", () => {

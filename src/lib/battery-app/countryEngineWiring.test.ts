@@ -50,11 +50,12 @@ describe("country selection drives market data, not physics", () => {
   });
 
   it("reports ancillary revenue as unavailable (null, not 0) without a verified dataset", () => {
-    for (const r of [dk, de]) {
-      expect(r.summary.fcr.grossSek).toBeNull();
-      expect(r.summary.economy.fcrGrossSek).toBeNull();
-      expect(ancillaryDataAvailable(r === dk ? "DK" : "DE")).toBe(false);
-    }
+    expect(dk.summary.fcr.grossSek).toBeNull();
+    expect(dk.summary.economy.fcrGrossSek).toBeNull();
+    expect(ancillaryDataAvailable("DK")).toBe(false);
+    // Germany now has a verified symmetric dataset, so it reports a real value.
+    expect(de.summary.fcr.grossSek).not.toBeNull();
+    expect(ancillaryDataAvailable("DE")).toBe(true);
   });
 
   it("keeps the physics country agnostic when ancillary services are off", () => {
