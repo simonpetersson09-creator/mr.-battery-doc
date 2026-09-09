@@ -10,8 +10,5 @@ for (const a of ["DK1","DK2"] as const) {
   const r = c(a);
   const s = r.summary;
   console.log(a, JSON.stringify({
-    kWh: s.battery?.capacityKWh, kW: s.battery?.recommendedPowerKw, phys: s.battery?.physicalPowerNeedKw,
-    fcr: s.fcr, econ: s.economy, cycles: s.battery?.cyclesPerYear,
-    reserveMode: r.diagnostics.simulation.ancillary?.reserveMode,
-  }, null, 1));
+    sizing: s.sizing, }, null, 1));
 }
