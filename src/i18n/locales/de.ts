@@ -123,8 +123,7 @@ export const de = {
     },
     monthly: {
       title: "Tatsächlicher Monatsverbrauch",
-      importDescription:
-        "Bild, PDF oder CSV importieren – die Werte füllen die Monatsfelder unten.",
+      importDescription: "Bild, PDF oder CSV importieren",
       monthsTitle: "Importierte monatliche Daten",
     },
     profile: { title: "Wann verbrauchen Sie am meisten Strom?", placeholder: "Profil wählen" },
@@ -151,8 +150,7 @@ export const de = {
     },
     monthly: {
       title: "Tatsächlicher Monatsertrag",
-      importDescription:
-        "Bild, PDF oder CSV importieren – die Werte füllen die Monatsfelder unten.",
+      importDescription: "Bild, PDF oder CSV importieren",
       monthsTitle: "Importierte monatliche Daten",
     },
     self: {

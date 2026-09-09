@@ -126,8 +126,7 @@ export const sv = {
     },
     monthly: {
       title: "Faktisk månadsförbrukning",
-      importDescription:
-        "Importera en bild, PDF eller CSV — värdena fylls i månadsfälten nedan.",
+      importDescription: "Importera en bild, PDF eller CSV",
       monthsTitle: "Importerad månadsdata",
     },
     profile: { title: "När använder du mest el?", placeholder: "Välj profil" },
@@ -154,8 +153,7 @@ export const sv = {
     },
     monthly: {
       title: "Faktisk månadsproduktion",
-      importDescription:
-        "Importera en bild, PDF eller CSV — värdena fylls i månadsfälten nedan.",
+      importDescription: "Importera en bild, PDF eller CSV",
       monthsTitle: "Importerad månadsdata",
     },
     self: {

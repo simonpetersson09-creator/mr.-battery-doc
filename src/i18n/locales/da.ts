@@ -123,8 +123,7 @@ export const da = {
     },
     monthly: {
       title: "Faktisk månedsforbrug",
-      importDescription:
-        "Importér et billede, en PDF eller CSV — værdierne udfylder månedsfelterne nedenfor.",
+      importDescription: "Importér et billede, en PDF eller CSV",
       monthsTitle: "Importeret månedlig data",
     },
     profile: { title: "Hvornår bruger du mest strøm?", placeholder: "Vælg profil" },
@@ -151,8 +150,7 @@ export const da = {
     },
     monthly: {
       title: "Faktisk månedsproduktion",
-      importDescription:
-        "Importér et billede, en PDF eller CSV — værdierne udfylder månedsfelterne nedenfor.",
+      importDescription: "Importér et billede, en PDF eller CSV",
       monthsTitle: "Importeret månedlig data",
     },
     self: {
