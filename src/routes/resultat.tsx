@@ -380,7 +380,7 @@ function ResultStep() {
                 <>
                   {/* The customer's own ancillary compensation is the row that adds to the total. */}
                   <BenefitRow
-                    label={t("results.benefit.ancillary")}
+                    label={t("results.benefit.ancillaryTitle")}
                     hint={t("results.benefit.ancillaryCustomerHint")}
                     value={moneyPerYear(ce.ancillaryCustomerValueSek)}
                   />
