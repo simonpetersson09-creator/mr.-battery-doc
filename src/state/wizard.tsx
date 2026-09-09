@@ -11,6 +11,7 @@ import {
   countryCurrency,
   DEFAULT_COUNTRY,
   getCountry,
+  isListedFuse,
   type CountryCode,
 } from "@/lib/country-config";
 import type { Currency } from "@/lib/currency";
