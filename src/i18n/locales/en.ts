@@ -270,8 +270,12 @@ export const en = {
       noReduction: "No reduction of the power peak with the selected settings.",
     },
     benefit: {
-      ancillaryMarket: "Ancillary services – calculated market value",
-      ancillaryShare: "Your share",
+      ancillaryTitle: "Ancillary services",
+      ancillaryCustomerHint: "Your calculated compensation.",
+      ancillaryMarket: "Historical market value of ancillary services",
+      ancillaryShare: "Your share of the ancillary value",
+      ancillaryShareHint:
+        "The share is an estimate. Your actual compensation depends on aggregator, balance responsible party, fees and contract terms.",
       ancillaryCustomer: "Your calculated compensation",
       title: "Calculated benefit",
       none: "With the selected settings the battery gives no calculated financial benefit.",

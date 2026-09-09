@@ -273,8 +273,12 @@ export const de = {
       noReduction: "Keine Reduktion der Lastspitze mit den gewählten Einstellungen.",
     },
     benefit: {
-      ancillaryMarket: "Systemdienstleistungen – berechneter Marktwert",
-      ancillaryShare: "Ihr Anteil",
+      ancillaryTitle: "Systemdienstleistungen",
+      ancillaryCustomerHint: "Ihre berechnete Vergütung.",
+      ancillaryMarket: "Historischer Marktwert der Systemdienstleistungen",
+      ancillaryShare: "Ihr Anteil am Wert der Systemdienstleistungen",
+      ancillaryShareHint:
+        "Der Anteil ist ein Richtwert. Die tatsächliche Vergütung hängt unter anderem von Aggregator, Bilanzkreisverantwortlichem, Gebühren und Vertragsbedingungen ab.",
       ancillaryCustomer: "Ihre berechnete Vergütung",
       title: "Berechneter Nutzen",
       none: "Mit den gewählten Einstellungen bringt die Batterie keinen berechneten wirtschaftlichen Nutzen.",

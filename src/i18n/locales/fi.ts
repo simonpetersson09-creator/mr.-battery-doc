@@ -266,8 +266,12 @@ export const fi = {
       noReduction: "Tehohuippu ei pienene valituilla asetuksilla.",
     },
     benefit: {
-      ancillaryMarket: "Tukipalvelut – laskennallinen markkina-arvo",
-      ancillaryShare: "Osuutesi",
+      ancillaryTitle: "Tukipalvelut",
+      ancillaryCustomerHint: "Laskennallinen korvauksesi.",
+      ancillaryMarket: "Tukipalveluiden historiallinen markkina-arvo",
+      ancillaryShare: "Osuutesi tukipalveluiden arvosta",
+      ancillaryShareHint:
+        "Osuus on arvio. Todellinen korvaus riippuu muun muassa aggregaattorista, tasevastaavasta, maksuista ja sopimusehdoista.",
       ancillaryCustomer: "Laskennallinen korvauksesi",
       title: "Laskettu hyöty",
       none: "Valituilla asetuksilla akku ei tuo laskettua taloudellista hyötyä.",
