@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { NumberField, SectionCard } from "@/components/wizard/fields";
 import { getCountry } from "@/lib/country-config";
+import { demandChargeHint } from "@/lib/battery-app/economyCopy";
 import { validateEconomyStep } from "@/lib/battery-app/stepValidation";
 import { useWizard } from "@/state/wizard";
 
