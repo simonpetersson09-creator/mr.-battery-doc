@@ -79,6 +79,8 @@ function ResultStep() {
    * customer economy all come from the immutable snapshot.
    */
   const historyId = Route.useSearch().calc;
+  /** True while a PDF report is being built — blocks a second, duplicate build. */
+  const [pdfBusy, setPdfBusy] = useState(false);
   const snapshot = useMemo(() => (historyId ? loadSnapshot(historyId) : null), [historyId]);
   const missingSnapshot = Boolean(historyId) && snapshot === null;
   /** In history mode the wizard state of that calculation replaces the current one. */
@@ -306,22 +308,29 @@ function ResultStep() {
   */
   /* PDF follows the SAME entitlement as the result page. */
   const pdfAllowed = PDF_REPORT_AVAILABLE && access.canOpenResult(calculation.id);
+  /*
+    Building the report is asynchronous, so the button must stay disabled while it runs.
+    Without this a fast double-tap would start two PDF builds and hand the user two
+    downloads/share sheets for the same calculation.
+  */
+  const pdfEnabled = pdfAllowed && !pdfBusy;
   const pdfReport = (
     <Button
       type="button"
       variant="outline"
       className="h-10 w-full rounded-[0.75rem] text-[15px] font-semibold bg-primary text-primary-foreground"
-      disabled={!pdfAllowed}
-      aria-disabled={!pdfAllowed}
+      disabled={!pdfEnabled}
+      aria-disabled={!pdfEnabled}
       onClick={() => {
-        if (!pdfAllowed) return;
+        if (!pdfEnabled) return;
+        setPdfBusy(true);
         void generatePdfReport({
           outcome,
           language: currentLanguage(),
           customerEconomy: ce,
           targetPaybackYears: targetYears,
           alternatives,
-        });
+        }).finally(() => setPdfBusy(false));
       }}
     >
       <FileText className="size-4" />

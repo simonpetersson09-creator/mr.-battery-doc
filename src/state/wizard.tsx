@@ -96,9 +96,16 @@ export interface WizardState {
     demandChargeTouched: boolean;
   };
   /**
-   * Customer-facing assumptions. These NEVER reach the engine: they only shape how the
-   * already-simulated result is presented (customer share of the ancillary market value,
-   * desired payback horizon). Kept outside `economy` so a country change cannot reset them.
+   * Customer-facing assumptions. Kept outside `economy` so a country change cannot
+   * reset them.
+   *
+   * `targetPaybackYears` NEVER reaches the engine — it only scales the presented
+   * maximum investment.
+   *
+   * `customerAncillaryShare` IS passed to the engine, but strictly as a SELECTION
+   * OBJECTIVE: it decides which alternative for the same battery has the best customer
+   * benefit. It never changes the physics, and reported ancillary figures keep showing
+   * the full market value.
    */
   preferences: {
     /** 0–1. Share of the ancillary MARKET value that reaches the customer. */
