@@ -206,13 +206,13 @@ function ResultStep() {
     >
       <SectionLabel>{t("results.section.battery")}</SectionLabel>
       {noBattery ? (
-        <div className="hero-metric rounded-[1.25rem] px-4 py-4 text-center">
+        <div className="hero-metric rounded-[1.0625rem] px-3 py-3 text-center">
           <p className="text-[10px] font-semibold uppercase tracking-wide">{t("results.noBattery.badge")}</p>
           <p className="mt-1.5 text-[14px] font-semibold">{t("results.noBattery.title")}</p>
           <p className="mt-1 text-[11px] leading-relaxed text-foreground/70">{t("results.noBattery.text")}</p>
         </div>
       ) : (
-        <div className="hero-metric rounded-[1.25rem] px-3 py-3">
+        <div className="hero-metric rounded-[1.0625rem] px-3 py-3">
           <div
             className="grid items-stretch gap-2"
             style={{ gridTemplateColumns: `repeat(${alternatives.length}, minmax(0, 1fr))` }}
