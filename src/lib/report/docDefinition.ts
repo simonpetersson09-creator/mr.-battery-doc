@@ -69,8 +69,10 @@ function sourceLabel(model: ReportModel, tag: SourceTag | undefined): string {
 function cardRow(
   items: { fill?: string; stack: Node[] }[],
   height: number,
+  contentHeight: number,
   bottom = 14,
 ): Node {
+  const filler = Math.max(0, height - contentHeight);
   const n = items.length;
   const w = (CONTENT_W - CARD_GAP * (n - 1)) / n;
   return {
@@ -90,12 +92,13 @@ function cardRow(
       {
         columns: items.map((item) => ({
           width: w,
-          stack: item.stack,
+          stack: [...item.stack, { text: "", fontSize: 1, margin: [0, filler, 0, 0] }],
           margin: [10, 0, 10, 0],
         })),
         columnGap: CARD_GAP,
       },
     ],
+    unbreakable: true,
     margin: [0, 0, 0, bottom],
   };
 }
@@ -109,7 +112,8 @@ function cards(items: { label: string; value: string }[]): Node {
         { text: item.value, fontSize: 13, bold: true, margin: [0, 8, 0, 0] },
       ],
     })),
-    72,
+    76,
+    46,
   );
 }
 
@@ -186,7 +190,8 @@ function beforeAfter(block: Extract<ReportBlock, { kind: "beforeAfter" }>): Node
             : [{ text: "", fontSize: 8 }],
         })),
         62,
-        gi === groups.length - 1 ? 12 : CARD_GAP,
+        42,
+        gi === groups.length - 1 ? 14 : CARD_GAP,
       );
     }),
     margin: [0, 0, 0, 0],
@@ -218,7 +223,8 @@ function alternatives(block: Extract<ReportBlock, { kind: "alternatives" }>): No
         { text: item.benefit, fontSize: 10, bold: true, alignment: "center", margin: [0, 5, 0, 0] },
       ],
     })),
-    98,
+    100,
+    76,
   );
 }
 
@@ -245,15 +251,17 @@ function hero(block: Extract<ReportBlock, { kind: "hero" }>): Node {
         ],
       },
     ],
-    76,
+    80,
+    60,
   );
 }
 
 /** A soft, light panel used for FAQ entries and callouts. */
 function panel(stack: Node[], fill: string, bottom: number): Node {
   return {
-    table: { widths: ["*"], body: [[{ stack, fillColor: fill, margin: [12, 10, 12, 10] }]] },
+    table: { widths: ["*"], body: [[{ stack, fillColor: fill, margin: [12, 11, 12, 11] }]] },
     layout: "noBorders",
+    unbreakable: true,
     margin: [0, 0, 0, bottom],
   };
 }
@@ -376,11 +384,11 @@ export function buildDocDefinition(model: ReportModel): Record<string, unknown> 
   for (const section of model.sections) {
     if (section.title) {
       const [title, rule] = sectionTitle(section.title, first || section.pageBreak);
-      content.push({ ...title, ...(section.pageBreak ? { pageBreak: "before" } : {}) });
+      content.push({ ...title, ...(section.pageBreak ? { headlineLevel: 1 } : {}) });
       content.push(rule as Node);
       first = false;
     } else if (section.pageBreak) {
-      content.push({ text: "", pageBreak: "before" });
+      content.push({ text: "", headlineLevel: 1 });
     }
     for (const block of section.blocks) content.push(sanitizeGlyphs(renderBlock(model, block)));
   }
@@ -406,6 +414,8 @@ export function buildDocDefinition(model: ReportModel): Record<string, unknown> 
           : []),
       ],
     }),
+    pageBreakBefore: (currentNode: { headlineLevel?: number; startPosition?: { top: number } }) =>
+      currentNode.headlineLevel === 1 && (currentNode.startPosition?.top ?? 0) > MARGIN_TOP + 6,
     defaultStyle: { fontSize: 9.5, color: REPORT_COLORS.text, lineHeight: 1.25 },
     footer: (currentPage: number, pageCount: number) => ({
       margin: [MARGIN_X, 16, MARGIN_X, 0],
