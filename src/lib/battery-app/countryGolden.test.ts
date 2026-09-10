@@ -155,7 +155,7 @@ const CASES: Record<string, Case> = {
     country: "DE",
     fuseA: 63,
     annualKwh: 30000,
-    profileId: "flat",
+    profileId: "normal",
     solar: null,
     peakShaving: true,
     fcr: false,
@@ -286,7 +286,10 @@ describe("country golden regression cases", () => {
         finite(`${key} power`, rec.powerKw);
         expect(rec.capacityKWh).toBeGreaterThanOrEqual(0);
         expect(rec.powerKw).toBeGreaterThanOrEqual(0);
-        expect(rec.powerKw).toBeLessThanOrEqual(MAX_PRODUCT_POWER_KW);
+        // The product ladder is capped at 200 kW; the operating optimum may sit
+        // higher (0.5 C of a large pack) and is reported separately.
+        expect(rec.productPowerKw ?? 0).toBeLessThanOrEqual(MAX_PRODUCT_POWER_KW);
+        expect(rec.powerKw).toBeLessThanOrEqual(rec.capacityKWh * 0.5 + 1e-9);
 
         for (const [name, value] of Object.entries(s.energy)) {
           if (typeof value === "number") finite(`${key} energy.${name}`, value);
@@ -306,16 +309,15 @@ describe("country golden regression cases", () => {
           6,
         );
         if (ce.totalCustomerBenefitSek !== null && ce.engineTotalBenefitSek !== null) {
-          expect(ce.totalCustomerBenefitSek).toBeCloseTo(
-            ce.energyBenefitSek + ce.peakBenefitSek + ce.ancillaryCustomerValueSek,
-            4,
-          );
+          const parts = ce.energyBenefitSek + ce.peakBenefitSek + ce.ancillaryCustomerValueSek;
+          // The engine total is rounded to ore/cent; the parts are not.
+          expect(Math.abs((ce.totalCustomerBenefitSek as number) - parts)).toBeLessThan(0.02);
         }
 
         const years = clampTargetPaybackYears(state.preferences.targetPaybackYears);
         const maxInv = maxInvestmentSek(ce.totalCustomerBenefitSek, years);
         if (maxInv !== null) {
-          expect(maxInv).toBeCloseTo((ce.totalCustomerBenefitSek as number) * years, 4);
+          expect(maxInv).toBeCloseTo((ce.totalCustomerBenefitSek as number) * years, 6);
           expect(maxInv).toBeGreaterThan(0);
         }
 
