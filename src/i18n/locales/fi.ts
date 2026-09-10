@@ -280,6 +280,8 @@ export const fi = {
       noReduction: "Tehohuippu ei pienene valituilla asetuksilla.",
     },
     benefit: {
+      nonPositive:
+        "Nykyisillä tiedoillasi akku ei tuota positiivista laskennallista taloudellista hyötyä vuodessa. Tekninen tulos näytetään silti alla.",
       ancillaryTitle: "Tukipalvelut",
       ancillaryCustomerHint: "Laskennallinen korvauksesi.",
       ancillaryMarket: "Tukipalveluiden historiallinen markkina-arvo",

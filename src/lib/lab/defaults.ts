@@ -103,7 +103,9 @@ export function defaultConfig(): LabConfig {
       targetReductionPct: 20,
       activeHours: ALL_HOURS,
       activeMonths: ALL_MONTHS,
+      gridChargingEnabled: true,
     },
+
     demandCharge: {
       enabled: false,
       krPerKw: 55,

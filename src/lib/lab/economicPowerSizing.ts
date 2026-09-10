@@ -24,6 +24,7 @@
  */
 
 import {
+  annualCustomerBenefitSek,
   evaluateOperatingEconomy,
   optimizeFcrReservation,
   SWEDISH_OPERATING_ECONOMY,
@@ -206,10 +207,16 @@ export interface PowerOption {
   fcrGrossSek: number | null;
   /** Gross adjusted for verified market realism. Null while realism data is missing. */
   fcrRealisticNetSek: number | null;
-  /** energy + peak + FCR. THE optimisation objective. */
+  /** energy + peak + FCR gross. Reported total, NOT the choice objective. */
   totalOperatingBenefitSek: number;
   /** Alias kept for existing consumers; identical to totalOperatingBenefitSek. */
   operatingBenefitSek: number;
+  /**
+   * energy + peak + ancillary CUSTOMER value. MODEL RULE: the power level is chosen on
+   * this, so raw FCR gross alone can never drive a higher power level.
+   */
+  annualCustomerBenefitSek: number;
+
   /** Difference in total operating benefit against the NEXT LOWER candidate. */
   deltaVsPreviousKw: number | null;
   /** PARKED product-cost reporting. Never part of the objective. Null by default. */
@@ -376,6 +383,12 @@ export function runEconomicPowerSizing(
       fcrRealisticNetSek: realisticFcrNetSek(grossSek, fcrMarket),
       totalOperatingBenefitSek,
       operatingBenefitSek: totalOperatingBenefitSek,
+      annualCustomerBenefitSek: annualCustomerBenefitSek(
+        energyBenefitSek,
+        peakBenefitSek,
+        grossSek,
+        econ,
+      ),
       deltaVsPreviousKw: null,
       capexSek: breakdown.capexSek,
       annualisedProductCostSek: breakdown.annualisedTotalProductCostSek,
@@ -395,10 +408,10 @@ export function runEconomicPowerSizing(
     );
   }
 
-  /* --- Winner: highest benefit, ties within the tolerance go to the LOWER power. --- */
-  const best = Math.max(...options.map((o) => o.totalOperatingBenefitSek));
+  /* --- Winner: highest TOTAL CUSTOMER BENEFIT; ties within the tolerance go LOWER. --- */
+  const best = Math.max(...options.map((o) => o.annualCustomerBenefitSek));
   const winner =
-    options.find((o) => o.totalOperatingBenefitSek >= best - POWER_TIE_TOLERANCE_SEK) ??
+    options.find((o) => o.annualCustomerBenefitSek >= best - POWER_TIE_TOLERANCE_SEK) ??
     options[0]!;
   winner.selected = true;
 

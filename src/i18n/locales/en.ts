@@ -284,6 +284,8 @@ export const en = {
       noReduction: "No reduction of the power peak with the selected settings.",
     },
     benefit: {
+      nonPositive:
+        "With your current inputs the battery gives no positive calculated economic benefit per year. The technical result is still shown below.",
       ancillaryTitle: "Ancillary services",
       ancillaryCustomerHint: "Your calculated compensation.",
       ancillaryMarket: "Historical market value of ancillary services",

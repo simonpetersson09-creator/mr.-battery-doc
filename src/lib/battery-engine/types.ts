@@ -124,6 +124,11 @@ export interface EngineStrategyInput {
   /** Reduced grid import. */
   reduceImport?: boolean;
   peakShaving?: boolean;
+  /**
+   * Peak shaving as an EXPLICIT TECHNICAL goal. Only then may peak shaving charge from
+   * the grid when no demand charge is priced.
+   */
+  peakShavingIsTechnicalGoal?: boolean;
   /** Target reduction of the modelled monthly peak, %. */
   peakTargetReductionPct?: number;
   peakActiveHours?: number[];
@@ -143,6 +148,12 @@ export interface EngineEconomyInput {
   peakDemandChargeSekPerKwMonth?: number | null;
   peakTariffSource?: PeakTariffSource;
   eurSekRate?: number;
+  /**
+   * Share 0–1 of the ancillary MARKET value that reaches the customer. Used only when
+   * the engine chooses between alternatives for the same battery. Reported figures keep
+   * showing the full market value. Default 0.75.
+   */
+  customerAncillaryShare?: number;
 }
 
 export interface BatteryEngineInput {
@@ -232,6 +243,8 @@ export interface EnginePowerOption {
   totalOperatingBenefitSek: number;
   /** Alias of totalOperatingBenefitSek. */
   operatingBenefitSek: number;
+  /** energy + peak + ancillary customer value. The value the alternative is chosen on. */
+  annualCustomerBenefitSek: number;
   /** Difference against the next lower candidate, SEK/year. */
   deltaVsPreviousKw: number | null;
   selected: boolean;
@@ -336,6 +349,14 @@ export interface EngineEconomySummary {
   fcrGrossSek: number | null;
   totalOperatingBenefitSek: number | null;
   totalIsIncomplete: boolean;
+  /**
+   * MODEL RULE: energy + peak + the customer's share of the ancillary value. This is the
+   * benefit the customer actually gets, and the one a recommendation must be judged on.
+   */
+  annualCustomerBenefitSek: number | null;
+  /** False when the calculated customer benefit is zero or negative. */
+  hasPositiveCustomerBenefit: boolean;
+
   /** Human-readable list of which values are estimates/assumptions. */
   assumptions: string[];
   notes: string[];

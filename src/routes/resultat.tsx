@@ -537,6 +537,12 @@ function ResultStep() {
               {money(ce.totalCustomerBenefitSek)}
               <span className="ml-1 text-[11px] font-semibold">{t("units.perYear")}</span>
             </p>
+            {/* MODEL RULE: never present a non-positive benefit as an economic advantage. */}
+            {ce.totalCustomerBenefitSek !== null && ce.totalCustomerBenefitSek <= 0 ? (
+              <p className="mt-1 text-center text-[11px] leading-relaxed">
+                {t("results.benefit.nonPositive")}
+              </p>
+            ) : null}
             <div className="surface-secondary mt-2 space-y-2 rounded-[1rem] p-3">
               {s.economy.energyBenefitSek !== 0 ? (
                 <BenefitRow

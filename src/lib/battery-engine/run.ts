@@ -10,6 +10,7 @@
  */
 
 import {
+  annualCustomerBenefitSek,
   composeOperatingEconomy,
   evaluateOperatingEconomy,
   optimizeFcrReservation,
@@ -209,6 +210,17 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       }
     : null;
 
+  /** MODEL RULE: the benefit the customer actually receives (ancillary share applied). */
+  const customerBenefit =
+    economy.totalSek === null
+      ? null
+      : annualCustomerBenefitSek(
+          economy.energy.energyBenefitSek,
+          peak.annualPeakBenefitSek,
+          economy.fcr.grossSek,
+          econ,
+        );
+
   const summary: BatteryEngineSummary = {
     selfConsumptionCalibration: calibration,
     recommendation: {
@@ -318,6 +330,12 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       fcrGrossSek: economy.fcr.grossSek,
       totalOperatingBenefitSek: economy.totalSek,
       totalIsIncomplete: economy.totalIsIncomplete,
+      /**
+       * MODEL RULE (negative customer benefit): the recommendation may never be
+       * presented as economically advantageous when this is <= 0.
+       */
+      annualCustomerBenefitSek: customerBenefit,
+      hasPositiveCustomerBenefit: customerBenefit !== null && customerBenefit > 0,
       assumptions: [
         `Importpris ${econ.importEnergyPriceSekPerKWh} kr/kWh och exportvärde ${econ.exportEnergyValueSekPerKWh} kr/kWh är ekonomiska antaganden.`,
         peak.tariffNote ??
@@ -344,6 +362,7 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       fcrRealisticNetSek: o.fcrRealisticNetSek,
       totalOperatingBenefitSek: o.totalOperatingBenefitSek,
       operatingBenefitSek: o.operatingBenefitSek,
+      annualCustomerBenefitSek: o.annualCustomerBenefitSek,
       deltaVsPreviousKw: o.deltaVsPreviousKw,
       selected: o.selected,
       physicalSizingChoice: o.physicalSizingChoice,

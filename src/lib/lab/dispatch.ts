@@ -827,7 +827,12 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
          * headroom. It can therefore never create a new peak above the threshold the
          * strategy defends, and it does not use prices in any way.
          */
-        if (strategies.peakShaving && acceptable > 0 && powerLeft > 0) {
+        if (
+          strategies.peakShaving &&
+          peak.gridChargingEnabled !== false &&
+          acceptable > 0 &&
+          powerLeft > 0
+        ) {
           const need = peakNeedKWh[h] ?? 0;
           if (need > 0) {
             const targetSoc = Math.min(

@@ -123,7 +123,16 @@ export interface PeakShavingConfig {
   activeHours: number[];
   /** Only shave in these months (1-12). */
   activeMonths: number[];
+  /**
+   * MODEL RULE (peak shaving with demandFee = 0): whether peak shaving may top the
+   * battery up FROM THE GRID. Economically driven peak shaving must not grid charge when
+   * no demand charge exists, because the import losses can never be repaid by a peak
+   * benefit. Undefined = allowed (backwards compatible). Peak DISCHARGE is never gated
+   * here, so the physical peak reduction is still simulated.
+   */
+  gridChargingEnabled?: boolean;
 }
+
 
 /** Economic rules for the demand charge — analysis only, never touches physics. */
 export interface DemandChargeConfig {

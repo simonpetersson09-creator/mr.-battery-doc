@@ -243,8 +243,14 @@ const EXPECTED: Record<string, { capacityKWh: number; powerKw: number }> = {
   CG10: { capacityKWh: 5, powerKw: 3 },
   CG11: { capacityKWh: 20, powerKw: 3 },
   CG12: { capacityKWh: 100, powerKw: 50 },
-  CG13: { capacityKWh: 5, powerKw: 3 },
-  CG14: { capacityKWh: 50, powerKw: 25 },
+  /**
+   * MODEL DECISION (peak shaving with demandFee = 0): Denmark prices no demand charge,
+   * so economically driven peak shaving no longer charges from the grid. CG13 previously
+   * froze 5 kWh / 3 kW and CG14 50 kWh / 25 kW, both built on grid-charged peak energy
+   * that could never be repaid. The physical peak reduction is still simulated.
+   */
+  CG13: { capacityKWh: 0, powerKw: 0 },
+  CG14: { capacityKWh: 40, powerKw: 20 },
   /**
    * CG15 previously froze 250 kW — the PHYSICAL need at 500 kWh / 0.5 C. That is not a
    * purchasable product level; the recommendation is capped at the 200 kW product step.
