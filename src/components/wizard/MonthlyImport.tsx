@@ -12,6 +12,23 @@ import { formatNumber, useT } from "@/i18n";
 import { monthShortLabels } from "@/i18n/labels";
 import { extractMonthlyDocument } from "@/lib/import/extractMonthlyTransport";
 import {
+  IMPORT_ACCEPT,
+  isTextImport,
+  rejectionFor,
+  resolveMimeType,
+} from "@/lib/import/fileRules";
+import {
+  nativePickersAvailable,
+  pickFrom,
+  type PickedDocument,
+  type PickerSource,
+} from "@/lib/import/nativePicker";
+import {
+  prepareFileUpload,
+  prepareImageUpload,
+  textFromDataUrl,
+} from "@/lib/import/prepareUpload";
+import {
   extractFromText,
   reviewState,
   selectSeries,
@@ -20,53 +37,6 @@ import {
   type SeriesKind,
 } from "@/lib/import/monthly";
 import { DecimalInput } from "./DecimalInput";
-
-const TEXT_TYPES = /(csv|plain|tab-separated|text\/)/i;
-/** Anything larger than this never reaches the network. */
-const MAX_FILE_BYTES = 15 * 1024 * 1024;
-/** Longest edge sent to the reader — plenty for table text, far cheaper to send. */
-const MAX_IMAGE_EDGE = 1800;
-
-function readAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const fr = new FileReader();
-    fr.onerror = () => reject(new Error("read"));
-    fr.onload = () => resolve(String(fr.result));
-    fr.readAsDataURL(file);
-  });
-}
-
-/**
- * Shrinks oversized photos before upload. Keeps the original when the browser
- * cannot decode it or the image is already small.
- */
-async function toUploadDataUrl(file: File): Promise<{ dataUrl: string; mimeType: string }> {
-  const mimeType = file.type || "image/jpeg";
-  const dataUrl = await readAsDataUrl(file);
-  if (!mimeType.startsWith("image/") || typeof document === "undefined") {
-    return { dataUrl, mimeType };
-  }
-  try {
-    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const el = new Image();
-      el.onload = () => resolve(el);
-      el.onerror = () => reject(new Error("decode"));
-      el.src = dataUrl;
-    });
-    const longest = Math.max(img.width, img.height);
-    if (longest <= MAX_IMAGE_EDGE) return { dataUrl, mimeType };
-    const scale = MAX_IMAGE_EDGE / longest;
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.round(img.width * scale);
-    canvas.height = Math.round(img.height * scale);
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return { dataUrl, mimeType };
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    return { dataUrl: canvas.toDataURL("image/jpeg", 0.9), mimeType: "image/jpeg" };
-  } catch {
-    return { dataUrl, mimeType };
-  }
-}
 
 
 export function MonthlyImport({
@@ -85,12 +55,14 @@ export function MonthlyImport({
   const months = monthShortLabels();
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const [pickedName, setPickedName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [candidates, setCandidates] = useState<NormalisedSeries[] | null>(null);
   const [selfPct, setSelfPct] = useState<number | null>(null);
   const [values, setValues] = useState<(number | null)[] | null>(null);
   const [active, setActive] = useState<NormalisedSeries | null>(null);
   const [applied, setApplied] = useState(false);
+  const native = nativePickersAvailable();
 
   const open = !!(candidates || values);
   useEffect(() => {
@@ -110,24 +82,26 @@ export function MonthlyImport({
     setCandidates(null);
   };
 
-  const handleFile = async (file: File) => {
-    if (file.size > MAX_FILE_BYTES) {
-      setError(t("errors.importTooLarge"));
-      return;
-    }
+  /**
+   * One analysis path for every source (web input, camera, photo library, Files).
+   * On any failure the existing month values stay exactly as they were and the
+   * loading state is always released.
+   */
+  const analyze = async (doc: PickedDocument & { text?: string }) => {
     setBusy(true);
     setError(null);
     setApplied(false);
+    setPickedName(doc.name);
     try {
       let payload: ExtractionPayload;
-      if (TEXT_TYPES.test(file.type) || /\.(csv|txt|tsv)$/i.test(file.name)) {
-        payload = extractFromText(await file.text());
+      if (isTextImport(doc.name, doc.mimeType)) {
+        payload = extractFromText(doc.text ?? textFromDataUrl(doc.dataUrl));
       } else {
-        const upload = await toUploadDataUrl(file);
+        const upload = await prepareImageUpload(doc.dataUrl, doc.mimeType, doc.name);
         const result = await extractMonthlyDocument({
           dataUrl: upload.dataUrl,
           mimeType: upload.mimeType,
-          fileName: file.name,
+          fileName: doc.name,
         });
         if ("error" in result && result.error) {
           const code = (result as { errorCode?: string }).errorCode;
@@ -136,12 +110,10 @@ export function MonthlyImport({
             : "errors.importUnreadable";
           const localized = t(key);
           setError(localized === key ? t("errors.importUnreadable") : localized);
-          setBusy(false);
           return;
         }
         payload = result;
       }
-
 
       setSelfPct(payload.selfConsumptionPct);
       const choice = selectSeries(payload, kind);
@@ -159,48 +131,144 @@ export function MonthlyImport({
     }
   };
 
+  const handleFile = async (file: File) => {
+    const mimeType = resolveMimeType(file.name, file.type);
+    const rejection = rejectionFor({ name: file.name, mimeType, size: file.size });
+    if (rejection) {
+      setPickedName(file.name);
+      setError(t(rejection === "tooLarge" ? "errors.importTooLarge" : "errors.importUnsupportedType"));
+      return;
+    }
+    try {
+      if (isTextImport(file.name, mimeType)) {
+        await analyze({ name: file.name, mimeType, dataUrl: "", size: file.size, text: await file.text() });
+        return;
+      }
+      const upload = await prepareFileUpload(file);
+      await analyze({
+        name: file.name,
+        mimeType: upload.mimeType,
+        dataUrl: upload.dataUrl,
+        size: file.size,
+      });
+    } catch {
+      setError(t("errors.importUnreadable"));
+      setBusy(false);
+    }
+  };
+
+  /** Camera / photo library / Files inside the iOS app. */
+  const handleNativePick = async (source: PickerSource) => {
+    if (busy) return;
+    setError(null);
+    const outcome = await pickFrom(source);
+    switch (outcome.status) {
+      case "picked":
+        await analyze(outcome.file);
+        return;
+      case "cancelled":
+        return;
+      case "denied":
+        setError(t(source === "camera" ? "errors.importCameraDenied" : "errors.importPhotosDenied"));
+        return;
+      case "tooLarge":
+        setError(t("errors.importTooLarge"));
+        return;
+      case "unsupportedType":
+        setError(t("errors.importUnsupportedType"));
+        return;
+      default:
+        setError(t("errors.importUnreadable"));
+    }
+  };
+
+
   const review = values ? reviewState(values) : null;
+
+  const importIcon = (
+    <svg
+      viewBox="0 0 24 24"
+      className="size-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M12 16V4" />
+      <path d="m7 9 5-5 5 5" />
+      <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+    </svg>
+  );
+
+  const label = busy
+    ? t("monthlyImport.reading")
+    : applied
+      ? t("monthlyImport.reimport")
+      : t("monthlyImport.import");
 
   return (
     <div className="space-y-2">
-      <Button
-        type="button"
-        variant="ghost"
-        className="cta-primary w-full"
-        disabled={busy}
-        onClick={() => inputRef.current?.click()}
-      >
-        <svg
-          viewBox="0 0 24 24"
-          className="size-4"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
+      {native ? (
+        <div className="space-y-2">
+          <Button
+            type="button"
+            variant="ghost"
+            className="cta-primary w-full"
+            disabled={busy}
+            onClick={() => void handleNativePick("camera")}
+          >
+            {importIcon}
+            {busy ? label : t("monthlyImport.takePhoto")}
+          </Button>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              disabled={busy}
+              onClick={() => void handleNativePick("photos")}
+            >
+              {t("monthlyImport.choosePhoto")}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              disabled={busy}
+              onClick={() => void handleNativePick("files")}
+            >
+              {t("monthlyImport.chooseFile")}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <Button
+          type="button"
+          variant="ghost"
+          className="cta-primary w-full"
+          disabled={busy}
+          onClick={() => inputRef.current?.click()}
         >
-          <path d="M12 16V4" />
-          <path d="m7 9 5-5 5 5" />
-          <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
-        </svg>
-        {busy
-          ? t("monthlyImport.reading")
-          : applied
-            ? t("monthlyImport.reimport")
-            : t("monthlyImport.import")}
-      </Button>
+          {importIcon}
+          {label}
+        </Button>
+      )}
+      {pickedName && !applied ? (
+        <p className="ui-help text-foreground truncate text-center">{pickedName}</p>
+      ) : null}
       {applied ? (
         <p className="ui-help text-foreground text-center">{t("monthlyImport.applied")}</p>
       ) : (
         <p className="ui-help text-center">{description}</p>
       )}
-      {error ? <p className="ui-help text-destructive">{error}</p> : null}
+      {error ? <p className="ui-help text-destructive text-center">{error}</p> : null}
 
       <input
         ref={inputRef}
         type="file"
-        accept="image/*,application/pdf,.csv,.txt,.tsv"
+        accept={IMPORT_ACCEPT}
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];
@@ -208,6 +276,7 @@ export function MonthlyImport({
           if (file) void handleFile(file);
         }}
       />
+
 
       {candidates ? (
         <div className="ui-card space-y-2">

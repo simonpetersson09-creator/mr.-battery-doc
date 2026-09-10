@@ -395,6 +395,9 @@ export const de = {
       "Systemdienstleistungen können für {{where}} noch nicht berechnet werden – es fehlen verifizierte historische Preisdaten. Es werden keine Erlöse angenommen.",
   },
   monthlyImport: {
+    takePhoto: "Foto aufnehmen",
+    choosePhoto: "Bild auswählen",
+    chooseFile: "Datei auswählen",
     reading: "Dokument wird gelesen…",
     reimport: "Erneut importieren",
     import: "Monatsdaten importieren",
@@ -415,6 +418,9 @@ export const de = {
       "Wir konnten {{read}} von 12 Monaten lesen. Prüfen oder ergänzen Sie die fehlenden Werte.",
   },
   errors: {
+    importUnsupportedType: "Dieser Dateityp wird nicht unterstützt. Verwenden Sie ein Bild, eine PDF- oder eine CSV-Datei.",
+    importCameraDenied: "Kein Kamerazugriff. Erlauben Sie die Kamera in den iPhone-Einstellungen, um Unterlagen zu fotografieren.",
+    importPhotosDenied: "Kein Zugriff auf Fotos. Erlauben Sie den Zugriff in den iPhone-Einstellungen, um Unterlagen auszuwählen.",
     importNoData:
       "Wir haben in der Datei keine Monatsdaten gefunden. Prüfen Sie, ob die Monate deutlich sichtbar sind.",
     importUnreadable:

@@ -392,6 +392,9 @@ export const sv = {
       "Stödtjänster kan inte beräknas för {{where}} ännu – verifierat historiskt prisunderlag saknas. Ingen intäkt antas.",
   },
   monthlyImport: {
+    takePhoto: "Ta foto",
+    choosePhoto: "Välj bild",
+    chooseFile: "Välj fil",
     reading: "Läser dokumentet…",
     reimport: "Importera på nytt",
     import: "Importera månadsdata",
@@ -411,6 +414,9 @@ export const sv = {
       "Vi kunde läsa {{read}} av 12 månader. Kontrollera eller fyll i de saknade värdena.",
   },
   errors: {
+    importUnsupportedType: "Filtypen stöds inte. Använd en bild, en PDF eller en CSV-fil.",
+    importCameraDenied: "Kameran är inte tillåten. Tillåt kameran i iPhones inställningar för att fotografera underlag.",
+    importPhotosDenied: "Bilder är inte tillåtna. Tillåt åtkomst i iPhones inställningar för att välja underlag.",
     importNoData:
       "Vi hittade ingen månadsdata i filen. Kontrollera att månaderna syns tydligt.",
     importUnreadable: "Filen kunde inte läsas. Försök med en tydligare bild eller en PDF.",
