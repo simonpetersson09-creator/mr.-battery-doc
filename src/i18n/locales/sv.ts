@@ -240,7 +240,6 @@ export const sv = {
     title: "Resultat",
     intro: "Så här ser förslaget ut för din fastighet.",
     pdfReport: "Ladda ner rapport som PDF",
-    pdfReportPending: "",
     incomplete: {
       intro: "Vi behöver lite mer information.",
       title: "Fyll i det som saknas",
@@ -370,6 +369,9 @@ export const sv = {
     physicalNeed: "Fysiskt effektbehov",
     heldPower: "Stödtjänster hållen effekt",
     cRate: "C-rate",
+    ancillaryGroup: "Stödtjänster",
+    reservedPower: "Reserverad effekt",
+    selectedServices: "Valda stödtjänster",
   },
   importantInformation: {
     title: "Viktigt att känna till",

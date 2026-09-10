@@ -235,7 +235,6 @@ export const fi = {
     title: "Tulos",
     intro: "Tältä ehdotus näyttää kiinteistöllesi.",
     pdfReport: "Lataa raportti PDF:nä",
-    pdfReportPending: "",
     incomplete: {
       intro: "Tarvitsemme vielä hieman tietoja.",
       title: "Täytä puuttuvat tiedot",
@@ -364,6 +363,9 @@ export const fi = {
     physicalNeed: "Fyysinen tehontarve",
     heldPower: "Reservipalveluihin varattu teho",
     cRate: "C-arvo",
+    ancillaryGroup: "Reservipalvelut",
+    reservedPower: "Varattu teho",
+    selectedServices: "Valitut reservipalvelut",
   },
   importantInformation: {
     title: "Tärkeää tietää",

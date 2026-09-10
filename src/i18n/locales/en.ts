@@ -238,7 +238,6 @@ export const en = {
     title: "Result",
     intro: "This is the proposal for your property.",
     pdfReport: "Download report as PDF",
-    pdfReportPending: "",
     incomplete: {
       intro: "We need a little more information.",
       title: "Fill in what is missing",
@@ -369,6 +368,9 @@ export const en = {
     physicalNeed: "Physical power need",
     heldPower: "Grid services reserved power",
     cRate: "C-rate",
+    ancillaryGroup: "Ancillary services",
+    reservedPower: "Reserved power",
+    selectedServices: "Selected services",
   },
   importantInformation: {
     title: "Important to know",

@@ -238,7 +238,6 @@ export const da = {
     title: "Resultat",
     intro: "Sådan ser forslaget ud for din ejendom.",
     pdfReport: "Download rapport som PDF",
-    pdfReportPending: "",
     incomplete: {
       intro: "Vi mangler lidt mere information.",
       title: "Udfyld det, der mangler",
@@ -369,6 +368,9 @@ export const da = {
     physicalNeed: "Fysisk effektbehov",
     heldPower: "Effekt reserveret til systemydelser",
     cRate: "C-rate",
+    ancillaryGroup: "Systemydelser",
+    reservedPower: "Reserveret effekt",
+    selectedServices: "Valgte systemydelser",
   },
   importantInformation: {
     title: "Vigtigt at vide",

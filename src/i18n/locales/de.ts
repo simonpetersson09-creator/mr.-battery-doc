@@ -241,7 +241,6 @@ export const de = {
     title: "Ergebnis",
     intro: "So sieht der Vorschlag für Ihre Immobilie aus.",
     pdfReport: "Bericht als PDF herunterladen",
-    pdfReportPending: "",
     incomplete: {
       intro: "Wir brauchen noch ein paar Angaben.",
       title: "Fehlende Angaben ergänzen",
@@ -373,6 +372,9 @@ export const de = {
     physicalNeed: "Physischer Leistungsbedarf",
     heldPower: "Für Systemdienstleistungen reservierte Leistung",
     cRate: "C-Rate",
+    ancillaryGroup: "Systemdienstleistungen",
+    reservedPower: "Reservierte Leistung",
+    selectedServices: "Gewählte Systemdienstleistungen",
   },
   importantInformation: {
     title: "Wichtig zu wissen",

@@ -561,6 +561,14 @@ function ResultStep() {
             ) : null}
             <Row label={t("technical.cRate")} value={`${nf(p.systemCRate, 2)} C`} />
           </TechGroup>
+
+          {/* Reserved power and active services — only when ancillary services are enabled. */}
+          {s.fcr.enabled ? (
+            <TechGroup title={t("technical.ancillaryGroup")}>
+              <Row label={t("technical.reservedPower")} value={kw(s.fcr.avgHeldPowerKw, 2)} />
+              <Row label={t("technical.selectedServices")} value={productLabel} />
+            </TechGroup>
+          ) : null}
         </div>
       </details>
 
