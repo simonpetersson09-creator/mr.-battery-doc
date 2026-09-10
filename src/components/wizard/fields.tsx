@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Check } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { DecimalInput } from "./DecimalInput";
 
 export function SectionCard({
   title,
@@ -92,14 +93,12 @@ export function NumberField({
   ) : null;
 
   const input = (
-    <input
-      inputMode="decimal"
-      type="number"
+    <DecimalInput
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
       step={step}
       className={`ui-control tabular-nums ${compact ? "h-9 ui-control-text-sm" : ""} ${unit ? "pr-[4.5rem]" : ""}`}
-      value={value ?? ""}
-      placeholder={placeholder}
-      onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
     />
   );
   return (

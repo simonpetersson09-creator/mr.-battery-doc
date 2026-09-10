@@ -19,6 +19,7 @@ import {
   type NormalisedSeries,
   type SeriesKind,
 } from "@/lib/import/monthly";
+import { DecimalInput } from "./DecimalInput";
 
 const TEXT_TYPES = /(csv|plain|tab-separated|text\/)/i;
 /** Anything larger than this never reaches the network. */
@@ -258,15 +259,14 @@ export function MonthlyImport({
               return (
                 <label key={m} className="flex items-center gap-1.5">
                   <span className="field-label w-8 shrink-0 font-normal">{m}</span>
-                  <input
-                    type="number"
-                    inputMode="decimal"
+                  <DecimalInput
+                    ariaLabel={m}
                     placeholder="kWh"
-                    value={values?.[i] ?? ""}
-                    onChange={(e) =>
+                    value={values?.[i] ?? null}
+                    onChange={(v) =>
                       setValues((prev) => {
                         const next = [...(prev ?? Array(12).fill(null))];
-                        next[i] = e.target.value === "" ? null : Number(e.target.value);
+                        next[i] = v;
                         return next;
                       })
                     }
