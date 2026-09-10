@@ -124,8 +124,10 @@ export function MonthlyImport({
         payload = extractFromText(await file.text());
       } else {
         const upload = await toUploadDataUrl(file);
-        const result = await extractMonthlyFromDocument({
-          data: { dataUrl: upload.dataUrl, mimeType: upload.mimeType, fileName: file.name },
+        const result = await extractMonthlyDocument({
+          dataUrl: upload.dataUrl,
+          mimeType: upload.mimeType,
+          fileName: file.name,
         });
         if ("error" in result && result.error) {
           const code = (result as { errorCode?: string }).errorCode;
