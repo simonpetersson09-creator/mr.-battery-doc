@@ -104,7 +104,7 @@ function ResultStep() {
   const restart = (
     <Button
       variant="cta"
-      className="h-12 flex-[2] rounded-[0.875rem] text-[16px] font-bold shadow-cta"
+      className="h-10 flex-[2] rounded-[0.75rem] text-[15px] font-bold shadow-cta"
       onClick={() => {
         reset();
         void navigate({ to: "/" });
@@ -200,7 +200,7 @@ function ResultStep() {
     <Button
       type="button"
       variant="outline"
-      className="h-12 w-full rounded-[0.875rem] text-[16px] font-semibold bg-primary text-primary-foreground"
+      className="h-10 w-full rounded-[0.75rem] text-[15px] font-semibold bg-primary text-primary-foreground"
       disabled={!PDF_REPORT_AVAILABLE}
       aria-disabled={!PDF_REPORT_AVAILABLE}
       onClick={() => {
@@ -227,7 +227,7 @@ function ResultStep() {
       titleClassName="font-display text-[24px] font-extrabold tracking-tight"
       eyebrowClassName="text-[11px] font-bold uppercase tracking-widest"
       introClassName="mt-1 text-[11px] leading-relaxed"
-      navButtonClassName="text-[16px]"
+      navButtonClassName="text-[15px]"
       footerAction={restart}
       footerExtra={pdfReport}
       compact
