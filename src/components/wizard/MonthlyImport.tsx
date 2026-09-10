@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatNumber, useT } from "@/i18n";
 import { monthShortLabels } from "@/i18n/labels";
-import { extractMonthlyFromDocument } from "@/lib/import/extractMonthly.functions";
+import { extractMonthlyDocument } from "@/lib/import/extractMonthlyTransport";
 import {
   extractFromText,
   reviewState,
