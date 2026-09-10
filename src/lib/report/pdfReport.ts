@@ -63,8 +63,7 @@ export async function generatePdfReport(request: PdfReportRequest): Promise<void
     import("pdfmake/build/vfs_fonts"),
   ]);
 
-  const pdfMake = ((pdfMakeModule as { default?: unknown }).default ??
-    pdfMakeModule) as PdfMakeApi;
+  const pdfMake = ((pdfMakeModule as { default?: unknown }).default ?? pdfMakeModule) as PdfMakeApi;
   const vfs = ((fontsModule as { default?: unknown }).default ?? fontsModule) as Record<
     string,
     string
