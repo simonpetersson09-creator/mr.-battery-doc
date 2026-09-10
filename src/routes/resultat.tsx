@@ -491,7 +491,7 @@ function ResultStep() {
 
 
       {p.showFcrPowerCard ? (
-        <details className="ui-card ui-card-compact ui-expandable surface-detail">
+        <details className="ui-card ui-card-compact ui-expandable surface-secondary">
           <summary className="ui-label">{p.fcrPowerCardTitle}</summary>
           <div className="mt-2 space-y-1.5">
             {p.fcrPowerLevels.map((lvl) => (
@@ -502,7 +502,7 @@ function ResultStep() {
         </details>
       ) : null}
 
-      <details className="ui-card ui-card-compact ui-expandable surface-detail">
+      <details className="ui-card ui-card-compact ui-expandable surface-secondary">
         <summary className="ui-label">{t("technical.title")}</summary>
 
         <div className="mt-2 space-y-3">
@@ -532,7 +532,7 @@ function ResultStep() {
         </div>
       </details>
 
-      <details className="ui-card ui-card-compact ui-expandable surface-detail">
+      <details className="ui-card ui-card-compact ui-expandable surface-secondary">
         <summary className="ui-label">{importantInfoTitle()}</summary>
         <ul className="ui-help mt-2 space-y-1.5 leading-relaxed">
           {importantInfoPoints().map((point: string) => (
