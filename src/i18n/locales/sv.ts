@@ -559,6 +559,20 @@ export const sv = {
       text: "Prova Återställ köp i Inställningar. Ingen ny betalning görs för en beräkning du redan har köpt.",
     },
   },
+  legal: {
+    terms: {
+      title: "Användarvillkor",
+      p1: "Mr. Battery Doc ger en uppskattning av batterilagringens ekonomi utifrån de uppgifter du anger. Resultaten är vägledande och utgör inte ekonomisk, teknisk eller juridisk rådgivning.",
+      p2: "Köp av en rapport ger tillgång till den specifika beräkningen. Premium ger obegränsade beräkningar under prenumerationsperioden. Köp hanteras av App Store och eventuell återbetalning följer Apples villkor.",
+      p3: "Vi ansvarar inte för beslut som fattas utifrån beräkningarna. Elpriser, stödtjänster och nätavgifter kan ändras över tid utan att gamla beräkningar påverkas.",
+    },
+    privacy: {
+      title: "Integritetspolicy",
+      p1: "Alla beräkningar sker lokalt på din enhet. Dina förbrukningsuppgifter och resultat lämnar aldrig enheten.",
+      p2: "Köp verifieras via App Store. Vi tar inte emot och lagrar aldrig betalningsuppgifter.",
+      p3: "Historik och inställningar sparas endast i enhetens lokala lagring och raderas om appen tas bort.",
+    },
+  },
 } as const;
 
 export type TranslationSchema = typeof sv;

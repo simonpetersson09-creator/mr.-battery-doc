@@ -565,4 +565,18 @@ export const de = {
       text: "Versuchen Sie „Käufe wiederherstellen“ in den Einstellungen. Für eine bereits gekaufte Berechnung zahlen Sie nie erneut.",
     },
   },
+  legal: {
+    terms: {
+      title: "Nutzungsbedingungen",
+      p1: "Mr. Battery Doc erstellt eine Schätzung der Wirtschaftlichkeit von Batteriespeichern auf Grundlage Ihrer Angaben. Die Ergebnisse sind Richtwerte und stellen keine Finanz-, Technik- oder Rechtsberatung dar.",
+      p2: "Der Kauf eines Berichts schaltet die jeweilige Berechnung frei. Premium ermöglicht unbegrenzte Berechnungen während der Abonnementlaufzeit. Käufe werden über den App Store abgewickelt, Erstattungen richten sich nach Apples Bedingungen.",
+      p3: "Wir haften nicht für Entscheidungen auf Grundlage der Berechnungen. Strompreise, Regelleistung und Netzentgelte können sich ändern, ohne ältere Berechnungen zu verändern.",
+    },
+    privacy: {
+      title: "Datenschutzerklärung",
+      p1: "Alle Berechnungen laufen lokal auf Ihrem Gerät. Ihre Verbrauchsdaten und Ergebnisse verlassen das Gerät nie.",
+      p2: "Käufe werden über den App Store geprüft. Wir erhalten und speichern niemals Zahlungsdaten.",
+      p3: "Verlauf und Einstellungen werden nur im lokalen Speicher des Geräts gespeichert und beim Löschen der App entfernt.",
+    },
+  },
 } as const;

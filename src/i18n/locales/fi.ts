@@ -553,4 +553,18 @@ export const fi = {
       text: "Kokeile Palauta ostot asetuksissa. Jo ostetusta laskelmasta ei veloiteta uudelleen.",
     },
   },
+  legal: {
+    terms: {
+      title: "Käyttöehdot",
+      p1: "Mr. Battery Doc antaa arvion akkuvarastoinnin taloudesta syöttämiesi tietojen perusteella. Tulokset ovat suuntaa antavia eivätkä ole taloudellista, teknistä tai oikeudellista neuvontaa.",
+      p2: "Raportin osto avaa kyseisen laskelman. Premium antaa rajattomasti laskelmia tilauskauden ajan. Ostot käsitellään App Storessa ja mahdolliset hyvitykset noudattavat Applen ehtoja.",
+      p3: "Emme vastaa laskelmien perusteella tehdyistä päätöksistä. Sähkön hinnat, tukipalvelut ja verkkomaksut voivat muuttua ilman, että vanhat laskelmat muuttuvat.",
+    },
+    privacy: {
+      title: "Tietosuojakäytäntö",
+      p1: "Kaikki laskelmat tehdään paikallisesti laitteellasi. Kulutustietosi ja tulokset eivät koskaan poistu laitteelta.",
+      p2: "Ostot vahvistetaan App Storen kautta. Emme koskaan vastaanota tai tallenna maksutietoja.",
+      p3: "Historia ja asetukset tallennetaan vain laitteen paikalliseen muistiin ja poistuvat, jos sovellus poistetaan.",
+    },
+  },
 } as const;

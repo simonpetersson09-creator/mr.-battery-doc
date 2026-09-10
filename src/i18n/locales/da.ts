@@ -558,4 +558,18 @@ export const da = {
       text: "Prøv Gendan køb i Indstillinger. Du betaler aldrig igen for en beregning, du allerede har købt.",
     },
   },
+  legal: {
+    terms: {
+      title: "Brugervilkår",
+      p1: "Mr. Battery Doc giver et estimat af batterilagringens økonomi baseret på de oplysninger, du indtaster. Resultaterne er vejledende og udgør ikke økonomisk, teknisk eller juridisk rådgivning.",
+      p2: "Køb af en rapport låser den pågældende beregning op. Premium giver ubegrænsede beregninger i abonnementsperioden. Køb håndteres via App Store, og eventuel refusion følger Apples vilkår.",
+      p3: "Vi er ikke ansvarlige for beslutninger truffet på baggrund af beregningerne. Elpriser, støttetjenester og netafgifter kan ændre sig over tid uden at påvirke tidligere beregninger.",
+    },
+    privacy: {
+      title: "Privatlivspolitik",
+      p1: "Alle beregninger kører lokalt på din enhed. Dine forbrugsdata og resultater forlader aldrig enheden.",
+      p2: "Køb verificeres via App Store. Vi modtager eller gemmer aldrig betalingsoplysninger.",
+      p3: "Historik og indstillinger gemmes kun i enhedens lokale lager og slettes, hvis appen fjernes.",
+    },
+  },
 } as const;
