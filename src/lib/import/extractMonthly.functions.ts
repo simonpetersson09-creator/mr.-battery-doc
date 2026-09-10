@@ -34,10 +34,10 @@ Svara ENDAST med JSON enligt:
 
 export const extractMonthlyFromDocument = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => inputSchema.parse(data))
-  .handler(async ({ data }): Promise<ExtractionPayload & { error?: string }> => {
+  .handler(async ({ data }): Promise<ExtractionPayload & { error?: string; errorCode?: string }> => {
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) {
-      return { series: [], selfConsumptionPct: null, notes: [], error: "AI-tjänsten är inte konfigurerad." };
+      return { series: [], selfConsumptionPct: null, notes: [], error: "AI service not configured.", errorCode: "notConfigured" };
     }
 
     const isPdf = data.mimeType.includes("pdf");
@@ -72,13 +72,19 @@ export const extractMonthlyFromDocument = createServerFn({ method: "POST" })
 
     if (!res.ok) {
       const body = await res.text();
-      const message =
+      const errorCode =
         res.status === 429
-          ? "För många förfrågningar just nu. Vänta en stund och försök igen."
+          ? "rateLimited"
           : res.status === 402
-            ? "AI-krediterna är slut. Fyll på för att kunna läsa dokument."
-            : `Dokumentet kunde inte läsas (${res.status}).`;
-      return { series: [], selfConsumptionPct: null, notes: [body.slice(0, 200)], error: message };
+            ? "creditsExhausted"
+            : "unreadable";
+      return {
+        series: [],
+        selfConsumptionPct: null,
+        notes: [body.slice(0, 200)],
+        error: `Document could not be read (${res.status}).`,
+        errorCode,
+      };
     }
 
     const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
@@ -109,7 +115,8 @@ export const extractMonthlyFromDocument = createServerFn({ method: "POST" })
         series: [],
         selfConsumptionPct: null,
         notes: [],
-        error: "Vi kunde inte tolka innehållet i dokumentet.",
+        error: "Document content could not be interpreted.",
+        errorCode: "unparsable",
       };
     }
   });

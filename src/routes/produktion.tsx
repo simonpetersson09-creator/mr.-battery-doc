@@ -156,7 +156,7 @@ function ProductionStep() {
             label={t("production.plant.dcKwp")}
             unit="kWp"
             value={p.dcKwp}
-            placeholder="t.ex. 14"
+            placeholder={t("errors.egValue", { value: "14" })}
             compact
             onChange={(v) => update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))}
           />
@@ -164,7 +164,7 @@ function ProductionStep() {
             label={t("production.plant.acKw")}
             unit="kW"
             value={p.acKw}
-            placeholder="t.ex. 12"
+            placeholder={t("errors.egValue", { value: "12" })}
             compact
             onChange={(v) => update((s) => ({ ...s, production: { ...s.production, acKw: v } }))}
           />
@@ -172,7 +172,7 @@ function ProductionStep() {
             label={t("production.plant.annual")}
             unit={t("units.kwhPerYear")}
             value={p.annualKwh}
-            placeholder="t.ex. 14000"
+            placeholder={t("errors.egValue", { value: "14000" })}
             compact
             onChange={(v) =>
               update((s) => ({ ...s, production: { ...s.production, annualKwh: v } }))
