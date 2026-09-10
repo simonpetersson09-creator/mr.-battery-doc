@@ -1,4 +1,4 @@
-import { MONTH_DAYS } from "./defaults";
+import { monthlyPeaksKw } from "./peakBenefit";
 import { expandPriceSeries } from "./profiles";
 import type {
   BatteryParams,
@@ -9,37 +9,21 @@ import type {
 } from "./types";
 
 /**
- * Demand-charge analysis. This is a pure ECONOMIC post-processing step: it reads
- * the simulated import series and never influences the physical dispatch.
+ * Demand-charge analysis. Pure ECONOMIC post-processing: it reads the simulated import
+ * series and never influences the physical dispatch.
+ *
+ * MODEL RULE (single source of truth): the billing peak is the HIGHEST measured import
+ * kW of the month — the same definition the customer economy uses (`peakBenefit.ts`).
+ * The legacy "mean of the N highest hours inside active hours" variant is gone; two
+ * parallel definitions of the same economic concept are not allowed.
  */
 export function demandCharge(
   importSeries: number[],
   cfg: DemandChargeConfig,
 ): { annualKr: number; monthlyBillingKw: number[] } {
-  const monthlyBillingKw: number[] = [];
-  let cursor = 0;
-  MONTH_DAYS.forEach((days, mi) => {
-    const start = cursor;
-    const end = cursor + days * 24;
-    cursor = end;
-    if (!cfg.activeMonths.includes(mi + 1)) {
-      monthlyBillingKw.push(0);
-      return;
-    }
-    const vals: number[] = [];
-    for (let h = start; h < end; h++) {
-      if (!cfg.activeHours.includes(h % 24)) continue;
-      vals.push(importSeries[h] ?? 0);
-    }
-    vals.sort((a, b) => b - a);
-    const n = Math.max(1, Math.floor(cfg.peaksPerMonth));
-    const top = vals.slice(0, n);
-    const billing =
-      cfg.aggregation === "max"
-        ? (top[0] ?? 0)
-        : top.reduce((a, b) => a + b, 0) / Math.max(1, top.length);
-    monthlyBillingKw.push(billing);
-  });
+  const monthlyBillingKw = monthlyPeaksKw(importSeries).map((kw, mi) =>
+    cfg.activeMonths.includes(mi + 1) ? kw : 0,
+  );
   const annualKr = cfg.enabled
     ? monthlyBillingKw.reduce((a, b) => a + b, 0) * cfg.krPerKw
     : 0;

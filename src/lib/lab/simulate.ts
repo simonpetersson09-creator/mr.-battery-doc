@@ -7,7 +7,7 @@ import {
   MISSING_PRICE_TEXT,
 } from "./ancillary";
 import { baseline, computeGridLimits, dispatch } from "./dispatch";
-import { HOURS_PER_YEAR, MONTH_DAYS } from "./defaults";
+import { HOURS_PER_YEAR } from "./defaults";
 import {
   capexKr,
   demandCharge,
@@ -16,8 +16,9 @@ import {
   npvKr,
   paybackYears,
 } from "./economics";
+import { monthlyPeaksKw } from "./peakBenefit";
 import { buildTimeSeries } from "./profiles";
-import type { LabConfig, SimResult, TimeSeries } from "./types";
+import type { BatteryParams, LabConfig, SimResult, TimeSeries } from "./types";
 
 function sum(a: number[]): number {
   let s = 0;
@@ -25,17 +26,7 @@ function sum(a: number[]): number {
   return s;
 }
 
-function monthlyPeaks(series: number[]): number[] {
-  const out: number[] = [];
-  let cursor = 0;
-  for (const days of MONTH_DAYS) {
-    let m = 0;
-    for (let h = cursor; h < cursor + days * 24; h++) m = Math.max(m, series[h] ?? 0);
-    out.push(m);
-    cursor += days * 24;
-  }
-  return out;
-}
+const monthlyPeaks = monthlyPeaksKw;
 
 function peakKw(series: number[]): number {
   let m = 0;
@@ -47,30 +38,101 @@ export function buildSeries(cfg: LabConfig): TimeSeries {
   return buildTimeSeries(cfg.consumption, cfg.solar, cfg.variability);
 }
 
+/**
+ * CYCLIC YEAR CONDITION (SOC neutrality).
+ *
+ * The evaluated year must not be able to deliver energy it never charged. Instead of
+ * forcing the last hours of the year (which would distort the dispatch), the START SOC is
+ * solved as a FIXED POINT of the unchanged dispatch:
+ *
+ *   soc_start(n+1) = soc_end(n)   until  |soc_end - soc_start| <= tolerance
+ *
+ * The dispatch itself, its priorities, the SOC window, FCR reservation and peak shaving
+ * are all bit-for-bit the same code — only the initial state differs between iterations.
+ * The iteration that ends with the smallest |ΔSOC| is the one that is returned, so the
+ * method is deterministic even in the rare case the map does not contract.
+ */
+export const SOC_CYCLE_MAX_ITERATIONS = 6;
+
+/** Convergence tolerance for the cyclic year, kWh. */
+export function socCycleToleranceKWh(capacityKWh: number): number {
+  return Math.max(1e-9, capacityKWh * 1e-4);
+}
+
+type DispatchResult = ReturnType<typeof dispatch>;
+
+function dispatchCyclicYear(
+  cfg: LabConfig,
+  series: TimeSeries,
+  capacityKWh: number,
+  powerKw: number,
+  plan: ReturnType<typeof ancillaryPlan>,
+  cyclicSoc: boolean,
+): { result: DispatchResult; iterations: number; converged: boolean } {
+  const run = (battery: BatteryParams): DispatchResult =>
+    dispatch({
+      series,
+      battery,
+      grid: cfg.grid,
+      strategies: cfg.strategies,
+      peak: cfg.peakShaving,
+      spot: cfg.spot,
+      flex: cfg.flex,
+      // Directional, period-limited reservation. It is the ONLY place ancillary power and
+      // energy are withheld, so nothing can be booked twice by two strategies.
+      ancillary: plan,
+      capacityKWh,
+      powerKw,
+    });
+
+  const tolerance = socCycleToleranceKWh(capacityKWh);
+  const delta = (r: DispatchResult) => Math.abs(r.tallies.socEnd - r.tallies.socStart);
+
+  let battery = cfg.battery;
+  let current = run(battery);
+  let best = current;
+  let iterations = 1;
+  while (cyclicSoc && delta(current) > tolerance && iterations < SOC_CYCLE_MAX_ITERATIONS) {
+    if (!(capacityKWh > 0)) break;
+    const nextPct = (current.tallies.socEnd / capacityKWh) * 100;
+    if (Math.abs(nextPct - battery.initialSocPct) < 1e-12) break;
+    battery = { ...battery, initialSocPct: nextPct };
+    current = run(battery);
+    iterations += 1;
+    if (delta(current) < delta(best)) best = current;
+  }
+  if (delta(current) <= delta(best)) best = current;
+  return { result: best, iterations, converged: delta(best) <= tolerance };
+}
+
+export interface SimulateOptions {
+  /**
+   * AUDIT/TEST ONLY. false reproduces the pre-fix, non-cyclic year (fixed initial SOC,
+   * free end-of-year energy). The engine and every product code path use the default.
+   */
+  cyclicSoc?: boolean;
+}
+
 /** Runs one full-year simulation for one (capacity, power) combination. */
 export function simulate(
   cfg: LabConfig,
   series: TimeSeries,
   capacityKWh: number,
   powerKw: number,
+  options: SimulateOptions = {},
 ): SimResult {
   const limits = computeGridLimits(cfg.grid);
   const base = baseline(series, limits);
   const plan = cfg.strategies.ancillaryServices ? ancillaryPlan(cfg.ancillary) : null;
-  const d = dispatch({
+  const cyclic = dispatchCyclicYear(
+    cfg,
     series,
-    battery: cfg.battery,
-    grid: cfg.grid,
-    strategies: cfg.strategies,
-    peak: cfg.peakShaving,
-    spot: cfg.spot,
-    flex: cfg.flex,
-    // Directional, period-limited reservation. It is the ONLY place ancillary power and
-    // energy are withheld, so nothing can be booked twice by two strategies.
-    ancillary: plan,
     capacityKWh,
     powerKw,
-  });
+    plan,
+    options.cyclicSoc ?? true,
+  );
+  const d = cyclic.result;
 
   const annualLoad = sum(series.load);
   const annualPv = sum(series.pv);
@@ -360,6 +422,11 @@ export function simulate(
       physicalModel: plan !== null ? "ready" : "unavailable",
       priceModel: fcrSeries !== null ? "ready" : "unavailable",
     },
+    socStartKWh: t.socStart,
+    socEndKWh: t.socEnd,
+    socDeltaKWh: socDelta,
+    socCycleIterations: cyclic.iterations,
+    socCycleConverged: cyclic.converged,
     energyBalance: {
       ok: Math.abs(residual) <= tolerance,
       residualKWh: residual,
