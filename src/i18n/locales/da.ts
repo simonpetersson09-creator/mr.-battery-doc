@@ -284,6 +284,8 @@ export const da = {
       noReduction: "Ingen reduktion af effekttoppen med de valgte indstillinger.",
     },
     benefit: {
+      nonPositive:
+        "Med dine nuværende oplysninger giver batteriet ingen positiv beregnet økonomisk fordel per år. Det tekniske resultat vises alligevel nedenfor.",
       ancillaryTitle: "Støttetjenester",
       ancillaryCustomerHint: "Din beregnede betaling.",
       ancillaryMarket: "Historisk markedsværdi for støttetjenester",

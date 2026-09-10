@@ -287,6 +287,8 @@ export const de = {
       noReduction: "Keine Reduktion der Lastspitze mit den gewählten Einstellungen.",
     },
     benefit: {
+      nonPositive:
+        "Mit Ihren aktuellen Angaben ergibt sich kein positiver berechneter wirtschaftlicher Nutzen pro Jahr. Das technische Ergebnis wird trotzdem unten gezeigt.",
       ancillaryTitle: "Systemdienstleistungen",
       ancillaryCustomerHint: "Ihre berechnete Vergütung.",
       ancillaryMarket: "Historischer Marktwert der Systemdienstleistungen",

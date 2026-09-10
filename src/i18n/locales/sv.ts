@@ -286,6 +286,8 @@ export const sv = {
       noReduction: "Ingen minskning av effekttoppen med de valda inställningarna.",
     },
     benefit: {
+      nonPositive:
+        "Med dina nuvarande uppgifter ger batteriet ingen positiv beräknad ekonomisk nytta per år. Det tekniska resultatet visas ändå nedan.",
       ancillaryTitle: "Stödtjänster",
       ancillaryCustomerHint: "Din beräknade ersättning.",
       ancillaryMarket: "Historiskt marknadsvärde för stödtjänster",
