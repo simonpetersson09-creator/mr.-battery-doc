@@ -303,7 +303,7 @@ function ResultStep() {
                   }
                 >
                   {main ? (
-                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-foreground px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap text-background">
+                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide whitespace-nowrap text-accent-foreground shadow-sm">
                       {t("results.bestChoice")}
                     </span>
                   ) : null}
@@ -578,7 +578,7 @@ function ResultStep() {
 
       <SectionLabel>{t("results.section.details")}</SectionLabel>
 
-      <details className="ui-card ui-card-compact ui-expandable surface-primary [&>summary::after]:text-[16px]">
+      <details className="ui-card ui-card-compact ui-expandable surface-primary [&>summary]:relative [&>summary]:justify-center [&>summary::after]:absolute [&>summary::after]:right-3 [&>summary::after]:text-[16px]">
         <summary className="text-center text-[14px] font-medium">{t("technical.title")}</summary>
 
         <div className="mt-2 space-y-2">
@@ -605,7 +605,7 @@ function ResultStep() {
         </div>
       </details>
 
-      <details className="ui-card ui-card-compact ui-expandable surface-primary [&>summary::after]:text-[16px]">
+      <details className="ui-card ui-card-compact ui-expandable surface-primary [&>summary]:relative [&>summary]:justify-center [&>summary::after]:absolute [&>summary::after]:right-3 [&>summary::after]:text-[16px]">
         <summary className="text-center text-[14px] font-medium">{importantInfoTitle()}</summary>
         <div className="surface-secondary mt-2 rounded-[1rem] p-3">
           <ul className="space-y-1.5 text-[11px] leading-relaxed">
