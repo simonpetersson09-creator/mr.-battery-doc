@@ -157,7 +157,7 @@ function ResultStep() {
 
   const s = outcome.result.summary;
   const e = s.energy;
-  const cal = s.selfConsumptionCalibration;
+  
 
   const g = s.grid;
 
