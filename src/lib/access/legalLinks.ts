@@ -1,11 +1,10 @@
 /**
- * Legal links shown on the paywall.
+ * Legal links shown on the paywall and in Settings.
  *
- * Mr. Battery Doc has no published Terms / Privacy URLs yet, and we never invent
- * one or borrow Mr. Solar Doc's. While these are null the paywall simply omits
- * the links. Fill them in once the real public pages exist.
+ * Mr. Battery Doc's legal hub lives at battery-legal-hub.lovable.app/legal
+ * and covers both Terms of use and Privacy policy.
  */
 export const LEGAL_LINKS: { terms: string | null; privacy: string | null } = {
-  terms: null,
-  privacy: null,
+  terms: "https://battery-legal-hub.lovable.app/legal",
+  privacy: "https://battery-legal-hub.lovable.app/legal",
 };
