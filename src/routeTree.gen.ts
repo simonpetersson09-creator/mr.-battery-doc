@@ -20,6 +20,7 @@ import { Route as NatRouteImport } from './routes/nat'
 import { Route as ProduktionRouteImport } from './routes/produktion'
 import { Route as ResultatRouteImport } from './routes/resultat'
 import { Route as ApiPublicExtractMonthlyRouteImport } from './routes/api/public/extract-monthly'
+import { Route as ApiPublicVerifyPurchaseRouteImport } from './routes/api/public/verify-purchase'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -76,6 +77,11 @@ const ApiPublicExtractMonthlyRoute = ApiPublicExtractMonthlyRouteImport.update({
   path: '/api/public/extract-monthly',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicVerifyPurchaseRoute = ApiPublicVerifyPurchaseRouteImport.update({
+  id: '/api/public/verify-purchase',
+  path: '/api/public/verify-purchase',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/produktion': typeof ProduktionRoute
   '/resultat': typeof ResultatRoute
   '/api/public/extract-monthly': typeof ApiPublicExtractMonthlyRoute
+  '/api/public/verify-purchase': typeof ApiPublicVerifyPurchaseRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/produktion': typeof ProduktionRoute
   '/resultat': typeof ResultatRoute
   '/api/public/extract-monthly': typeof ApiPublicExtractMonthlyRoute
+  '/api/public/verify-purchase': typeof ApiPublicVerifyPurchaseRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/produktion': typeof ProduktionRoute
   '/resultat': typeof ResultatRoute
   '/api/public/extract-monthly': typeof ApiPublicExtractMonthlyRoute
+  '/api/public/verify-purchase': typeof ApiPublicVerifyPurchaseRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | '/produktion'
     | '/resultat'
     | '/api/public/extract-monthly'
+    | '/api/public/verify-purchase'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | '/produktion'
     | '/resultat'
     | '/api/public/extract-monthly'
+    | '/api/public/verify-purchase'
   id:
     | '__root__'
     | '/'
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | '/produktion'
     | '/resultat'
     | '/api/public/extract-monthly'
+    | '/api/public/verify-purchase'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,6 +183,7 @@ export interface RootRouteChildren {
   ProduktionRoute: typeof ProduktionRoute
   ResultatRoute: typeof ResultatRoute
   ApiPublicExtractMonthlyRoute: typeof ApiPublicExtractMonthlyRoute
+  ApiPublicVerifyPurchaseRoute: typeof ApiPublicVerifyPurchaseRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicExtractMonthlyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/verify-purchase': {
+      id: '/api/public/verify-purchase'
+      path: '/api/public/verify-purchase'
+      fullPath: '/api/public/verify-purchase'
+      preLoaderRoute: typeof ApiPublicVerifyPurchaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -267,6 +287,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProduktionRoute: ProduktionRoute,
   ResultatRoute: ResultatRoute,
   ApiPublicExtractMonthlyRoute: ApiPublicExtractMonthlyRoute,
+  ApiPublicVerifyPurchaseRoute: ApiPublicVerifyPurchaseRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
