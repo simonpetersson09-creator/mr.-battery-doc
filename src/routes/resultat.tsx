@@ -390,12 +390,12 @@ function ResultStep() {
       <SectionCard compact centerTitle className="surface-primary" title={t("results.benefit.title")} titleClassName={RESULT_CARD_TITLE_CLASS}>
         {p.noEconomy ? (
           <>
-            <p className="text-[30px] font-extrabold tracking-tight tabular-nums">{moneyPerYear(0)}</p>
-            <p className="mt-1 text-[11px] leading-relaxed">{t("results.benefit.none")}</p>
+            <p className="text-center text-[30px] font-extrabold tracking-tight tabular-nums">{moneyPerYear(0)}</p>
+            <p className="mt-1 text-center text-[11px] leading-relaxed">{t("results.benefit.none")}</p>
           </>
         ) : (
           <>
-            <p className="text-[30px] font-extrabold tracking-tight tabular-nums">
+            <p className="text-center text-[30px] font-extrabold tracking-tight tabular-nums">
               {money(ce.totalCustomerBenefitSek)}
               <span className="ml-1 text-[11px] font-semibold">{t("units.perYear")}</span>
             </p>
