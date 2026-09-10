@@ -305,8 +305,8 @@ function ResultStep() {
         <SectionCard compact title={p.limitedBenefitTitle ?? ""} description={p.limitedBenefitText ?? ""} />
       ) : null}
 
-      {p.showEnergySection ? (
-        <SectionCard compact title={t("results.energy.title")}>
+      {p.showEnergySection || p.showPeakSection ? (
+        <SectionCard compact title={t("results.improvements.title")}>
           <div className="space-y-1.5">
             {p.showSelfConsumption ? (
               <BeforeAfter
@@ -329,10 +329,11 @@ function ResultStep() {
                 after={kwh(e.importAfterKWh)}
               />
             ) : null}
-            {p.showShiftedSolar ? (
-              <Row
-                label={t("results.energy.shiftedSolar")}
-                value={`${kwh(e.shiftedSolarKWh)}${t("units.perYear")}`}
+            {p.showPeakSection ? (
+              <BeforeAfter
+                label={t("results.power.peak")}
+                before={kw(g.importPeakBeforeKw)}
+                after={kw(g.importPeakAfterKw)}
               />
             ) : null}
             {e.recoveredCurtailmentKWh > 0 ? (
@@ -342,26 +343,33 @@ function ResultStep() {
               />
             ) : null}
           </div>
-        </SectionCard>
-      ) : null}
-
-      {p.showPeakSection ? (
-        <SectionCard compact title={t("results.power.title")}>
-          <div className="space-y-1.5">
-            <BeforeAfter
-              label={t("results.power.peak")}
-              before={kw(g.importPeakBeforeKw)}
-              after={kw(g.importPeakAfterKw)}
-            />
-            {p.peakChanged ? (
-              <Row
-                label={t("results.power.reduction")}
-                value={`${nf(s.peak.peakReductionKw, 2)} kW (${nf(peakPct, 1)} %)`}
-              />
-            ) : (
-              <p className="ui-help">{t("results.power.noReduction")}</p>
-            )}
-          </div>
+          {(() => {
+            const parts: string[] = [];
+            if (p.showShiftedSolar) {
+              parts.push(
+                t("results.improvements.summaryShifted", {
+                  value: `${kwh(e.shiftedSolarKWh)}${t("units.perYear")}`,
+                }),
+              );
+            }
+            if (p.showPeakSection && p.peakChanged) {
+              parts.push(
+                t("results.improvements.summaryPeak", { value: `${nf(peakPct, 1)} %` }),
+              );
+            }
+            if (parts.length === 0) {
+              return p.showPeakSection && !p.peakChanged ? (
+                <p className="ui-help mt-2 border-t border-foreground/10 pt-2">
+                  {t("results.power.noReduction")}
+                </p>
+              ) : null;
+            }
+            return (
+              <p className="ui-help mt-2 border-t border-foreground/10 pt-2 text-center text-foreground/70">
+                {parts.join(" · ")}
+              </p>
+            );
+          })()}
         </SectionCard>
       ) : null}
 

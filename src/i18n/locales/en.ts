@@ -256,6 +256,11 @@ export const en = {
       higher: "Best balance between battery size and calculated benefit.",
       higherAncillary: "Best balance between battery size and calculated benefit.",
     },
+    improvements: {
+      title: "How the property improves",
+      summaryShifted: "{{value}} shifted solar energy",
+      summaryPeak: "{{value}} lower power peak",
+    },
     energy: {
       title: "Energy",
       selfConsumption: "Self-consumption",

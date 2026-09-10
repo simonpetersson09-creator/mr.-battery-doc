@@ -258,6 +258,11 @@ export const sv = {
       higher: "Bäst balans mellan batteristorlek och beräknad nytta.",
       higherAncillary: "Bäst balans mellan batteristorlek och beräknad nytta.",
     },
+    improvements: {
+      title: "Så förbättras fastigheten",
+      summaryShifted: "{{value}} flyttad solel",
+      summaryPeak: "{{value}} lägre effekttopp",
+    },
     energy: {
       title: "Energi",
       selfConsumption: "Egenanvändning",

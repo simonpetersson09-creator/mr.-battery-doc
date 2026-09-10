@@ -259,6 +259,11 @@ export const de = {
       higher: "Beste Balance zwischen Batteriegröße und berechnetem Nutzen.",
       higherAncillary: "Beste Balance zwischen Batteriegröße und berechnetem Nutzen.",
     },
+    improvements: {
+      title: "So verbessert sich die Immobilie",
+      summaryShifted: "{{value}} verschobener Solarstrom",
+      summaryPeak: "{{value}} niedrigere Lastspitze",
+    },
     energy: {
       title: "Energie",
       selfConsumption: "Eigenverbrauch",

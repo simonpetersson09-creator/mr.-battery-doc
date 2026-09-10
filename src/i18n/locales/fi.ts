@@ -252,6 +252,11 @@ export const fi = {
       higher: "Paras tasapaino akun koon ja lasketun hyödyn välillä.",
       higherAncillary: "Paras tasapaino akun koon ja lasketun hyödyn välillä.",
     },
+    improvements: {
+      title: "Näin kiinteistö paranee",
+      summaryShifted: "{{value}} siirrettyä aurinkosähköä",
+      summaryPeak: "{{value}} alhaisempi tehohuippu",
+    },
     energy: {
       title: "Energia",
       selfConsumption: "Oma käyttö",
