@@ -133,7 +133,7 @@ function EconomyStep() {
 
       {/* Desired payback horizon — presentation preference, no engine input. */}
       <SectionCard compact icon={<Timer className="size-4" />} title={t("payback.card")}>
-        <p className="ui-hero text-[1.125rem] tabular-nums">
+        <p className="text-[1.125rem] font-extrabold leading-none tracking-[-0.03em] tabular-nums">
           {t("payback.years", { years: formatNumber(years, 0) })}
         </p>
         <Slider
