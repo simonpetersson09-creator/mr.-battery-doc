@@ -79,7 +79,13 @@ export function AccessProvider({
   verifier?: Verifier;
 }) {
   const verify = useMemo<Verifier>(
-    () => verifier ?? ((req) => verifyPurchaseWithServer(req)),
+    () =>
+      verifier ??
+      // Development-only: Purchase Test Mode answers instead of Apple. The guard
+      // is false in every production build, which always hits the server.
+      (purchaseTestModeEnabled()
+        ? (req) => devVerifyPurchase(req)
+        : (req) => verifyPurchaseWithServer(req)),
     [verifier],
   );
   const resolved = useMemo(() => gateway ?? selectPurchaseGateway(), [gateway]);
