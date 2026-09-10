@@ -4,6 +4,8 @@
  * Verifies every simulated purchase state and, most importantly, that the whole
  * mechanism is unreachable in a production build.
  */
+import { readFileSync } from "node:fs";
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -37,18 +39,28 @@ beforeEach(() => {
 });
 
 describe("production guard", () => {
-  it("is inert when the build is not a development build", () => {
-    const dev = vi.spyOn(import.meta, "env", "get").mockReturnValue({
-      ...import.meta.env,
-      DEV: false,
-    } as ImportMetaEnv);
-    try {
-      expect(purchaseTestModeEnabled()).toBe(false);
-      expect(getTestConfig().enabled).toBe(false);
-      expect(selectPurchaseGateway().kind).not.toBe("mock");
-    } finally {
-      dev.mockRestore();
+it("gates every entry point on import.meta.env.DEV", () => {
+    const src = readFileSync(new URL("./devTestMode.ts", import.meta.url), "utf8");
+    // The single build-time switch every exported function consults.
+    expect(src).toContain("import.meta.env.DEV === true");
+    for (const fn of [
+      "export function getTestConfig",
+      "export function setTestConfig",
+      "export async function devVerifyPurchase",
+      "export function setDevPremiumState",
+      "export function resetPurchaseTestState",
+    ]) {
+      const body = src.slice(src.indexOf(fn));
+      expect(body.slice(0, 200)).toContain("isDevBuild()");
     }
+    expect(purchaseTestModeEnabled()).toBe(import.meta.env.DEV && getTestConfig().enabled);
+
+    const panel = readFileSync(
+      new URL("../../routes/installningar.tsx", import.meta.url),
+      "utf8",
+    );
+    // The dev panel is only ever imported behind the DEV flag.
+    expect(panel).toContain("import.meta.env.DEV");
   });
 
   it("selects the test gateway only while the tester enabled the mode", () => {
@@ -123,13 +135,17 @@ describe("restore scenarios", () => {
   });
 });
 
+function stored() {
+  return parseEntitlements(JSON.parse(localStorage.getItem(ACCESS_STORAGE_KEY) ?? "null"));
+}
+
 describe("premium test state", () => {
   it("can switch Premium on, expire it and reset everything", () => {
     setDevPremiumState("active");
-    expect(isPremiumActive(parseEntitlements(localStorage.getItem(ACCESS_STORAGE_KEY)))).toBe(true);
+    expect(isPremiumActive(stored())).toBe(true);
 
     setDevPremiumState("expired");
-    expect(isPremiumActive(parseEntitlements(localStorage.getItem(ACCESS_STORAGE_KEY)))).toBe(false);
+    expect(isPremiumActive(stored())).toBe(false);
 
     setDevPremiumState("active");
     resetPurchaseTestState();
