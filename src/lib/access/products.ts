@@ -5,10 +5,8 @@
  * gateways must always refer to a product by its key ("singleReport" /
  * "premiumYear"), never by a hardcoded identifier string.
  *
- * The identifiers below are the INTENDED ids. They must be created with exactly
- * these strings in App Store Connect; until that has been done and verified,
- * `APP_STORE_CONNECT_CONFIRMED` stays false and the paywall never claims a
- * native price.
+ * The identifiers below are the LIVE App Store Connect ids, created with exactly
+ * these strings. StoreKit's localized price is always the authoritative price.
  */
 
 export type ProductKey = "singleReport" | "premiumYear";
@@ -37,15 +35,15 @@ export const INTENDED_PRICES: Record<ProductKey, { amount: number; currency: str
 };
 
 /**
- * Flip to true ONLY when both identifiers above exist in App Store Connect with
- * exactly these strings, in the subscription group below, and have been fetched
- * successfully from StoreKit at least once. While false the paywall shows the
- * intended price as a fallback label instead of claiming an Apple price.
+ * Both identifiers above are now created in App Store Connect with exactly
+ * these strings (consumable 49 SEK, auto-renewable yearly 199 SEK in Sweden).
+ * StoreKit's localized price is always the authoritative price; the intended
+ * prices above are only used as a fallback label before StoreKit answers.
  */
-export const APP_STORE_CONNECT_CONFIRMED = false;
+export const APP_STORE_CONNECT_CONFIRMED = true;
 
 /** Subscription group name for the yearly plan — must match App Store Connect. */
-export const PREMIUM_SUBSCRIPTION_GROUP = "TODO.subscription-group";
+export const PREMIUM_SUBSCRIPTION_GROUP = "Mr Battery Doc Premium";
 
 export const PRODUCTS_CONFIGURED = APP_STORE_CONNECT_CONFIRMED;
 

@@ -60,10 +60,12 @@ describe("product identification", () => {
     expect(productKeyForId("com.someone.else")).toBeNull();
   });
 
-  it("keeps the intended product types and flags the missing App Store setup", () => {
+  it("uses the real App Store Connect product ids and types", () => {
     expect(PRODUCT_TYPES.singleReport).toBe("consumable");
     expect(PRODUCT_TYPES.premiumYear).toBe("auto-renewable-subscription");
-    expect(APP_STORE_CONNECT_CONFIRMED).toBe(false);
+    expect(PRODUCT_IDS.singleReport).toBe("com.mrbatterydoc.calculation.unlock");
+    expect(PRODUCT_IDS.premiumYear).toBe("com.mrbatterydoc.premium.yearly");
+    expect(APP_STORE_CONNECT_CONFIRMED).toBe(true);
   });
 
   it("buys the product the user picked", async () => {
@@ -266,5 +268,38 @@ describe("server verification", () => {
     for (const forbidden of ["PRIVATE KEY", "issuerId", "APPLE_PRIVATE_KEY", "keyId", "sharedSecret"]) {
       expect(frontend.toLowerCase()).not.toContain(forbidden.toLowerCase());
     }
+  });
+});
+
+describe("no legacy product ids remain in production code", () => {
+  it("keeps the two live ids as the single source of truth", async () => {
+    const fs = await import("node:fs/promises");
+    const path = await import("node:path");
+    const roots = ["src", "ios/App/App/Info.plist", "capacitor.config.ts"];
+    const files: string[] = [];
+    async function walk(p: string) {
+      const stat = await fs.stat(p).catch(() => null);
+      if (!stat) return;
+      if (stat.isFile()) {
+        files.push(p);
+        return;
+      }
+      for (const entry of await fs.readdir(p)) await walk(path.join(p, entry));
+    }
+    for (const r of roots) await walk(r);
+
+    const live = new Set(Object.values(PRODUCT_IDS));
+    const idPattern = /com\.mrbatterydoc\.[A-Za-z0-9._-]+/g;
+    const offenders: string[] = [];
+    for (const file of files) {
+      if (!/\.(ts|tsx|swift|plist|json)$/.test(file)) continue;
+      const text = await fs.readFile(file, "utf8");
+      for (const match of text.match(idPattern) ?? []) {
+        if (!live.has(match)) offenders.push(`${file}: ${match}`);
+        else if (!file.endsWith("src/lib/access/products.ts") && !file.includes("test"))
+          offenders.push(`${file}: hardcoded ${match}`);
+      }
+    }
+    expect(offenders).toEqual([]);
   });
 });
