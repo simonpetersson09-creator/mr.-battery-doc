@@ -249,6 +249,7 @@ export const da = {
       text: "Med dine nuværende oplysninger giver et batteri ikke nok nytte til at blive anbefalet.",
     },
     hero: { title: "Anbefalet batteri" },
+    bestChoice: "Bedste valg",
     level: { lower: "Mindre", recommended: "Anbefalet", higher: "Større" },
     balance: {
       base: "Anbefalet er den størrelse, der giver den bedste balance ud fra ejendommens energibehov.",

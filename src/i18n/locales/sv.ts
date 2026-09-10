@@ -251,6 +251,7 @@ export const sv = {
       text: "Med dina nuvarande uppgifter ger ett batteri inte tillräcklig nytta för att rekommenderas.",
     },
     hero: { title: "Rekommenderat batteri" },
+    bestChoice: "Bäst val",
     level: { lower: "Lägre", recommended: "Rekommenderad", higher: "Högre" },
     balance: {
       base: "Rekommenderad är den storlek som ger bäst balans utifrån fastighetens energibehov.",

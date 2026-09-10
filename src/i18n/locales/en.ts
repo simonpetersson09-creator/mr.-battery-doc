@@ -249,6 +249,7 @@ export const en = {
       text: "With your current data a battery does not give enough benefit to be recommended.",
     },
     hero: { title: "Recommended battery" },
+    bestChoice: "Best choice",
     level: { lower: "Lower", recommended: "Recommended", higher: "Higher" },
     balance: {
       base: "Recommended is the size that gives the best balance for the property's energy needs.",
