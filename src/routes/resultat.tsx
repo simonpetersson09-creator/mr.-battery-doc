@@ -192,6 +192,39 @@ function ResultStep() {
   const peakPct =
     g.importPeakBeforeKw > 0 ? (s.peak.peakReductionKw / g.importPeakBeforeKw) * 100 : 0;
 
+  /*
+    Report entry point. The report must always be built from `outcome` — the current
+    simulation rendered above — never from a cached or recalculated result.
+  */
+  const pdfReport = (
+    <div>
+      <Button
+        type="button"
+        variant="outline"
+        className="h-12 w-full rounded-[0.875rem] text-[16px] font-semibold"
+        disabled={!PDF_REPORT_AVAILABLE}
+        aria-disabled={!PDF_REPORT_AVAILABLE}
+        onClick={() => {
+          if (!PDF_REPORT_AVAILABLE) return;
+          generatePdfReport({
+            outcome,
+            language: currentLanguage(),
+            customerEconomy: ce,
+            targetPaybackYears: targetYears,
+          });
+        }}
+      >
+        <FileText className="size-4" />
+        {t("results.pdfReport")}
+      </Button>
+      {PDF_REPORT_AVAILABLE ? null : (
+        <p className="mt-2 text-center text-[14px]" role="status">
+          {t("results.pdfReportPending")}
+        </p>
+      )}
+    </div>
+  );
+
   return (
     <WizardShell
       stepIndex={5}
@@ -202,6 +235,7 @@ function ResultStep() {
       introClassName="mt-1 text-[11px] leading-relaxed"
       navButtonClassName="text-[16px]"
       footerAction={restart}
+      footerExtra={pdfReport}
       compact
     >
       
@@ -571,37 +605,6 @@ function ResultStep() {
           <p className="mt-2 text-[11px] leading-relaxed text-foreground/75">{importantInfoFooter()}</p>
         </div>
       </details>
-
-      {/*
-        Report entry point. The report must always be built from `outcome` — the current
-        simulation rendered above — never from a cached or recalculated result.
-      */}
-      <div className="pt-0.5">
-        <Button
-          type="button"
-          variant="outline"
-          className="h-11 w-full rounded-[0.875rem] text-[16px] font-semibold"
-          disabled={!PDF_REPORT_AVAILABLE}
-          aria-disabled={!PDF_REPORT_AVAILABLE}
-          onClick={() => {
-            if (!PDF_REPORT_AVAILABLE) return;
-            generatePdfReport({
-              outcome,
-              language: currentLanguage(),
-              customerEconomy: ce,
-              targetPaybackYears: targetYears,
-            });
-          }}
-        >
-          <FileText className="size-4" />
-          {t("results.pdfReport")}
-        </Button>
-        {PDF_REPORT_AVAILABLE ? null : (
-          <p className="mt-2 text-center text-[14px]" role="status">
-            {t("results.pdfReportPending")}
-          </p>
-        )}
-      </div>
     </WizardShell>
   );
 }
