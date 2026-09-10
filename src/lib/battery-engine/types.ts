@@ -148,6 +148,12 @@ export interface EngineEconomyInput {
   peakDemandChargeSekPerKwMonth?: number | null;
   peakTariffSource?: PeakTariffSource;
   eurSekRate?: number;
+  /**
+   * Share 0–1 of the ancillary MARKET value that reaches the customer. Used only when
+   * the engine chooses between alternatives for the same battery. Reported figures keep
+   * showing the full market value. Default 0.75.
+   */
+  customerAncillaryShare?: number;
 }
 
 export interface BatteryEngineInput {
