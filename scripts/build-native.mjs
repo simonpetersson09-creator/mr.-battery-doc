@@ -51,3 +51,11 @@ console.log(`[build:native] native backend for API calls: ${NATIVE_BACKEND_URL}`
 console.log(
   `[build:native] OK -> capacitor-www (index.html + ${js.length} js, ${css.length} css, ${(size / 1e6).toFixed(1)} MB total)`,
 );
+
+// Sync the app icon into the Xcode project on every native build/sync.
+try {
+  const { execFileSync } = await import("node:child_process");
+  execFileSync(process.execPath, ["scripts/sync-ios-icon.mjs"], { stdio: "inherit" });
+} catch (e) {
+  console.warn("[build:native] icon sync skipped:", e?.message ?? e);
+}
