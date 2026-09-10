@@ -681,6 +681,17 @@ export interface SimResult {
 
   energyBalance: EnergyBalance;
 
+  /**
+   * CYCLIC YEAR (SOC neutrality). The start SOC is solved as a fixed point of the
+   * unchanged dispatch so the evaluated year cannot gain free energy from
+   * SOC_start != SOC_end.
+   */
+  socStartKWh: number;
+  socEndKWh: number;
+  socDeltaKWh: number;
+  socCycleIterations: number;
+  socCycleConverged: boolean;
+
   /** Economy without market/flex revenue */
   annualSavingsKr: number;
   demandChargeSavingKr: number;

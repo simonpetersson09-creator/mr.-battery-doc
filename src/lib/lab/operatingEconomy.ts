@@ -19,6 +19,12 @@
  */
 
 import { MONTH_NAMES } from "./defaults";
+import {
+  annualPeakBenefitSek as annualPeakBenefitFromReductionSek,
+  monthlyPeakBenefitSek,
+  monthlyPeakReductionKw,
+  peakTariffIsValued,
+} from "./peakBenefit";
 import { buildSeries, simulate } from "./simulate";
 import type { LabConfig, SimResult } from "./types";
 
@@ -274,10 +280,10 @@ export function peakEconomy(r: SimResult, econ: OperatingEconomyConfig): PeakEco
    * while hiding the increases. Each month enters the annual sum exactly once, and the
    * demand charge is the only place a kW quantity is priced.
    */
-  const monthlyReductionKw = base.map((b, i) => b - (bat[i] ?? 0));
+  const monthlyReductionKw = monthlyPeakReductionKw(base, bat);
   const tariff = econ.peakDemandChargeSekPerKwMonth;
-  const valued = tariff !== null && Number.isFinite(tariff) && tariff > 0;
-  const monthlyBenefitSek = valued ? monthlyReductionKw.map((kw) => kw * tariff!) : null;
+  const valued = peakTariffIsValued(tariff);
+  const monthlyBenefitSek = monthlyPeakBenefitSek(monthlyReductionKw, tariff);
   // Result semantics only: the sign comes from the simulated peaks, nothing is clamped.
   const peakChangeKw = r.baseModelledPeakKw - r.modelledPeakKw;
   const peakDirection =
@@ -310,9 +316,7 @@ export function peakEconomy(r: SimResult, econ: OperatingEconomyConfig): PeakEco
         : PEAK_TARIFF_ESTIMATE_TEXT
       : null,
     monthlyBenefitSek,
-    annualPeakBenefitSek: monthlyBenefitSek
-      ? monthlyBenefitSek.reduce((a, b) => a + b, 0)
-      : null,
+    annualPeakBenefitSek: annualPeakBenefitFromReductionSek(monthlyReductionKw, tariff),
     status: valued ? "valued" : "missing-tariff",
     message: valued ? null : MISSING_PEAK_TARIFF_TEXT,
   };
