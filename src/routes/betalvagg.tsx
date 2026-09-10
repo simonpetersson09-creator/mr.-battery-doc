@@ -137,8 +137,11 @@ function Paywall() {
       )
     : null;
 
-  const premiumPrice = priceOf("premiumYear") ?? t("paywall.premium.fallbackPrice");
-  const singlePrice = priceOf("singleReport") ?? t("paywall.single.fallbackPrice");
+  // Apple's localized price is the ONLY price shown. Until StoreKit answers the
+  // paywall shows a neutral loading label — never a hardcoded SEK amount, since
+  // the app also sells in FI, DE and DK.
+  const premiumPrice = priceOf("premiumYear");
+  const singlePrice = priceOf("singleReport");
 
   return (
     <div className="app-shell surface-sun">
