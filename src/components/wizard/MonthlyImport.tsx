@@ -56,12 +56,14 @@ export function MonthlyImport({
   const months = monthShortLabels();
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const [pickedName, setPickedName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [candidates, setCandidates] = useState<NormalisedSeries[] | null>(null);
   const [selfPct, setSelfPct] = useState<number | null>(null);
   const [values, setValues] = useState<(number | null)[] | null>(null);
   const [active, setActive] = useState<NormalisedSeries | null>(null);
   const [applied, setApplied] = useState(false);
+  const native = nativePickersAvailable();
 
   const open = !!(candidates || values);
   useEffect(() => {
@@ -81,24 +83,26 @@ export function MonthlyImport({
     setCandidates(null);
   };
 
-  const handleFile = async (file: File) => {
-    if (file.size > MAX_FILE_BYTES) {
-      setError(t("errors.importTooLarge"));
-      return;
-    }
+  /**
+   * One analysis path for every source (web input, camera, photo library, Files).
+   * On any failure the existing month values stay exactly as they were and the
+   * loading state is always released.
+   */
+  const analyze = async (doc: PickedDocument & { text?: string }) => {
     setBusy(true);
     setError(null);
     setApplied(false);
+    setPickedName(doc.name);
     try {
       let payload: ExtractionPayload;
-      if (TEXT_TYPES.test(file.type) || /\.(csv|txt|tsv)$/i.test(file.name)) {
-        payload = extractFromText(await file.text());
+      if (isTextImport(doc.name, doc.mimeType)) {
+        payload = extractFromText(doc.text ?? textFromDataUrl(doc.dataUrl));
       } else {
-        const upload = await toUploadDataUrl(file);
+        const upload = await prepareImageUpload(doc.dataUrl, doc.mimeType, doc.name);
         const result = await extractMonthlyDocument({
           dataUrl: upload.dataUrl,
           mimeType: upload.mimeType,
-          fileName: file.name,
+          fileName: doc.name,
         });
         if ("error" in result && result.error) {
           const code = (result as { errorCode?: string }).errorCode;
@@ -107,12 +111,10 @@ export function MonthlyImport({
             : "errors.importUnreadable";
           const localized = t(key);
           setError(localized === key ? t("errors.importUnreadable") : localized);
-          setBusy(false);
           return;
         }
         payload = result;
       }
-
 
       setSelfPct(payload.selfConsumptionPct);
       const choice = selectSeries(payload, kind);
@@ -129,6 +131,58 @@ export function MonthlyImport({
       setBusy(false);
     }
   };
+
+  const handleFile = async (file: File) => {
+    const mimeType = resolveMimeType(file.name, file.type);
+    const rejection = rejectionFor({ name: file.name, mimeType, size: file.size });
+    if (rejection) {
+      setPickedName(file.name);
+      setError(t(rejection === "tooLarge" ? "errors.importTooLarge" : "errors.importUnsupportedType"));
+      return;
+    }
+    try {
+      if (isTextImport(file.name, mimeType)) {
+        await analyze({ name: file.name, mimeType, dataUrl: "", size: file.size, text: await file.text() });
+        return;
+      }
+      const upload = await prepareFileUpload(file);
+      await analyze({
+        name: file.name,
+        mimeType: upload.mimeType,
+        dataUrl: upload.dataUrl,
+        size: file.size,
+      });
+    } catch {
+      setError(t("errors.importUnreadable"));
+      setBusy(false);
+    }
+  };
+
+  /** Camera / photo library / Files inside the iOS app. */
+  const handleNativePick = async (source: PickerSource) => {
+    if (busy) return;
+    setError(null);
+    const outcome = await pickFrom(source);
+    switch (outcome.status) {
+      case "picked":
+        await analyze(outcome.file);
+        return;
+      case "cancelled":
+        return;
+      case "denied":
+        setError(t(source === "camera" ? "errors.importCameraDenied" : "errors.importPhotosDenied"));
+        return;
+      case "tooLarge":
+        setError(t("errors.importTooLarge"));
+        return;
+      case "unsupportedType":
+        setError(t("errors.importUnsupportedType"));
+        return;
+      default:
+        setError(t("errors.importUnreadable"));
+    }
+  };
+
 
   const review = values ? reviewState(values) : null;
 
