@@ -173,7 +173,8 @@ describe("report model", () => {
     expect(Array.isArray(doc.content)).toBe(true);
     expect(doc.content.length).toBeGreaterThan(10);
     const footer = doc.footer(2, 9);
-    expect(footer.columns[0]?.text).toContain(model.reportId);
-    expect(footer.columns[1]?.text).toBe("2 / 9");
+    expect(footer.columns[0]?.text).toContain(model.brand);
+    expect(footer.columns[1]?.text).toContain(model.reportId);
+    expect(footer.columns[2]?.text).toBe("2 / 9");
   });
 });

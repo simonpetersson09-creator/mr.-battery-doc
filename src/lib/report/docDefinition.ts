@@ -3,22 +3,39 @@
  *
  * Layout and typography only. It never reads the engine, never formats a number and
  * never decides what to show; every string it prints already exists in the model.
+ *
+ * The visual language is shared with the Mr. Solar Doc report: full-bleed yellow
+ * header band, section titles with a short yellow accent rule, rounded yellow key
+ * figure cards, light zebra parameter/value/source tables and a three part footer.
  */
 
 import type { ReportBlock, ReportModel, SourceTag } from "./reportModel";
 
-/** Mr. Battery Doc surface palette, matched to the app. */
+/** Shared report palette (Mr. Solar Doc / Mr. Battery Doc design system). */
 export const REPORT_COLORS = {
-  page: "#FCFBF7",
+  page: "#FFFFFF",
   primary: "#FFDC38",
   secondary: "#FFF0AE",
   detail: "#FFE879",
+  zebra: "#F7F6F2",
   text: "#323232",
-  muted: "#6B6B63",
-  line: "#E6E2D6",
+  muted: "#6E6A6B",
+  line: "#E4E2DD",
 };
 
-/** Roboto (pdfmake default font) has no U+2192, so use a Latin-1 glyph instead. */
+/** Shared spacing scale, in points. */
+const PAGE_W = 595.28;
+const PAGE_H = 841.89;
+const MARGIN_X = 50;
+const MARGIN_TOP = 40;
+const MARGIN_BOTTOM = 56;
+const CONTENT_W = PAGE_W - MARGIN_X * 2;
+const HEADER_H = 92;
+const CARD_GAP = 8;
+const CARD_RADIUS = 5;
+const ACCENT_W = 58;
+
+/** Roboto (the embedded report font) has no U+2192, so use a Latin-1 glyph instead. */
 const ARROW = "\u00BB";
 
 /** Replace glyphs the embedded font cannot render (they would print as empty boxes). */
@@ -37,8 +54,6 @@ function sanitizeGlyphs<T>(node: T): T {
   return node;
 }
 
-const MARGIN_X = 42;
-
 type Node = Record<string, unknown>;
 
 function sourceLabel(model: ReportModel, tag: SourceTag | undefined): string {
@@ -46,37 +61,65 @@ function sourceLabel(model: ReportModel, tag: SourceTag | undefined): string {
   return model.copy.source[tag];
 }
 
-function cards(items: { label: string; value: string }[]): Node {
+/**
+ * A row of fixed height rounded cards. pdfmake has no rounded container, so the
+ * card surfaces are drawn on a canvas and the text is laid on top with a negative
+ * margin. Every card in a row shares one height, exactly like the Solar report.
+ */
+function cardRow(
+  items: { fill?: string; stack: Node[] }[],
+  height: number,
+  contentHeight: number,
+  bottom = 14,
+): Node {
+  const filler = Math.max(0, height - contentHeight);
+  const n = items.length;
+  const w = (CONTENT_W - CARD_GAP * (n - 1)) / n;
   return {
-    table: {
-      widths: items.map(() => "*"),
-      body: [
-        items.map((item) => ({
-          stack: [
-            { text: item.label, fontSize: 8, color: REPORT_COLORS.muted },
-            { text: item.value, fontSize: 13, bold: true, margin: [0, 3, 0, 0] },
-          ],
-          fillColor: REPORT_COLORS.primary,
-          margin: [8, 8, 8, 8],
+    stack: [
+      {
+        canvas: items.map((item, i) => ({
+          type: "rect",
+          x: i * (w + CARD_GAP),
+          y: 0,
+          w,
+          h: height,
+          r: CARD_RADIUS,
+          color: item.fill ?? REPORT_COLORS.primary,
         })),
-      ],
-    },
-    layout: {
-      hLineWidth: () => 0,
-      vLineWidth: () => 4,
-      vLineColor: () => REPORT_COLORS.page,
-paddingLeft: () => 0,
-      paddingRight: () => 0,
-      paddingTop: () => 0,
-      paddingBottom: () => 0,
-    },
-    margin: [0, 0, 0, 12],
+        margin: [0, 0, 0, -height],
+      },
+      {
+        columns: items.map((item) => ({
+          width: w,
+          stack: [...item.stack, { text: "", fontSize: 1, margin: [0, filler, 0, 0] }],
+          margin: [10, 0, 10, 0],
+        })),
+        columnGap: CARD_GAP,
+      },
+    ],
+    unbreakable: true,
+    margin: [0, 0, 0, bottom],
   };
+}
+
+/** Summary key figures: small muted label on top, large value below. */
+function cards(items: { label: string; value: string }[]): Node {
+  return cardRow(
+    items.map((item) => ({
+      stack: [
+        { text: item.label, fontSize: 8, color: REPORT_COLORS.text, margin: [0, 10, 0, 0] },
+        { text: item.value, fontSize: 13, bold: true, margin: [0, 8, 0, 0] },
+      ],
+    })),
+    76,
+    46,
+  );
 }
 
 function rowsTable(model: ReportModel, block: Extract<ReportBlock, { kind: "rows" }>): Node {
   const showSource = block.rows.some((r) => r.source);
-  const widths = showSource ? ["*", "auto", 78] : ["*", "auto"];
+  const widths = showSource ? ["*", "auto", 82] : ["*", "auto"];
   return {
     table: {
       widths,
@@ -85,16 +128,17 @@ function rowsTable(model: ReportModel, block: Extract<ReportBlock, { kind: "rows
           stack: [
             { text: row.label, fontSize: 9.5 },
             ...(row.hint
-              ? [{ text: row.hint, fontSize: 8, color: REPORT_COLORS.muted, margin: [0, 1, 0, 0] }]
+              ? [{ text: row.hint, fontSize: 8, color: REPORT_COLORS.muted, margin: [0, 2, 0, 0] }]
               : []),
           ],
         };
-        const value: Node = { text: row.value, fontSize: 9.5, bold: true, alignment: "right" };
+        const value: Node = { text: row.value, fontSize: 10, bold: true, alignment: "right" };
         const src: Node = {
           text: sourceLabel(model, row.source),
           fontSize: 7.5,
           color: REPORT_COLORS.muted,
           alignment: "right",
+          margin: [0, 1.5, 0, 0],
         };
         return showSource ? [label, value, src] : [label, value];
       }),
@@ -104,105 +148,121 @@ function rowsTable(model: ReportModel, block: Extract<ReportBlock, { kind: "rows
         i === 0 || i === node.table.body.length ? 0 : 0.5,
       vLineWidth: () => 0,
       hLineColor: () => REPORT_COLORS.line,
-      paddingLeft: () => 0,
-      paddingRight: () => 0,
-      paddingTop: () => 5,
-      paddingBottom: () => 5,
-    },
-    margin: [0, 0, 0, 10],
-  };
-}
-
-function beforeAfter(
-  model: ReportModel,
-  block: Extract<ReportBlock, { kind: "beforeAfter" }>,
-): Node {
-  return {
-    table: {
-      widths: ["*", "auto", 12, "auto"],
-      body: [
-        [
-          { text: "", fontSize: 8 },
-          { text: model.copy.before, fontSize: 7.5, color: REPORT_COLORS.muted, alignment: "right" },
-          { text: "", fontSize: 8 },
-          { text: model.copy.after, fontSize: 7.5, color: REPORT_COLORS.muted, alignment: "right" },
-        ],
-        ...block.rows.map((row) => [
-          { text: row.label, fontSize: 9.5 },
-          { text: row.before, fontSize: 9.5, color: REPORT_COLORS.muted, alignment: "right" },
-          { text: ARROW, fontSize: 9, color: REPORT_COLORS.muted, alignment: "center" },
-          { text: row.after, fontSize: 9.5, bold: true, alignment: "right" },
-        ]),
-      ],
-    },
-    layout: {
-      hLineWidth: (i: number) => (i <= 1 ? 0 : 0.5),
-      vLineWidth: () => 0,
-      hLineColor: () => REPORT_COLORS.line,
-      paddingLeft: () => 0,
-      paddingRight: () => 0,
-      paddingTop: () => 5,
-      paddingBottom: () => 5,
-    },
-    margin: [0, 0, 0, 10],
-  };
-}
-
-function alternatives(block: Extract<ReportBlock, { kind: "alternatives" }>): Node {
-  return {
-    table: {
-      widths: block.items.map(() => "*"),
-      body: [
-        block.items.map((item) => ({
-          stack: [
-            {
-              text: item.label,
-              fontSize: 8,
-              bold: true,
-              alignment: "center",
-              color: REPORT_COLORS.text,
-            },
-            { text: item.capacity, fontSize: 13, bold: true, alignment: "center", margin: [0, 4, 0, 0] },
-            { text: item.power, fontSize: 9, alignment: "center", color: REPORT_COLORS.muted },
-            { text: item.benefit, fontSize: 9.5, bold: true, alignment: "center", margin: [0, 4, 0, 0] },
-          ],
-          fillColor: item.highlight ? REPORT_COLORS.primary : REPORT_COLORS.secondary,
-          margin: [6, 8, 6, 8],
-        })),
-      ],
-    },
-    layout: {
-      hLineWidth: () => 0,
-      vLineWidth: () => 4,
-      vLineColor: () => REPORT_COLORS.page,
-      paddingLeft: () => 0,
-      paddingRight: () => 0,
-      paddingTop: () => 0,
-      paddingBottom: () => 0,
+      fillColor: (i: number) => (i % 2 === 0 ? REPORT_COLORS.zebra : null),
+      paddingLeft: (i: number, node: unknown, col: number) => (col === 0 ? 10 : 0),
+      paddingRight: (i: number, node: unknown, col: number, cols: number) =>
+        col === cols - 1 ? 10 : 0,
+      paddingTop: () => 7,
+      paddingBottom: () => 7,
     },
     margin: [0, 0, 0, 12],
   };
 }
 
-function hero(block: Extract<ReportBlock, { kind: "hero" }>): Node {
+/** Before/after key figures, shown as cards rather than as an administrative table. */
+function beforeAfter(block: Extract<ReportBlock, { kind: "beforeAfter" }>): Node {
+  const perRow = 2;
+  const groups: (typeof block.rows)[] = [];
+  for (let i = 0; i < block.rows.length; i += perRow) {
+    groups.push(block.rows.slice(i, i + perRow));
+  }
   return {
-    table: {
-      widths: ["*"],
-      body: [
-        [
+    stack: groups.map((group, gi) => {
+      const padded = [...group];
+      while (padded.length < perRow) {
+        padded.push({ label: "", before: "", after: "" });
+      }
+      return cardRow(
+        padded.map((row) => ({
+          fill: row.label ? REPORT_COLORS.primary : REPORT_COLORS.page,
+          stack: row.label
+            ? [
+                { text: row.label, fontSize: 8, color: REPORT_COLORS.text, margin: [0, 9, 0, 0] },
+                {
+                  text: [
+                    { text: row.before, fontSize: 11 },
+                    { text: `  ${ARROW}  `, fontSize: 10, color: REPORT_COLORS.text },
+                    { text: row.after, fontSize: 12, bold: true },
+                  ],
+                  margin: [0, 7, 0, 0],
+                },
+              ]
+            : [{ text: "", fontSize: 8 }],
+        })),
+        62,
+        42,
+        gi === groups.length - 1 ? 14 : CARD_GAP,
+      );
+    }),
+    margin: [0, 0, 0, 0],
+  };
+}
+
+/** Capacity alternatives: three cards, the recommended one on the primary surface. */
+function alternatives(block: Extract<ReportBlock, { kind: "alternatives" }>): Node {
+  return cardRow(
+    block.items.map((item) => ({
+      fill: item.highlight ? REPORT_COLORS.primary : REPORT_COLORS.secondary,
+      stack: [
+        {
+          text: item.label,
+          fontSize: 8,
+          bold: true,
+          alignment: "center",
+          color: REPORT_COLORS.text,
+          margin: [0, 10, 0, 0],
+        },
+        { text: item.capacity, fontSize: 14, bold: true, alignment: "center", margin: [0, 6, 0, 0] },
+        {
+          text: item.power,
+          fontSize: 8.5,
+          alignment: "center",
+          color: REPORT_COLORS.text,
+          margin: [0, 3, 0, 0],
+        },
+        { text: item.benefit, fontSize: 10, bold: true, alignment: "center", margin: [0, 5, 0, 0] },
+      ],
+    })),
+    100,
+    76,
+  );
+}
+
+/** One wide, rounded key figure card. */
+function hero(block: Extract<ReportBlock, { kind: "hero" }>): Node {
+  return cardRow(
+    [
+      {
+        stack: [
           {
-            stack: [
-              { text: block.label, fontSize: 8.5, alignment: "center", color: REPORT_COLORS.text },
-              { text: block.value, fontSize: 22, bold: true, alignment: "center", margin: [0, 4, 0, 0] },
-            ],
-            fillColor: REPORT_COLORS.primary,
-            margin: [10, 12, 10, 12],
+            text: block.label,
+            fontSize: 9,
+            alignment: "center",
+            color: REPORT_COLORS.text,
+            margin: [0, 14, 0, 0],
+          },
+          {
+            text: block.value,
+            fontSize: 22,
+            bold: true,
+            alignment: "center",
+            margin: [0, 6, 0, 0],
           },
         ],
-      ],
-    },
+      },
+    ],
+    80,
+    60,
+  );
+}
+
+/** A soft, light panel used for FAQ entries and callouts. */
+function panel(stack: Node[], fill: string, bottom: number): Node {
+  return {
+    table: { widths: ["*"], body: [[{ stack, fillColor: fill, margin: [12, 11, 12, 11] }]] },
     layout: "noBorders",
-    margin: [0, 0, 0, 12],
+    unbreakable: true,
+    margin: [0, 0, 0, bottom],
   };
 }
 
@@ -213,124 +273,163 @@ function renderBlock(model: ReportModel, block: ReportBlock): Node {
     case "rows":
       return rowsTable(model, block);
     case "beforeAfter":
-      return beforeAfter(model, block);
+      return beforeAfter(block);
     case "alternatives":
       return alternatives(block);
     case "hero":
       return hero(block);
     case "subheading":
-      return { text: block.text, fontSize: 10.5, bold: true, margin: [0, 4, 0, 6] };
+      return { text: block.text, fontSize: 10.5, bold: true, margin: [0, 8, 0, 6] };
     case "text":
-      return { text: block.text, fontSize: 9.5, lineHeight: 1.35, margin: [0, 0, 0, 8] };
+      return { text: block.text, fontSize: 9.5, lineHeight: 1.4, margin: [0, 0, 0, 10] };
     case "note":
       return {
         text: block.text,
-        fontSize: 8,
+        fontSize: 8.5,
+        italics: true,
         color: REPORT_COLORS.muted,
-        lineHeight: 1.35,
-        margin: [0, 0, 0, 10],
+        lineHeight: 1.4,
+        margin: [0, 0, 0, 12],
       };
     case "list":
       return {
         ul: block.items,
         fontSize: 9.5,
-        lineHeight: 1.35,
-        margin: [0, 0, 0, 10],
+        lineHeight: 1.4,
+        margin: [0, 0, 0, 12],
       };
     case "checklist":
       return {
         stack: block.items.map((item) => ({
           columns: [
             {
-              width: 14,
+              width: 18,
               canvas: [
                 {
                   type: "rect",
                   x: 0,
-                  y: 1,
-                  w: 8,
-                  h: 8,
-                  lineWidth: 0.8,
-                  lineColor: REPORT_COLORS.muted,
+                  y: 1.5,
+                  w: 9,
+                  h: 9,
+                  r: 1.5,
+                  lineWidth: 1,
+                  lineColor: REPORT_COLORS.primary,
                 },
               ],
             },
-            { text: item, fontSize: 9.5, lineHeight: 1.3 },
+            { text: item, fontSize: 9.5, lineHeight: 1.35 },
           ],
-          margin: [0, 0, 0, 6],
+          margin: [0, 0, 0, 10],
         })),
-        margin: [0, 0, 0, 8],
+        margin: [0, 2, 0, 8],
       };
     case "faq":
       return {
-        stack: block.items.flatMap((item) => [
-          { text: item.q, fontSize: 10, bold: true, margin: [0, 6, 0, 2] },
-          { text: item.a, fontSize: 9.5, lineHeight: 1.35, color: REPORT_COLORS.text },
-        ]),
-        margin: [0, 0, 0, 8],
+        stack: block.items.map((item) =>
+          panel(
+            [
+              { text: item.q, fontSize: 10, bold: true, margin: [0, 0, 0, 5] },
+              {
+                text: item.a,
+                fontSize: 9,
+                lineHeight: 1.4,
+                color: REPORT_COLORS.muted,
+              },
+            ],
+            REPORT_COLORS.zebra,
+            10,
+          ),
+        ),
+        margin: [0, 0, 0, 4],
       };
   }
+}
+
+/** Section title with the short yellow accent rule used across the report family. */
+function sectionTitle(text: string, first: boolean): Node[] {
+  return [
+    { text, fontSize: 14, bold: true, margin: [0, first ? 0 : 18, 0, 5] },
+    {
+      canvas: [{ type: "rect", x: 0, y: 0, w: ACCENT_W, h: 2.5, color: REPORT_COLORS.primary }],
+      margin: [0, 0, 0, 12],
+    },
+  ];
 }
 
 /** Full pdfmake document definition for a report model. */
 export function buildDocDefinition(model: ReportModel): Record<string, unknown> {
   const content: Node[] = [
     {
-      table: {
-        widths: ["*"],
-        body: [
-          [
-            {
-              stack: [
-                { text: model.title, fontSize: 22, bold: true },
-                { text: model.brand, fontSize: 11, margin: [0, 2, 0, 0] },
-                {
-                  text: `${model.copy.created}: ${model.createdISO}`,
-                  fontSize: 8.5,
-                  color: REPORT_COLORS.text,
-                  margin: [0, 6, 0, 0],
-                },
-              ],
-              fillColor: REPORT_COLORS.primary,
-              margin: [14, 16, 14, 16],
-            },
+      columns: [
+        {
+          width: "*",
+          stack: [
+            { text: model.title, fontSize: 22, bold: true },
+            { text: model.brand, fontSize: 10, margin: [0, 4, 0, 0] },
           ],
-        ],
-      },
-      layout: "noBorders",
-      margin: [0, 0, 0, 16],
+        },
+        {
+          width: "auto",
+          text: `${model.copy.created}: ${model.createdISO}`,
+          fontSize: 9,
+          alignment: "right",
+          margin: [0, 26, 0, 0],
+        },
+      ],
+      margin: [0, -8, 0, 42],
     },
   ];
 
+  let first = true;
   for (const section of model.sections) {
     if (section.title) {
-      content.push({
-        text: section.title,
-        fontSize: 15,
-        bold: true,
-        margin: [0, 0, 0, 8],
-        ...(section.pageBreak ? { pageBreak: "before" } : {}),
-      });
+      const [title, rule] = sectionTitle(section.title, first || section.pageBreak);
+      content.push({ ...title, ...(section.pageBreak ? { headlineLevel: 1 } : {}) });
+      content.push(rule as Node);
+      first = false;
     } else if (section.pageBreak) {
-      content.push({ text: "", pageBreak: "before" });
+      content.push({ text: "", headlineLevel: 1 });
     }
     for (const block of section.blocks) content.push(sanitizeGlyphs(renderBlock(model, block)));
   }
 
   return {
     pageSize: "A4",
-    pageMargins: [MARGIN_X, 40, MARGIN_X, 52],
-    background: () => ({
+    pageMargins: [MARGIN_X, MARGIN_TOP, MARGIN_X, MARGIN_BOTTOM],
+    background: (currentPage: number) => ({
       canvas: [
-        { type: "rect", x: 0, y: 0, w: 595.28, h: 841.89, color: REPORT_COLORS.page },
+        { type: "rect", x: 0, y: 0, w: PAGE_W, h: PAGE_H, color: REPORT_COLORS.page },
+        ...(currentPage === 1
+          ? [
+              { type: "rect", x: 0, y: 0, w: PAGE_W, h: HEADER_H, color: REPORT_COLORS.primary },
+              {
+                type: "rect",
+                x: 0,
+                y: HEADER_H,
+                w: PAGE_W,
+                h: 2,
+                color: REPORT_COLORS.text,
+              },
+            ]
+          : []),
       ],
     }),
+    pageBreakBefore: (currentNode: { headlineLevel?: number; startPosition?: { top: number } }) =>
+      currentNode.headlineLevel === 1 && (currentNode.startPosition?.top ?? 0) > MARGIN_TOP + 6,
     defaultStyle: { fontSize: 9.5, color: REPORT_COLORS.text, lineHeight: 1.25 },
     footer: (currentPage: number, pageCount: number) => ({
-      margin: [MARGIN_X, 12, MARGIN_X, 0],
+      margin: [MARGIN_X, 16, MARGIN_X, 0],
       columns: [
-        { text: model.footerText, fontSize: 7.5, color: REPORT_COLORS.muted },
+        { width: "*", text: model.brand, fontSize: 7.5, color: REPORT_COLORS.muted },
         {
+          width: "auto",
+          text: model.reportId,
+          fontSize: 7.5,
+          color: REPORT_COLORS.muted,
+          alignment: "center",
+        },
+        {
+          width: "*",
           text: `${currentPage} / ${pageCount}`,
           fontSize: 7.5,
           color: REPORT_COLORS.muted,
