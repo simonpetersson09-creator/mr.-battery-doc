@@ -237,8 +237,8 @@ export const en = {
     },
     title: "Result",
     intro: "This is the proposal for your property.",
-    pdfReport: "Show PDF report",
-    pdfReportPending: "The PDF report is on its way and cannot be shown yet.",
+    pdfReport: "Download report as PDF",
+    pdfReportPending: "",
     incomplete: {
       intro: "We need a little more information.",
       title: "Fill in what is missing",
