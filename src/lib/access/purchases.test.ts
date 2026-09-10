@@ -60,10 +60,12 @@ describe("product identification", () => {
     expect(productKeyForId("com.someone.else")).toBeNull();
   });
 
-  it("keeps the intended product types and flags the missing App Store setup", () => {
+  it("uses the real App Store Connect product ids and types", () => {
     expect(PRODUCT_TYPES.singleReport).toBe("consumable");
     expect(PRODUCT_TYPES.premiumYear).toBe("auto-renewable-subscription");
-    expect(APP_STORE_CONNECT_CONFIRMED).toBe(false);
+    expect(PRODUCT_IDS.singleReport).toBe("com.mrbatterydoc.calculation.unlock");
+    expect(PRODUCT_IDS.premiumYear).toBe("com.mrbatterydoc.premium.yearly");
+    expect(APP_STORE_CONNECT_CONFIRMED).toBe(true);
   });
 
   it("buys the product the user picked", async () => {

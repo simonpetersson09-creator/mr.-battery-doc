@@ -229,7 +229,10 @@ describe("product configuration", () => {
     expect(PRODUCT_TYPES.singleReport).toBe("consumable");
     expect(PRODUCT_TYPES.premiumYear).toBe("auto-renewable-subscription");
     expect(Object.values(PRODUCT_IDS)).toHaveLength(2);
-    // Still placeholders — must be replaced with the real App Store Connect ids.
-    expect(PRODUCTS_CONFIGURED).toBe(false);
+    expect(Object.values(PRODUCT_IDS)).toEqual([
+      "com.mrbatterydoc.calculation.unlock",
+      "com.mrbatterydoc.premium.yearly",
+    ]);
+    expect(PRODUCTS_CONFIGURED).toBe(true);
   });
 });
