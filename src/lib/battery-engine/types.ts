@@ -243,6 +243,8 @@ export interface EnginePowerOption {
   totalOperatingBenefitSek: number;
   /** Alias of totalOperatingBenefitSek. */
   operatingBenefitSek: number;
+  /** energy + peak + ancillary customer value. The value the alternative is chosen on. */
+  annualCustomerBenefitSek: number;
   /** Difference against the next lower candidate, SEK/year. */
   deltaVsPreviousKw: number | null;
   selected: boolean;
