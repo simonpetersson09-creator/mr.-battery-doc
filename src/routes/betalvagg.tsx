@@ -263,6 +263,19 @@ function Paywall() {
             {busy === "restore" ? t("paywall.restoring") : t("paywall.restore")}
           </Button>
           <Button
+            variant="ghost"
+            className="h-9 w-full text-[13px] font-semibold"
+            onClick={() => {
+              // Never dead: on iPhone Apple's own sheet opens, elsewhere the user
+              // is told where subscriptions live.
+              void openManageSubscription().then((mode) => {
+                if (mode === "external") setNotice("manageWeb");
+              });
+            }}
+          >
+            {t("paywall.manage")}
+          </Button>
+          <Button
             variant="outline"
             className="h-10 w-full rounded-[0.75rem] text-[15px] font-semibold"
             onClick={() => void navigate({ to: "/ekonomi" })}
