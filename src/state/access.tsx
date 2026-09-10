@@ -121,42 +121,64 @@ export function AccessProvider({
   }, [hydrated]);
 
   /**
-   * PURCHASE RECOVERY — runs once per app start.
+   * PURCHASE RECOVERY — on app start AND every time the app returns to the
+   * foreground.
    *
    * A user who paid and then lost the app (crash, restart, interrupted
    * transaction) gets the unlock here, from StoreKit's unfinished transactions
-   * plus the purchase intent written before the purchase started.
+   * plus the purchase intent written before the purchase started. iOS can
+   * suspend the WebView mid-purchase without killing it, so a start-only pass
+   * would leave that transaction unresolved until the next cold launch.
    */
   useEffect(() => {
     if (!hydrated || !resolved.pendingTransactions) return;
     let alive = true;
-    void (async () => {
-      const raw = await resolved.pendingTransactions!();
-      if (!alive || raw.length === 0) return;
-      const intent = readIntent();
-      // Our backend decides — StoreKit's own word is never enough.
-      const transactions = resolved.requiresServerVerification
-        ? await verifyUnfinishedTransactions(
-            raw,
-            intent && intent.key === "singleReport" ? intent.calculationId : "",
-            verify,
-            productKeyForId,
-          )
-        : raw;
-      if (!alive) return;
-      setEntitlements((e) => {
-        const outcome = recoverTransactions(e, transactions, intent);
-        if (outcome.intentConsumed) clearIntent();
-        // Access is persisted before anything is acknowledged to StoreKit.
-        persistEntitlements(outcome.entitlements);
-        for (const id of outcome.finish) void resolved.finishTransaction?.(id);
-        return outcome.entitlements;
-      });
-    })();
+    let running = false;
+
+    const recover = async () => {
+      if (running || !alive) return;
+      running = true;
+      try {
+        const raw = await resolved.pendingTransactions!();
+        if (!alive || raw.length === 0) return;
+        const intent = readIntent();
+        // Our backend decides — StoreKit's own word is never enough.
+        const transactions = resolved.requiresServerVerification
+          ? await verifyUnfinishedTransactions(
+              raw,
+              intent && intent.key === "singleReport" ? intent.calculationId : "",
+              verify,
+              productKeyForId,
+            )
+          : raw;
+        if (!alive) return;
+        setEntitlements((e) => {
+          const outcome = recoverTransactions(e, transactions, intent);
+          if (outcome.intentConsumed) clearIntent();
+          // Access is persisted before anything is acknowledged to StoreKit.
+          persistEntitlements(outcome.entitlements);
+          for (const id of outcome.finish) void resolved.finishTransaction?.(id);
+          return outcome.entitlements;
+        });
+      } finally {
+        running = false;
+      }
+    };
+
+    void recover();
+
+    // Capacitor's WKWebView fires visibilitychange on background/foreground.
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void recover();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+
     return () => {
       alive = false;
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [hydrated, resolved, verify]);
+
 
   const purchase = useCallback(
     async (key: ProductKey, calculationId: string): Promise<PurchaseResult> => {
