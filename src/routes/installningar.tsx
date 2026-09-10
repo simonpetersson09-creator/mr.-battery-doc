@@ -20,7 +20,7 @@ import {
   ShieldCheck,
   SlidersHorizontal,
 } from "lucide-react";
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LanguageSelect } from "@/components/LanguageSelect";
 import { useT } from "@/i18n";
@@ -30,6 +30,15 @@ import {
   openExternalUrl,
 } from "@/lib/platform/runtime";
 import { openManageSubscription } from "@/lib/access/manageSubscription";
+
+/**
+ * Development-only purchase test panel. The dynamic import sits behind
+ * `import.meta.env.DEV`, so the component is tree-shaken out of the production
+ * bundle and never rendered in the App Store build.
+ */
+const PurchaseTestPanel = import.meta.env.DEV
+  ? lazy(() => import("@/components/dev/PurchaseTestPanel"))
+  : null;
 
 export const Route = createFileRoute("/installningar")({
   head: () => ({
@@ -49,7 +58,10 @@ function SettingsPage() {
   const t = useT();
   const access = useAccess();
   const [busy, setBusy] = useState<"premium" | "restore" | null>(null);
-  const [notice, setNotice] = useState<"restored" | "restoreNothing" | null>(null);
+  const [notice, setNotice] = useState<
+    "restored" | "restoreNothing" | "manageWeb" | null
+  >(null);
+  const [error, setError] = useState<string | null>(null);
   
 
   async function buyPremium() {
@@ -65,11 +77,13 @@ function SettingsPage() {
 
   async function restore() {
     setNotice(null);
+    setError(null);
     setBusy("restore");
     try {
       const res = await access.restore();
       if (res.status === "restored") setNotice("restored");
       else if (res.status === "nothing") setNotice("restoreNothing");
+      else setError(t("paywall.errors.unknown"));
     } finally {
       setBusy(null);
     }
@@ -175,7 +189,12 @@ function SettingsPage() {
 
           <button
             type="button"
-            onClick={() => void openManageSubscription()}
+            onClick={() =>
+              void openManageSubscription().then((mode) => {
+                // The button always does something visible — never a dead tap.
+                if (mode === "external") setNotice("manageWeb");
+              })
+            }
             className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5 text-left"
           >
             <span className="flex size-8 items-center justify-center rounded-full bg-muted">
@@ -227,6 +246,16 @@ function SettingsPage() {
 
         {notice ? (
           <p className="mt-1.5 text-center text-[11px] font-semibold">{t(`paywall.${notice}`)}</p>
+        ) : null}
+
+        {error ? (
+          <p className="mt-1.5 text-center text-[11px] font-semibold">{error}</p>
+        ) : null}
+
+        {PurchaseTestPanel ? (
+          <Suspense fallback={null}>
+            <PurchaseTestPanel />
+          </Suspense>
         ) : null}
 
         <p className="mt-3 text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">

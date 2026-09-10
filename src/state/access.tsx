@@ -37,8 +37,9 @@ import { clearIntent, createIntent, readIntent, writeIntent } from "@/lib/access
 import { productKeyForId } from "@/lib/access/products";
 import { verifyPurchaseOutcome, verifyUnfinishedTransactions, type Verifier } from "@/lib/access/verifyFlow";
 import { verifyPurchaseWithServer } from "@/lib/access/serverVerification";
+import { devVerifyPurchase, purchaseTestModeEnabled } from "@/lib/access/devTestMode";
 
-const STORAGE_KEY = "mr-battery-doc:access:v1";
+import { ACCESS_STORAGE_KEY as STORAGE_KEY } from "@/lib/access/storageKey";
 
 /**
  * Writes entitlements to storage immediately. Used before a StoreKit transaction
@@ -79,7 +80,13 @@ export function AccessProvider({
   verifier?: Verifier;
 }) {
   const verify = useMemo<Verifier>(
-    () => verifier ?? ((req) => verifyPurchaseWithServer(req)),
+    () =>
+      verifier ??
+      // Development-only: Purchase Test Mode answers instead of Apple. The guard
+      // is false in every production build, which always hits the server.
+      (purchaseTestModeEnabled()
+        ? (req) => devVerifyPurchase(req)
+        : (req) => verifyPurchaseWithServer(req)),
     [verifier],
   );
   const resolved = useMemo(() => gateway ?? selectPurchaseGateway(), [gateway]);

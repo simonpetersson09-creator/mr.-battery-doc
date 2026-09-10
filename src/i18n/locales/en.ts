@@ -492,6 +492,8 @@ export const en = {
     priceUnavailable: "Price comes from the App Store.",
     restore: "Restore purchases",
     restoring: "Restoring…",
+    manage: "Manage subscription",
+    manageWeb: "Subscriptions are managed through Apple on your iPhone.",
     restored: "Premium restored.",
     restoreNothing: "No active subscription found.",
     processing: "Processing the purchase…",

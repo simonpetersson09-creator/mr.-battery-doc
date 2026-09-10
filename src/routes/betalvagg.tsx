@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { useT } from "@/i18n";
 import { getCalculation } from "@/lib/access/calculationCache";
 import { LEGAL_LINKS } from "@/lib/access/legalLinks";
+import { openManageSubscription } from "@/lib/access/manageSubscription";
 import type { ProductKey } from "@/lib/access/products";
 import type { PurchaseErrorCode, StoreProduct } from "@/lib/access/purchaseGateway";
 import { useAccess } from "@/state/access";
@@ -60,7 +61,9 @@ function Paywall() {
   const [products, setProducts] = useState<StoreProduct[] | null>(null);
   const [busy, setBusy] = useState<ProductKey | "restore" | null>(null);
   const [error, setError] = useState<PurchaseErrorCode | null>(null);
-  const [notice, setNotice] = useState<"pending" | "restored" | "restoreNothing" | "unresolved" | null>(null);
+  const [notice, setNotice] = useState<
+    "pending" | "restored" | "restoreNothing" | "unresolved" | "manageWeb" | null
+  >(null);
 
   // Premium users never linger here; a finished purchase moves straight on.
   useEffect(() => {
@@ -259,6 +262,19 @@ function Paywall() {
             onClick={() => void restore()}
           >
             {busy === "restore" ? t("paywall.restoring") : t("paywall.restore")}
+          </Button>
+          <Button
+            variant="ghost"
+            className="h-9 w-full text-[13px] font-semibold"
+            onClick={() => {
+              // Never dead: on iPhone Apple's own sheet opens, elsewhere the user
+              // is told where subscriptions live.
+              void openManageSubscription().then((mode) => {
+                if (mode === "external") setNotice("manageWeb");
+              });
+            }}
+          >
+            {t("paywall.manage")}
           </Button>
           <Button
             variant="outline"

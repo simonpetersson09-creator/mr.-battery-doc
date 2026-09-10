@@ -487,6 +487,8 @@ export const fi = {
     priceUnavailable: "Hinta haetaan App Storesta.",
     restore: "Palauta ostot",
     restoring: "Palautetaan…",
+    manage: "Hallitse tilausta",
+    manageWeb: "Tilauksia hallitaan Applen kautta iPhonessa.",
     restored: "Premium on palautettu.",
     restoreNothing: "Aktiivista tilausta ei löytynyt.",
     processing: "Käsitellään ostoa…",

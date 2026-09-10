@@ -493,6 +493,8 @@ export const sv = {
     priceUnavailable: "Pris hämtas från App Store.",
     restore: "Återställ köp",
     restoring: "Återställer…",
+    manage: "Hantera abonnemang",
+    manageWeb: "Hantera abonnemang öppnas via Apple på iPhone.",
     restored: "Premium är återställt.",
     restoreNothing: "Vi hittade ingen aktiv prenumeration.",
     processing: "Behandlar köpet…",

@@ -499,6 +499,8 @@ export const de = {
     priceUnavailable: "Der Preis kommt aus dem App Store.",
     restore: "Käufe wiederherstellen",
     restoring: "Wird wiederhergestellt…",
+    manage: "Abo verwalten",
+    manageWeb: "Abos werden über Apple auf dem iPhone verwaltet.",
     restored: "Premium wiederhergestellt.",
     restoreNothing: "Kein aktives Abonnement gefunden.",
     processing: "Kauf wird verarbeitet…",
