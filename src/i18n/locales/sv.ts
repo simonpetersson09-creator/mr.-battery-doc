@@ -36,6 +36,7 @@ export const sv = {
   },
   units: {
     perYear: "/år",
+    perYearShort: "kr/år",
     kwhPerYear: "kWh/år",
     perKwh: "{{currency}}/kWh",
     perKwMonth: "{{currency}}/kW/mån",
