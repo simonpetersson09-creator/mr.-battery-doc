@@ -558,4 +558,18 @@ export const en = {
       text: "Try Restore purchases in Settings. You are never charged again for a calculation you already bought.",
     },
   },
+  legal: {
+    terms: {
+      title: "Terms of use",
+      p1: "Mr. Battery Doc provides an estimate of battery storage economics based on the information you enter. The results are indicative and do not constitute financial, technical or legal advice.",
+      p2: "Buying a report unlocks that specific calculation. Premium gives unlimited calculations during the subscription period. Purchases are handled by the App Store and any refund follows Apple's terms.",
+      p3: "We are not liable for decisions made based on the calculations. Electricity prices, ancillary services and grid fees may change over time without affecting past calculations.",
+    },
+    privacy: {
+      title: "Privacy policy",
+      p1: "All calculations run locally on your device. Your consumption data and results never leave the device.",
+      p2: "Purchases are verified via the App Store. We never receive or store payment details.",
+      p3: "History and settings are stored only in the device's local storage and are deleted if the app is removed.",
+    },
+  },
 } as const;
