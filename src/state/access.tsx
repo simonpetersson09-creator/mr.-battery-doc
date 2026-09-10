@@ -58,11 +58,18 @@ const AccessContext = createContext<AccessContextValue | null>(null);
 export function AccessProvider({
   children,
   gateway,
+  verifier,
 }: {
   children: ReactNode;
   /** Test seam. Production always resolves the platform gateway. */
   gateway?: PurchaseGateway;
+  /** Test seam. Production always verifies against our backend. */
+  verifier?: Verifier;
 }) {
+  const verify = useMemo<Verifier>(
+    () => verifier ?? ((req) => verifyPurchaseWithServer(req)),
+    [verifier],
+  );
   const resolved = useMemo(() => gateway ?? selectPurchaseGateway(), [gateway]);
   const [entitlements, setEntitlements] = useState<Entitlements>(EMPTY_ENTITLEMENTS);
   const [hydrated, setHydrated] = useState(false);
