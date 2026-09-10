@@ -5,10 +5,8 @@
  * gateways must always refer to a product by its key ("singleReport" /
  * "premiumYear"), never by a hardcoded identifier string.
  *
- * The identifiers below are the INTENDED ids. They must be created with exactly
- * these strings in App Store Connect; until that has been done and verified,
- * `APP_STORE_CONNECT_CONFIRMED` stays false and the paywall never claims a
- * native price.
+ * The identifiers below are the LIVE App Store Connect ids, created with exactly
+ * these strings. StoreKit's localized price is always the authoritative price.
  */
 
 export type ProductKey = "singleReport" | "premiumYear";
