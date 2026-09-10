@@ -88,18 +88,18 @@ function SettingsPage() {
         </div>
 
         {/* Language */}
-        <section className="mt-3 rounded-[1rem] bg-accent px-3 py-3 text-accent-foreground">
+        <section className="mt-2 rounded-[1rem] bg-accent px-3 py-2.5 text-accent-foreground">
           <div className="flex items-center justify-between gap-2">
             <p className="font-display text-[14px] font-bold">{t("settings.languageTitle")}</p>
             <LanguageSelect pill />
           </div>
-          <p className="mt-1.5 text-[11px] leading-relaxed opacity-80">
+          <p className="mt-1 text-[11px] leading-relaxed opacity-80">
             {t("settings.languageHint")}
           </p>
         </section>
 
         {/* Premium */}
-        <section className="relative mt-2 rounded-[1rem] bg-accent px-3 py-3 text-accent-foreground">
+        <section className="relative mt-1.5 rounded-[1rem] bg-accent px-3 py-2.5 text-accent-foreground">
           <p className="absolute right-3 top-3 text-[10px] font-bold uppercase tracking-wide opacity-70">
             {t("settings.premium.badge")}
           </p>
@@ -107,7 +107,7 @@ function SettingsPage() {
             <Crown className="size-4" />
             {t("settings.premium.title")}
           </p>
-          <ul className="mt-1.5 space-y-1">
+          <ul className="mt-1 space-y-0.5">
             {PREMIUM_POINTS.map((key) => (
               <li key={key} className="flex gap-2 text-[11px] leading-relaxed">
                 <Check className="mt-[2px] size-3.5 shrink-0" />
@@ -116,7 +116,7 @@ function SettingsPage() {
             ))}
           </ul>
           {access.premiumActive ? (
-            <p className="mt-2 flex h-10 w-full items-center justify-center gap-1.5 rounded-[0.75rem] bg-foreground text-[15px] font-bold text-background">
+            <p className="mt-1.5 flex h-10 w-full items-center justify-center gap-1.5 rounded-[0.75rem] bg-foreground text-[15px] font-bold text-background">
               <BadgeCheck className="size-4" />
               {t("settings.premium.active")}
             </p>
@@ -131,7 +131,7 @@ function SettingsPage() {
                 {busy === "premium" ? <Loader2 className="size-4 animate-spin" /> : null}
                 {t("settings.premium.cta")}
               </Button>
-              <p className="mt-1.5 text-center text-[11px] leading-relaxed opacity-80">
+              <p className="mt-1 text-center text-[11px] leading-relaxed opacity-80">
                 {t("settings.premium.renewal")}
               </p>
             </>
@@ -139,22 +139,22 @@ function SettingsPage() {
         </section>
 
         {/* One-off report */}
-        <section className="mt-2 rounded-[1rem] bg-accent px-3 py-3 text-accent-foreground">
+        <section className="mt-1.5 rounded-[1rem] bg-accent px-3 py-2.5 text-accent-foreground">
           <p className="font-display text-[14px] font-bold">{t("settings.single.title")}</p>
           <p className="mt-1 text-[11px] leading-relaxed">{t("settings.single.description")}</p>
-          <p className="mt-2 flex h-10 w-full items-center justify-center rounded-[0.75rem] bg-foreground/15 text-[15px] font-bold">
+          <p className="mt-1.5 flex h-10 w-full items-center justify-center rounded-[0.75rem] bg-foreground/15 text-[15px] font-bold">
             {t("settings.single.cta")}
           </p>
-          <p className="mt-1.5 text-center text-[11px] leading-relaxed opacity-80">
+          <p className="mt-1 text-center text-[11px] leading-relaxed opacity-80">
             {t("settings.single.note")}
           </p>
         </section>
 
         {/* Action rows */}
-        <div className="mt-3 space-y-2">
+        <div className="mt-2 space-y-1.5">
           <button
             type="button"
-            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-3 text-left"
+            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5 text-left"
             disabled={busy !== null}
             onClick={() => void restore()}
           >
@@ -175,7 +175,7 @@ function SettingsPage() {
             href={MANAGE_SUBSCRIPTION_URL}
             target="_blank"
             rel="noreferrer"
-            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-3"
+            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5"
           >
             <span className="flex size-8 items-center justify-center rounded-full bg-muted">
               <SlidersHorizontal className="size-4" />
@@ -219,10 +219,10 @@ function SettingsPage() {
         </div>
 
         {notice ? (
-          <p className="mt-2 text-center text-[11px] font-semibold">{t(`paywall.${notice}`)}</p>
+          <p className="mt-1.5 text-center text-[11px] font-semibold">{t(`paywall.${notice}`)}</p>
         ) : null}
 
-        <p className="mt-6 text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+        <p className="mt-3 text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
           {t("settings.version")}
         </p>
       </main>
