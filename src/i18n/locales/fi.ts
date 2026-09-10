@@ -475,13 +475,14 @@ export const fi = {
       value: "Premium kannattaa 5 raportista vuodessa alkaen.",
       renewal:
         "{{price}}. Tilaus uusiutuu automaattisesti, ellei sitä peruuteta App Storen ehtojen mukaisesti.",
-      fallbackPrice: "199 SEK/vuosi",
+      loadingPrice: "Haetaan hintaa…",
     },
     single: {
       label: "Yksi raportti",
       description: "Avaa tämä laskelma ja PDF-raportti.",
       cta: "Osta raportti hintaan {{price}}",
-      fallbackPrice: "49 SEK",
+      ctaPending: "Osta raportti",
+      loadingPrice: "Haetaan hintaa…",
     },
     priceUnavailable: "Hinta haetaan App Storesta.",
     restore: "Palauta ostot",

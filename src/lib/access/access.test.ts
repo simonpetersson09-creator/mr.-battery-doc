@@ -233,6 +233,6 @@ describe("product configuration", () => {
       "com.mrbatterydoc.calculation.unlock",
       "com.mrbatterydoc.premium.yearly",
     ]);
-    expect(PRODUCTS_CONFIGURED).toBe(true);
+    expect(PRODUCTS_CONFIGURED).toBe(false);
   });
 });

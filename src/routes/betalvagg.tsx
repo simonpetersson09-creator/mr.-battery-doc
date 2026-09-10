@@ -137,8 +137,11 @@ function Paywall() {
       )
     : null;
 
-  const premiumPrice = priceOf("premiumYear") ?? t("paywall.premium.fallbackPrice");
-  const singlePrice = priceOf("singleReport") ?? t("paywall.single.fallbackPrice");
+  // Apple's localized price is the ONLY price shown. Until StoreKit answers the
+  // paywall shows a neutral loading label — never a hardcoded SEK amount, since
+  // the app also sells in FI, DE and DK.
+  const premiumPrice = priceOf("premiumYear");
+  const singlePrice = priceOf("singleReport");
 
   return (
     <div className="app-shell surface-sun">
@@ -183,8 +186,10 @@ function Paywall() {
               {t("paywall.premium.badge")}
             </span>
           </div>
-          <p className="mt-1 text-[20px] font-extrabold leading-none tabular-nums">
-            {premiumPrice}
+          <p
+            className={`mt-1 leading-none ${premiumPrice ? "text-[20px] font-extrabold tabular-nums" : "text-[13px] font-semibold text-muted-foreground"}`}
+          >
+            {premiumPrice ?? t("paywall.premium.loadingPrice")}
           </p>
           <p className="ui-help mt-1">{t("paywall.premium.description")}</p>
           <Button
@@ -197,13 +202,19 @@ function Paywall() {
             {t("paywall.premium.cta")}
           </Button>
           <p className="ui-help mt-1.5">{t("paywall.premium.value")}</p>
-          <p className="ui-help mt-1">{t("paywall.premium.renewal", { price: premiumPrice })}</p>
+          {premiumPrice ? (
+            <p className="ui-help mt-1">{t("paywall.premium.renewal", { price: premiumPrice })}</p>
+          ) : null}
         </section>
 
         {/* One-off report — this calculation only */}
         <section className="mt-2 rounded-[1rem] border border-border bg-card px-3 py-3">
           <p className="font-display text-[14px] font-semibold">{t("paywall.single.label")}</p>
-          <p className="mt-1 text-[18px] font-extrabold leading-none tabular-nums">{singlePrice}</p>
+          <p
+            className={`mt-1 leading-none ${singlePrice ? "text-[18px] font-extrabold tabular-nums" : "text-[13px] font-semibold text-muted-foreground"}`}
+          >
+            {singlePrice ?? t("paywall.single.loadingPrice")}
+          </p>
           <p className="ui-help mt-1">{t("paywall.single.description")}</p>
           <Button
             variant="outline"
@@ -212,7 +223,9 @@ function Paywall() {
             onClick={() => void buy("singleReport")}
           >
             {busy === "singleReport" ? <Loader2 className="size-4 animate-spin" /> : null}
-            {t("paywall.single.cta", { price: singlePrice })}
+            {singlePrice
+              ? t("paywall.single.cta", { price: singlePrice })
+              : t("paywall.single.ctaPending")}
           </Button>
         </section>
 

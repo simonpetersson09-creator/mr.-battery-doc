@@ -481,13 +481,14 @@ export const sv = {
       value: "Premium lönar sig från 5 rapporter per år.",
       renewal:
         "{{price}}. Prenumerationen förnyas automatiskt om den inte avslutas enligt App Stores villkor.",
-      fallbackPrice: "199 kr/år",
+      loadingPrice: "Hämtar pris…",
     },
     single: {
       label: "En rapport",
       description: "Lås upp den här beräkningen och PDF-rapporten.",
       cta: "Köp rapport för {{price}}",
-      fallbackPrice: "49 kr",
+      ctaPending: "Köp rapport",
+      loadingPrice: "Hämtar pris…",
     },
     priceUnavailable: "Pris hämtas från App Store.",
     restore: "Återställ köp",
