@@ -599,6 +599,12 @@ export function optimizeFcrReservation(
         totalOperatingBenefitSek: round2(
           economy.energy.energyBenefitSek + (economy.peak.annualPeakBenefitSek ?? 0),
         ),
+        annualCustomerBenefitSek: annualCustomerBenefitSek(
+          economy.energy.energyBenefitSek,
+          economy.peak.annualPeakBenefitSek,
+          null,
+          econ,
+        ),
         economy,
       };
     }
