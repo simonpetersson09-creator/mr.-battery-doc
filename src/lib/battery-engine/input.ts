@@ -151,7 +151,9 @@ export function toEconomyConfig(input: BatteryEngineInput = {}): OperatingEconom
       e.peakTariffSource ?? (hasTariff ? "user-provided" : SWEDISH_OPERATING_ECONOMY.peakTariffSource),
     eurSekRate: e.eurSekRate ?? SWEDISH_OPERATING_ECONOMY.eurSekRate,
     customerAncillaryShare:
-      e.customerAncillaryShare ?? SWEDISH_OPERATING_ECONOMY.customerAncillaryShare,
+      e.customerAncillaryShare ??
+      SWEDISH_OPERATING_ECONOMY.customerAncillaryShare ??
+      DEFAULT_ENGINE_CUSTOMER_ANCILLARY_SHARE,
   };
 }
 
