@@ -10,6 +10,7 @@
  */
 
 import {
+  annualCustomerBenefitSek,
   composeOperatingEconomy,
   evaluateOperatingEconomy,
   optimizeFcrReservation,
@@ -208,6 +209,17 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
         residualPct: result.baseSelfConsumptionPct - series.selfConsumptionCalibration.requestedPct,
       }
     : null;
+
+  /** MODEL RULE: the benefit the customer actually receives (ancillary share applied). */
+  const customerBenefit =
+    economy.totalSek === null
+      ? null
+      : annualCustomerBenefitSek(
+          economy.energy.energyBenefitSek,
+          peak.annualPeakBenefitSek,
+          economy.fcr.grossSek,
+          econ,
+        );
 
   const summary: BatteryEngineSummary = {
     selfConsumptionCalibration: calibration,
