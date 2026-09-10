@@ -51,15 +51,18 @@ console.log("tallies", JSON.stringify({
 }));
 let worst: { h: number; ac: number }[] = [];
 let socOut = 0;
+let maxSocDev = 0;
+let maxSocHour = -1;
 for (let h = 0; h < d.socSeries.length; h++) {
   const prev = h === 0 ? d.tallies.socStart : d.socSeries[h - 1];
   const dSoc = d.socSeries[h] - prev;
   const ac = dSoc >= 0 ? dSoc / w.chargeEff : dSoc * w.dischargeEff;
   if (Math.abs(ac) > powerKw + 1e-6) worst.push({ h, ac });
-  if (d.socSeries[h] < w.socFloorKWh - 1e-6 || d.socSeries[h] > w.socCeilKWh + 1e-6) socOut++;
+  const dev = Math.max(w.socFloorKWh - d.socSeries[h], d.socSeries[h] - w.socCeilKWh);
+  if (dev > 1e-6) { socOut++; if (dev > maxSocDev) { maxSocDev = dev; maxSocHour = h; } }
 }
 worst = worst.sort((a, b) => Math.abs(b.ac) - Math.abs(a.ac)).slice(0, 8);
-console.log("acViolations", worst.length, "socOutside", socOut);
+console.log("acViolations", worst.length, "socOutside", socOut, "maxSocDeviation", maxSocDev, "atHour", maxSocHour, "socAt", d.socSeries[maxSocHour]);
 for (const v of worst) {
   const h = v.h;
   const prev = h === 0 ? d.tallies.socStart : d.socSeries[h - 1];
