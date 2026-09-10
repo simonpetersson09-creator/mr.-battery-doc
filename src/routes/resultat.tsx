@@ -495,11 +495,6 @@ function ResultStep() {
           <p className="font-display text-[14px] font-semibold leading-snug">
             {t("results.investment.title")}
           </p>
-          <p className="mt-0.5 text-[11px] leading-relaxed">
-            {t("results.investment.basedOn", {
-              years: t("payback.years", { years: nf(targetYears, 0) }),
-            })}
-          </p>
           <p className="mt-1 text-[30px] font-extrabold tracking-tight tabular-nums">
             {t("results.investment.approx")} {money(maxInvestment)}
           </p>
