@@ -528,6 +528,7 @@ export const da = {
     history: "Historik",
     terms: "Brugervilkår",
     privacy: "Privatlivspolitik",
+    eula: "Licensaftale (Apple)",
     historyPanel: {
       premiumActive: "Premium aktivt til {{date}}",
       premiumInactive: "Intet aktivt Premium",

@@ -523,6 +523,7 @@ export const fi = {
     history: "Historia",
     terms: "Käyttöehdot",
     privacy: "Tietosuojakäytäntö",
+    eula: "Käyttöoikeussopimus (Apple)",
     historyPanel: {
       premiumActive: "Premium käytössä {{date}} asti",
       premiumInactive: "Ei aktiivista Premiumia",
