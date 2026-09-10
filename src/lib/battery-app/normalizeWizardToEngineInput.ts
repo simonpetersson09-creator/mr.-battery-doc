@@ -119,6 +119,8 @@ export function normalizeWizardToEngineInput(
     // Only an edit of the demand charge itself makes the tariff user-provided.
     peakTariffSource: state.economy.demandChargeTouched ? "user-provided" : "default-estimate",
     eurSekRate: state.economy.eurSekRate,
+    // Selection objective only. Reported ancillary figures stay at market value.
+    customerAncillaryShare: state.preferences.customerAncillaryShare,
   };
 
   const input: BatteryEngineInput = {
