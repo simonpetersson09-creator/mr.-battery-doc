@@ -480,13 +480,14 @@ export const en = {
       value: "Premium pays off from 5 reports per year.",
       renewal:
         "{{price}}. The subscription renews automatically unless cancelled under the App Store terms.",
-      fallbackPrice: "SEK 199/year",
+      loadingPrice: "Fetching price…",
     },
     single: {
       label: "One report",
       description: "Unlock this calculation and the PDF report.",
       cta: "Buy report for {{price}}",
-      fallbackPrice: "SEK 49",
+      ctaPending: "Buy report",
+      loadingPrice: "Fetching price…",
     },
     priceUnavailable: "Price comes from the App Store.",
     restore: "Restore purchases",

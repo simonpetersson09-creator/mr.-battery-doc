@@ -487,13 +487,14 @@ export const de = {
       value: "Premium lohnt sich ab 5 Berichten pro Jahr.",
       renewal:
         "{{price}}. Das Abonnement verlängert sich automatisch, sofern es nicht gemäß den App-Store-Bedingungen gekündigt wird.",
-      fallbackPrice: "199 SEK/Jahr",
+      loadingPrice: "Preis wird geladen…",
     },
     single: {
       label: "Ein Bericht",
       description: "Diese Berechnung und den PDF-Bericht freischalten.",
       cta: "Bericht für {{price}} kaufen",
-      fallbackPrice: "49 SEK",
+      ctaPending: "Bericht kaufen",
+      loadingPrice: "Preis wird geladen…",
     },
     priceUnavailable: "Der Preis kommt aus dem App Store.",
     restore: "Käufe wiederherstellen",
