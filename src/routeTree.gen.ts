@@ -19,6 +19,7 @@ import { Route as InstallningarRouteImport } from './routes/installningar'
 import { Route as NatRouteImport } from './routes/nat'
 import { Route as ProduktionRouteImport } from './routes/produktion'
 import { Route as ResultatRouteImport } from './routes/resultat'
+import { Route as ApiPublicExtractMonthlyRouteImport } from './routes/api/public/extract-monthly'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -70,6 +71,11 @@ const ResultatRoute = ResultatRouteImport.update({
   path: '/resultat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicExtractMonthlyRoute = ApiPublicExtractMonthlyRouteImport.update({
+  id: '/api/public/extract-monthly',
+  path: '/api/public/extract-monthly',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/nat': typeof NatRoute
   '/produktion': typeof ProduktionRoute
   '/resultat': typeof ResultatRoute
+  '/api/public/extract-monthly': typeof ApiPublicExtractMonthlyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/nat': typeof NatRoute
   '/produktion': typeof ProduktionRoute
   '/resultat': typeof ResultatRoute
+  '/api/public/extract-monthly': typeof ApiPublicExtractMonthlyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/nat': typeof NatRoute
   '/produktion': typeof ProduktionRoute
   '/resultat': typeof ResultatRoute
+  '/api/public/extract-monthly': typeof ApiPublicExtractMonthlyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/nat'
     | '/produktion'
     | '/resultat'
+    | '/api/public/extract-monthly'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/nat'
     | '/produktion'
     | '/resultat'
+    | '/api/public/extract-monthly'
   id:
     | '__root__'
     | '/'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/nat'
     | '/produktion'
     | '/resultat'
+    | '/api/public/extract-monthly'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -158,6 +170,7 @@ export interface RootRouteChildren {
   NatRoute: typeof NatRoute
   ProduktionRoute: typeof ProduktionRoute
   ResultatRoute: typeof ResultatRoute
+  ApiPublicExtractMonthlyRoute: typeof ApiPublicExtractMonthlyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -232,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResultatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/extract-monthly': {
+      id: '/api/public/extract-monthly'
+      path: '/api/public/extract-monthly'
+      fullPath: '/api/public/extract-monthly'
+      preLoaderRoute: typeof ApiPublicExtractMonthlyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -246,6 +266,7 @@ const rootRouteChildren: RootRouteChildren = {
   NatRoute: NatRoute,
   ProduktionRoute: ProduktionRoute,
   ResultatRoute: ResultatRoute,
+  ApiPublicExtractMonthlyRoute: ApiPublicExtractMonthlyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
