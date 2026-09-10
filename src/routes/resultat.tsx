@@ -28,6 +28,15 @@ import { useWizard } from "@/state/wizard";
 const RESULT_CARD_TITLE_CLASS = "font-display text-[14px] font-semibold";
 const RESULT_CARD_DESCRIPTION_CLASS = "mt-0.5 text-[11px] leading-relaxed";
 
+/** Discrete chapter marker between result sections — sits on the page background. */
+function SectionLabel({ children }: { children: string }) {
+  return (
+    <p className="pt-3 pb-0.5 text-center text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+      {children}
+    </p>
+  );
+}
+
 export const Route = createFileRoute("/resultat")({
   head: () => ({
     meta: [
@@ -195,6 +204,7 @@ function ResultStep() {
       footerAction={restart}
       compact
     >
+      <SectionLabel>{t("results.section.battery")}</SectionLabel>
       {noBattery ? (
         <div className="hero-metric rounded-[1.25rem] px-4 py-4 text-center">
           <p className="text-[10px] font-semibold uppercase tracking-wide">{t("results.noBattery.badge")}</p>
@@ -376,6 +386,7 @@ function ResultStep() {
         </SectionCard>
       ) : null}
 
+      <SectionLabel>{t("results.section.benefit")}</SectionLabel>
       <SectionCard compact className="surface-primary" title={t("results.benefit.title")} titleClassName={RESULT_CARD_TITLE_CLASS}>
         {p.noEconomy ? (
           <>
@@ -446,6 +457,7 @@ function ResultStep() {
         )}
       </SectionCard>
 
+      <SectionLabel>{t("results.section.economy")}</SectionLabel>
       {maxInvestment === null ? (
         <SectionCard compact className="surface-primary" title={t("results.investment.title")} titleClassName={RESULT_CARD_TITLE_CLASS}>
           <p className="text-[11px] leading-relaxed">{t("payback.investment.none")}</p>
@@ -502,6 +514,7 @@ function ResultStep() {
       )}
 
 
+      <SectionLabel>{t("results.section.details")}</SectionLabel>
       {p.showFcrPowerCard ? (
         <details className="ui-card ui-card-compact ui-expandable surface-primary [&>summary::after]:text-[16px]">
           <summary className="text-[14px] font-medium">{p.fcrPowerCardTitle}</summary>

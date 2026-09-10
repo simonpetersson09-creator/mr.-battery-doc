@@ -221,6 +221,12 @@ export const en = {
     },
   },
   results: {
+    section: {
+      battery: "Battery",
+      benefit: "Benefit",
+      economy: "Economy",
+      details: "Details",
+    },
     investment: {
       title: "Maximum investment at your chosen payback period",
       basedOn: "Based on your chosen payback period of {{years}}",

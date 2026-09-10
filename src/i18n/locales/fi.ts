@@ -218,6 +218,12 @@ export const fi = {
     },
   },
   results: {
+    section: {
+      battery: "Akku",
+      benefit: "Hyöty",
+      economy: "Talous",
+      details: "Tiedot",
+    },
     investment: {
       title: "Suurin investointi valitulla takaisinmaksuajalla",
       basedOn: "Perustuu valitsemaasi takaisinmaksuaikaan {{years}}",

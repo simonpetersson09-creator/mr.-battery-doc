@@ -221,6 +221,12 @@ export const da = {
     },
   },
   results: {
+    section: {
+      battery: "Batteriet",
+      benefit: "Nytten",
+      economy: "Økonomien",
+      details: "Detaljer",
+    },
     investment: {
       title: "Maksimal investering ved din valgte tilbagebetalingstid",
       basedOn: "Baseret på din valgte tilbagebetalingstid på {{years}}",
