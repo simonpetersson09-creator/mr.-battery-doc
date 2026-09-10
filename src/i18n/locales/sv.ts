@@ -235,7 +235,7 @@ export const sv = {
       otherTitle: "Maxinvestering vid olika återbetalningstider",
       yourChoice: "Ditt val",
       approx: "ca",
-      explain: "Kortare återbetalningstid innebär en lägre maxinvestering. Här ser du hur maxinvesteringen förändras om du accepterar en kortare eller längre återbetalningstid.",
+      explain: "Kortare återbetalningstid innebär en lägre maxinvestering. Här ser du hur maxinvesteringen förändras beroende på vilken återbetalningstid du väljer.",
     },
     title: "Resultat",
     intro: "Så här ser förslaget ut för din fastighet.",
