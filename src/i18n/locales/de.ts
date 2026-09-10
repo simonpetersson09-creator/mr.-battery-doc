@@ -420,6 +420,11 @@ export const de = {
     importUnreadable:
       "Die Datei konnte nicht gelesen werden. Versuchen Sie ein klareres Bild oder ein PDF.",
     importTooLarge: "Die Datei ist zu groß. Verwenden Sie eine Datei unter 15 MB.",
+    importNotConfigured: "Der KI-Dienst ist nicht konfiguriert.",
+    importRateLimited: "Zu viele Anfragen im Moment. Warten Sie kurz und versuchen Sie es erneut.",
+    importCreditsExhausted: "Die KI-Credits sind aufgebraucht. Laden Sie auf, um Dokumente zu lesen.",
+    importUnparsable: "Wir konnten den Inhalt des Dokuments nicht auswerten.",
+    egValue: "z. B. {{value}}",
   },
   validation: {
     customerShare: "Der Anteil muss zwischen 0 und 100 % liegen.",

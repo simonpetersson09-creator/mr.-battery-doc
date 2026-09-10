@@ -399,7 +399,7 @@ export const fi = {
       "Kuukausiarvojen summa poikkeaa asiakirjan vuositiedosta. Tarkista arvot ennen jatkamista.",
     selfPctFound:
       "Asiakirjassa ilmoitetaan {{pct}} % oma käyttö. Arvoa käytetään todellisena omana käyttönä, kun hyväksyt arvot.",
-    sum: "Summa:",
+    sum: "Yhteensä:",
     apply: "Käytä arvoja",
     missingMonths:
       "Luimme {{read}} kuukautta 12:sta. Tarkista tai täytä puuttuvat arvot.",
@@ -409,6 +409,11 @@ export const fi = {
       "Emme löytäneet tiedostosta kuukausitietoja. Tarkista, että kuukaudet näkyvät selvästi.",
     importUnreadable: "Tiedostoa ei voitu lukea. Kokeile selkeämpää kuvaa tai PDF-tiedostoa.",
     importTooLarge: "Tiedosto on liian suuri. Käytä alle 15 Mt:n tiedostoa.",
+    importNotConfigured: "Tekoälypalvelua ei ole määritetty.",
+    importRateLimited: "Liikaa pyyntöjä juuri nyt. Odota hetki ja yritä uudelleen.",
+    importCreditsExhausted: "Tekoälykrediitit ovat lopussa. Lisää krediittejä lukeaksesi asiakirjoja.",
+    importUnparsable: "Emme pystyneet tulkitsemaan asiakirjan sisältöä.",
+    egValue: "esim. {{value}}",
   },
   validation: {
     customerShare: "Osuuden on oltava 0–100 %.",

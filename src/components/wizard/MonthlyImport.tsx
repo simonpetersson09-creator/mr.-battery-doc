@@ -127,7 +127,12 @@ export function MonthlyImport({
           data: { dataUrl: upload.dataUrl, mimeType: upload.mimeType, fileName: file.name },
         });
         if ("error" in result && result.error) {
-          setError(result.error);
+          const code = (result as { errorCode?: string }).errorCode;
+          const key = code
+            ? `errors.import${code.charAt(0).toUpperCase()}${code.slice(1)}`
+            : "errors.importUnreadable";
+          const localized = t(key);
+          setError(localized === key ? t("errors.importUnreadable") : localized);
           setBusy(false);
           return;
         }
