@@ -443,29 +443,39 @@ function ResultStep() {
         )}
       </SectionCard>
 
-      <SectionCard compact title={t("results.investment.title")}>
-        {maxInvestment === null ? (
+      {maxInvestment === null ? (
+        <SectionCard compact title={t("results.investment.title")}>
           <p className="ui-help">{t("payback.investment.none")}</p>
-        ) : (
-          <>
-            <p className="ui-help">
-              {t("results.investment.basedOn", {
-                years: t("payback.years", { years: nf(targetYears, 0) }),
-              })}
-            </p>
-            <p className="ui-hero mt-1 text-[1.625rem] tabular-nums">
-              {t("results.investment.approx")} {money(maxInvestment)}
-            </p>
-            <p className="ui-label mt-3">{t("results.investment.otherTitle")}</p>
-            <div className="mt-1 space-y-1.5">
+        </SectionCard>
+      ) : (
+        <section className="rounded-[1.5rem] bg-primary p-4 text-center text-primary-foreground shadow-sm">
+          <p className="font-display text-[1.05rem] font-bold leading-snug">
+            {t("results.investment.title")}
+          </p>
+          <p className="ui-help mt-0.5">
+            {t("results.investment.basedOn", {
+              years: t("payback.years", { years: nf(targetYears, 0) }),
+            })}
+          </p>
+          <p className="ui-hero mt-1 text-[1.75rem] tabular-nums">
+            {t("results.investment.approx")} {money(maxInvestment)}
+          </p>
+          <div className="mt-3 rounded-[1.25rem] bg-background/70 p-3.5 text-left">
+            <p className="ui-label text-center">{t("results.investment.otherTitle")}</p>
+            <div className="mt-2 space-y-1">
               {[targetYears - 2, targetYears, targetYears + 2]
                 .map((y) => Math.min(20, Math.max(5, y)))
                 .filter((y, i, arr) => arr.indexOf(y) === i)
                 .map((y) => {
                   const chosen = y === targetYears;
                   return (
-                    <div key={y} className="ui-body flex items-baseline justify-between gap-4">
-                      <span className={chosen ? "font-semibold" : "text-muted-foreground"}>
+                    <div
+                      key={y}
+                      className={`ui-body flex items-baseline justify-between gap-4 rounded-full px-3 py-1.5 ${
+                        chosen ? "bg-background font-semibold shadow-sm" : ""
+                      }`}
+                    >
+                      <span className={chosen ? "" : "text-muted-foreground"}>
                         {t("payback.years", { years: nf(y, 0) })}
                         {chosen ? (
                           <span className="text-muted-foreground font-normal">
@@ -481,12 +491,12 @@ function ResultStep() {
                   );
                 })}
             </div>
-            <p className="ui-help mt-2 border-t border-foreground/10 pt-2">
+            <p className="ui-help mt-2.5 text-center">
               {t("results.investment.explain")}
             </p>
-          </>
-        )}
-      </SectionCard>
+          </div>
+        </section>
+      )}
 
 
       {p.showFcrPowerCard ? (
