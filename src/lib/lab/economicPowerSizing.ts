@@ -110,6 +110,11 @@ export function realisticFcrNetSek(
  *
  * Example, 25 kWh with physical 5 kW and 0.5 C: 5, 7.5, 10, 12.5 kW.
  */
+export function maxProductStepKw(productStepsKw: number[]): number {
+  const steps = productStepsKw.filter((s) => s > 0);
+  return steps.length > 0 ? Math.max(...steps) : 0;
+}
+
 export function buildPowerCandidates(
   capacityKWh: number,
   physicalProductPowerKw: number,
@@ -118,8 +123,16 @@ export function buildPowerCandidates(
 ): number[] {
   if (!(capacityKWh > 0) || !(physicalProductPowerKw > 0)) return [];
   const round = (v: number) => Math.round(v * 1000) / 1000;
-  const ceiling = maxProductCRate > 0 ? round(capacityKWh * maxProductCRate) : 0;
-  const out = new Set<number>([round(physicalProductPowerKw)]);
+  /**
+   * PRODUCT CEILING. Candidates are real product levels the customer can actually buy.
+   * The C-rate ceiling is a candidate RANGE, never a product level of its own: when it
+   * lands above the largest product step it is clamped to that step. The physical need
+   * is a separate concept and is never clamped.
+   */
+  const productCapKw = maxProductStepKw(productStepsKw);
+  const rawCeiling = maxProductCRate > 0 ? round(capacityKWh * maxProductCRate) : 0;
+  const ceiling = productCapKw > 0 ? Math.min(rawCeiling, productCapKw) : rawCeiling;
+  const out = new Set<number>([round(Math.min(physicalProductPowerKw, productCapKw > 0 ? Math.max(productCapKw, 0) : physicalProductPowerKw))]);
   for (const step of productStepsKw)
     if (step > physicalProductPowerKw && step <= ceiling + 1e-9) out.add(round(step));
   if (ceiling > physicalProductPowerKw + 1e-9) out.add(ceiling);
