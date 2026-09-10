@@ -28,6 +28,15 @@ import { useWizard } from "@/state/wizard";
 const RESULT_CARD_TITLE_CLASS = "font-display text-[14px] font-semibold";
 const RESULT_CARD_DESCRIPTION_CLASS = "mt-0.5 text-[11px] leading-relaxed";
 
+/** Discrete chapter marker between result sections — sits on the page background. */
+function SectionLabel({ children }: { children: string }) {
+  return (
+    <p className="pt-3 pb-0.5 text-center text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+      {children}
+    </p>
+  );
+}
+
 export const Route = createFileRoute("/resultat")({
   head: () => ({
     meta: [
