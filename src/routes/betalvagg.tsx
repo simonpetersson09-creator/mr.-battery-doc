@@ -99,6 +99,12 @@ function Paywall() {
         setNotice("pending");
         return;
       }
+      // Paid but not verified by our server yet: never unlocked here, recovery
+      // completes it as soon as verification succeeds.
+      if (res.status === "unresolved") {
+        setNotice("unresolved");
+        return;
+      }
       setError(res.code);
     } finally {
       setBusy(null);
