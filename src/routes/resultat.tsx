@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { SectionCard } from "@/components/wizard/fields";
 import { Button } from "@/components/ui/button";
-import { runBatteryApp } from "@/lib/battery-app";
+import { clearCalculationCache, getCalculation } from "@/lib/access/calculationCache";
+import { useAccess } from "@/state/access";
 import { buildResultPresentation } from "@/lib/battery-app/resultPresentation";
 import { computeWithoutFcrOptimum } from "@/lib/battery-app/withoutFcrOptimum";
 import { computeBatteryAlternatives } from "@/lib/battery-app/capacityAlternatives";
@@ -64,6 +65,7 @@ const pct = (v: number) => `${nf(v, 0)} %`;
 function ResultStep() {
   const t = useT();
   const { state, reset } = useWizard();
+  const access = useAccess();
   /**
    * Currency comes from the chosen country through the central currency layer — the
    * result page never assumes SEK, and it never follows the UI language. Every amount
@@ -75,8 +77,13 @@ function ResultStep() {
   const moneyPerYear = (v: number | null) =>
     v === null ? "—" : `${formatMoney(v, countryCode, 0)}${t("units.perYear")}`;
   const navigate = useNavigate();
-  // Single integration point: wizard -> adapter -> frozen Battery Engine.
-  const outcome = useMemo(() => runBatteryApp(state), [state]);
+  /*
+    Single integration point: wizard -> adapter -> frozen Battery Engine.
+    The calculation ran when the user left step 5; this reads the cached outcome
+    for the same inputs, so a purchase never triggers a re-run.
+  */
+  const calculation = useMemo(() => getCalculation(state), [state]);
+  const outcome = calculation.outcome;
   /**
    * Genuine FCR-off counterfactual (same capacity, FCR switched off BEFORE dispatch).
    * Only needed while the reserve product is actually part of the recommendation.
@@ -106,6 +113,7 @@ function ResultStep() {
       variant="cta"
       className="h-10 flex-[2] rounded-[0.75rem] text-[15px] font-bold shadow-cta"
       onClick={() => {
+        clearCalculationCache();
         reset();
         void navigate({ to: "/" });
       }}
@@ -155,6 +163,35 @@ function ResultStep() {
     );
   }
 
+  /*
+    ACCESS GATE. Central entitlement rule: active Premium, or this exact
+    calculation unlocked by a one-off purchase. No control here opens the
+    result without one.
+  */
+  if (!access.canOpenResult(calculation.id)) {
+    return (
+      <WizardShell
+        stepIndex={5}
+        title={t("results.title")}
+        intro={t("paywall.locked.description")}
+        footerAction={
+          <Button
+            variant="cta"
+            className="h-10 flex-[2] rounded-[0.75rem] text-[15px] font-bold shadow-cta"
+            onClick={() => void navigate({ to: "/betalvagg" })}
+          >
+            {t("paywall.locked.cta")}
+          </Button>
+        }
+      >
+        <SectionCard
+          title={t("paywall.locked.title")}
+          description={t("paywall.locked.description")}
+        />
+      </WizardShell>
+    );
+  }
+
   const s = outcome.result.summary;
   const e = s.energy;
   
@@ -196,15 +233,17 @@ function ResultStep() {
     Report entry point. The report must always be built from `outcome` — the current
     simulation rendered above — never from a cached or recalculated result.
   */
+  /* PDF follows the SAME entitlement as the result page. */
+  const pdfAllowed = PDF_REPORT_AVAILABLE && access.canOpenResult(calculation.id);
   const pdfReport = (
     <Button
       type="button"
       variant="outline"
       className="h-10 w-full rounded-[0.75rem] text-[15px] font-semibold bg-primary text-primary-foreground"
-      disabled={!PDF_REPORT_AVAILABLE}
-      aria-disabled={!PDF_REPORT_AVAILABLE}
+      disabled={!pdfAllowed}
+      aria-disabled={!pdfAllowed}
       onClick={() => {
-        if (!PDF_REPORT_AVAILABLE) return;
+        if (!pdfAllowed) return;
         void generatePdfReport({
           outcome,
           language: currentLanguage(),

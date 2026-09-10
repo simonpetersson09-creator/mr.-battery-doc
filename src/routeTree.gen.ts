@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BatteriRouteImport } from './routes/batteri'
+import { Route as BetalvaggRouteImport } from './routes/betalvagg'
 import { Route as EkonomiRouteImport } from './routes/ekonomi'
 import { Route as ForbrukningRouteImport } from './routes/forbrukning'
 import { Route as NatRouteImport } from './routes/nat'
@@ -25,6 +26,11 @@ const IndexRoute = IndexRouteImport.update({
 const BatteriRoute = BatteriRouteImport.update({
   id: '/batteri',
   path: '/batteri',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BetalvaggRoute = BetalvaggRouteImport.update({
+  id: '/betalvagg',
+  path: '/betalvagg',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EkonomiRoute = EkonomiRouteImport.update({
@@ -56,6 +62,7 @@ const ResultatRoute = ResultatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/batteri': typeof BatteriRoute
+  '/betalvagg': typeof BetalvaggRoute
   '/ekonomi': typeof EkonomiRoute
   '/forbrukning': typeof ForbrukningRoute
   '/nat': typeof NatRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/batteri': typeof BatteriRoute
+  '/betalvagg': typeof BetalvaggRoute
   '/ekonomi': typeof EkonomiRoute
   '/forbrukning': typeof ForbrukningRoute
   '/nat': typeof NatRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/batteri': typeof BatteriRoute
+  '/betalvagg': typeof BetalvaggRoute
   '/ekonomi': typeof EkonomiRoute
   '/forbrukning': typeof ForbrukningRoute
   '/nat': typeof NatRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/batteri'
+    | '/betalvagg'
     | '/ekonomi'
     | '/forbrukning'
     | '/nat'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/batteri'
+    | '/betalvagg'
     | '/ekonomi'
     | '/forbrukning'
     | '/nat'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/batteri'
+    | '/betalvagg'
     | '/ekonomi'
     | '/forbrukning'
     | '/nat'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BatteriRoute: typeof BatteriRoute
+  BetalvaggRoute: typeof BetalvaggRoute
   EkonomiRoute: typeof EkonomiRoute
   ForbrukningRoute: typeof ForbrukningRoute
   NatRoute: typeof NatRoute
@@ -135,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/batteri'
       fullPath: '/batteri'
       preLoaderRoute: typeof BatteriRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/betalvagg': {
+      id: '/betalvagg'
+      path: '/betalvagg'
+      fullPath: '/betalvagg'
+      preLoaderRoute: typeof BetalvaggRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ekonomi': {
@@ -178,6 +198,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BatteriRoute: BatteriRoute,
+  BetalvaggRoute: BetalvaggRoute,
   EkonomiRoute: EkonomiRoute,
   ForbrukningRoute: ForbrukningRoute,
   NatRoute: NatRoute,
