@@ -241,7 +241,6 @@ export const de = {
     title: "Ergebnis",
     intro: "So sieht der Vorschlag für Ihre Immobilie aus.",
     pdfReport: "Bericht als PDF herunterladen",
-    pdfReportPending: "",
     incomplete: {
       intro: "Wir brauchen noch ein paar Angaben.",
       title: "Fehlende Angaben ergänzen",
