@@ -493,13 +493,6 @@ html[data-native="true"] {
   color: color-mix(in oklab, var(--color-foreground) 58%, transparent);
 }
 
-@utility ui-hero {
-  font-family: var(--font-display);
-  font-size: 2.875rem;
-  line-height: 1;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-}
 
 /* One text size for every control and button. */
 :root {
