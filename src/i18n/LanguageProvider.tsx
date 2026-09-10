@@ -53,8 +53,18 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 }
 
-export function useLanguage() {
+/**
+ * Language access. The provider always wraps the app, but a component rendered
+ * outside it (an error boundary, a hot-reload edge case) must never crash the whole
+ * native app — it falls back to the current i18n language instead.
+ */
+export function useLanguage(): LanguageContextValue {
   const ctx = useContext(LanguageContext);
-  if (!ctx) throw new Error("useLanguage must be used inside LanguageProvider");
-  return ctx;
+  if (ctx) return ctx;
+  return {
+    language: (i18n.language as Language) || DEFAULT_LANGUAGE,
+    setLanguage: (lang) => {
+      void i18n.changeLanguage(lang);
+    },
+  };
 }
