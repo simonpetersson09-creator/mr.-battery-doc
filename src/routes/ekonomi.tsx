@@ -48,6 +48,8 @@ function EconomyStep() {
   /* CURRENCY STAYS COUNTRY-DRIVEN — the UI language never changes it. */
   const unit = country.economy.currencyLabel;
   const years = state.preferences.targetPaybackYears;
+  /* Slider range is 60–100 %; clamp older stored values into the range for display. */
+  const sharePct = Math.min(100, Math.max(60, Math.round(state.preferences.customerAncillaryShare * 100)));
 
   const setEconomy = (patch: Partial<typeof state.economy>) =>
     update((s) => ({ ...s, economy: { ...s.economy, ...patch, touched: true } }));
@@ -159,7 +161,7 @@ function EconomyStep() {
                 ...s,
                 preferences: {
                   ...s.preferences,
-                  customerAncillaryShare: v[0] / 100,
+                  customerAncillaryShare: (v[0] ?? sharePct) / 100,
                 },
               }))
             }
