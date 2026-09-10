@@ -1,4 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { getCalculation } from "@/lib/access/calculationCache";
+import { destinationAfterStep5 } from "@/lib/access/flow";
+import { useAccess } from "@/state/access";
 import { Coins, HandCoins, Timer } from "lucide-react";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { NumberField, SectionCard } from "@/components/wizard/fields";
@@ -37,6 +42,8 @@ export const Route = createFileRoute("/ekonomi")({
 function EconomyStep() {
   const t = useT();
   const { state, update } = useWizard();
+  const navigate = useNavigate();
+  const access = useAccess();
   const country = getCountry(state.grid.country);
   /* CURRENCY STAYS COUNTRY-DRIVEN — the UI language never changes it. */
   const unit = country.economy.currencyLabel;
@@ -56,6 +63,33 @@ function EconomyStep() {
       intro={t("economics.intro", { country: countryName(state.grid.country) })}
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
+      footerAction={
+        /*
+          STEP 5 -> CALCULATION -> PAYWALL/RESULT.
+          The simulation runs here, once. Premium goes straight to the result;
+          everyone else sees the paywall. The result itself is untouched.
+        */
+        <Button
+          variant="cta"
+          className="h-10 flex-[2] rounded-[0.75rem] text-[15px] font-bold shadow-cta"
+          disabled={!validity.ok}
+          aria-disabled={!validity.ok}
+          onClick={() => {
+            if (!validity.ok) return;
+            const calc = getCalculation(state);
+            void navigate({
+              to: destinationAfterStep5({
+                calculationStatus: calc.outcome.status,
+                entitlements: access.entitlements,
+                calculationId: calc.id,
+              }),
+            });
+          }}
+        >
+          {t("common.next")}
+          <ArrowRight className="size-4" />
+        </Button>
+      }
     >
       <SectionCard
         compact
