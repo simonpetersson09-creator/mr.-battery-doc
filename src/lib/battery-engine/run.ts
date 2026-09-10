@@ -318,6 +318,12 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       fcrGrossSek: economy.fcr.grossSek,
       totalOperatingBenefitSek: economy.totalSek,
       totalIsIncomplete: economy.totalIsIncomplete,
+      /**
+       * MODEL RULE (negative customer benefit): the recommendation may never be
+       * presented as economically advantageous when this is <= 0.
+       */
+      annualCustomerBenefitSek: customerBenefit,
+      hasPositiveCustomerBenefit: customerBenefit !== null && customerBenefit > 0,
       assumptions: [
         `Importpris ${econ.importEnergyPriceSekPerKWh} kr/kWh och exportvärde ${econ.exportEnergyValueSekPerKWh} kr/kWh är ekonomiska antaganden.`,
         peak.tariffNote ??
