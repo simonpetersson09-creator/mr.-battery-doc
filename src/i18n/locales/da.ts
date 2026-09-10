@@ -414,6 +414,11 @@ export const da = {
       "Vi fandt ingen månedsdata i filen. Kontrollér, at månederne er tydeligt synlige.",
     importUnreadable: "Filen kunne ikke læses. Prøv med et tydeligere billede eller en PDF.",
     importTooLarge: "Filen er for stor. Brug en fil på under 15 MB.",
+    importNotConfigured: "AI-tjenesten er ikke konfigureret.",
+    importRateLimited: "For mange forespørgsler lige nu. Vent et øjeblik, og prøv igen.",
+    importCreditsExhausted: "AI-kredittene er brugt op. Fyld op for at kunne læse dokumenter.",
+    importUnparsable: "Vi kunne ikke tolke indholdet i dokumentet.",
+    egValue: "f.eks. {{value}}",
   },
   validation: {
     customerShare: "Andelen skal være mellem 0 og 100 %.",

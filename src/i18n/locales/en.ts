@@ -414,6 +414,11 @@ export const en = {
       "We found no monthly data in the file. Check that the months are clearly visible.",
     importUnreadable: "The file could not be read. Try a clearer image or a PDF.",
     importTooLarge: "The file is too large. Use a file smaller than 15 MB.",
+    importNotConfigured: "The AI service is not configured.",
+    importRateLimited: "Too many requests right now. Wait a moment and try again.",
+    importCreditsExhausted: "The AI credits are used up. Top up to read documents.",
+    importUnparsable: "We could not interpret the content of the document.",
+    egValue: "e.g. {{value}}",
   },
   validation: {
     customerShare: "The share must be between 0 and 100 %.",
