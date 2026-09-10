@@ -132,7 +132,8 @@ export function buildPowerCandidates(
   const productCapKw = maxProductStepKw(productStepsKw);
   const rawCeiling = maxProductCRate > 0 ? round(capacityKWh * maxProductCRate) : 0;
   const ceiling = productCapKw > 0 ? Math.min(rawCeiling, productCapKw) : rawCeiling;
-  const out = new Set<number>([round(Math.min(physicalProductPowerKw, productCapKw > 0 ? Math.max(productCapKw, 0) : physicalProductPowerKw))]);
+  const lowest = productCapKw > 0 ? Math.min(physicalProductPowerKw, productCapKw) : physicalProductPowerKw;
+  const out = new Set<number>([round(lowest)]);
   for (const step of productStepsKw)
     if (step > physicalProductPowerKw && step <= ceiling + 1e-9) out.add(round(step));
   if (ceiling > physicalProductPowerKw + 1e-9) out.add(ceiling);
