@@ -60,3 +60,21 @@ server function. In the static native bundle it has no server to call, so image
 and PDF import must be pointed at the hosted API base URL before release. CSV/TSV
 import, the engine, history and PDF generation are fully client-side and work
 offline.
+
+## In-App Purchases (StoreKit)
+
+- Bundle Identifier: `se.shiningdays.mrbatterydoc` (capacitor.config.ts, Xcode
+  Signing & Capabilities and the server-side `APPLE_BUNDLE_ID` must all match).
+- Plugin: `cordova-plugin-purchase@13.18.0` (Apple AppStore / StoreKit), wired
+  through `src/lib/access/storekit/cdvPurchase.ts` only.
+- In Xcode: select the App target → Signing & Capabilities → add the
+  **In-App Purchase** capability, and set your Apple Team. No Team ID is stored
+  in this repository.
+- Products to create in App Store Connect:
+  - `com.mrbatterydoc.calculation.unlock` — Consumable
+  - `com.mrbatterydoc.premium.yearly` — Auto-renewable subscription, 1 year,
+    subscription group "Mr Battery Doc Premium" (documentation only; runtime
+    logic matches on product IDs).
+- Set `APP_STORE_CONNECT_CONFIRMED = true` in `src/lib/access/products.ts` only
+  after both products have actually been fetched from Apple via StoreKit on a
+  physical device.
