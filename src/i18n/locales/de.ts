@@ -334,6 +334,10 @@ export const de = {
       withoutSolar:
         "{{capacity}} kWh bieten eine gute Balance zwischen der verschiebbaren Energiemenge und dem Nutzen zusätzlicher Kapazität. Eine größere Batterie bringt bei Ihrem Verbrauch relativ wenig Zusatznutzen.",
     },
+    powerCap: {
+      note:
+        "Der berechnete physikalische Leistungsbedarf ({{physical}} kW) liegt über der größten verfügbaren Produktstufe ({{product}} kW). Die Empfehlung wird daher auf {{product}} kW begrenzt.",
+    },
     powerWhy: {
       raised:
         "{{recommended}} kW bringt den höchsten berechneten Jahresnutzen der verglichenen Systemleistungen. Der Eigenbedarf der Immobilie ist niedriger ({{physical}} kW).",

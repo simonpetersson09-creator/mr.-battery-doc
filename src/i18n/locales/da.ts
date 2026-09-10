@@ -330,6 +330,10 @@ export const da = {
       withoutSolar:
         "{{capacity}} kWh giver en god balance mellem, hvor meget energi batteriet kan flytte, og nytten af yderligere kapacitet. Et større batteri giver relativt lidt ekstra nytte med dit forbrug.",
     },
+    powerCap: {
+      note:
+        "Ejendommens beregnede fysiske effektbehov ({{physical}} kW) er større end det største produktniveau, der kan købes ({{product}} kW). Anbefalingen begrænses derfor til {{product}} kW.",
+    },
     powerWhy: {
       raised:
         "{{recommended}} kW giver den højeste beregnede årlige nytte af de sammenlignede systemeffekter. Ejendommens eget effektbehov er lavere ({{physical}} kW).",

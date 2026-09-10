@@ -330,6 +330,10 @@ export const en = {
       withoutSolar:
         "{{capacity}} kWh gives a good balance between how much energy the battery can move and the benefit of additional capacity. A larger battery gives relatively little extra benefit with your consumption.",
     },
+    powerCap: {
+      note:
+        "The property's calculated physical power need ({{physical}} kW) is larger than the largest available product level ({{product}} kW). The recommendation is therefore limited to {{product}} kW.",
+    },
     powerWhy: {
       raised:
         "{{recommended}} kW gives the highest calculated annual benefit of the system power levels compared. The property's own power need is lower ({{physical}} kW).",

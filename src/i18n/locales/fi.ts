@@ -325,6 +325,10 @@ export const fi = {
       withoutSolar:
         "{{capacity}} kWh antaa hyvän tasapainon sen välillä, kuinka paljon energiaa akku voi siirtää ja mitä lisäkapasiteetti tuo. Suurempi akku tuo suhteellisen vähän lisähyötyä kulutuksellasi.",
     },
+    powerCap: {
+      note:
+        "Kiinteistön laskettu fyysinen tehontarve ({{physical}} kW) on suurempi kuin suurin saatavilla oleva tuotetaso ({{product}} kW). Suositus rajataan siksi {{product}} kW:iin.",
+    },
     powerWhy: {
       raised:
         "{{recommended}} kW antaa suurimman lasketun vuosihyödyn vertailluista järjestelmätehoista. Kiinteistön oma tehontarve on pienempi ({{physical}} kW).",
