@@ -1,5 +1,7 @@
 import { defaultConfig, spreadAnnual, DEFAULT_LOAD_MONTH_SHARE, DEFAULT_PV_MONTH_SHARE } from "../../src/lib/lab/defaults";
 import { buildSeries, simulate } from "../../src/lib/lab/simulate";
+import { dispatch } from "../../src/lib/lab/dispatch";
+import { ancillaryPlan } from "../../src/lib/lab/ancillary";
 import type { LabConfig } from "../../src/lib/lab/types";
 
 const setLoad = (c: LabConfig, kWh: number) => { c.consumption.annualKWh = kWh; c.consumption.monthlyKWh = spreadAnnual(kWh, DEFAULT_LOAD_MONTH_SHARE); };
@@ -28,8 +30,9 @@ for (const [name, over] of Object.entries(variants)) {
     const s = buildSeries(c);
     const r = simulate(c, s, cap, kw);
     const eb = (r as any).energyBalance;
-    const t: any = r;
-    const socD = ((r as any).socEndKWh ?? 0) - ((r as any).socStartKWh ?? 0);
+    const d = dispatch({ series: s, battery: c.battery, grid: c.grid, strategies: c.strategies, peak: c.peakShaving, spot: c.spot, flex: c.flex, ancillary: c.strategies.ancillaryServices ? ancillaryPlan(c.ancillary) : null, capacityKWh: cap, powerKw: kw });
+    const t: any = d.tallies;
+    const socD = t.socEnd - t.socStart;
     const rt = t && t.chargedKWh > 0 ? t.dischargedKWh / t.chargedKWh : NaN;
     if (Math.abs(eb.residualKWh) > Math.abs(worst.r)) worst = { r: eb.residualKWh, name: `${name}/${cap}` };
     if (Math.abs(socD) > Math.abs(worstSoc.d)) worstSoc = { d: socD, name: `${name}/${cap}`, pct: Math.abs(socD) / Math.max(1, t.dischargedKWh) * 100 };
@@ -46,5 +49,5 @@ for (const p of [5, 25, 50, 75, 95]) {
   const c = defaultConfig(); c.battery.nominalKWh = 30; c.battery.chargeKw = 15; c.battery.dischargeKw = 15; c.battery.initialSocPct = p;
   const s = buildSeries(c); const r: any = simulate(c, s, 30, 15);
   const t = r.dispatch?.tallies ?? r.tallies;
-  console.log(`  initialSoc=${p}% discharged=${t.dischargedKWh.toFixed(1)} charged=${t.chargedKWh.toFixed(1)} socEnd=${t.socEnd.toFixed(2)} resid=${r.energyBalance.residualKWh.toExponential(2)}`);
+  console.log(`  initialSoc=${p}% discharged=${t.dischargedKWh.toFixed(1)} charged=${t.chargedKWh.toFixed(1)} resid=${r.energyBalance.residualKWh.toExponential(2)}`);
 }
