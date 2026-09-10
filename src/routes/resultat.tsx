@@ -200,7 +200,7 @@ function ResultStep() {
     <Button
       type="button"
       variant="outline"
-      className="h-12 w-full rounded-[0.875rem] text-[16px] font-semibold bg-primary text-primary-foreground"
+      className="h-10 w-full rounded-[0.75rem] text-[15px] font-semibold bg-primary text-primary-foreground"
       disabled={!PDF_REPORT_AVAILABLE}
       aria-disabled={!PDF_REPORT_AVAILABLE}
       onClick={() => {
