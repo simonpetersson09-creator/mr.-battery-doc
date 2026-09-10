@@ -37,6 +37,24 @@ export interface NativePurchasePlugin {
   }>;
   /** Restores/verifies existing SUBSCRIPTION entitlements only. */
   restorePremium(): Promise<{ active: boolean; expiresISO?: string | null }>;
+  /**
+   * Transactions StoreKit still considers unfinished — a purchase that completed
+   * while the app was closed, an interrupted/pending transaction, or one whose
+   * delivery was never acknowledged. Optional: an adapter without it simply has
+   * no recovery.
+   */
+  pendingTransactions?(): Promise<
+    Array<{
+      transactionId: string;
+      productId: string;
+      verified?: boolean;
+      expiresISO?: string | null;
+    }>
+  >;
+  /** Acknowledges a delivered transaction so StoreKit stops replaying it. */
+  finishTransaction?(transactionId: string): Promise<void>;
+  /** Opens Apple's own subscription management sheet. */
+  manageSubscriptions?(): Promise<void>;
 }
 
 let plugin: NativePurchasePlugin | null = null;
@@ -75,6 +93,21 @@ export function createNativeGateway(p: NativePurchasePlugin): PurchaseGateway {
       } catch (err) {
         const code = interpretPurchaseError(err);
         return code === "cancelled" ? { status: "cancelled" } : { status: "failed", code };
+      }
+    },
+    async pendingTransactions() {
+      if (!p.pendingTransactions) return [];
+      try {
+        return await p.pendingTransactions();
+      } catch {
+        return [];
+      }
+    },
+    async finishTransaction(transactionId: string) {
+      try {
+        await p.finishTransaction?.(transactionId);
+      } catch {
+        /* a failed acknowledgement just means StoreKit replays it later */
       }
     },
     async restore() {

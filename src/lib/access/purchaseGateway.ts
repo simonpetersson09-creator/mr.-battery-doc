@@ -5,6 +5,7 @@
  * build and the test mock stay strictly separated.
  */
 import type { ProductKey } from "./products";
+import type { UnfinishedTransaction } from "./recovery";
 
 export interface StoreProduct {
   key: ProductKey;
@@ -43,6 +44,10 @@ export interface PurchaseGateway {
   purchase(key: ProductKey): Promise<PurchaseResult>;
   /** Subscriptions only. A consumable report purchase is never restorable. */
   restore(): Promise<RestoreResult>;
+  /** Unfinished StoreKit transactions to recover on start. Native only. */
+  pendingTransactions?(): Promise<UnfinishedTransaction[]>;
+  /** Acknowledges a recovered transaction. Native only. */
+  finishTransaction?(transactionId: string): Promise<void>;
 }
 
 /**
