@@ -152,10 +152,19 @@ for (const m of MARKETS) {
           cand.peakBenefitSek,
         ).padStart(5)} | ${r0(anc).padStart(7)} | ${r0(cand.annualCustomerBenefitSek).padStart(8)}${mark}`,
       );
-      checkInvariants(`${c.name} @${cand.offeredPowerKw}kW`, cfg, c.cap, c.kw, cand.economy.result);
       if (cand.annualCustomerBenefitSek <= 0)
         negatives.push(`${c.name} @${cand.offeredPowerKw} kW: ${r0(cand.annualCustomerBenefitSek)} kr`);
     }
+    const chosenCfg: LabConfig = {
+      ...cfg,
+      strategies: { ...cfg.strategies, ancillaryServices: opt.best.offeredPowerKw > 0 },
+      ancillary: {
+        ...cfg.ancillary,
+        enabled: opt.best.offeredPowerKw > 0,
+        offeredPowerKw: opt.best.offeredPowerKw,
+      },
+    };
+    checkInvariants(`${c.name} vald`, chosenCfg, c.cap, c.kw, simulate(chosenCfg, series, c.cap, c.kw));
     const best = Math.max(...opt.candidates.map((x) => x.annualCustomerBenefitSek));
     if (opt.best.annualCustomerBenefitSek < best - FCR_TIE_TOLERANCE_SEK)
       fcrMismatch.push(
@@ -180,10 +189,16 @@ for (const m of MARKETS.slice(0, 3)) {
     TOTAL += 1;
     // Physics is compared at a FIXED reservation so the share cannot move it.
     const fixed = opt.candidates.find((x) => x.fraction === 0.5)!;
+    const fixedCfg: LabConfig = {
+      ...cfg,
+      strategies: { ...cfg.strategies, ancillaryServices: true },
+      ancillary: { ...cfg.ancillary, enabled: true, offeredPowerKw: fixed.offeredPowerKw },
+    };
+    const fixedSim = simulate(fixedCfg, series, c.cap, c.kw);
     const phys = {
       held: fixed.avgHeldPowerKw,
       market: fixed.fcrGrossSek,
-      disch: fixed.economy.result.dischargedKWh,
+      disch: fixedSim.dischargedKWh,
     };
     if (!physicsRef) physicsRef = phys;
     else {
