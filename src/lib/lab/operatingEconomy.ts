@@ -635,15 +635,26 @@ export function optimizeFcrReservation(
           (economy.peak.annualPeakBenefitSek ?? 0) +
           (gross ?? 0),
       ),
+      annualCustomerBenefitSek: annualCustomerBenefitSek(
+        economy.energy.energyBenefitSek,
+        economy.peak.annualPeakBenefitSek,
+        gross,
+        econ,
+      ),
       economy,
     };
   });
 
-  // Winner: highest total. On a practical tie, the LOWEST reservation wins.
-  const bestTotal = Math.max(...candidates.map((c) => c.totalOperatingBenefitSek));
+  /**
+   * MODEL RULE: the winner is the highest TOTAL CUSTOMER BENEFIT
+   * (energy + peak + ancillary customer value), never the highest raw FCR gross.
+   * On a practical tie, the LOWEST reservation wins.
+   */
+  const bestTotal = Math.max(...candidates.map((c) => c.annualCustomerBenefitSek));
   const best =
-    candidates.find((c) => c.totalOperatingBenefitSek >= bestTotal - FCR_TIE_TOLERANCE_SEK) ??
+    candidates.find((c) => c.annualCustomerBenefitSek >= bestTotal - FCR_TIE_TOLERANCE_SEK) ??
     candidates[0]!;
+
 
   const notes: string[] = [
     "Optimeringsmål: energinytta + minskad effektkostnad + FCR-brutto. Alternativkostnaden dras inte av separat — den syns redan som lägre energi-/effektnytta.",
