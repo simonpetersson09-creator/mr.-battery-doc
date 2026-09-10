@@ -1,5 +1,4 @@
 /**
-import { DecimalInput } from "./DecimalInput";
  * Twelve compact month inputs + an automatically calculated sum.
  *
  * Presentation only: the sum is derived output, never an editable field, and the
@@ -8,6 +7,7 @@ import { DecimalInput } from "./DecimalInput";
 
 import { formatNumber, useT } from "@/i18n";
 import { monthShortLabels } from "@/i18n/labels";
+import { DecimalInput } from "./DecimalInput";
 
 export function MonthGrid({
   values,

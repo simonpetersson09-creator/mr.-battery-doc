@@ -1,5 +1,4 @@
 /**
-import { DecimalInput } from "./DecimalInput";
  * Monthly import: file/image -> extraction -> review -> the caller's twelve fields.
  *
  * The component never writes to wizard state itself and never talks to the Battery
@@ -13,6 +12,7 @@ import { formatNumber, useT } from "@/i18n";
 import { monthShortLabels } from "@/i18n/labels";
 import { extractMonthlyFromDocument } from "@/lib/import/extractMonthly.functions";
 import {
+import { DecimalInput } from "./DecimalInput";
   extractFromText,
   reviewState,
   selectSeries,
