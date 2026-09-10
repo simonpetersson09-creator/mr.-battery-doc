@@ -50,6 +50,11 @@ export type RestoreResult =
 
 export interface PurchaseGateway {
   readonly kind: "native" | "web" | "mock";
+  /**
+   * True when every purchased transaction must be confirmed by our backend
+   * against Apple before it grants anything. Always true for native StoreKit.
+   */
+  readonly requiresServerVerification?: boolean;
   loadProducts(): Promise<LoadProductsResult>;
   purchase(key: ProductKey): Promise<PurchaseResult>;
   /** Subscriptions only. A consumable report purchase is never restorable. */
