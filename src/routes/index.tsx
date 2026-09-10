@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BatteryFull, Gauge, TrendingUp, Wallet } from "lucide-react";
+import { ArrowRight, BatteryFull, Gauge, Settings, TrendingUp, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LanguageSelect } from "@/components/LanguageSelect";
 import logo from "@/assets/mr-battery-doc-logo.png.asset.json";
@@ -64,6 +64,16 @@ function Welcome() {
       </div>
 
       <div className="flex items-stretch gap-2 pt-6">
+        <Button
+          asChild
+          variant="cta"
+          aria-label={t("settings.title")}
+          className="h-12 w-12 shrink-0 rounded-[0.875rem] shadow-cta"
+        >
+          <Link to="/installningar">
+            <Settings className="size-5" strokeWidth={2.5} />
+          </Link>
+        </Button>
         <Button
           asChild
           variant="cta"

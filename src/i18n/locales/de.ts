@@ -508,4 +508,38 @@ export const de = {
       cta: "Zur Freischaltung",
     },
   },
+  settings: {
+    title: "Einstellungen",
+    languageTitle: "Sprache",
+    languageHint: "Die Währung richtet sich nach dem Land Ihrer Adresse, nicht nach der Sprache.",
+    premium: {
+      title: "Premium",
+      badge: "Am beliebtesten",
+      points: {
+        calculations: "Unbegrenzte Berechnungen",
+        pdf: "Unbegrenzte PDF-Berichte",
+        full: "Voller Zugriff auf das Ergebnis",
+      },
+      cta: "Premium starten",
+      active: "Premium ist aktiv",
+      renewal: "Verlängert sich automatisch jährlich. Jederzeit kündbar.",
+    },
+    single: {
+      title: "Eine Berechnung",
+      description: "Schaltet das vollständige Ergebnis und den PDF-Bericht für diese Berechnung frei.",
+      cta: "Wird bei Ihrer nächsten Berechnung gekauft",
+      note: "Der Einmalkauf erfolgt beim Start einer neuen Berechnung – nicht hier.",
+    },
+    restore: "Käufe wiederherstellen",
+    subscription: "Abonnement verwalten",
+    history: "Verlauf",
+    terms: "Nutzungsbedingungen",
+    privacy: "Datenschutzerklärung",
+    historyPanel: {
+      premiumActive: "Premium aktiv bis {{date}}",
+      premiumInactive: "Kein aktives Premium",
+      reports: "Freigeschaltete Berichte: {{count}}",
+    },
+    version: "Mr. Battery Doc · V1.0.0",
+  },
 } as const;

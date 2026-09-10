@@ -501,4 +501,38 @@ export const da = {
       cta: "Til betaling",
     },
   },
+  settings: {
+    title: "Indstillinger",
+    languageTitle: "Sprog",
+    languageHint: "Valutaen styres af landet i din adresse, ikke sproget.",
+    premium: {
+      title: "Premium",
+      badge: "Mest populær",
+      points: {
+        calculations: "Ubegrænsede beregninger",
+        pdf: "Ubegrænsede PDF-rapporter",
+        full: "Fuld adgang til resultatet",
+      },
+      cta: "Start Premium",
+      active: "Premium er aktivt",
+      renewal: "Fornyes automatisk årligt. Kan opsiges når som helst.",
+    },
+    single: {
+      title: "Én beregning",
+      description: "Låser hele resultatet og PDF-rapporten op for den pågældende beregning.",
+      cta: "Købes ved din næste beregning",
+      note: "Engangskøbet sker, når du starter en ny beregning – ikke herfra.",
+    },
+    restore: "Gendan køb",
+    subscription: "Administrer abonnement",
+    history: "Historik",
+    terms: "Brugervilkår",
+    privacy: "Privatlivspolitik",
+    historyPanel: {
+      premiumActive: "Premium aktivt til {{date}}",
+      premiumInactive: "Intet aktivt Premium",
+      reports: "Oplåste rapporter: {{count}}",
+    },
+    version: "Mr. Battery Doc · V1.0.0",
+  },
 } as const;

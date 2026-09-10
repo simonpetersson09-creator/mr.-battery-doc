@@ -501,4 +501,38 @@ export const en = {
       cta: "Go to checkout",
     },
   },
+  settings: {
+    title: "Settings",
+    languageTitle: "Language",
+    languageHint: "The currency follows the country of your address, not the language.",
+    premium: {
+      title: "Premium",
+      badge: "Most popular",
+      points: {
+        calculations: "Unlimited calculations",
+        pdf: "Unlimited PDF reports",
+        full: "Full access to the result",
+      },
+      cta: "Start Premium",
+      active: "Premium is active",
+      renewal: "Renews automatically every year. Cancel anytime.",
+    },
+    single: {
+      title: "One calculation",
+      description: "Unlocks the full result and the PDF report for that calculation.",
+      cta: "Purchased with your next calculation",
+      note: "The one-off purchase happens when you start a new calculation — not from here.",
+    },
+    restore: "Restore purchases",
+    subscription: "Manage subscription",
+    history: "History",
+    terms: "Terms of use",
+    privacy: "Privacy policy",
+    historyPanel: {
+      premiumActive: "Premium active until {{date}}",
+      premiumInactive: "No active Premium",
+      reports: "Unlocked reports: {{count}}",
+    },
+    version: "Mr. Battery Doc · V1.0.0",
+  },
 } as const;
