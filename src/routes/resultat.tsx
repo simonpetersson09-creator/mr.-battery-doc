@@ -205,11 +205,12 @@ function ResultStep() {
       aria-disabled={!PDF_REPORT_AVAILABLE}
       onClick={() => {
         if (!PDF_REPORT_AVAILABLE) return;
-        generatePdfReport({
+        void generatePdfReport({
           outcome,
           language: currentLanguage(),
           customerEconomy: ce,
           targetPaybackYears: targetYears,
+          alternatives,
         });
       }}
     >
