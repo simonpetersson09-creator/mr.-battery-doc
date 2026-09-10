@@ -308,8 +308,7 @@ export const de = {
       ancillary: "Systemdienstleistungen – {{product}}",
       ancillaryHint:
         "Berechneter Marktwert der reservierten Batterieleistung. Historische Preise 2025.",
-      ancillaryNote:
-        "Berechneter Marktwert auf Basis historischer Preise 2025. Ein Teil der Vergütung kann an Aggregatoren, Bilanzkreisverantwortliche oder andere Marktakteure gehen. Die tatsächliche Kundenvergütung hängt von Vertrag, Marktzugang und Bedingungen ab.",
+      ancillaryNote: "Berechneter Marktwert auf Basis historischer Preise 2025.",
     },
     limited: {
       title: "Begrenzter wirtschaftlicher Nutzen",

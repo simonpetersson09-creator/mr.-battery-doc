@@ -304,8 +304,7 @@ export const en = {
       ancillary: "Grid services – {{product}}",
       ancillaryHint:
         "Calculated market value of the reserved battery power. Historical 2025 prices.",
-      ancillaryNote:
-        "Calculated market value based on historical 2025 prices. Part of the payment may go to an aggregator, balance responsible party or other market participant. The actual customer payment depends on contract, market access and terms.",
+      ancillaryNote: "Calculated market value based on historical 2025 prices.",
     },
     limited: {
       title: "Limited financial benefit",
