@@ -169,27 +169,8 @@ function ResultStep() {
     result without one.
   */
   if (!access.canOpenResult(calculation.id)) {
-    return (
-      <WizardShell
-        stepIndex={5}
-        title={t("results.title")}
-        intro={t("paywall.locked.description")}
-        footerAction={
-          <Button
-            variant="cta"
-            className="h-10 flex-[2] rounded-[0.75rem] text-[15px] font-bold shadow-cta"
-            onClick={() => void navigate({ to: "/betalvagg" })}
-          >
-            {t("paywall.locked.cta")}
-          </Button>
-        }
-      >
-        <SectionCard
-          title={t("paywall.locked.title")}
-          description={t("paywall.locked.description")}
-        />
-      </WizardShell>
-    );
+    // No intermediate "unlock" button — the paywall comes up automatically.
+    return <Navigate to="/betalvagg" replace />;
   }
 
   const s = outcome.result.summary;
