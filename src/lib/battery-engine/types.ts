@@ -195,6 +195,10 @@ export interface EngineRecommendation {
   actualDispatchPowerKw: number;
   /** Rating of the product alternative today's PHYSICAL sizing lands on, kW. */
   productPowerKw: number;
+  /** Largest purchasable product power level, kW. The recommendation never exceeds it. */
+  maxProductPowerKw: number;
+  /** True when the calculated physical need is above the largest product level. */
+  productCapBound: boolean;
   /** System power with the highest calculated annual operating benefit, kW. */
   operatingOptimalPowerKw: number | null;
   /** The recommended system power = operatingOptimalPowerKw when it was computed. */

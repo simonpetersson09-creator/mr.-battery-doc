@@ -229,6 +229,10 @@ export interface EconomicPowerSizingResult {
   physicalPowerNeedKw: number;
   productPowerKw: number;
   maxProductCRate: number;
+  /** Largest product power level that can actually be bought, kW. */
+  maxProductPowerKw: number;
+  /** True when the physical need is above the largest available product level. */
+  productCapBound: boolean;
   candidatePowersKw: number[];
   options: PowerOption[];
   /** Highest annual operating benefit. THE v1 recommendation. */
@@ -310,11 +314,14 @@ export function runEconomicPowerSizing(
   const fcrActive = cfg.strategies.ancillaryServices;
   const fcrMarketGaps = fcrActive ? fcrMarketRealismGaps(fcrMarket) : [];
 
+  const maxProductPowerKw = maxProductStepKw(cfg.powerSizing.productStepsKw);
   const base = {
     capacityKWh,
     physicalPowerNeedKw,
     productPowerKw,
     maxProductCRate,
+    maxProductPowerKw,
+    productCapBound: maxProductPowerKw > 0 && physicalPowerNeedKw > maxProductPowerKw + 1e-9,
     candidatePowersKw,
     objective: OBJECTIVE_TEXT,
     tieToleranceSek: POWER_TIE_TOLERANCE_SEK,
