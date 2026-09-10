@@ -506,7 +506,7 @@ function ResultStep() {
                   );
                 })}
             </div>
-            <p className="mt-2.5 text-center text-[11px] leading-relaxed">
+            <p className="mt-2 text-center text-[11px] leading-relaxed">
               {t("results.investment.explain")}
             </p>
           </div>
