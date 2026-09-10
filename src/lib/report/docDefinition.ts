@@ -30,7 +30,7 @@ const MARGIN_X = 50;
 const MARGIN_TOP = 40;
 const MARGIN_BOTTOM = 56;
 const CONTENT_W = PAGE_W - MARGIN_X * 2;
-const HEADER_H = 86;
+const HEADER_H = 92;
 const CARD_GAP = 8;
 const CARD_RADIUS = 5;
 const ACCENT_W = 58;
@@ -373,10 +373,10 @@ export function buildDocDefinition(model: ReportModel): Record<string, unknown> 
           text: `${model.copy.created}: ${model.createdISO}`,
           fontSize: 9,
           alignment: "right",
-          margin: [0, 28, 0, 0],
+          margin: [0, 26, 0, 0],
         },
       ],
-      margin: [0, 0, 0, 34],
+      margin: [0, -8, 0, 42],
     },
   ];
 
