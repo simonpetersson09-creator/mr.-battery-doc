@@ -124,6 +124,11 @@ export interface EngineStrategyInput {
   /** Reduced grid import. */
   reduceImport?: boolean;
   peakShaving?: boolean;
+  /**
+   * Peak shaving as an EXPLICIT TECHNICAL goal. Only then may peak shaving charge from
+   * the grid when no demand charge is priced.
+   */
+  peakShavingIsTechnicalGoal?: boolean;
   /** Target reduction of the modelled monthly peak, %. */
   peakTargetReductionPct?: number;
   peakActiveHours?: number[];

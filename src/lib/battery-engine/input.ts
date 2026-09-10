@@ -100,7 +100,17 @@ export function toLabConfig(input: BatteryEngineInput = {}): LabConfig {
       targetReductionPct: st.peakTargetReductionPct ?? base.peakShaving.targetReductionPct,
       activeHours: st.peakActiveHours ?? base.peakShaving.activeHours,
       activeMonths: st.peakActiveMonths ?? base.peakShaving.activeMonths,
+      /**
+       * MODEL RULE: with no demand charge, economically driven peak shaving must not
+       * charge the battery from the grid — the losses can never be repaid. The peak
+       * DISCHARGE is untouched, so the physical peak reduction is still simulated. An
+       * explicit technical peak-shaving goal keeps grid charging available.
+       */
+      gridChargingEnabled:
+        (st.peakShavingIsTechnicalGoal ?? false) ||
+        (toEconomyConfig(input).peakDemandChargeSekPerKwMonth ?? 0) > 0,
     },
+
     ancillary: {
       ...base.ancillary,
       enabled: st.fcrDUp ?? base.ancillary.enabled,
@@ -140,6 +150,8 @@ export function toEconomyConfig(input: BatteryEngineInput = {}): OperatingEconom
     peakTariffSource:
       e.peakTariffSource ?? (hasTariff ? "user-provided" : SWEDISH_OPERATING_ECONOMY.peakTariffSource),
     eurSekRate: e.eurSekRate ?? SWEDISH_OPERATING_ECONOMY.eurSekRate,
+    customerAncillaryShare:
+      e.customerAncillaryShare ?? SWEDISH_OPERATING_ECONOMY.customerAncillaryShare,
   };
 }
 
