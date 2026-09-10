@@ -255,11 +255,9 @@ export const de = {
     bestChoice: "Beste Wahl",
     level: { lower: "Kleiner", recommended: "Empfohlen", higher: "Größer" },
     balance: {
-      base: "Empfohlen ist die Größe mit der besten Balance für den Energiebedarf der Immobilie.",
-      higher:
-        "Empfohlen ist die Größe mit der besten Balance für den Energiebedarf der Immobilie. Eine größere Batterie kann einen höheren berechneten Nutzen bringen.",
-      higherAncillary:
-        "Empfohlen ist die Größe mit der besten Balance für den Energiebedarf der Immobilie. Eine größere Batterie kann einen höheren berechneten Nutzen bringen, besonders mit Systemdienstleistungen.",
+      base: "Beste Balance zwischen Batteriegröße und berechnetem Nutzen.",
+      higher: "Beste Balance zwischen Batteriegröße und berechnetem Nutzen.",
+      higherAncillary: "Beste Balance zwischen Batteriegröße und berechnetem Nutzen.",
     },
     energy: {
       title: "Energie",

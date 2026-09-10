@@ -248,11 +248,9 @@ export const fi = {
     bestChoice: "Paras valinta",
     level: { lower: "Pienempi", recommended: "Suositeltu", higher: "Suurempi" },
     balance: {
-      base: "Suositeltu on koko, joka antaa parhaan tasapainon kiinteistön energiatarpeen kannalta.",
-      higher:
-        "Suositeltu on koko, joka antaa parhaan tasapainon kiinteistön energiatarpeen kannalta. Suurempi akku voi tuoda suuremman lasketun hyödyn.",
-      higherAncillary:
-        "Suositeltu on koko, joka antaa parhaan tasapainon kiinteistön energiatarpeen kannalta. Suurempi akku voi tuoda suuremman lasketun hyödyn, erityisesti reservipalveluiden kanssa.",
+      base: "Paras tasapaino akun koon ja lasketun hyödyn välillä.",
+      higher: "Paras tasapaino akun koon ja lasketun hyödyn välillä.",
+      higherAncillary: "Paras tasapaino akun koon ja lasketun hyödyn välillä.",
     },
     energy: {
       title: "Energia",

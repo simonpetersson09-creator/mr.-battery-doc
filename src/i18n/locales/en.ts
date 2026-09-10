@@ -252,11 +252,9 @@ export const en = {
     bestChoice: "Best choice",
     level: { lower: "Lower", recommended: "Recommended", higher: "Higher" },
     balance: {
-      base: "Recommended is the size that gives the best balance for the property's energy needs.",
-      higher:
-        "Recommended is the size that gives the best balance for the property's energy needs. A larger battery may give a higher calculated benefit.",
-      higherAncillary:
-        "Recommended is the size that gives the best balance for the property's energy needs. A larger battery may give a higher calculated benefit, especially with grid services.",
+      base: "Best balance between battery size and calculated benefit.",
+      higher: "Best balance between battery size and calculated benefit.",
+      higherAncillary: "Best balance between battery size and calculated benefit.",
     },
     energy: {
       title: "Energy",
