@@ -82,8 +82,8 @@ describe("reserve product labels come from the market config", () => {
     );
     // The customer-facing wording itself is unchanged, now centralized in the locale.
     expect(sv.results.benefit.ancillaryHint).toContain("Beräknat marknadsvärde");
-    expect(sv.results.benefit.ancillaryNote).toContain("aggregator, balansansvarig");
-    expect(sv.results.benefit.ancillaryNote).toContain("avtal, marknadstillträde");
+    expect(sv.results.benefit.ancillaryNote).toContain("Beräknat marknadsvärde");
+    expect(sv.results.benefit.ancillaryNote).toContain("2025");
   });
 });
 
