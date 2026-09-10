@@ -226,7 +226,7 @@ function ResultStep() {
                   <span
                     className={
                       "text-[10px] font-bold uppercase tracking-wider " +
-                      (main ? "text-foreground" : "text-foreground/70")
+                      (main ? "text-foreground" : "text-foreground/75")
                     }
                   >
                     {label}
@@ -235,7 +235,7 @@ function ResultStep() {
                     <span
                       className={
                         "font-bold tabular-nums " +
-                        (main ? "text-2xl" : "text-xl text-foreground/90")
+                        (main ? "text-2xl" : "text-xl text-foreground/95")
                       }
                     >
                       {nf(alt.capacityKWh)}
@@ -243,7 +243,7 @@ function ResultStep() {
                     <span
                       className={
                         "ml-0.5 text-xs font-medium " +
-                        (main ? "text-foreground/60" : "text-foreground/55")
+                        (main ? "text-foreground/60" : "text-foreground/65")
                       }
                     >
                       kWh
@@ -251,7 +251,7 @@ function ResultStep() {
                     <p
                       className={
                         "text-[10px] font-medium tabular-nums " +
-                        (main ? "text-foreground/70" : "text-foreground/60")
+                        (main ? "text-foreground/70" : "text-foreground/70")
                       }
                     >
                       {nf(alt.powerKw, 1)} kW
