@@ -1,3 +1,4 @@
+/** @vitest-environment jsdom */
 /**
  * PURCHASE UI TEST MODE TESTS.
  *
