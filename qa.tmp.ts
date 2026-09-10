@@ -24,7 +24,7 @@ console.log("model done");
 const PdfPrinter: any = (await import("pdfmake/src/printer.js")).default;
 const VirtualFileSystem: any = (await import("pdfmake/src/virtual-fs.js")).default;
 const URLResolver: any = (await import("pdfmake/src/URLResolver.js")).default;
-const vfs = new VirtualFileSystem();
+const vfs = VirtualFileSystem;
 const printer = new PdfPrinter({ Roboto: {
   normal: "node_modules/pdfmake/fonts/Roboto/Roboto-Regular.ttf",
   bold: "node_modules/pdfmake/fonts/Roboto/Roboto-Medium.ttf",
