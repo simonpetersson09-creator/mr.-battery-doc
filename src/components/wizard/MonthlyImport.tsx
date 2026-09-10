@@ -12,6 +12,24 @@ import { formatNumber, useT } from "@/i18n";
 import { monthShortLabels } from "@/i18n/labels";
 import { extractMonthlyDocument } from "@/lib/import/extractMonthlyTransport";
 import {
+  IMPORT_ACCEPT,
+  isTextImport,
+  rejectionFor,
+  resolveMimeType,
+} from "@/lib/import/fileRules";
+import {
+  nativePickersAvailable,
+  pickFrom,
+  type PickedDocument,
+  type PickerSource,
+} from "@/lib/import/nativePicker";
+import {
+  prepareFileUpload,
+  prepareImageUpload,
+  readAsDataUrl,
+  textFromDataUrl,
+} from "@/lib/import/prepareUpload";
+import {
   extractFromText,
   reviewState,
   selectSeries,
@@ -20,53 +38,6 @@ import {
   type SeriesKind,
 } from "@/lib/import/monthly";
 import { DecimalInput } from "./DecimalInput";
-
-const TEXT_TYPES = /(csv|plain|tab-separated|text\/)/i;
-/** Anything larger than this never reaches the network. */
-const MAX_FILE_BYTES = 15 * 1024 * 1024;
-/** Longest edge sent to the reader — plenty for table text, far cheaper to send. */
-const MAX_IMAGE_EDGE = 1800;
-
-function readAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const fr = new FileReader();
-    fr.onerror = () => reject(new Error("read"));
-    fr.onload = () => resolve(String(fr.result));
-    fr.readAsDataURL(file);
-  });
-}
-
-/**
- * Shrinks oversized photos before upload. Keeps the original when the browser
- * cannot decode it or the image is already small.
- */
-async function toUploadDataUrl(file: File): Promise<{ dataUrl: string; mimeType: string }> {
-  const mimeType = file.type || "image/jpeg";
-  const dataUrl = await readAsDataUrl(file);
-  if (!mimeType.startsWith("image/") || typeof document === "undefined") {
-    return { dataUrl, mimeType };
-  }
-  try {
-    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const el = new Image();
-      el.onload = () => resolve(el);
-      el.onerror = () => reject(new Error("decode"));
-      el.src = dataUrl;
-    });
-    const longest = Math.max(img.width, img.height);
-    if (longest <= MAX_IMAGE_EDGE) return { dataUrl, mimeType };
-    const scale = MAX_IMAGE_EDGE / longest;
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.round(img.width * scale);
-    canvas.height = Math.round(img.height * scale);
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return { dataUrl, mimeType };
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    return { dataUrl: canvas.toDataURL("image/jpeg", 0.9), mimeType: "image/jpeg" };
-  } catch {
-    return { dataUrl, mimeType };
-  }
-}
 
 
 export function MonthlyImport({
