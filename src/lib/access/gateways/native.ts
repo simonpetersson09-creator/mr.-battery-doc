@@ -32,6 +32,10 @@ export interface NativePurchasePlugin {
     userCancelled?: boolean;
     verified?: boolean;
     expiresISO?: string | null;
+    /** StoreKit transaction reference — sent to our backend for verification. */
+    transactionId?: string;
+    originalTransactionId?: string | null;
+    productId?: string;
     code?: string;
     message?: string;
   }>;
