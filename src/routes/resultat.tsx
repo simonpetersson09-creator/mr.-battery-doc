@@ -227,7 +227,7 @@ function ResultStep() {
       titleClassName="font-display text-[24px] font-extrabold tracking-tight"
       eyebrowClassName="text-[11px] font-bold uppercase tracking-widest"
       introClassName="mt-1 text-[11px] leading-relaxed"
-      navButtonClassName="text-[16px]"
+      navButtonClassName="text-[15px]"
       footerAction={restart}
       footerExtra={pdfReport}
       compact
