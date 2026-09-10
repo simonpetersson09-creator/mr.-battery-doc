@@ -82,8 +82,8 @@ describe("apple server credentials", () => {
 
 describe("transaction evaluation", () => {
   const expected = {
-    bundleId: "com.mrbatterydoc.app",
-    productId: "com.mrbatterydoc.calculation.unlock",
+    bundleId: "com.example.bundle",
+    productId: "com.example.consumable",
     transactionId: "tx1",
   };
 
