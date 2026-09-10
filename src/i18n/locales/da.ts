@@ -256,6 +256,11 @@ export const da = {
       higher: "Bedste balance mellem batteristørrelse og beregnet nytte.",
       higherAncillary: "Bedste balance mellem batteristørrelse og beregnet nytte.",
     },
+    improvements: {
+      title: "Sådan forbedres ejendommen",
+      summaryShifted: "{{value}} flyttet solcellestrøm",
+      summaryPeak: "{{value}} lavere effektspids",
+    },
     energy: {
       title: "Energi",
       selfConsumption: "Egetforbrug",
