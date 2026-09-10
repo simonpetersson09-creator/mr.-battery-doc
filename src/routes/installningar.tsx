@@ -24,7 +24,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LanguageSelect } from "@/components/LanguageSelect";
 import { useT } from "@/i18n";
-import { LEGAL_LINKS } from "@/lib/access/legalLinks";
 import { useAccess } from "@/state/access";
 
 /** Apples standard-URL for subscription management (opens the App Store sheet on iOS). */
@@ -187,7 +186,7 @@ function SettingsPage() {
 
           <Link
             to="/historik"
-            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-3 text-left"
+            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5 text-left"
           >
             <span className="flex size-8 items-center justify-center rounded-full bg-muted">
               <History className="size-4" />
@@ -196,35 +195,27 @@ function SettingsPage() {
             <ChevronRight className="size-4 text-muted-foreground" />
           </Link>
 
-          {LEGAL_LINKS.terms ? (
-            <a
-              href={LEGAL_LINKS.terms}
-              target="_blank"
-              rel="noreferrer"
-              className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-3"
-            >
-              <span className="flex size-8 items-center justify-center rounded-full bg-muted">
-                <FileText className="size-4" />
-              </span>
-              <span className="flex-1 text-[14px] font-semibold">{t("settings.terms")}</span>
-              <ChevronRight className="size-4 text-muted-foreground" />
-            </a>
-          ) : null}
+          <Link
+            to="/anvandarvillkor"
+            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5"
+          >
+            <span className="flex size-8 items-center justify-center rounded-full bg-muted">
+              <FileText className="size-4" />
+            </span>
+            <span className="flex-1 text-[14px] font-semibold">{t("settings.terms")}</span>
+            <ChevronRight className="size-4 text-muted-foreground" />
+          </Link>
 
-          {LEGAL_LINKS.privacy ? (
-            <a
-              href={LEGAL_LINKS.privacy}
-              target="_blank"
-              rel="noreferrer"
-              className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-3"
-            >
-              <span className="flex size-8 items-center justify-center rounded-full bg-muted">
-                <ShieldCheck className="size-4" />
-              </span>
-              <span className="flex-1 text-[14px] font-semibold">{t("settings.privacy")}</span>
-              <ChevronRight className="size-4 text-muted-foreground" />
-            </a>
-          ) : null}
+          <Link
+            to="/integritetspolicy"
+            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5"
+          >
+            <span className="flex size-8 items-center justify-center rounded-full bg-muted">
+              <ShieldCheck className="size-4" />
+            </span>
+            <span className="flex-1 text-[14px] font-semibold">{t("settings.privacy")}</span>
+            <ChevronRight className="size-4 text-muted-foreground" />
+          </Link>
         </div>
 
         {notice ? (
