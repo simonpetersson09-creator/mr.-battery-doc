@@ -168,8 +168,13 @@
     radial-gradient(140% 110% at 78% 88%, rgba(50, 50, 50, 0.04) 0%, rgba(50, 50, 50, 0) 58%);
 }
 
+/*
+ * Native shell (Capacitor WebView). Here env(safe-area-inset-*) reports the real
+ * device insets, so we do NOT add an artificial minimum on top of them — that is
+ * what creates double padding / an empty band under the status bar.
+ */
 html[data-native="true"] {
-  --safe-top-min: 3.5rem;
+  --safe-top-min: 0.5rem;
 }
 
 .dark {
@@ -213,6 +218,7 @@ html[data-native="true"] {
   }
 
   html {
+    color-scheme: light;
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
     /* Daylight gradient on the root element so it spans safe areas seamlessly. */
@@ -225,6 +231,10 @@ html[data-native="true"] {
       radial-gradient(90% 70% at 0% 0%, oklch(0.8982 0.171 96.2 / 0.14) 0%, transparent 55%);
     background-attachment: fixed;
     background-repeat: no-repeat;
+    /* Paint the app background behind the status bar / home indicator and keep it
+       during rubber-band scrolling, so no white or black edge can appear. */
+    background-size: cover;
+    min-height: 100%;
     overscroll-behavior: none;
   }
 
@@ -240,10 +250,16 @@ html[data-native="true"] {
   }
 
   body {
+    /* Transparent so the html gradient shows through edge-to-edge; #root matches. */
     background-color: transparent;
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    min-height: 100dvh;
     overscroll-behavior-y: none;
+  }
+
+  body > * {
+    background-color: transparent;
   }
 
   h1,
@@ -272,7 +288,14 @@ html[data-native="true"] {
 }
 
 @utility pb-safe {
+  /* Keeps CTAs clear of the home indicator without a fixed device offset. */
   padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+}
+
+/* Horizontal insets (landscape / rounded corners). */
+@utility px-safe {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 /* Mobile app shell: centered column, full viewport height. */
@@ -284,6 +307,9 @@ html[data-native="true"] {
   display: flex;
   flex-direction: column;
   background-color: transparent;
+  /* Left/right device insets belong on the outermost layout, never hardcoded. */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 @utility card-elevated {

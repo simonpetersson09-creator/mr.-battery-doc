@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { WizardProvider } from "../state/wizard";
 import { LanguageProvider } from "../i18n/LanguageProvider";
 import { AccessProvider } from "../state/access";
+import { isNativePlatform, platformName } from "../lib/platform/runtime";
 
 
 function NotFoundComponent() {
@@ -89,7 +90,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "description",
         content: "Hitta rätt batteristorlek och effekt till din fastighet.",
       },
-      { name: "theme-color", content: "#FFDC38" },
+      { name: "theme-color", content: "#FDFBF4" },
+      { name: "color-scheme", content: "light" },
       { property: "og:site_name", content: "Mr. Battery Doc" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -131,6 +133,17 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  // Flags the native WebView so safe-area CSS can drop the web-only minimum inset.
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isNativePlatform()) {
+      root.dataset["native"] = "true";
+      root.dataset["platform"] = platformName();
+    } else {
+      delete root.dataset["native"];
+    }
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
