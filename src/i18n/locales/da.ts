@@ -222,10 +222,12 @@ export const da = {
   },
   results: {
     investment: {
-      title: "Investering",
-      targetPayback: "Ønsket tilbagebetalingstid",
-      maxInvestment: "Rimelig investeringsomkostning",
-      benefit: "Beregnet årlig kundegevinst",
+      title: "Maksimal investering ved din valgte tilbagebetalingstid",
+      basedOn: "Baseret på din valgte tilbagebetalingstid på {{years}}",
+      otherTitle: "Maksimal investering ved forskellige tilbagebetalingstider",
+      yourChoice: "Dit valg",
+      approx: "ca.",
+      explain: "Kortere tilbagebetalingstid betyder en lavere maksimal investering. Her kan du se, hvordan den maksimale investering ændrer sig, hvis du accepterer en kortere eller længere tilbagebetalingstid.",
     },
     title: "Resultat",
     intro: "Sådan ser forslaget ud for din ejendom.",

@@ -225,10 +225,12 @@ export const de = {
   },
   results: {
     investment: {
-      title: "Investition",
-      targetPayback: "Gewünschte Amortisationszeit",
-      maxInvestment: "Sinnvolle Investitionskosten",
-      benefit: "Berechneter jährlicher Kundennutzen",
+      title: "Maximale Investition bei Ihrer gewählten Amortisationszeit",
+      basedOn: "Basierend auf Ihrer gewählten Amortisationszeit von {{years}}",
+      otherTitle: "Maximale Investition bei verschiedenen Amortisationszeiten",
+      yourChoice: "Ihre Wahl",
+      approx: "ca.",
+      explain: "Eine kürzere Amortisationszeit bedeutet eine niedrigere maximale Investition. Hier sehen Sie, wie sich die maximale Investition verändert, wenn Sie eine kürzere oder längere Amortisationszeit akzeptieren.",
     },
     title: "Ergebnis",
     intro: "So sieht der Vorschlag für Ihre Immobilie aus.",
