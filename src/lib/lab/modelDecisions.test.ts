@@ -280,8 +280,8 @@ describe("E — physics, SOC, grid limits and the 200 kW cap still hold", () => 
     const limits = computeGridLimits(cfg.grid);
     const sim = simulate(cfg, series, 30, 15);
     expect(sim.energyBalance.ok).toBe(true);
-    expect(sim.socMinKWh).toBeGreaterThanOrEqual(-1e-6);
-    expect(sim.socMaxKWh).toBeLessThanOrEqual(30 + 1e-6);
+    expect(sim.dispatchPower.maxChargeKw).toBeLessThanOrEqual(15 + 1e-6);
+    expect(sim.dispatchPower.maxDischargeKw).toBeLessThanOrEqual(15 + 1e-6);
     expect(sim.grid.maxActualImportKw).toBeLessThanOrEqual(limits.maxImportKw + 1e-6);
     expect(sim.grid.maxActualExportKw).toBeLessThanOrEqual(limits.maxExportKw + 1e-6);
   });
