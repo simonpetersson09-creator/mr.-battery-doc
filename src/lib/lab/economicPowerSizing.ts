@@ -24,6 +24,7 @@
  */
 
 import {
+  annualCustomerBenefitSek,
   evaluateOperatingEconomy,
   optimizeFcrReservation,
   SWEDISH_OPERATING_ECONOMY,
