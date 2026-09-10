@@ -88,18 +88,18 @@ describe("simulated verification", () => {
     const purchase = await createDevTestGateway().purchase("singleReport");
     if (purchase.status !== "purchased") throw new Error("expected purchase");
 
-    const ok = await verifyPurchaseOutcome(purchase, devVerifyPurchase);
-    expect(ok.outcome.status).toBe("purchased");
-    expect(ok.mayFinish).toBe(true);
+    const ok = await verifyPurchaseOutcome("singleReport", purchase, "calc-1", devVerifyPurchase);
+    expect(ok.result.status).toBe("purchased");
+    expect(ok.finishTransaction).toBe(true);
 
     setTestConfig({ report: "verificationRejected" });
-    const bad = await verifyPurchaseOutcome(purchase, devVerifyPurchase);
-    expect(bad.outcome.status).toBe("failed");
+    const bad = await verifyPurchaseOutcome("singleReport", purchase, "calc-1", devVerifyPurchase);
+    expect(bad.result.status).toBe("failed");
 
     setTestConfig({ report: "verificationError" });
-    const soft = await verifyPurchaseOutcome(purchase, devVerifyPurchase);
-    expect(soft.outcome.status).toBe("unresolved");
-    expect(soft.mayFinish).toBe(false);
+    const soft = await verifyPurchaseOutcome("singleReport", purchase, "calc-1", devVerifyPurchase);
+    expect(soft.result.status).toBe("unresolved");
+    expect(soft.finishTransaction).toBe(false);
   });
 });
 
