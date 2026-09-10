@@ -1,57 +1,50 @@
-import { defaultConfig } from "../../src/lib/lab/defaults";
+import { defaultConfig, spreadAnnual, DEFAULT_LOAD_MONTH_SHARE, DEFAULT_PV_MONTH_SHARE } from "../../src/lib/lab/defaults";
 import { buildSeries, simulate } from "../../src/lib/lab/simulate";
-import { computeGridLimits, dispatch, baseline } from "../../src/lib/lab/dispatch";
 import type { LabConfig } from "../../src/lib/lab/types";
 
-function mk(over: (c: LabConfig) => void): LabConfig {
-  const c = defaultConfig();
-  over(c);
-  return c;
-}
+const setLoad = (c: LabConfig, kWh: number) => { c.consumption.annualKWh = kWh; c.consumption.monthlyKWh = spreadAnnual(kWh, DEFAULT_LOAD_MONTH_SHARE); };
+const setPv = (c: LabConfig, kWh: number) => { c.solar.monthlyKWh = spreadAnnual(kWh, DEFAULT_PV_MONTH_SHARE); };
 
-type Case = { name: string; cfg: LabConfig; cap: number; kw: number };
-const cases: Case[] = [];
-for (const [name, over] of Object.entries({
-  base: (_c: LabConfig) => {},
-  bigLoad: (c: LabConfig) => { c.consumption.annualKWh = 250000; c.grid.mainFuseA = 200; },
-  noPv: (c: LabConfig) => { c.solar.annualKWh = 0; },
-  hugePv: (c: LabConfig) => { c.solar.annualKWh = 60000; c.consumption.annualKWh = 8000; },
-  smallFuse: (c: LabConfig) => { c.grid.mainFuseA = 16; },
-  fcrOn: (c: LabConfig) => { c.strategies.ancillaryServices = true; },
-  noPeakFee: (c: LabConfig) => { c.tariff && ((c.tariff as any).demandFeeKrPerKwMonth = 0); },
-} as Record<string, (c: LabConfig) => void>)) {
-  for (const [cap, kw] of [[10, 5], [25, 12.5], [30, 15], [100, 50]] as [number, number][]) {
-    cases.push({ name: `${name}/${cap}kWh-${kw}kW`, cfg: mk(over), cap, kw });
+const variants: Record<string, (c: LabConfig) => void> = {
+  base: () => {},
+  bigCommercial: (c) => { setLoad(c, 250000); setPv(c, 80000); c.solar.kWp = 90; c.solar.inverterAcKw = 80; c.grid.mainFuseA = 200; c.battery.chargeKw = 100; c.battery.dischargeKw = 100; },
+  noPv: (c) => { setPv(c, 0); c.solar.enabled = false; },
+  hugePv: (c) => { setPv(c, 60000); setLoad(c, 8000); c.solar.kWp = 50; c.solar.inverterAcKw = 40; },
+  tinyFuse: (c) => { c.grid.mainFuseA = 16; setLoad(c, 40000); },
+  peakOn: (c) => { c.strategies.peakShaving = true; c.demandCharge.enabled = true; },
+  peakNoFee: (c) => { c.strategies.peakShaving = true; c.demandCharge.enabled = true; c.demandCharge.krPerKw = 0; },
+  fcr: (c) => { c.strategies.ancillaryServices = true; },
+  fcrPeak: (c) => { c.strategies.ancillaryServices = true; c.strategies.peakShaving = true; c.demandCharge.enabled = true; },
+  allOn: (c) => { c.strategies.peakShaving = true; c.strategies.arbitrage = true; c.strategies.curtailmentRecovery = true; c.strategies.backupReserve = true; c.strategies.ancillaryServices = true; c.demandCharge.enabled = true; c.battery.reserveSocPct = 30; },
+};
+
+let worst = { r: 0, name: "" };
+let worstSoc = { d: 0, name: "", pct: 0 };
+const lines: string[] = [];
+for (const [name, over] of Object.entries(variants)) {
+  for (const [cap, kw] of [[10, 5], [25, 12.5], [30, 15], [100, 50], [200, 100]] as [number, number][]) {
+    const c = defaultConfig(); over(c);
+    c.battery.nominalKWh = cap; c.battery.chargeKw = Math.max(c.battery.chargeKw, kw); c.battery.dischargeKw = c.battery.chargeKw;
+    const s = buildSeries(c);
+    const r = simulate(c, s, cap, kw);
+    const eb = (r as any).energyBalance;
+    const t = (r as any).dispatch?.tallies ?? (r as any).tallies;
+    const socD = (t?.socEnd ?? 0) - (t?.socStart ?? 0);
+    const rt = t && t.chargedKWh > 0 ? t.dischargedKWh / t.chargedKWh : NaN;
+    if (Math.abs(eb.residualKWh) > Math.abs(worst.r)) worst = { r: eb.residualKWh, name: `${name}/${cap}` };
+    if (Math.abs(socD) > Math.abs(worstSoc.d)) worstSoc = { d: socD, name: `${name}/${cap}`, pct: Math.abs(socD) / Math.max(1, t.dischargedKWh) * 100 };
+    lines.push(`${name}/${cap}kWh-${kw}kW ok=${eb.ok} resid=${eb.residualKWh.toExponential(2)} socDelta=${socD.toFixed(2)} d/c=${rt.toFixed(4)} cycles=${t.equivalentFullCycles.toFixed(1)}`);
   }
 }
+console.log(lines.join("\n"));
+console.log(`\nWORST RESIDUAL: ${worst.r.toExponential(3)} kWh (${worst.name})`);
+console.log(`WORST SOC DELTA: ${worstSoc.d.toFixed(2)} kWh (${worstSoc.name}) = ${worstSoc.pct.toFixed(3)} % of annual discharge`);
 
-let worstAbs = 0, worstRel = 0, worstName = "";
-let socDiffWorst = 0, socDiffName = "";
-const rtLines: string[] = [];
-
-for (const c of cases) {
-  const series = buildSeries(c.cfg);
-  const limits = computeGridLimits(c.cfg.grid);
-  const d = dispatch({
-    series, battery: c.cfg.battery, grid: c.cfg.grid, strategies: c.cfg.strategies,
-    peak: c.cfg.peakShaving, spot: c.cfg.spot, flex: c.cfg.flex,
-    ancillary: null, capacityKWh: c.cap, powerKw: c.kw,
-  });
-  const t = d.tallies;
-  const S = (a: number[]) => a.reduce((x, y) => x + y, 0);
-  const load = S(series.load), pv = S(series.pv);
-  const imp = S(d.importSeries), exp = S(d.exportSeries);
-  // production + import + discharge(AC out) = load - unserved + export + charge(AC in) + curtail + losses(internal) ... 
-  const lhs = pv + imp + t.dischargedKWh;
-  const rhs = (load - t.unservedKWh) + exp + t.chargedKWh + t.curtailedKWh;
-  const resid = lhs - rhs;
-  const rel = Math.abs(resid) / Math.max(1, load);
-  if (Math.abs(resid) > Math.abs(worstAbs)) { worstAbs = resid; worstRel = rel; worstName = c.name; }
-  const socDiff = t.socEnd - t.socStart;
-  if (Math.abs(socDiff) > Math.abs(socDiffWorst)) { socDiffWorst = socDiff; socDiffName = c.name; }
-  const rt = t.chargedKWh > 0 ? t.dischargedKWh / t.chargedKWh : NaN;
-  rtLines.push(`${c.name}: resid=${resid.toFixed(6)} kWh (rel ${(rel*1e6).toFixed(3)} ppm) socStart=${t.socStart.toFixed(3)} socEnd=${t.socEnd.toFixed(3)} d/c=${rt.toFixed(4)} losses=${t.lossesKWh.toFixed(1)} charged=${t.chargedKWh.toFixed(1)}`);
+// initial SOC sensitivity
+console.log("\nINITIAL SOC SENSITIVITY (base, 30 kWh/15 kW):");
+for (const p of [5, 25, 50, 75, 95]) {
+  const c = defaultConfig(); c.battery.nominalKWh = 30; c.battery.chargeKw = 15; c.battery.dischargeKw = 15; c.battery.initialSocPct = p;
+  const s = buildSeries(c); const r: any = simulate(c, s, 30, 15);
+  const t = r.dispatch?.tallies ?? r.tallies;
+  console.log(`  initialSoc=${p}% discharged=${t.dischargedKWh.toFixed(1)} charged=${t.chargedKWh.toFixed(1)} socEnd=${t.socEnd.toFixed(2)} resid=${r.energyBalance.residualKWh.toExponential(2)}`);
 }
-console.log(rtLines.join("\n"));
-console.log(`\nWORST ABS RESIDUAL: ${worstAbs.toExponential(3)} kWh (${worstName}), rel ${(worstRel*1e6).toFixed(4)} ppm`);
-console.log(`WORST SOC START/END DIFF: ${socDiffWorst.toFixed(3)} kWh (${socDiffName})`);
