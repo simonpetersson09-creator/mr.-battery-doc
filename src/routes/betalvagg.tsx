@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { useT } from "@/i18n";
 import { getCalculation } from "@/lib/access/calculationCache";
 import { LEGAL_LINKS } from "@/lib/access/legalLinks";
+import { openManageSubscription } from "@/lib/access/manageSubscription";
 import type { ProductKey } from "@/lib/access/products";
 import type { PurchaseErrorCode, StoreProduct } from "@/lib/access/purchaseGateway";
 import { useAccess } from "@/state/access";
