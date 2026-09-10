@@ -42,6 +42,47 @@ export interface OperatingEconomyConfig {
   peakTariffSource: PeakTariffSource;
   /** Currency assumption, not part of Svenska kraftnät's FCR data. */
   eurSekRate: number;
+  /**
+   * MODEL RULE (choice objective only): the share 0–1 of the ancillary MARKET value the
+   * customer actually receives. It is used ONLY when the engine compares competing
+   * dispatch/power alternatives for the SAME battery, so a marginally better raw FCR
+   * result can never be chosen over an alternative with higher TOTAL customer benefit.
+   * Every reported figure still shows the full market value; nothing is rescaled.
+   * Undefined = the default share below.
+   */
+  customerAncillaryShare?: number;
+}
+
+/**
+ * Share of the ancillary market value that reaches the customer, used in the SELECTION
+ * objective only. Mirrors the presentation-layer default (75 %).
+ */
+export const DEFAULT_ENGINE_CUSTOMER_ANCILLARY_SHARE = 0.75;
+
+/** Clamped customer share of an economy config. */
+export function customerAncillaryShareOf(econ: OperatingEconomyConfig): number {
+  const v = econ.customerAncillaryShare;
+  if (typeof v !== "number" || !Number.isFinite(v)) return DEFAULT_ENGINE_CUSTOMER_ANCILLARY_SHARE;
+  return Math.min(1, Math.max(0, v));
+}
+
+/**
+ * THE DECISION OBJECTIVE for competing alternatives of the same battery:
+ *
+ *   annualCustomerBenefit = energyBenefit + peakBenefit + ancillaryCustomerValue
+ *
+ * Reported totals keep using the full market value; only the CHOICE uses this.
+ */
+export function annualCustomerBenefitSek(
+  energyBenefitSek: number,
+  peakBenefitSek: number | null,
+  ancillaryMarketValueSek: number | null,
+  econ: OperatingEconomyConfig,
+): number {
+  const share = customerAncillaryShareOf(econ);
+  return round2(
+    energyBenefitSek + (peakBenefitSek ?? 0) + (ancillaryMarketValueSek ?? 0) * share,
+  );
 }
 
 /**
@@ -59,7 +100,9 @@ export const SWEDISH_OPERATING_ECONOMY: OperatingEconomyConfig = {
   peakDemandChargeSekPerKwMonth: SWEDISH_DEFAULT_PEAK_TARIFF_SEK_PER_KW_MONTH,
   peakTariffSource: "default-estimate",
   eurSekRate: 11.3,
+  customerAncillaryShare: DEFAULT_ENGINE_CUSTOMER_ANCILLARY_SHARE,
 };
+
 
 export const PEAK_TARIFF_ESTIMATE_TEXT =
   "Schablonvärde för Sverige – justera efter ditt nätavtal.";
