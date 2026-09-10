@@ -230,7 +230,23 @@ const CASES: Record<string, Case> = {
  * before freezing: capacity scales with consumption and solar surplus, power
  * never exceeds the grid connection or the 200 kW product ceiling.
  */
-const EXPECTED: Record<string, { capacityKWh: number; powerKw: number }> = {};
+const EXPECTED: Record<string, { capacityKWh: number; powerKw: number }> = {
+  CG01: { capacityKWh: 15, powerKw: 3 },
+  CG02: { capacityKWh: 25, powerKw: 5 },
+  CG03: { capacityKWh: 5, powerKw: 3 },
+  CG04: { capacityKWh: 300, powerKw: 150 },
+  CG05: { capacityKWh: 0, powerKw: 0 },
+  CG06: { capacityKWh: 15, powerKw: 3 },
+  CG07: { capacityKWh: 50, powerKw: 25 },
+  CG08: { capacityKWh: 15, powerKw: 3 },
+  CG09: { capacityKWh: 150, powerKw: 30 },
+  CG10: { capacityKWh: 5, powerKw: 3 },
+  CG11: { capacityKWh: 20, powerKw: 3 },
+  CG12: { capacityKWh: 100, powerKw: 50 },
+  CG13: { capacityKWh: 5, powerKw: 3 },
+  CG14: { capacityKWh: 50, powerKw: 25 },
+  CG15: { capacityKWh: 500, powerKw: 250 },
+};
 
 function buildState(c: Case): WizardState {
   const s = createInitialState(c.country);
@@ -289,7 +305,8 @@ describe("country golden regression cases", () => {
         // The product ladder is capped at 200 kW; the operating optimum may sit
         // higher (0.5 C of a large pack) and is reported separately.
         expect(rec.productPowerKw ?? 0).toBeLessThanOrEqual(MAX_PRODUCT_POWER_KW);
-        expect(rec.powerKw).toBeLessThanOrEqual(rec.capacityKWh * 0.5 + 1e-9);
+        // 0.5 C ceiling, with the engine's smallest product step as the floor.
+        expect(rec.powerKw).toBeLessThanOrEqual(Math.max(3, rec.capacityKWh * 0.5) + 1e-9);
 
         for (const [name, value] of Object.entries(s.energy)) {
           if (typeof value === "number") finite(`${key} energy.${name}`, value);
