@@ -282,6 +282,7 @@ export const en = {
       ancillaryShare: "Your share of the ancillary value",
       ancillaryShareHint:
         "The share is an estimate. Your actual compensation depends on aggregator, balance responsible party, fees and contract terms.",
+      showCalculation: "Show the calculation for ancillary services",
       ancillaryCustomer: "Your calculated compensation",
       title: "Calculated benefit",
       none: "With the selected settings the battery gives no calculated financial benefit.",

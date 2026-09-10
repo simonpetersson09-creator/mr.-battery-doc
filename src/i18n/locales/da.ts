@@ -282,6 +282,7 @@ export const da = {
       ancillaryShare: "Din andel af værdien fra støttetjenester",
       ancillaryShareHint:
         "Andelen er et skøn. Den faktiske betaling afhænger blandt andet af aggregator, balanceansvarlig, gebyrer og aftalevilkår.",
+      showCalculation: "Vis beregningen af støttetjenester",
       ancillaryCustomer: "Din beregnede betaling",
       title: "Beregnet nytte",
       none: "Med de valgte indstillinger giver batteriet ingen beregnet økonomisk nytte.",

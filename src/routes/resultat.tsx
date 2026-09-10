@@ -562,6 +562,46 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
+function AncillaryDetails({
+  rows,
+  hints,
+  toggleLabel,
+}: {
+  rows: { label: string; value: string }[];
+  hints: string[];
+  toggleLabel: string;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="ui-help flex w-full items-center justify-between gap-2 py-1 text-left text-foreground/60 transition-colors hover:text-foreground"
+      >
+        <span>{toggleLabel}</span>
+        <ChevronDown
+          className={`size-3.5 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+          aria-hidden="true"
+        />
+      </button>
+      {open ? (
+        <div className="space-y-1 border-t border-foreground/10 pt-2">
+          {rows.map((row) => (
+            <Row key={row.label} label={row.label} value={row.value} />
+          ))}
+          {hints.map((hint) => (
+            <p key={hint} className="ui-help">
+              {hint}
+            </p>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function BenefitRow({ label, hint, value }: { label: string; hint: string; value: string }) {
   return (
     <div>
