@@ -293,11 +293,11 @@ function ResultStep() {
       )}
 
       {p.limitedBenefit ? (
-        <SectionCard compact title={p.limitedBenefitTitle ?? ""} description={p.limitedBenefitText ?? ""} />
+        <SectionCard compact className="surface-secondary" title={p.limitedBenefitTitle ?? ""} description={p.limitedBenefitText ?? ""} />
       ) : null}
 
       {p.showEnergySection || p.showPeakSection ? (
-        <SectionCard compact title={t("results.improvements.title")}>
+        <SectionCard compact className="surface-secondary" title={t("results.improvements.title")}>
           <div className="space-y-1.5">
             {p.showSelfConsumption ? (
               <BeforeAfter
@@ -364,7 +364,7 @@ function ResultStep() {
         </SectionCard>
       ) : null}
 
-      <SectionCard compact title={t("results.benefit.title")}>
+      <SectionCard compact className="surface-secondary" title={t("results.benefit.title")}>
         {p.noEconomy ? (
           <>
             <p className="ui-section-title tabular-nums">{moneyPerYear(0)}</p>
@@ -435,11 +435,11 @@ function ResultStep() {
       </SectionCard>
 
       {maxInvestment === null ? (
-        <SectionCard compact title={t("results.investment.title")}>
+        <SectionCard compact className="surface-secondary" title={t("results.investment.title")}>
           <p className="ui-help">{t("payback.investment.none")}</p>
         </SectionCard>
       ) : (
-        <section className="rounded-[1.5rem] bg-primary p-4 text-center text-primary-foreground shadow-sm">
+        <section className="surface-primary rounded-[1.5rem] border p-4 text-center shadow-sm">
           <p className="font-display text-[1.05rem] font-bold leading-snug">
             {t("results.investment.title")}
           </p>
@@ -451,7 +451,7 @@ function ResultStep() {
           <p className="ui-hero mt-1 text-[1.75rem] tabular-nums">
             {t("results.investment.approx")} {money(maxInvestment)}
           </p>
-          <div className="mt-3 rounded-[1.25rem] bg-background/70 p-3.5 text-left">
+          <div className="surface-detail mt-3 rounded-[1.25rem] p-3.5 text-left">
             <p className="ui-label text-center">{t("results.investment.otherTitle")}</p>
             <div className="mt-2 space-y-1">
               {[targetYears - 2, targetYears, targetYears + 2]
@@ -491,7 +491,7 @@ function ResultStep() {
 
 
       {p.showFcrPowerCard ? (
-        <details className="ui-card ui-card-compact ui-expandable">
+        <details className="ui-card ui-card-compact ui-expandable surface-secondary">
           <summary className="ui-label">{p.fcrPowerCardTitle}</summary>
           <div className="mt-2 space-y-1.5">
             {p.fcrPowerLevels.map((lvl) => (
@@ -502,7 +502,7 @@ function ResultStep() {
         </details>
       ) : null}
 
-      <details className="ui-card ui-card-compact ui-expandable">
+      <details className="ui-card ui-card-compact ui-expandable surface-secondary">
         <summary className="ui-label">{t("technical.title")}</summary>
 
         <div className="mt-2 space-y-3">
@@ -532,7 +532,7 @@ function ResultStep() {
         </div>
       </details>
 
-      <details className="ui-card ui-card-compact ui-expandable">
+      <details className="ui-card ui-card-compact ui-expandable surface-secondary">
         <summary className="ui-label">{importantInfoTitle()}</summary>
         <ul className="ui-help mt-2 space-y-1.5 leading-relaxed">
           {importantInfoPoints().map((point: string) => (
