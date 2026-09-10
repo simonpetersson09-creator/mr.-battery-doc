@@ -252,11 +252,9 @@ export const da = {
     bestChoice: "Bedste valg",
     level: { lower: "Mindre", recommended: "Anbefalet", higher: "Større" },
     balance: {
-      base: "Anbefalet er den størrelse, der giver den bedste balance ud fra ejendommens energibehov.",
-      higher:
-        "Anbefalet er den størrelse, der giver den bedste balance ud fra ejendommens energibehov. Et større batteri kan give højere beregnet nytte.",
-      higherAncillary:
-        "Anbefalet er den størrelse, der giver den bedste balance ud fra ejendommens energibehov. Et større batteri kan give højere beregnet nytte, især med systemydelser.",
+      base: "Bedste balance mellem batteristørrelse og beregnet nytte.",
+      higher: "Bedste balance mellem batteristørrelse og beregnet nytte.",
+      higherAncillary: "Bedste balance mellem batteristørrelse og beregnet nytte.",
     },
     energy: {
       title: "Energi",

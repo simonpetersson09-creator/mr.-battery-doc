@@ -254,11 +254,9 @@ export const sv = {
     bestChoice: "Bäst val",
     level: { lower: "Lägre", recommended: "Rekommenderad", higher: "Högre" },
     balance: {
-      base: "Rekommenderad är den storlek som ger bäst balans utifrån fastighetens energibehov.",
-      higher:
-        "Rekommenderad är den storlek som ger bäst balans utifrån fastighetens energibehov. Ett större batteri kan ge högre beräknad nytta.",
-      higherAncillary:
-        "Rekommenderad är den storlek som ger bäst balans utifrån fastighetens energibehov. Ett större batteri kan ge högre beräknad nytta, särskilt med stödtjänster.",
+      base: "Bäst balans mellan batteristorlek och beräknad nytta.",
+      higher: "Bäst balans mellan batteristorlek och beräknad nytta.",
+      higherAncillary: "Bäst balans mellan batteristorlek och beräknad nytta.",
     },
     energy: {
       title: "Energi",
