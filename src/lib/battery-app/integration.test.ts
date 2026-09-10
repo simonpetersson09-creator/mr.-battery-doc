@@ -42,12 +42,13 @@ function ok(state: WizardState, options = {}) {
 }
 
 describe("GM01 through the wizard adapter", () => {
-  it("standardvilla: 15 kWh / 3 kW and 2 041,66 kr/year", () => {
+  // Cyclic year (SOC start = SOC end): 2 041,66 -> 2 032,05 kr/year.
+  it("standardvilla: 15 kWh / 3 kW and 2 032,05 kr/year", () => {
     const r = ok(standardVilla(), { fixedCapacityKWh: 15, fixedPowerKw: 3 });
     expect(r.summary.recommendation.capacityKWh).toBe(15);
     expect(r.summary.recommendation.powerKw).toBe(3);
-    expect(r.summary.economy.totalOperatingBenefitSek).toBeCloseTo(2041.66, 2);
-    expect(r.summary.economy.energyBenefitSek).toBeCloseTo(1766.2, 2);
+    expect(r.summary.economy.totalOperatingBenefitSek).toBeCloseTo(2032.05, 2);
+    expect(r.summary.economy.energyBenefitSek).toBeCloseTo(1756.59, 2);
     expect(r.summary.energyBalance.ok).toBe(true);
     expect(Math.abs(r.summary.energyBalance.residualKWh)).toBeLessThan(1);
   }, T);
