@@ -64,6 +64,6 @@ for (const v of worst) {
   const h = v.h;
   const prev = h === 0 ? d.tallies.socStart : d.socSeries[h - 1];
   console.log(
-    ` h=${h} ac=${v.ac.toFixed(3)} soc ${prev.toFixed(3)} -> ${d.socSeries[h].toFixed(3)} load=${series.load[h].toFixed(2)} pv=${series.pv[h].toFixed(2)} imp=${d.importSeries[h].toFixed(2)} exp=${d.exportSeries[h].toFixed(2)} maxImp=${limits.maxImportKw.toFixed(1)}`,
+    ` h=${h} ac=${v.ac.toFixed(9)} excess=${(Math.abs(v.ac)-powerKw).toExponential(3)} soc ${prev.toFixed(3)} -> ${d.socSeries[h].toFixed(3)} load=${series.load[h].toFixed(2)} pv=${series.pv[h].toFixed(2)} imp=${d.importSeries[h].toFixed(2)} exp=${d.exportSeries[h].toFixed(2)} maxImp=${limits.maxImportKw.toFixed(1)}`,
   );
 }
