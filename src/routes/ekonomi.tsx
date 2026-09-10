@@ -48,6 +48,8 @@ function EconomyStep() {
   /* CURRENCY STAYS COUNTRY-DRIVEN — the UI language never changes it. */
   const unit = country.economy.currencyLabel;
   const years = state.preferences.targetPaybackYears;
+  /* Slider range is 60–100 %; clamp older stored values into the range for display. */
+  const sharePct = Math.min(100, Math.max(60, Math.round(state.preferences.customerAncillaryShare * 100)));
 
   const setEconomy = (patch: Partial<typeof state.economy>) =>
     update((s) => ({ ...s, economy: { ...s.economy, ...patch, touched: true } }));
@@ -144,24 +146,31 @@ function EconomyStep() {
           title={t("economics.customerShare.title")}
           description={t("economics.customerShare.description")}
         >
-          <NumberField
-            dense
-            compact
-            label={t("economics.customerShare.label")}
-            unit="%"
-            step="1"
-            value={Math.round(state.preferences.customerAncillaryShare * 100)}
-            hint={t("economics.customerShare.hint")}
-            onChange={(v) =>
+          <p className="text-[1.125rem] font-extrabold leading-none tracking-[-0.03em] tabular-nums">
+            {formatNumber(sharePct, 0)} %
+          </p>
+          <Slider
+            className="mt-2"
+            value={[sharePct]}
+            min={60}
+            max={100}
+            step={1}
+            aria-label={t("economics.customerShare.label")}
+            onValueChange={(v) =>
               update((s) => ({
                 ...s,
                 preferences: {
                   ...s.preferences,
-                  customerAncillaryShare: Math.min(1, Math.max(0, (v ?? 0) / 100)),
+                  customerAncillaryShare: (v[0] ?? sharePct) / 100,
                 },
               }))
             }
           />
+          <div className="ui-help mt-1 flex justify-between tabular-nums">
+            <span>60 %</span>
+            <span>100 %</span>
+          </div>
+          <p className="ui-help mt-1">{t("economics.customerShare.hint")}</p>
         </SectionCard>
       ) : null}
 
