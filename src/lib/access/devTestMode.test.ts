@@ -1,4 +1,3 @@
-/** @vitest-environment jsdom */
 /**
  * PURCHASE UI TEST MODE TESTS.
  *
@@ -21,6 +20,15 @@ import { PRODUCT_IDS } from "./products";
 import { ACCESS_STORAGE_KEY } from "./storageKey";
 import { isPremiumActive, parseEntitlements } from "./entitlements";
 import { verifyPurchaseOutcome } from "./verifyFlow";
+
+// Minimal in-memory storage: the suite runs in Node, without a browser.
+const store = new Map<string, string>();
+vi.stubGlobal("localStorage", {
+  getItem: (k: string) => store.get(k) ?? null,
+  setItem: (k: string, v: string) => void store.set(k, v),
+  removeItem: (k: string) => void store.delete(k),
+  clear: () => store.clear(),
+});
 
 beforeEach(() => {
   localStorage.clear();
