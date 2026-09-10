@@ -219,10 +219,12 @@ export const fi = {
   },
   results: {
     investment: {
-      title: "Investointi",
-      targetPayback: "Toivottu takaisinmaksuaika",
-      maxInvestment: "Järkevä investointikustannus",
-      benefit: "Laskennallinen vuotuinen asiakashyöty",
+      title: "Suurin investointi valitulla takaisinmaksuajalla",
+      basedOn: "Perustuu valitsemaasi takaisinmaksuaikaan {{years}}",
+      otherTitle: "Suurin investointi eri takaisinmaksuajoilla",
+      yourChoice: "Valintasi",
+      approx: "noin",
+      explain: "Lyhyempi takaisinmaksuaika tarkoittaa pienempää enimmäisinvestointia. Tässä näet, miten enimmäisinvestointi muuttuu, jos hyväksyt lyhyemmän tai pidemmän takaisinmaksuajan.",
     },
     title: "Tulos",
     intro: "Tältä ehdotus näyttää kiinteistöllesi.",

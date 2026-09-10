@@ -224,10 +224,12 @@ export const sv = {
   },
   results: {
     investment: {
-      title: "Investering",
-      targetPayback: "Önskad återbetalningstid",
-      maxInvestment: "Rimlig investeringskostnad",
-      benefit: "Beräknad årlig kundnytta",
+      title: "Maxinvestering vid din valda återbetalningstid",
+      basedOn: "Baserat på din valda återbetalningstid på {{years}}",
+      otherTitle: "Maxinvestering vid olika återbetalningstider",
+      yourChoice: "Ditt val",
+      approx: "ca",
+      explain: "Kortare återbetalningstid innebär en lägre maxinvestering. Här ser du hur maxinvesteringen förändras om du accepterar en kortare eller längre återbetalningstid.",
     },
     title: "Resultat",
     intro: "Så här ser förslaget ut för din fastighet.",

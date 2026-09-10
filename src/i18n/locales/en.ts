@@ -222,10 +222,12 @@ export const en = {
   },
   results: {
     investment: {
-      title: "Investment",
-      targetPayback: "Desired payback period",
-      maxInvestment: "Reasonable investment cost",
-      benefit: "Calculated annual customer benefit",
+      title: "Maximum investment at your chosen payback period",
+      basedOn: "Based on your chosen payback period of {{years}}",
+      otherTitle: "Maximum investment at different payback periods",
+      yourChoice: "Your choice",
+      approx: "approx.",
+      explain: "A shorter payback period means a lower maximum investment. Here you can see how the maximum investment changes if you accept a shorter or longer payback period.",
     },
     title: "Result",
     intro: "This is the proposal for your property.",

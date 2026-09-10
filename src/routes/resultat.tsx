@@ -444,25 +444,50 @@ function ResultStep() {
       </SectionCard>
 
       <SectionCard compact title={t("results.investment.title")}>
-        <div className="space-y-1.5">
-          <Row
-            label={t("results.investment.targetPayback")}
-            value={t("payback.years", { years: nf(targetYears, 0) })}
-          />
-          <Row
-            label={t("results.investment.benefit")}
-            value={moneyPerYear(ce.totalCustomerBenefitSek)}
-          />
-          {maxInvestment === null ? (
-            <p className="ui-help">{t("payback.investment.none")}</p>
-          ) : (
-            <>
-              <Row label={t("results.investment.maxInvestment")} value={money(maxInvestment)} />
-              <p className="ui-help">{t("payback.investment.hint")}</p>
-            </>
-          )}
-        </div>
+        {maxInvestment === null ? (
+          <p className="ui-help">{t("payback.investment.none")}</p>
+        ) : (
+          <>
+            <p className="ui-help">
+              {t("results.investment.basedOn", {
+                years: t("payback.years", { years: nf(targetYears, 0) }),
+              })}
+            </p>
+            <p className="ui-hero mt-1 text-[1.625rem] tabular-nums">
+              {t("results.investment.approx")} {money(maxInvestment)}
+            </p>
+            <p className="ui-label mt-3">{t("results.investment.otherTitle")}</p>
+            <div className="mt-1 space-y-1.5">
+              {[targetYears - 2, targetYears, targetYears + 2]
+                .map((y) => Math.min(20, Math.max(5, y)))
+                .filter((y, i, arr) => arr.indexOf(y) === i)
+                .map((y) => {
+                  const chosen = y === targetYears;
+                  return (
+                    <div key={y} className="ui-body flex items-baseline justify-between gap-4">
+                      <span className={chosen ? "font-semibold" : "text-muted-foreground"}>
+                        {t("payback.years", { years: nf(y, 0) })}
+                        {chosen ? (
+                          <span className="text-muted-foreground font-normal">
+                            {" · "}
+                            {t("results.investment.yourChoice")}
+                          </span>
+                        ) : null}
+                      </span>
+                      <span className="shrink-0 font-semibold tabular-nums">
+                        {money((maxInvestment / targetYears) * y)}
+                      </span>
+                    </div>
+                  );
+                })}
+            </div>
+            <p className="ui-help mt-2 border-t border-foreground/10 pt-2">
+              {t("results.investment.explain")}
+            </p>
+          </>
+        )}
       </SectionCard>
+
 
       {p.showFcrPowerCard ? (
         <details className="ui-card ui-card-compact ui-expandable">
