@@ -304,8 +304,7 @@ export const da = {
       ancillary: "Systemydelser – {{product}}",
       ancillaryHint:
         "Beregnet markedsværdi af den reserverede batterieffekt. Historiske priser 2025.",
-      ancillaryNote:
-        "Beregnet markedsværdi baseret på historiske priser fra 2025. En del af betalingen kan gå til aggregator, balanceansvarlig eller andre markedsaktører. Den faktiske kundebetaling afhænger af aftale, markedsadgang og vilkår.",
+      ancillaryNote: "Beregnet markedsværdi baseret på historiske priser fra 2025.",
     },
     limited: {
       title: "Begrænset økonomisk nytte",

@@ -305,8 +305,7 @@ export const sv = {
       peakHint: "Kapar effekttoppar och minskar effektavgiften.",
       ancillary: "Stödtjänster – {{product}}",
       ancillaryHint: "Beräknat marknadsvärde för reserverad batterieffekt. Historiska priser 2025.",
-      ancillaryNote:
-        "Beräknat marknadsvärde baserat på historiska priser 2025. En del av ersättningen kan tillfalla aggregator, balansansvarig eller annan marknadsaktör. Faktisk kundersättning beror på avtal, marknadstillträde och villkor.",
+      ancillaryNote: "Beräknat marknadsvärde baserat på historiska priser 2025.",
     },
     limited: {
       title: "Begränsad ekonomisk nytta",

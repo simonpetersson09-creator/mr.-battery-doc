@@ -299,8 +299,7 @@ export const fi = {
       peakHint: "Leikkaa tehohuiput ja pienentää tehomaksua.",
       ancillary: "Reservipalvelut – {{product}}",
       ancillaryHint: "Varatun akkutehon laskettu markkina-arvo. Historialliset hinnat 2025.",
-      ancillaryNote:
-        "Laskettu markkina-arvo perustuu vuoden 2025 historiallisiin hintoihin. Osa korvauksesta voi mennä aggregaattorille, tasevastaavalle tai muille markkinatoimijoille. Todellinen asiakaskorvaus riippuu sopimuksesta, markkinoille pääsystä ja ehdoista.",
+      ancillaryNote: "Laskettu markkina-arvo perustuu vuoden 2025 historiallisiin hintoihin.",
     },
     limited: {
       title: "Rajallinen taloudellinen hyöty",
