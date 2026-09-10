@@ -535,4 +535,27 @@ export const en = {
     },
     version: "Mr. Battery Doc · V1.0.0",
   },
+  history: {
+    title: "History",
+    subtitle: "Your previously purchased battery calculations.",
+    itemTitle: "Battery calculation",
+    benefit: "Estimated benefit {{value}}",
+    open: "Open result",
+    edit: "Change details",
+    notVerified: "The purchase could not be verified on this device. Try Restore purchases.",
+    empty: {
+      title: "No history yet",
+      text: "Calculations you unlock are collected here.",
+    },
+    missing: {
+      intro: "This calculation is not stored here.",
+      title: "Result missing on this device",
+      text: "Calculations are stored locally. This one is not on this device – run a new calculation to see a result.",
+    },
+    locked: {
+      intro: "The purchase could not be verified.",
+      title: "No access right now",
+      text: "Try Restore purchases in Settings. You are never charged again for a calculation you already bought.",
+    },
+  },
 } as const;

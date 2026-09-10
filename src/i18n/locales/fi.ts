@@ -530,4 +530,27 @@ export const fi = {
     },
     version: "Mr. Battery Doc · V1.0.0",
   },
+  history: {
+    title: "Historia",
+    subtitle: "Aiemmin ostamasi akkulaskelmat.",
+    itemTitle: "Akkulaskelma",
+    benefit: "Laskettu hyöty {{value}}",
+    open: "Avaa tulos",
+    edit: "Muuta tietoja",
+    notVerified: "Ostoa ei voitu vahvistaa tällä laitteella. Kokeile Palauta ostot.",
+    empty: {
+      title: "Ei vielä historiaa",
+      text: "Tähän kerätään avaamasi laskelmat.",
+    },
+    missing: {
+      intro: "Laskelmaa ei ole tallennettu tänne.",
+      title: "Tulos puuttuu laitteelta",
+      text: "Laskelmat tallennetaan paikallisesti. Tätä ei ole tällä laitteella – tee uusi laskelma nähdäksesi tuloksen.",
+    },
+    locked: {
+      intro: "Ostoa ei voitu vahvistaa.",
+      title: "Ei käyttöoikeutta juuri nyt",
+      text: "Kokeile Palauta ostot asetuksissa. Jo ostetusta laskelmasta ei veloiteta uudelleen.",
+    },
+  },
 } as const;

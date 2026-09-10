@@ -14,6 +14,7 @@ import { Route as BatteriRouteImport } from './routes/batteri'
 import { Route as BetalvaggRouteImport } from './routes/betalvagg'
 import { Route as EkonomiRouteImport } from './routes/ekonomi'
 import { Route as ForbrukningRouteImport } from './routes/forbrukning'
+import { Route as HistorikRouteImport } from './routes/historik'
 import { Route as InstallningarRouteImport } from './routes/installningar'
 import { Route as NatRouteImport } from './routes/nat'
 import { Route as ProduktionRouteImport } from './routes/produktion'
@@ -44,6 +45,11 @@ const ForbrukningRoute = ForbrukningRouteImport.update({
   path: '/forbrukning',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HistorikRoute = HistorikRouteImport.update({
+  id: '/historik',
+  path: '/historik',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InstallningarRoute = InstallningarRouteImport.update({
   id: '/installningar',
   path: '/installningar',
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/betalvagg': typeof BetalvaggRoute
   '/ekonomi': typeof EkonomiRoute
   '/forbrukning': typeof ForbrukningRoute
+  '/historik': typeof HistorikRoute
   '/installningar': typeof InstallningarRoute
   '/nat': typeof NatRoute
   '/produktion': typeof ProduktionRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/betalvagg': typeof BetalvaggRoute
   '/ekonomi': typeof EkonomiRoute
   '/forbrukning': typeof ForbrukningRoute
+  '/historik': typeof HistorikRoute
   '/installningar': typeof InstallningarRoute
   '/nat': typeof NatRoute
   '/produktion': typeof ProduktionRoute
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/betalvagg': typeof BetalvaggRoute
   '/ekonomi': typeof EkonomiRoute
   '/forbrukning': typeof ForbrukningRoute
+  '/historik': typeof HistorikRoute
   '/installningar': typeof InstallningarRoute
   '/nat': typeof NatRoute
   '/produktion': typeof ProduktionRoute
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/betalvagg'
     | '/ekonomi'
     | '/forbrukning'
+    | '/historik'
     | '/installningar'
     | '/nat'
     | '/produktion'
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/betalvagg'
     | '/ekonomi'
     | '/forbrukning'
+    | '/historik'
     | '/installningar'
     | '/nat'
     | '/produktion'
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/betalvagg'
     | '/ekonomi'
     | '/forbrukning'
+    | '/historik'
     | '/installningar'
     | '/nat'
     | '/produktion'
@@ -141,6 +153,7 @@ export interface RootRouteChildren {
   BetalvaggRoute: typeof BetalvaggRoute
   EkonomiRoute: typeof EkonomiRoute
   ForbrukningRoute: typeof ForbrukningRoute
+  HistorikRoute: typeof HistorikRoute
   InstallningarRoute: typeof InstallningarRoute
   NatRoute: typeof NatRoute
   ProduktionRoute: typeof ProduktionRoute
@@ -184,6 +197,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForbrukningRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/historik': {
+      id: '/historik'
+      path: '/historik'
+      fullPath: '/historik'
+      preLoaderRoute: typeof HistorikRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/installningar': {
       id: '/installningar'
       path: '/installningar'
@@ -221,6 +241,7 @@ const rootRouteChildren: RootRouteChildren = {
   BetalvaggRoute: BetalvaggRoute,
   EkonomiRoute: EkonomiRoute,
   ForbrukningRoute: ForbrukningRoute,
+  HistorikRoute: HistorikRoute,
   InstallningarRoute: InstallningarRoute,
   NatRoute: NatRoute,
   ProduktionRoute: ProduktionRoute,
