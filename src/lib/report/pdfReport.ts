@@ -46,7 +46,13 @@ export function reportFileName(model: ReportModel): string {
   return `mr-battery-doc-${model.createdISO}-${model.reportId}.pdf`;
 }
 
-/** Builds the PDF in the browser and starts the download. */
+/**
+ * Builds the PDF and delivers it.
+ *
+ * Browser: the normal file download. Native iOS: a WKWebView cannot download a blob,
+ * so the same bytes are written to the app's cache directory and handed to the iOS
+ * share sheet (Files, Mail, AirDrop, Print). The document itself is byte-identical.
+ */
 export async function generatePdfReport(request: PdfReportRequest): Promise<void> {
   const model = buildReport(request);
   const docDefinition = buildDocDefinition(model);
@@ -64,5 +70,39 @@ export async function generatePdfReport(request: PdfReportRequest): Promise<void
   >;
   pdfMake.addVirtualFileSystem(vfs);
 
-  await pdfMake.createPdf(docDefinition).download(reportFileName(model));
+  const fileName = reportFileName(model);
+  const doc = pdfMake.createPdf(docDefinition);
+
+  if (!isNativePlatform()) {
+    await doc.download(fileName);
+    return;
+  }
+
+  const buffer = await doc.getBuffer();
+  await shareNativePdf(fileName, toBase64(buffer));
+}
+
+/** Uint8Array -> base64 without blowing the call stack on a large report. */
+function toBase64(bytes: Uint8Array): string {
+  let binary = "";
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  }
+  return btoa(binary);
+}
+
+async function shareNativePdf(fileName: string, base64: string): Promise<void> {
+  const [{ Filesystem, Directory }, { Share }] = await Promise.all([
+    import("@capacitor/filesystem"),
+    import("@capacitor/share"),
+  ]);
+
+  const written = await Filesystem.writeFile({
+    path: fileName,
+    data: base64,
+    directory: Directory.Cache,
+  });
+
+  await Share.share({ title: fileName, url: written.uri });
 }
