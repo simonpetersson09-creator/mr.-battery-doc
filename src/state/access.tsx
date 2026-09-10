@@ -39,7 +39,7 @@ import { verifyPurchaseOutcome, verifyUnfinishedTransactions, type Verifier } fr
 import { verifyPurchaseWithServer } from "@/lib/access/serverVerification";
 import { devVerifyPurchase, purchaseTestModeEnabled } from "@/lib/access/devTestMode";
 
-const STORAGE_KEY = "mr-battery-doc:access:v1";
+import { ACCESS_STORAGE_KEY as STORAGE_KEY } from "@/lib/access/storageKey";
 
 /**
  * Writes entitlements to storage immediately. Used before a StoreKit transaction
