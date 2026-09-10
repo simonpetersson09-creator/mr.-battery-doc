@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { FileText } from "lucide-react";
-import { useMemo } from "react";
+import { ChevronDown, FileText } from "lucide-react";
+import { useMemo, useState } from "react";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { SectionCard } from "@/components/wizard/fields";
 import { Button } from "@/components/ui/button";
@@ -418,19 +418,24 @@ function ResultStep() {
                     hint={t("results.benefit.ancillaryCustomerHint")}
                     value={moneyPerYear(ce.ancillaryCustomerValueSek)}
                   />
-                  {/* Background only: how that figure was derived. Never presented as an added item. */}
-                  <div className="space-y-1 rounded-lg bg-foreground/5 px-2.5 py-1.5">
-                    <Row
-                      label={t("results.benefit.ancillaryMarket")}
-                      value={moneyPerYear(ce.ancillaryMarketValueSek)}
-                    />
-                    <Row
-                      label={t("results.benefit.ancillaryShare")}
-                      value={`${nf(ce.customerAncillaryShare * 100, 0)} %`}
-                    />
-                    <p className="ui-help">{t("results.benefit.ancillaryShareHint")}</p>
-                    <p className="ui-help">{t("results.benefit.ancillaryNote")}</p>
-                  </div>
+                  {/* Background only: how that figure was derived. Collapsed by default. */}
+                  <AncillaryDetails
+                    rows={[
+                      {
+                        label: t("results.benefit.ancillaryMarket"),
+                        value: moneyPerYear(ce.ancillaryMarketValueSek),
+                      },
+                      {
+                        label: t("results.benefit.ancillaryShare"),
+                        value: `${nf(ce.customerAncillaryShare * 100, 0)} %`,
+                      },
+                    ]}
+                    hints={[
+                      t("results.benefit.ancillaryShareHint"),
+                      t("results.benefit.ancillaryNote"),
+                    ]}
+                    toggleLabel={t("results.benefit.showCalculation")}
+                  />
                 </>
               ) : null}
             </div>
