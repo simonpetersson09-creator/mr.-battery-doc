@@ -12,7 +12,6 @@ import { formatNumber, useT } from "@/i18n";
 import { monthShortLabels } from "@/i18n/labels";
 import { extractMonthlyFromDocument } from "@/lib/import/extractMonthly.functions";
 import {
-import { DecimalInput } from "./DecimalInput";
   extractFromText,
   reviewState,
   selectSeries,
@@ -20,6 +19,7 @@ import { DecimalInput } from "./DecimalInput";
   type NormalisedSeries,
   type SeriesKind,
 } from "@/lib/import/monthly";
+import { DecimalInput } from "./DecimalInput";
 
 const TEXT_TYPES = /(csv|plain|tab-separated|text\/)/i;
 /** Anything larger than this never reaches the network. */
