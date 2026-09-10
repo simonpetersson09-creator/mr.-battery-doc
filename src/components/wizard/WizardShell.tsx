@@ -114,6 +114,7 @@ export function WizardShell({
               </Button>
             )}
           </div>
+          {footerExtra ? <div className="mt-2">{footerExtra}</div> : null}
         </nav>
       </main>
     </div>
