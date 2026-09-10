@@ -141,7 +141,14 @@ export function interpretNativePurchase(
   if (res.status === "failed") return { status: "failed", code: interpretPurchaseError(res) };
   if (res.status === "purchased") {
     if (res.verified === false) return { status: "failed", code: "verification" };
-    return { status: "purchased", key, premiumExpiresISO: res.expiresISO ?? null };
+    return {
+      status: "purchased",
+      key,
+      premiumExpiresISO: res.expiresISO ?? null,
+      transactionId: res.transactionId ?? "",
+      productId: res.productId ?? PRODUCT_IDS[key],
+      originalTransactionId: res.originalTransactionId ?? null,
+    };
   }
   return { status: "failed", code: interpretPurchaseError(res) };
 }
