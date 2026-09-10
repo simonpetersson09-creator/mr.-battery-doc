@@ -1,4 +1,5 @@
 /**
+import { DecimalInput } from "./DecimalInput";
  * Twelve compact month inputs + an automatically calculated sum.
  *
  * Presentation only: the sum is derived output, never an editable field, and the
@@ -24,12 +25,11 @@ export function MonthGrid({
         {months.map((m, i) => (
           <label key={m} className="flex items-center gap-1.5">
             <span className="field-label w-8 shrink-0 font-normal">{m}</span>
-            <input
-              type="number"
-              inputMode="decimal"
+            <DecimalInput
+              ariaLabel={m}
               placeholder="kWh"
-              value={values[i] ?? ""}
-              onChange={(e) => onChange(i, e.target.value === "" ? null : Number(e.target.value))}
+              value={values[i] ?? null}
+              onChange={(v) => onChange(i, v)}
               className="ui-control ui-control-sm h-9 min-w-0 flex-1 tabular-nums"
             />
           </label>
