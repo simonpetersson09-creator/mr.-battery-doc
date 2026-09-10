@@ -293,7 +293,11 @@ describe("regression — economy never touches the physics", () => {
 });
 
 describe("FCR-D up reservation optimisation (economic layer only)", () => {
-  const total = (c: { totalOperatingBenefitSek: number }) => c.totalOperatingBenefitSek;
+  /**
+   * MODEL DECISION: the reservation level is chosen on TOTAL CUSTOMER BENEFIT
+   * (energy + peak + the customer's share of the ancillary value), not on raw FCR gross.
+   */
+  const total = (c: { annualCustomerBenefitSek: number }) => c.annualCustomerBenefitSek;
 
   it("sweeps 0-100 % of the offerable power in 10 % steps and always includes 0 %", () => {
     const o = optimizeFcrReservation(withFcr(villa(), 3), 15, 3, ECON);

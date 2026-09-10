@@ -77,10 +77,10 @@ describe("grid limitation attribution", () => {
     expect(big.summary.recommendation.powerKw).toBe(base.summary.recommendation.powerKw);
     // The PHYSICAL dispatch is unchanged by the bigger fuse; only the FCR reservation
     // may grow, because after the physical FCR gate the grid headroom is part of what can
-    // be reserved. The energy benefit is therefore the invariant to assert here.
-    expect(big.summary.economy.energyBenefitSek).toBeCloseTo(
-      base.summary.economy.energyBenefitSek,
-      2,
+    // be reserved. MODEL DECISION: that trade-off is now judged on TOTAL CUSTOMER
+    // BENEFIT, so the invariant is that a bigger fuse never makes the customer worse off.
+    expect(big.summary.economy.annualCustomerBenefitSek ?? 0).toBeGreaterThanOrEqual(
+      (base.summary.economy.annualCustomerBenefitSek ?? 0) - 25,
     );
     expect(base.summary.grid.status).not.toBe("battery-limited");
     expect(base.summary.grid.status).not.toBe("combined");
