@@ -492,6 +492,8 @@ export const da = {
     priceUnavailable: "Prisen hentes fra App Store.",
     restore: "Gendan køb",
     restoring: "Gendanner…",
+    manage: "Administrer abonnement",
+    manageWeb: "Abonnementer administreres via Apple på din iPhone.",
     restored: "Premium er gendannet.",
     restoreNothing: "Vi fandt ikke et aktivt abonnement.",
     processing: "Behandler købet…",
