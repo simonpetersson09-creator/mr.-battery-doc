@@ -48,6 +48,6 @@ console.log("\nINITIAL SOC SENSITIVITY (base, 30 kWh/15 kW):");
 for (const p of [5, 25, 50, 75, 95]) {
   const c = defaultConfig(); c.battery.nominalKWh = 30; c.battery.chargeKw = 15; c.battery.dischargeKw = 15; c.battery.initialSocPct = p;
   const s = buildSeries(c); const r: any = simulate(c, s, 30, 15);
-  const t = r.dispatch?.tallies ?? r.tallies;
+  const t: any = r;
   console.log(`  initialSoc=${p}% discharged=${t.dischargedKWh.toFixed(1)} charged=${t.chargedKWh.toFixed(1)} resid=${r.energyBalance.residualKWh.toExponential(2)}`);
 }
