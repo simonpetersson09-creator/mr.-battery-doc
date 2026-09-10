@@ -104,7 +104,7 @@ function ResultStep() {
   const restart = (
     <Button
       variant="cta"
-      className="h-12 flex-[2] rounded-[0.875rem] text-[16px] font-bold shadow-cta"
+      className="h-10 flex-[2] rounded-[0.75rem] text-[15px] font-bold shadow-cta"
       onClick={() => {
         reset();
         void navigate({ to: "/" });
