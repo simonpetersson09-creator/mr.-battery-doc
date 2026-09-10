@@ -393,6 +393,12 @@ html[data-native="true"] {
   stroke: currentColor;
 }
 
+.lang-trigger {
+  background-color: var(--brand-yellow) !important;
+  border-color: oklch(0.3172 0 0 / 0.3) !important;
+  border-radius: 0.875rem !important;
+}
+
 @utility glow-amber {
   position: absolute;
   pointer-events: none;
