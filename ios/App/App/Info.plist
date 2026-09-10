@@ -66,6 +66,10 @@
 	<false/>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Mr. Battery Doc behöver åtkomst till kameran för att fotografera underlag som kan användas vid import av energidata.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Mr. Battery Doc behöver åtkomst till dina bilder för att du ska kunna välja underlag för import av energidata.</string>
 	<key>UIStatusBarStyle</key>
 	<string>UIStatusBarStyleDarkContent</string>
 </dict>

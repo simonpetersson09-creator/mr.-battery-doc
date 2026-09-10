@@ -26,7 +26,6 @@ import {
 import {
   prepareFileUpload,
   prepareImageUpload,
-  readAsDataUrl,
   textFromDataUrl,
 } from "@/lib/import/prepareUpload";
 import {
