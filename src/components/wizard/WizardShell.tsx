@@ -15,6 +15,8 @@ interface WizardShellProps {
   nextDisabled?: boolean;
   /** Shown above the buttons when the step is incomplete. */
   nextBlockedReason?: string | null;
+  /** Optional full-width action rendered below the back/next row (e.g. PDF report). */
+  footerExtra?: ReactNode;
   /** Replaces the "Next" button on the last step. */
   footerAction?: ReactNode;
   /** Tighter card spacing and page padding for dense steps. */
@@ -35,6 +37,7 @@ export function WizardShell({
   nextDisabled,
   nextBlockedReason,
   footerAction,
+  footerExtra,
   compact,
   titleClassName,
   eyebrowClassName,
@@ -73,7 +76,7 @@ export function WizardShell({
 
         <nav className="pb-safe mt-4 pt-1" aria-label={t("common.step", { current: stepIndex + 1, total: WIZARD_STEPS.length })}>
           <div className="flex gap-2">
-            <Button asChild variant="outline" className={`h-12 flex-1 rounded-[0.875rem]${navButtonClassName ? ` ${navButtonClassName}` : ""}`}>
+            <Button asChild variant="outline" className={`h-12 flex-1 rounded-[0.875rem] text-[16px] font-semibold${navButtonClassName ? ` ${navButtonClassName}` : ""}`}>
               <Link to={prev}>{t("common.back")}</Link>
             </Button>
             {footerAction ? (
@@ -82,7 +85,7 @@ export function WizardShell({
               nextDisabled ? (
                 <Button
                   variant="cta"
-                  className={`h-12 flex-[2] rounded-[0.875rem] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
+                  className={`h-12 flex-[2] rounded-[0.875rem] text-[16px] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
                   disabled
                   aria-disabled="true"
                 >
@@ -93,7 +96,7 @@ export function WizardShell({
                 <Button
                   asChild
                   variant="cta"
-                  className={`h-12 flex-[2] rounded-[0.875rem] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
+                  className={`h-12 flex-[2] rounded-[0.875rem] text-[16px] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
                 >
                   <Link to={next}>
                     {nextLabel ?? t("common.next")}
@@ -105,12 +108,13 @@ export function WizardShell({
               <Button
                 asChild
                 variant="cta"
-                className={`h-12 flex-[2] rounded-[0.875rem] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
+                className={`h-12 flex-[2] rounded-[0.875rem] text-[16px] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
               >
                 <Link to="/">{t("common.done")}</Link>
               </Button>
             )}
           </div>
+          {footerExtra ? <div className="mt-2">{footerExtra}</div> : null}
         </nav>
       </main>
     </div>
