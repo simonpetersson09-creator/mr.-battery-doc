@@ -16,7 +16,15 @@ const root = resolve(import.meta.dirname, "..");
 const src = join(root, "dist", "client");
 const out = join(root, "capacitor-www");
 
-execSync("vite build", { cwd: root, stdio: "inherit", env: { ...process.env, CAPACITOR_BUILD: "1" } });
+/**
+ * Backend base URL for the few native API calls that need a server (AI import).
+ * This is NOT the app's start URL and is never used as Capacitor `server.url` —
+ * the frontend always runs from the locally bundled capacitor-www/.
+ * Override with VITE_NATIVE_BACKEND_URL=... bun run build:native
+ */
+const NATIVE_BACKEND_URL = process.env["VITE_NATIVE_BACKEND_URL"] || "https://battery-buddy-wizard.lovable.app";
+
+execSync("vite build", { cwd: root, stdio: "inherit", env: { ...process.env, CAPACITOR_BUILD: "1", VITE_NATIVE_BACKEND_URL: NATIVE_BACKEND_URL } });
 
 if (!existsSync(join(src, "index.html"))) {
   console.error("[build:native] FAILED: dist/client/index.html was not produced by the SPA build.");
@@ -39,6 +47,7 @@ const size = readdirSync(out, { recursive: true }).reduce((n, f) => {
   const p = join(out, String(f));
   return statSync(p).isFile() ? n + statSync(p).size : n;
 }, 0);
+console.log(`[build:native] native backend for API calls: ${NATIVE_BACKEND_URL}`);
 console.log(
   `[build:native] OK -> capacitor-www (index.html + ${js.length} js, ${css.length} css, ${(size / 1e6).toFixed(1)} MB total)`,
 );
