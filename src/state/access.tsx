@@ -37,6 +37,7 @@ import { clearIntent, createIntent, readIntent, writeIntent } from "@/lib/access
 import { productKeyForId } from "@/lib/access/products";
 import { verifyPurchaseOutcome, verifyUnfinishedTransactions, type Verifier } from "@/lib/access/verifyFlow";
 import { verifyPurchaseWithServer } from "@/lib/access/serverVerification";
+import { devVerifyPurchase, purchaseTestModeEnabled } from "@/lib/access/devTestMode";
 
 const STORAGE_KEY = "mr-battery-doc:access:v1";
 
