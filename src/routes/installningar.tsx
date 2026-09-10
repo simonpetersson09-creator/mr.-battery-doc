@@ -78,7 +78,7 @@ function SettingsPage() {
 
   return (
     <div className="app-shell surface-sun max-w-md">
-      <main className="pt-safe pb-safe flex-1 px-4 pb-4">
+      <main className="pt-safe pb-safe flex-1 px-4">
         <div className="flex items-center gap-3 pt-1">
           <Link
             to="/"
