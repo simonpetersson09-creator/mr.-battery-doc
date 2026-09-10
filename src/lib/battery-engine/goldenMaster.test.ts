@@ -55,6 +55,19 @@ const CASES: Record<string, { label: string; input: BatteryEngineInput }> = {
  * 30 SEK/kW/month. ONLY `demandCostSavingSek` (scaled by 30/55) and the
  * `totalOperatingBenefitSek` that contains it moved; every physical field, the sizing,
  * the FCR reservation and the FCR revenue are unchanged.
+ *
+ * Regenerated again after the MODEL CONSISTENCY FIX (cyclic year SOC + one single
+ * demand-charge definition). The year now starts where it ends, so the battery can no
+ * longer deliver stored energy it never charged during the simulated year:
+ *  - every case loses the small artificial gain: import after +0,04…0,13 %, shifted
+ *    energy, cycles, utilisation and energyBenefit down 0,2…0,7 %;
+ *  - GM03 (peak shaving without solar) drops from 5 kWh to 0 kWh. It sat exactly on the
+ *    relaxed density gate (24 kWh/year per added kWh): with the free start energy it
+ *    reached 24,37 and now reaches 23,9. No sizing rule changed, and the old
+ *    recommendation had a NEGATIVE operating benefit (−55 kr/year);
+ *  - GM10 (fixed 500 kWh/200 kW) improves from −399,91 to −262,64 kr/year because the
+ *    stored start energy is no longer discharged into the load, so more solar is exported.
+ * No energy balance, SOC window, efficiency, product step or FCR price changed.
  */
 const EXPECTED = {
   "GM01": {
