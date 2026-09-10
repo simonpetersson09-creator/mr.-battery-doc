@@ -47,7 +47,7 @@ export function LanguageSelect({ pill = false }: { pill?: boolean }) {
         aria-label={LANGUAGE_NAMES[language]}
         className={
           pill
-            ? "lang-trigger h-9 shrink-0 gap-1.5 rounded-full border border-border bg-card px-3 text-[13px] font-semibold shadow-sm"
+            ? "lang-trigger h-9 w-auto shrink-0 gap-1.5 rounded-full border border-border bg-card px-3 text-[13px] font-semibold shadow-sm"
             : "lang-trigger cta-primary h-12 w-12 shrink-0 justify-center rounded-[0.875rem] px-0 text-lg leading-none [&_svg]:hidden"
         }
       >

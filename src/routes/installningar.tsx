@@ -124,7 +124,8 @@ function SettingsPage() {
           ) : (
             <>
               <Button
-                className="mt-2 h-10 w-full rounded-[0.75rem] bg-foreground text-[15px] font-bold text-background hover:bg-foreground/90"
+                variant="ink"
+                className="mt-2 h-10 w-full rounded-[0.75rem] text-[15px] font-bold"
                 disabled={busy !== null}
                 onClick={() => void buyPremium()}
               >
