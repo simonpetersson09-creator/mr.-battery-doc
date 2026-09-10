@@ -28,9 +28,19 @@ export type LoadProductsResult =
   | { status: "failed"; code: PurchaseErrorCode };
 
 export type PurchaseResult =
-  | { status: "purchased"; key: ProductKey; premiumExpiresISO?: string | null }
+  | {
+      status: "purchased";
+      key: ProductKey;
+      premiumExpiresISO?: string | null;
+      /** StoreKit transaction reference — required for server verification. */
+      transactionId?: string;
+      productId?: string;
+      originalTransactionId?: string | null;
+    }
   | { status: "cancelled" }
   | { status: "pending" }
+  /** Paid but not (yet) server-verified: no access, recoverable on a later start. */
+  | { status: "unresolved" }
   | { status: "failed"; code: PurchaseErrorCode };
 
 export type RestoreResult =
