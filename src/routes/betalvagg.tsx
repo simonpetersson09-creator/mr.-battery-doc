@@ -60,7 +60,7 @@ function Paywall() {
   const [products, setProducts] = useState<StoreProduct[] | null>(null);
   const [busy, setBusy] = useState<ProductKey | "restore" | null>(null);
   const [error, setError] = useState<PurchaseErrorCode | null>(null);
-  const [notice, setNotice] = useState<"pending" | "restored" | "restoreNothing" | null>(null);
+  const [notice, setNotice] = useState<"pending" | "restored" | "restoreNothing" | "unresolved" | null>(null);
 
   // Premium users never linger here; a finished purchase moves straight on.
   useEffect(() => {
