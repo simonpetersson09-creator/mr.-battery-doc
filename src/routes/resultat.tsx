@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { FileText } from "lucide-react";
-import { useMemo } from "react";
+import { ChevronDown, FileText } from "lucide-react";
+import { useMemo, useState } from "react";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { SectionCard } from "@/components/wizard/fields";
 import { Button } from "@/components/ui/button";
@@ -418,19 +418,24 @@ function ResultStep() {
                     hint={t("results.benefit.ancillaryCustomerHint")}
                     value={moneyPerYear(ce.ancillaryCustomerValueSek)}
                   />
-                  {/* Background only: how that figure was derived. Never presented as an added item. */}
-                  <div className="space-y-1 rounded-lg bg-foreground/5 px-2.5 py-1.5">
-                    <Row
-                      label={t("results.benefit.ancillaryMarket")}
-                      value={moneyPerYear(ce.ancillaryMarketValueSek)}
-                    />
-                    <Row
-                      label={t("results.benefit.ancillaryShare")}
-                      value={`${nf(ce.customerAncillaryShare * 100, 0)} %`}
-                    />
-                    <p className="ui-help">{t("results.benefit.ancillaryShareHint")}</p>
-                    <p className="ui-help">{t("results.benefit.ancillaryNote")}</p>
-                  </div>
+                  {/* Background only: how that figure was derived. Collapsed by default. */}
+                  <AncillaryDetails
+                    rows={[
+                      {
+                        label: t("results.benefit.ancillaryMarket"),
+                        value: moneyPerYear(ce.ancillaryMarketValueSek),
+                      },
+                      {
+                        label: t("results.benefit.ancillaryShare"),
+                        value: `${nf(ce.customerAncillaryShare * 100, 0)} %`,
+                      },
+                    ]}
+                    hints={[
+                      t("results.benefit.ancillaryShareHint"),
+                      t("results.benefit.ancillaryNote"),
+                    ]}
+                    toggleLabel={t("results.benefit.showCalculation")}
+                  />
                 </>
               ) : null}
             </div>
@@ -553,6 +558,46 @@ function Row({ label, value }: { label: string; value: string }) {
     <div className="ui-body flex items-center justify-between gap-4">
       <span className="text-muted-foreground">{label}</span>
       <span className="font-semibold tabular-nums">{value}</span>
+    </div>
+  );
+}
+
+function AncillaryDetails({
+  rows,
+  hints,
+  toggleLabel,
+}: {
+  rows: { label: string; value: string }[];
+  hints: string[];
+  toggleLabel: string;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="ui-help flex w-full items-center justify-between gap-2 py-1 text-left text-foreground/60 transition-colors hover:text-foreground"
+      >
+        <span>{toggleLabel}</span>
+        <ChevronDown
+          className={`size-3.5 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+          aria-hidden="true"
+        />
+      </button>
+      {open ? (
+        <div className="space-y-1 border-t border-foreground/10 pt-2">
+          {rows.map((row) => (
+            <Row key={row.label} label={row.label} value={row.value} />
+          ))}
+          {hints.map((hint) => (
+            <p key={hint} className="ui-help">
+              {hint}
+            </p>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

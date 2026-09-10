@@ -284,6 +284,7 @@ export const sv = {
       ancillaryShare: "Din andel av stödtjänstvärdet",
       ancillaryShareHint:
         "Andelen är en schablon. Faktisk ersättning beror bland annat på aggregator, balansansvarig, avgifter och avtalsvillkor.",
+      showCalculation: "Visa beräkningen för stödtjänster",
       ancillaryCustomer: "Din beräknade ersättning",
       title: "Beräknad nytta",
       none: "Med de valda inställningarna ger batteriet ingen beräknad ekonomisk nytta.",

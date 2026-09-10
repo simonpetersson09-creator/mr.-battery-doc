@@ -285,6 +285,7 @@ export const de = {
       ancillaryShare: "Ihr Anteil am Wert der Systemdienstleistungen",
       ancillaryShareHint:
         "Der Anteil ist ein Richtwert. Die tatsächliche Vergütung hängt unter anderem von Aggregator, Bilanzkreisverantwortlichem, Gebühren und Vertragsbedingungen ab.",
+      showCalculation: "Berechnung der Systemdienstleistungen anzeigen",
       ancillaryCustomer: "Ihre berechnete Vergütung",
       title: "Berechneter Nutzen",
       none: "Mit den gewählten Einstellungen bringt die Batterie keinen berechneten wirtschaftlichen Nutzen.",

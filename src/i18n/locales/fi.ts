@@ -278,6 +278,7 @@ export const fi = {
       ancillaryShare: "Osuutesi tukipalveluiden arvosta",
       ancillaryShareHint:
         "Osuus on arvio. Todellinen korvaus riippuu muun muassa aggregaattorista, tasevastaavasta, maksuista ja sopimusehdoista.",
+      showCalculation: "Näytä tukipalveluiden laskelma",
       ancillaryCustomer: "Laskennallinen korvauksesi",
       title: "Laskettu hyöty",
       none: "Valituilla asetuksilla akku ei tuo laskettua taloudellista hyötyä.",
