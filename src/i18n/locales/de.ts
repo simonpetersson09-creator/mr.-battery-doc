@@ -224,6 +224,12 @@ export const de = {
     },
   },
   results: {
+    section: {
+      battery: "Batterie",
+      benefit: "Nutzen",
+      economy: "Wirtschaft",
+      details: "Details",
+    },
     investment: {
       title: "Maximale Investition bei Ihrer gewählten Amortisationszeit",
       basedOn: "Basierend auf Ihrer gewählten Amortisationszeit von {{years}}",

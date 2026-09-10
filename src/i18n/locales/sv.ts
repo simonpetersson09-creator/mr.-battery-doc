@@ -223,6 +223,12 @@ export const sv = {
     },
   },
   results: {
+    section: {
+      battery: "Batteriet",
+      benefit: "Nytan",
+      economy: "Ekonomin",
+      details: "Detaljer",
+    },
     investment: {
       title: "Maxinvestering vid din valda återbetalningstid",
       basedOn: "Baserat på din valda återbetalningstid på {{years}}",
