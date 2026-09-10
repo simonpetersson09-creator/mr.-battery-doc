@@ -74,6 +74,7 @@ export function nativePurchasePlugin(): NativePurchasePlugin | null {
 export function createNativeGateway(p: NativePurchasePlugin): PurchaseGateway {
   return {
     kind: "native",
+    requiresServerVerification: true,
     async loadProducts() {
       try {
         const ids = Object.values(PRODUCT_IDS);
