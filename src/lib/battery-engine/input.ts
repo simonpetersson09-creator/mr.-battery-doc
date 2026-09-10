@@ -12,6 +12,7 @@ import {
   defaultConfig,
   spreadAnnual,
 } from "../lab/defaults";
+import { DEFAULT_EXPORT_MARGIN_PCT, DEFAULT_IMPORT_MARGIN_PCT } from "../lab/dispatch";
 import { buildSeries } from "../lab/simulate";
 import { priceAreaForMarket, reserveModeForMarket } from "../lab/ancillary";
 import {
@@ -87,8 +88,8 @@ export function toLabConfig(input: BatteryEngineInput = {}): LabConfig {
       voltageV: site.voltageV ?? base.grid.voltageV,
       maxImportKw: site.maxImportKw ?? base.grid.maxImportKw,
       maxExportKw: site.maxExportKw ?? base.grid.maxExportKw,
-      importMarginPct: site.importMarginPct ?? base.grid.importMarginPct ?? 90,
-      exportMarginPct: site.exportMarginPct ?? base.grid.exportMarginPct ?? 95,
+      importMarginPct: site.importMarginPct ?? base.grid.importMarginPct ?? DEFAULT_IMPORT_MARGIN_PCT,
+      exportMarginPct: site.exportMarginPct ?? base.grid.exportMarginPct ?? DEFAULT_EXPORT_MARGIN_PCT,
 
     },
     strategies: {

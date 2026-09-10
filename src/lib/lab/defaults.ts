@@ -1,4 +1,5 @@
 import { defaultAncillaryConfig } from "./ancillary";
+import { DEFAULT_EXPORT_MARGIN_PCT, DEFAULT_IMPORT_MARGIN_PCT } from "./dispatch";
 import { DEFAULT_GRID_ASSESSMENT_THRESHOLDS } from "./gridAssessment";
 import type { LabConfig } from "./types";
 
@@ -86,8 +87,8 @@ export function defaultConfig(): LabConfig {
       maxImportKw: 0,
       maxExportKw: 0,
       // Design margin (not physics): 100 = margin off.
-      importMarginPct: 90,
-      exportMarginPct: 95,
+      importMarginPct: DEFAULT_IMPORT_MARGIN_PCT,
+      exportMarginPct: DEFAULT_EXPORT_MARGIN_PCT,
     },
     strategies: {
       selfConsumption: true,

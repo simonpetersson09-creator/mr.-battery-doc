@@ -28,7 +28,12 @@ export interface GridLimits {
  * DESIGN ASSUMPTION, not physics: the operational limits are a configurable
  * safety margin below the physical connection limit. 100 % disables the margin.
  */
-export const DEFAULT_IMPORT_MARGIN_PCT = 90;
+/**
+ * SINGLE SOURCE OF TRUTH for the grid design margins. Every layer (simulation,
+ * sizing, peak shaving, economics, results, PDF assumptions) must resolve the
+ * operational limits through these constants — never a duplicated literal.
+ */
+export const DEFAULT_IMPORT_MARGIN_PCT = 95;
 export const DEFAULT_EXPORT_MARGIN_PCT = 95;
 
 /**
