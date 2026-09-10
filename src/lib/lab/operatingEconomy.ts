@@ -524,9 +524,16 @@ export interface FcrSweepCandidate {
   fcrGrossSek: number | null;
   opportunityCostSek: number | null;
   incrementalNetSek: number | null;
-  /** energy + peak + fcr gross. The optimisation objective. */
+  /** energy + peak + fcr gross. Reported total, NOT the choice objective. */
   totalOperatingBenefitSek: number;
+  /**
+   * energy + peak + ancillary CUSTOMER value. MODEL RULE: this is the objective the
+   * reservation level is chosen on, so a marginally better FCR level can never win when
+   * it wipes out the self-consumption/peak benefit.
+   */
+  annualCustomerBenefitSek: number;
   economy: OperatingEconomyResult;
+
 }
 
 export interface FcrOptimisationResult {
