@@ -15,7 +15,7 @@ const isCapacitorBuild = process.env["CAPACITOR_BUILD"] === "1";
 export default defineConfig({
   tanstackStart: {
     ...(isCapacitorBuild
-      ? { spa: { enabled: true, prerender: { enabled: true, crawlLinks: false } } }
+      ? { spa: { enabled: true, prerender: { enabled: true, crawlLinks: false, outputPath: "/index.html" } } }
       : {}),
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
