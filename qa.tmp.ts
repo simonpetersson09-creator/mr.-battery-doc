@@ -21,9 +21,16 @@ console.log("alts done");
 const model = buildReportModel({ outcome, language: "sv", customerEconomy: ce, targetPaybackYears: 10, alternatives: alts, now: new Date(2026, 8, 10), reportId: "MBD-20260910-QA001" });
 const dd = buildDocDefinition(model);
 console.log("model done");
-const pdfmake: any = (await import("pdfmake/build/pdfmake")).default;
-const fonts: any = await import("pdfmake/build/vfs_fonts");
-pdfmake.addVirtualFileSystem(fonts.default ?? fonts);
-const buf: Buffer = await new Promise((res) => pdfmake.createPdf(dd).getBuffer((b: Buffer) => res(b)));
-writeFileSync("/tmp/qa.pdf", buf);
-console.log("pdf written", buf.length);
+const PdfPrinter: any = (await import("pdfmake/src/printer.js")).default;
+const printer = new PdfPrinter({ Roboto: {
+  normal: "node_modules/pdfmake/fonts/Roboto/Roboto-Regular.ttf",
+  bold: "node_modules/pdfmake/fonts/Roboto/Roboto-Medium.ttf",
+  italics: "node_modules/pdfmake/fonts/Roboto/Roboto-Italic.ttf",
+  bolditalics: "node_modules/pdfmake/fonts/Roboto/Roboto-MediumItalic.ttf",
+}});
+const doc = printer.createPdfKitDocument(dd as any);
+const chunks: any[] = [];
+doc.on("data", (c: any) => chunks.push(c));
+await new Promise<void>((res) => { doc.on("end", () => res()); doc.end(); });
+writeFileSync("/tmp/qa.pdf", Buffer.concat(chunks));
+console.log("pdf written");
