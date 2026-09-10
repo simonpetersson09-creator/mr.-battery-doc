@@ -40,6 +40,18 @@ import { verifyPurchaseWithServer } from "@/lib/access/serverVerification";
 
 const STORAGE_KEY = "mr-battery-doc:access:v1";
 
+/**
+ * Writes entitlements to storage immediately. Used before a StoreKit transaction
+ * is finished, so a crash between "paid" and "saved" cannot lose the purchase.
+ */
+function persistEntitlements(entitlements: Entitlements): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entitlements));
+  } catch {
+    /* storage unavailable */
+  }
+}
+
 interface AccessContextValue {
   entitlements: Entitlements;
   hydrated: boolean;
