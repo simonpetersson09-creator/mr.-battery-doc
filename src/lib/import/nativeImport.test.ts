@@ -142,12 +142,11 @@ describe("HEIC", () => {
     expect(isHeic("x.png", "image/png")).toBe(false);
   });
 
-  it("is passed through unchanged when no decoder is available", async () => {
+  it("is never passed through raw when no decoder is available", async () => {
     const url = "data:image/heic;base64,AAAA";
-    expect(await prepareImageUpload(url, "image/heic", "IMG_1.HEIC")).toEqual({
-      dataUrl: url,
-      mimeType: "image/heic",
-    });
+    await expect(prepareImageUpload(url, "image/heic", "IMG_1.HEIC")).rejects.toThrow(
+      "image-conversion-failed",
+    );
   });
 
   it("camera and photo library return JPEG, so HEIC never reaches the backend from there", async () => {
