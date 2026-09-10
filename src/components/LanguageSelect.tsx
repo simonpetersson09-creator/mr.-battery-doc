@@ -45,7 +45,7 @@ export function LanguageSelect() {
     <Select value={language} onValueChange={onChange}>
       <SelectTrigger
         aria-label={LANGUAGE_NAMES[language]}
-        className="cta-primary h-12 w-12 shrink-0 justify-center rounded-[0.875rem] px-0 text-lg leading-none [&_svg]:hidden"
+        className="lang-trigger cta-primary h-12 w-12 shrink-0 justify-center rounded-[0.875rem] px-0 text-lg leading-none [&_svg]:hidden"
       >
         <SelectValue>
           <span aria-hidden>{LANGUAGE_FLAGS[language]}</span>
