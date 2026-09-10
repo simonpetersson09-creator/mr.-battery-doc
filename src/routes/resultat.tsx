@@ -463,7 +463,7 @@ function ResultStep() {
           <p className="text-[11px] leading-relaxed">{t("payback.investment.none")}</p>
         </SectionCard>
       ) : (
-        <section className="surface-primary rounded-[1.5rem] border p-4 text-center shadow-sm">
+        <section className="ui-card ui-card-compact surface-primary text-center">
           <p className="font-display text-[14px] font-semibold leading-snug">
             {t("results.investment.title")}
           </p>
@@ -475,7 +475,7 @@ function ResultStep() {
           <p className="mt-1 text-[30px] font-extrabold tracking-tight tabular-nums">
             {t("results.investment.approx")} {money(maxInvestment)}
           </p>
-          <div className="surface-secondary mt-3 rounded-[1.25rem] p-3.5 text-left">
+          <div className="surface-secondary mt-2 rounded-[1rem] p-3 text-left">
             <p className="text-center text-[12px] font-semibold">{t("results.investment.otherTitle")}</p>
             <div className="mt-2 space-y-1">
               {[targetYears - 2, targetYears, targetYears + 2]
