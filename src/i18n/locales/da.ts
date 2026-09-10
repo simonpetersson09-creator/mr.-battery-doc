@@ -496,6 +496,7 @@ export const da = {
     restoreNothing: "Vi fandt ikke et aktivt abonnement.",
     processing: "Behandler købet…",
     pending: "Købet afventer godkendelse. Resultatet låses op, når det er færdigt.",
+    unresolved: "Købet er gennemført, men kunne ikke bekræftes endnu. Vi fuldfører det automatisk, så snart forbindelsen virker.",
     retry: "Prøv igen",
     back: "Tilbage til dine oplysninger",
     errors: {

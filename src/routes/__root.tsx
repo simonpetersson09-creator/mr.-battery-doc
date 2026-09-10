@@ -145,6 +145,27 @@ function RootComponent() {
     }
   }, []);
 
+  // Native iOS only: register the StoreKit adapter before the access layer runs
+  // its recovery pass. A no-op in the browser, where purchases do not exist.
+  useEffect(() => {
+    if (!isNativePlatform()) return;
+    let cancelled = false;
+    void (async () => {
+      const { initNativeStoreKit } = await import("@/lib/access/storekit/cdvPurchase");
+      if (cancelled) return;
+      // The plugin's global appears once the Cordova bridge has loaded.
+      let attempts = 0;
+      const tryInit = () => {
+        if (cancelled || initNativeStoreKit()) return;
+        if (attempts++ < 20) setTimeout(tryInit, 250);
+      };
+      tryInit();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>

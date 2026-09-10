@@ -3,15 +3,15 @@ import type { CapacitorConfig } from "@capacitor/cli";
 /**
  * Capacitor configuration for the native iOS shell of Mr. Battery Doc.
  *
- * IMPORTANT — `appId` below is a PLACEHOLDER. The real Bundle Identifier must be
- * decided together with the Apple Developer account and then replaced here AND in
- * Xcode (Signing & Capabilities). Nothing else in the app depends on this value.
+ * `appId` is the real App Store Bundle Identifier and must stay identical to
+ * PRODUCT_BUNDLE_IDENTIFIER in Xcode and to APPLE_BUNDLE_ID on the server, since
+ * Apple validates purchases against it.
  *
  * `webDir` points at capacitor-www/, the locally packaged SPA bundle produced by
  * `bun run build:native`. The entire UI ships inside the app; no remote frontend.
  */
 const config: CapacitorConfig = {
-  appId: "com.todo.mrbatterydoc",
+  appId: "se.shiningdays.mrbatterydoc",
   appName: "Mr. Battery Doc",
   webDir: "capacitor-www",
   /* App background painted by the native container behind the WebView. */

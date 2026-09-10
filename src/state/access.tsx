@@ -34,8 +34,23 @@ import type {
 import type { ProductKey } from "@/lib/access/products";
 import { recoverTransactions } from "@/lib/access/recovery";
 import { clearIntent, createIntent, readIntent, writeIntent } from "@/lib/access/purchaseIntent";
+import { productKeyForId } from "@/lib/access/products";
+import { verifyPurchaseOutcome, verifyUnfinishedTransactions, type Verifier } from "@/lib/access/verifyFlow";
+import { verifyPurchaseWithServer } from "@/lib/access/serverVerification";
 
 const STORAGE_KEY = "mr-battery-doc:access:v1";
+
+/**
+ * Writes entitlements to storage immediately. Used before a StoreKit transaction
+ * is finished, so a crash between "paid" and "saved" cannot lose the purchase.
+ */
+function persistEntitlements(entitlements: Entitlements): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entitlements));
+  } catch {
+    /* storage unavailable */
+  }
+}
 
 interface AccessContextValue {
   entitlements: Entitlements;
@@ -55,11 +70,18 @@ const AccessContext = createContext<AccessContextValue | null>(null);
 export function AccessProvider({
   children,
   gateway,
+  verifier,
 }: {
   children: ReactNode;
   /** Test seam. Production always resolves the platform gateway. */
   gateway?: PurchaseGateway;
+  /** Test seam. Production always verifies against our backend. */
+  verifier?: Verifier;
 }) {
+  const verify = useMemo<Verifier>(
+    () => verifier ?? ((req) => verifyPurchaseWithServer(req)),
+    [verifier],
+  );
   const resolved = useMemo(() => gateway ?? selectPurchaseGateway(), [gateway]);
   const [entitlements, setEntitlements] = useState<Entitlements>(EMPTY_ENTITLEMENTS);
   const [hydrated, setHydrated] = useState(false);
@@ -102,12 +124,24 @@ export function AccessProvider({
     if (!hydrated || !resolved.pendingTransactions) return;
     let alive = true;
     void (async () => {
-      const transactions = await resolved.pendingTransactions!();
-      if (!alive || transactions.length === 0) return;
+      const raw = await resolved.pendingTransactions!();
+      if (!alive || raw.length === 0) return;
       const intent = readIntent();
+      // Our backend decides — StoreKit's own word is never enough.
+      const transactions = resolved.requiresServerVerification
+        ? await verifyUnfinishedTransactions(
+            raw,
+            intent && intent.key === "singleReport" ? intent.calculationId : "",
+            verify,
+            productKeyForId,
+          )
+        : raw;
+      if (!alive) return;
       setEntitlements((e) => {
         const outcome = recoverTransactions(e, transactions, intent);
         if (outcome.intentConsumed) clearIntent();
+        // Access is persisted before anything is acknowledged to StoreKit.
+        persistEntitlements(outcome.entitlements);
         for (const id of outcome.finish) void resolved.finishTransaction?.(id);
         return outcome.entitlements;
       });
@@ -115,7 +149,7 @@ export function AccessProvider({
     return () => {
       alive = false;
     };
-  }, [hydrated, resolved]);
+  }, [hydrated, resolved, verify]);
 
   const purchase = useCallback(
     async (key: ProductKey, calculationId: string): Promise<PurchaseResult> => {
@@ -127,16 +161,28 @@ export function AccessProvider({
       // be matched to this exact calculation after a restart.
       writeIntent(createIntent(key, key === "singleReport" ? calculationId : ""));
       try {
-        const result = await resolved.purchase(key);
-        setEntitlements((e) => applyPurchase(e, result, calculationId));
+        const raw = await resolved.purchase(key);
+        // StoreKit says "paid"; only our server-verified verdict grants access.
+        const { result, finishTransaction } = resolved.requiresServerVerification
+          ? await verifyPurchaseOutcome(key, raw, calculationId, verify)
+          : { result: raw, finishTransaction: false };
+
+        setEntitlements((e) => {
+          const next = applyPurchase(e, result, calculationId);
+          if (result.status === "purchased") persistEntitlements(next);
+          return next;
+        });
         if (result.status === "purchased" || result.status === "cancelled") clearIntent();
+        // Finish only AFTER the entitlement has been written to storage.
+        if (finishTransaction && raw.status === "purchased" && raw.transactionId)
+          void resolved.finishTransaction?.(raw.transactionId);
         return result;
       } finally {
         inFlight.current = false;
         setPurchaseInFlight(false);
       }
     },
-    [resolved],
+    [resolved, verify],
   );
 
   const restore = useCallback(async (): Promise<RestoreResult> => {

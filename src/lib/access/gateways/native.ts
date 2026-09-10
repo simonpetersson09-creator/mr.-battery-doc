@@ -32,6 +32,10 @@ export interface NativePurchasePlugin {
     userCancelled?: boolean;
     verified?: boolean;
     expiresISO?: string | null;
+    /** StoreKit transaction reference — sent to our backend for verification. */
+    transactionId?: string;
+    originalTransactionId?: string | null;
+    productId?: string;
     code?: string;
     message?: string;
   }>;
@@ -70,6 +74,7 @@ export function nativePurchasePlugin(): NativePurchasePlugin | null {
 export function createNativeGateway(p: NativePurchasePlugin): PurchaseGateway {
   return {
     kind: "native",
+    requiresServerVerification: true,
     async loadProducts() {
       try {
         const ids = Object.values(PRODUCT_IDS);
@@ -136,7 +141,14 @@ export function interpretNativePurchase(
   if (res.status === "failed") return { status: "failed", code: interpretPurchaseError(res) };
   if (res.status === "purchased") {
     if (res.verified === false) return { status: "failed", code: "verification" };
-    return { status: "purchased", key, premiumExpiresISO: res.expiresISO ?? null };
+    return {
+      status: "purchased",
+      key,
+      premiumExpiresISO: res.expiresISO ?? null,
+      transactionId: res.transactionId ?? "",
+      productId: res.productId ?? PRODUCT_IDS[key],
+      originalTransactionId: res.originalTransactionId ?? null,
+    };
   }
   return { status: "failed", code: interpretPurchaseError(res) };
 }

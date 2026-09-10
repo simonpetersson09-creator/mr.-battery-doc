@@ -28,9 +28,19 @@ export type LoadProductsResult =
   | { status: "failed"; code: PurchaseErrorCode };
 
 export type PurchaseResult =
-  | { status: "purchased"; key: ProductKey; premiumExpiresISO?: string | null }
+  | {
+      status: "purchased";
+      key: ProductKey;
+      premiumExpiresISO?: string | null;
+      /** StoreKit transaction reference — required for server verification. */
+      transactionId?: string;
+      productId?: string;
+      originalTransactionId?: string | null;
+    }
   | { status: "cancelled" }
   | { status: "pending" }
+  /** Paid but not (yet) server-verified: no access, recoverable on a later start. */
+  | { status: "unresolved" }
   | { status: "failed"; code: PurchaseErrorCode };
 
 export type RestoreResult =
@@ -40,6 +50,11 @@ export type RestoreResult =
 
 export interface PurchaseGateway {
   readonly kind: "native" | "web" | "mock";
+  /**
+   * True when every purchased transaction must be confirmed by our backend
+   * against Apple before it grants anything. Always true for native StoreKit.
+   */
+  readonly requiresServerVerification?: boolean;
   loadProducts(): Promise<LoadProductsResult>;
   purchase(key: ProductKey): Promise<PurchaseResult>;
   /** Subscriptions only. A consumable report purchase is never restorable. */
