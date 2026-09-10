@@ -28,8 +28,8 @@ for (const [name, over] of Object.entries(variants)) {
     const s = buildSeries(c);
     const r = simulate(c, s, cap, kw);
     const eb = (r as any).energyBalance;
-    const t = (r as any).dispatch?.tallies ?? (r as any).tallies;
-    const socD = (t?.socEnd ?? 0) - (t?.socStart ?? 0);
+    const t: any = r;
+    const socD = ((r as any).socEndKWh ?? 0) - ((r as any).socStartKWh ?? 0);
     const rt = t && t.chargedKWh > 0 ? t.dischargedKWh / t.chargedKWh : NaN;
     if (Math.abs(eb.residualKWh) > Math.abs(worst.r)) worst = { r: eb.residualKWh, name: `${name}/${cap}` };
     if (Math.abs(socD) > Math.abs(worstSoc.d)) worstSoc = { d: socD, name: `${name}/${cap}`, pct: Math.abs(socD) / Math.max(1, t.dischargedKWh) * 100 };
