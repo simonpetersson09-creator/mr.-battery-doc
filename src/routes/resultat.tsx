@@ -543,33 +543,12 @@ function ResultStep() {
 
 
       <SectionLabel>{t("results.section.details")}</SectionLabel>
-      {p.showFcrPowerCard ? (
-        <details className="ui-card ui-card-compact ui-expandable surface-primary [&>summary::after]:text-[16px]">
-          <summary className="text-center text-[14px] font-medium">{p.fcrPowerCardTitle}</summary>
-          <div className="surface-secondary mt-2 space-y-1.5 rounded-[1rem] p-3">
-            {p.fcrPowerLevels.map((lvl) => (
-              <Row key={lvl.label} label={lvl.label} value={kw(lvl.kw, 1)} />
-            ))}
-            {p.fcrPowerExplanation ? <p className="text-[11px] leading-relaxed">{p.fcrPowerExplanation}</p> : null}
-          </div>
-        </details>
-      ) : null}
 
       <details className="ui-card ui-card-compact ui-expandable surface-primary [&>summary::after]:text-[16px]">
         <summary className="text-center text-[14px] font-medium">{t("technical.title")}</summary>
 
         <div className="mt-2 space-y-2">
           {/* All key figures below come from the FINAL simulation of the recommended system. */}
-          {cal ? (
-            <TechGroup title={t("technical.calibrationGroup")}>
-              <Row label={t("technical.requested")} value={pct(cal.requestedPct)} />
-              <Row label={t("technical.achieved")} value={pct(cal.achievedPct)} />
-              {cal.status === "partial" ? (
-                <p className="text-[11px] leading-relaxed">{t("technical.partialNote")}</p>
-              ) : null}
-            </TechGroup>
-          ) : null}
-
           <TechGroup title={t("technical.usageGroup")}>
             <Row label={t("technical.cycles")} value={nf(e.equivalentFullCycles, 1)} />
           </TechGroup>
