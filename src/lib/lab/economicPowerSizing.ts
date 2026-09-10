@@ -382,6 +382,12 @@ export function runEconomicPowerSizing(
       fcrRealisticNetSek: realisticFcrNetSek(grossSek, fcrMarket),
       totalOperatingBenefitSek,
       operatingBenefitSek: totalOperatingBenefitSek,
+      annualCustomerBenefitSek: annualCustomerBenefitSek(
+        energyBenefitSek,
+        peakBenefitSek,
+        grossSek,
+        econ,
+      ),
       deltaVsPreviousKw: null,
       capexSek: breakdown.capexSek,
       annualisedProductCostSek: breakdown.annualisedTotalProductCostSek,
