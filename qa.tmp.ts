@@ -22,13 +22,16 @@ const model = buildReportModel({ outcome, language: "sv", customerEconomy: ce, t
 const dd = buildDocDefinition(model);
 console.log("model done");
 const PdfPrinter: any = (await import("pdfmake/src/printer.js")).default;
+const VirtualFileSystem: any = (await import("pdfmake/src/virtual-fs.js")).default;
+const URLResolver: any = (await import("pdfmake/src/URLResolver.js")).default;
+const vfs = new VirtualFileSystem();
 const printer = new PdfPrinter({ Roboto: {
   normal: "node_modules/pdfmake/fonts/Roboto/Roboto-Regular.ttf",
   bold: "node_modules/pdfmake/fonts/Roboto/Roboto-Medium.ttf",
   italics: "node_modules/pdfmake/fonts/Roboto/Roboto-Italic.ttf",
   bolditalics: "node_modules/pdfmake/fonts/Roboto/Roboto-MediumItalic.ttf",
-}});
-const doc = printer.createPdfKitDocument(dd as any);
+}}, vfs, new URLResolver(vfs), () => true);
+const doc = await printer.createPdfKitDocument(dd as any);
 const chunks: any[] = [];
 doc.on("data", (c: any) => chunks.push(c));
 await new Promise<void>((res) => { doc.on("end", () => res()); doc.end(); });
