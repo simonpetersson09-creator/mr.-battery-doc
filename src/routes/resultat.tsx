@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
 import { ChevronDown, FileText } from "lucide-react";
 import { useMemo, useState } from "react";
 import { WizardShell } from "@/components/wizard/WizardShell";
