@@ -252,7 +252,8 @@ export const en = {
     },
     hero: { title: "Recommended battery" },
     bestChoice: "Best choice",
-    level: { lower: "Lower", recommended: "Recommended", higher: "Higher" },
+    yourBattery: "Your battery",
+    level: { lower: "Smaller", recommended: "Best choice", higher: "Larger" },
     balance: {
       base: "Best balance between battery size and calculated benefit.",
       higher: "Best balance between battery size and calculated benefit.",

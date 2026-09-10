@@ -252,7 +252,8 @@ export const da = {
     },
     hero: { title: "Anbefalet batteri" },
     bestChoice: "Bedste valg",
-    level: { lower: "Mindre", recommended: "Anbefalet", higher: "Større" },
+    yourBattery: "Dit batteri",
+    level: { lower: "Mindre", recommended: "Bedste valg", higher: "Større" },
     balance: {
       base: "Bedste balance mellem batteristørrelse og beregnet nytte.",
       higher: "Bedste balance mellem batteristørrelse og beregnet nytte.",
