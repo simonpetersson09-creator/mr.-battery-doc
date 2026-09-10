@@ -248,7 +248,8 @@ export const fi = {
     },
     hero: { title: "Suositeltu akku" },
     bestChoice: "Paras valinta",
-    level: { lower: "Pienempi", recommended: "Suositeltu", higher: "Suurempi" },
+    yourBattery: "Oma akkusi",
+    level: { lower: "Pienempi", recommended: "Paras valinta", higher: "Suurempi" },
     balance: {
       base: "Paras tasapaino akun koon ja lasketun hyödyn välillä.",
       higher: "Paras tasapaino akun koon ja lasketun hyödyn välillä.",

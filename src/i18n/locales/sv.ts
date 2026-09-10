@@ -254,7 +254,8 @@ export const sv = {
     },
     hero: { title: "Rekommenderat batteri" },
     bestChoice: "Bäst val",
-    level: { lower: "Lägre", recommended: "Rekommenderad", higher: "Högre" },
+    yourBattery: "Ditt batteri",
+    level: { lower: "Mindre", recommended: "Bäst val", higher: "Större" },
     balance: {
       base: "Bäst balans mellan batteristorlek och beräknad nytta.",
       higher: "Bäst balans mellan batteristorlek och beräknad nytta.",
