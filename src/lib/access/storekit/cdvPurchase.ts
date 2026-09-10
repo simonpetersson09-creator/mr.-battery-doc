@@ -85,6 +85,47 @@ function expiresISO(t: CdvTransaction): string | null {
   return Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
 
+/** cordova-plugin-purchase error codes we treat specially (CdvPurchase.ErrorCode). */
+const ERR_PAYMENT_CANCELLED = 6500;
+const ERR_PAYMENT_NOT_ALLOWED = 6501;
+const ERR_PAYMENT_PENDING = 6777031;
+
+type PluginError = { code?: number | string; message?: string; isError?: boolean };
+
+/**
+ * `store.order()` / `offer.order()` in v13 resolves with an `IError` object
+ * instead of throwing on many failures. Anything that looks like an error must
+ * never be treated as a completed purchase.
+ */
+function asPluginError(value: unknown): PluginError | null {
+  if (!value || typeof value !== "object") return null;
+  const o = value as Record<string, unknown>;
+  const hasCode = typeof o["code"] === "number" || typeof o["code"] === "string";
+  if (o["isError"] === true) return o as PluginError;
+  if (hasCode && ("message" in o || "isError" in o)) return o as PluginError;
+  return null;
+}
+
+/** Maps a returned IError or a thrown exception to our purchase outcome. */
+function mapPluginError(
+  err: unknown,
+):
+  | { status: "cancelled" }
+  | { status: "pending" }
+  | { status: "failed"; code: string; message: string } {
+  const e = (err ?? {}) as PluginError;
+  const rawCode = e.code;
+  const code = String(rawCode ?? "");
+  const message = String(e.message ?? "");
+  if (rawCode === ERR_PAYMENT_CANCELLED || /cancel/i.test(code) || /cancel/i.test(message))
+    return { status: "cancelled" };
+  if (rawCode === ERR_PAYMENT_PENDING || /pending|deferred|ask to buy/i.test(`${code} ${message}`))
+    return { status: "pending" };
+  if (rawCode === ERR_PAYMENT_NOT_ALLOWED || /not allowed/i.test(`${code} ${message}`))
+    return { status: "failed", code: code || "PAYMENT_NOT_ALLOWED", message };
+  return { status: "failed", code, message };
+}
+
 export function createCdvPurchaseAdapter(ns: CdvNamespace): NativePurchasePlugin {
   const store = ns.store;
   let initialized: Promise<void> | null = null;
@@ -155,13 +196,16 @@ export function createCdvPurchaseAdapter(ns: CdvNamespace): NativePurchasePlugin
       try {
         const offer = product.getOffer?.() ?? product.offers?.[0];
         if (!offer) return { status: "failed" as const, code: "PRODUCT_UNAVAILABLE" };
-        await (offer.order ? offer.order() : store.order?.(offer));
+        // v13 may RETURN an IError instead of throwing it — both paths must fail.
+        const ordered = await (offer.order ? offer.order() : store.order?.(offer));
+        const returnedError = asPluginError(ordered);
+        if (returnedError) {
+          waiting.delete(productId);
+          return mapPluginError(returnedError);
+        }
       } catch (err) {
         waiting.delete(productId);
-        const e = err as { code?: number; message?: string; isError?: boolean };
-        const message = String(e?.message ?? "");
-        if (/cancel/i.test(message) || e?.code === 6500) return { status: "cancelled" as const };
-        return { status: "failed" as const, code: String(e?.code ?? ""), message };
+        return mapPluginError(err);
       }
 
       const t = await transaction;
