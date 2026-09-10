@@ -15,6 +15,8 @@ interface WizardShellProps {
   nextDisabled?: boolean;
   /** Shown above the buttons when the step is incomplete. */
   nextBlockedReason?: string | null;
+  /** Optional full-width action rendered below the back/next row (e.g. PDF report). */
+  footerExtra?: ReactNode;
   /** Replaces the "Next" button on the last step. */
   footerAction?: ReactNode;
   /** Tighter card spacing and page padding for dense steps. */
