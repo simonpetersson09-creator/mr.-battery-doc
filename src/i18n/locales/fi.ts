@@ -364,6 +364,9 @@ export const fi = {
     physicalNeed: "Fyysinen tehontarve",
     heldPower: "Reservipalveluihin varattu teho",
     cRate: "C-arvo",
+    ancillaryGroup: "Reservipalvelut",
+    reservedPower: "Varattu teho",
+    selectedServices: "Valitut reservipalvelut",
   },
   importantInformation: {
     title: "Tärkeää tietää",

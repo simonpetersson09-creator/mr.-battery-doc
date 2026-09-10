@@ -369,6 +369,9 @@ export const da = {
     physicalNeed: "Fysisk effektbehov",
     heldPower: "Effekt reserveret til systemydelser",
     cRate: "C-rate",
+    ancillaryGroup: "Systemydelser",
+    reservedPower: "Reserveret effekt",
+    selectedServices: "Valgte systemydelser",
   },
   importantInformation: {
     title: "Vigtigt at vide",

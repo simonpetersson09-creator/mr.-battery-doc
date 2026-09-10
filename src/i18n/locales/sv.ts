@@ -370,6 +370,9 @@ export const sv = {
     physicalNeed: "Fysiskt effektbehov",
     heldPower: "Stödtjänster hållen effekt",
     cRate: "C-rate",
+    ancillaryGroup: "Stödtjänster",
+    reservedPower: "Reserverad effekt",
+    selectedServices: "Valda stödtjänster",
   },
   importantInformation: {
     title: "Viktigt att känna till",

@@ -373,6 +373,9 @@ export const de = {
     physicalNeed: "Physischer Leistungsbedarf",
     heldPower: "Für Systemdienstleistungen reservierte Leistung",
     cRate: "C-Rate",
+    ancillaryGroup: "Systemdienstleistungen",
+    reservedPower: "Reservierte Leistung",
+    selectedServices: "Gewählte Systemdienstleistungen",
   },
   importantInformation: {
     title: "Wichtig zu wissen",

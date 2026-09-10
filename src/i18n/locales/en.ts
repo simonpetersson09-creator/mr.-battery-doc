@@ -369,6 +369,9 @@ export const en = {
     physicalNeed: "Physical power need",
     heldPower: "Grid services reserved power",
     cRate: "C-rate",
+    ancillaryGroup: "Ancillary services",
+    reservedPower: "Reserved power",
+    selectedServices: "Selected services",
   },
   importantInformation: {
     title: "Important to know",
