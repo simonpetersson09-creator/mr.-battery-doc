@@ -172,12 +172,16 @@ describe("transport", () => {
   }
 
   it("native posts to the published public endpoint", async () => {
-    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ series: [], selfConsumptionPct: null, notes: [] })));
+    const calls: string[] = [];
+    const fetchMock = vi.fn(async (url: unknown) => {
+      calls.push(String(url));
+      return new Response(JSON.stringify({ series: [], selfConsumptionPct: null, notes: [] }));
+    });
     vi.stubGlobal("fetch", fetchMock);
     const send = await nativeTransport();
     await send(input);
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(String(fetchMock.mock.calls[0]![0])).toBe(
+    expect(calls[0]).toBe(
       "https://battery-buddy-wizard.lovable.app/api/public/extract-monthly",
     );
   });
