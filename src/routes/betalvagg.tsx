@@ -173,7 +173,10 @@ function Paywall() {
         </section>
 
         {/* Premium — visually recommended */}
-        <section className="mt-3 rounded-[1rem] border-2 border-accent bg-secondary px-3 py-3">
+        <section
+          className="mt-3 rounded-[1rem] border-2 border-accent px-3 py-3"
+          style={{ background: "var(--surface-level-secondary)" }}
+        >
           <div className="flex items-center justify-between gap-2">
             <p className="font-display text-[14px] font-bold">{t("paywall.premium.label")}</p>
             <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent-foreground">
