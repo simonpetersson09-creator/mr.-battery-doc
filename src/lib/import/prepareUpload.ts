@@ -25,15 +25,30 @@ export function readAsDataUrl(file: Blob): Promise<string> {
   });
 }
 
+/** Thrown when a HEIC/HEIF picture cannot be converted to JPEG on this device. */
+export class ImageConversionError extends Error {
+  constructor() {
+    super("image-conversion-failed");
+    this.name = "ImageConversionError";
+  }
+}
+
 /**
- * Downscales/normalises an image data URL. Returns the input unchanged when it is
- * not an image, when the browser cannot decode it (e.g. HEIC on a platform without
- * a HEIC decoder) or when it is already small enough — the backend accepts HEIC,
- * so a failed conversion must never block the import.
+ * Downscales/normalises an image data URL.
+ *
+ * HEIC/HEIF is ALWAYS converted to JPEG before upload. A raw HEIC is never passed on
+ * silently: when the WebView cannot decode it, this throws `ImageConversionError` and
+ * the caller aborts the import with a friendly message, keeping all form data.
+ * Ordinary JPEG/PNG images pass through unchanged when they are already small enough.
  */
 export async function prepareImageUpload(dataUrl: string, mimeType: string, fileName = ""): Promise<UploadPayload> {
-  const isImage = mimeType.startsWith("image/") || isHeic(fileName, mimeType);
-  if (!isImage || typeof document === "undefined") return { dataUrl, mimeType };
+  const heic = isHeic(fileName, mimeType);
+  const isImage = mimeType.startsWith("image/") || heic;
+  if (!isImage) return { dataUrl, mimeType };
+  if (typeof document === "undefined") {
+    if (heic) throw new ImageConversionError();
+    return { dataUrl, mimeType };
+  }
   try {
     const img = await new Promise<HTMLImageElement>((resolve, reject) => {
       const el = new Image();
@@ -42,18 +57,26 @@ export async function prepareImageUpload(dataUrl: string, mimeType: string, file
       el.src = dataUrl;
     });
     const longest = Math.max(img.width, img.height);
-    const needsConversion = isHeic(fileName, mimeType);
+    const needsConversion = heic;
     if (longest <= MAX_IMAGE_EDGE && !needsConversion) return { dataUrl, mimeType };
     const scale = Math.min(1, MAX_IMAGE_EDGE / longest);
     const canvas = document.createElement("canvas");
     canvas.width = Math.max(1, Math.round(img.width * scale));
     canvas.height = Math.max(1, Math.round(img.height * scale));
     const ctx = canvas.getContext("2d");
-    if (!ctx) return { dataUrl, mimeType };
+    if (!ctx) {
+      if (heic) throw new ImageConversionError();
+      return { dataUrl, mimeType };
+    }
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     // Quality 0.9 keeps invoice and screenshot text legible.
-    return { dataUrl: canvas.toDataURL("image/jpeg", 0.9), mimeType: "image/jpeg" };
-  } catch {
+    const jpeg = canvas.toDataURL("image/jpeg", 0.9);
+    if (heic && !jpeg.startsWith("data:image/jpeg")) throw new ImageConversionError();
+    return { dataUrl: jpeg, mimeType: "image/jpeg" };
+  } catch (error) {
+    if (error instanceof ImageConversionError) throw error;
+    // A HEIC we could not decode must never reach the backend.
+    if (heic) throw new ImageConversionError();
     return { dataUrl, mimeType };
   }
 }
