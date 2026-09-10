@@ -15,7 +15,12 @@ const config: CapacitorConfig = {
   appName: "Mr. Battery Doc",
   webDir: "dist/client",
   ios: {
-    contentInset: "always",
+    /* Matches --background so the native view never flashes white/black behind
+       the WebView or during rubber-band scrolling. */
+    backgroundColor: "#FDFBF4",
+    /* "never": the web layer handles safe areas itself via env(safe-area-inset-*),
+       otherwise iOS adds a second inset on top and we get a visible band. */
+    contentInset: "never",
     limitsNavigationsToAppBoundDomains: false,
   },
   server: {
