@@ -496,6 +496,7 @@ export const en = {
     restoreNothing: "No active subscription found.",
     processing: "Processing the purchase…",
     pending: "The purchase is awaiting approval. The result unlocks once it completes.",
+    unresolved: "The purchase went through but could not be confirmed yet. We complete it automatically as soon as the connection works.",
     retry: "Try again",
     back: "Back to your details",
     errors: {

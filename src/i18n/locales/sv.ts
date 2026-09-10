@@ -497,6 +497,7 @@ export const sv = {
     restoreNothing: "Vi hittade ingen aktiv prenumeration.",
     processing: "Behandlar köpet…",
     pending: "Köpet väntar på godkännande. Resultatet låses upp när det är klart.",
+    unresolved: "Köpet är genomfört men kunde inte bekräftas ännu. Vi slutför det automatiskt så snart anslutningen fungerar.",
     retry: "Försök igen",
     back: "Tillbaka till dina uppgifter",
     errors: {

@@ -491,6 +491,7 @@ export const fi = {
     restoreNothing: "Aktiivista tilausta ei löytynyt.",
     processing: "Käsitellään ostoa…",
     pending: "Osto odottaa hyväksyntää. Tulos avautuu, kun osto on valmis.",
+    unresolved: "Osto onnistui, mutta sitä ei voitu vielä vahvistaa. Viimeistelemme sen automaattisesti heti kun yhteys toimii.",
     retry: "Yritä uudelleen",
     back: "Takaisin tietoihisi",
     errors: {

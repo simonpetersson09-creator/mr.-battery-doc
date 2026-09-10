@@ -503,6 +503,7 @@ export const de = {
     restoreNothing: "Kein aktives Abonnement gefunden.",
     processing: "Kauf wird verarbeitet…",
     pending: "Der Kauf wartet auf Freigabe. Das Ergebnis wird danach freigeschaltet.",
+    unresolved: "Der Kauf wurde getätigt, konnte aber noch nicht bestätigt werden. Wir schließen ihn automatisch ab, sobald die Verbindung steht.",
     retry: "Erneut versuchen",
     back: "Zurück zu Ihren Angaben",
     errors: {
