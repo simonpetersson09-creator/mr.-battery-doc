@@ -316,7 +316,7 @@ function ResultStep() {
       ) : null}
 
       {p.showEnergySection || p.showPeakSection ? (
-        <SectionCard compact className="surface-primary" title={t("results.improvements.title")} titleClassName={RESULT_CARD_TITLE_CLASS}>
+        <SectionCard compact centerTitle className="surface-primary" title={t("results.improvements.title")} titleClassName={RESULT_CARD_TITLE_CLASS}>
           <div className="surface-secondary rounded-[1rem] p-3">
             <div className="space-y-1.5">
               {p.showSelfConsumption ? (
@@ -387,7 +387,7 @@ function ResultStep() {
       ) : null}
 
       <SectionLabel>{t("results.section.benefit")}</SectionLabel>
-      <SectionCard compact className="surface-primary" title={t("results.benefit.title")} titleClassName={RESULT_CARD_TITLE_CLASS}>
+      <SectionCard compact centerTitle className="surface-primary" title={t("results.benefit.title")} titleClassName={RESULT_CARD_TITLE_CLASS}>
         {p.noEconomy ? (
           <>
             <p className="text-[30px] font-extrabold tracking-tight tabular-nums">{moneyPerYear(0)}</p>

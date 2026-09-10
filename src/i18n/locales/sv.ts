@@ -225,7 +225,7 @@ export const sv = {
   results: {
     section: {
       battery: "Batteriet",
-      benefit: "Nytan",
+      benefit: "Nyttan",
       economy: "Ekonomin",
       details: "Detaljer",
     },
