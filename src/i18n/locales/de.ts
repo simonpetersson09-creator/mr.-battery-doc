@@ -422,6 +422,9 @@ export const de = {
       "Wir konnten {{read}} von 12 Monaten lesen. Prüfen oder ergänzen Sie die fehlenden Werte.",
   },
   errors: {
+    importImageUnreadable: "Dieses Bild konnte nicht gelesen werden. Machen Sie ein neues Foto oder wählen Sie eine JPG-, PNG- oder PDF-Datei.",
+    importFilesDenied: "Der Dateizugriff ist deaktiviert. Erlauben Sie den Zugriff in den iPhone-Einstellungen, um ein Dokument zu wählen.",
+    importPickerUnavailable: "Die Auswahl konnte gerade nicht geöffnet werden. Bitte erneut versuchen.",
     importUnsupportedType: "Dieser Dateityp wird nicht unterstützt. Verwenden Sie ein Bild, eine PDF- oder eine CSV-Datei.",
     importCameraDenied: "Kein Kamerazugriff. Erlauben Sie die Kamera in den iPhone-Einstellungen, um Unterlagen zu fotografieren.",
     importPhotosDenied: "Kein Zugriff auf Fotos. Erlauben Sie den Zugriff in den iPhone-Einstellungen, um Unterlagen auszuwählen.",

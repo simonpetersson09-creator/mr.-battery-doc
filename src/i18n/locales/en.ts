@@ -417,6 +417,9 @@ export const en = {
       "We could read {{read}} of 12 months. Check or fill in the missing values.",
   },
   errors: {
+    importImageUnreadable: "This image could not be read. Try taking a new photo or choose a JPG, PNG or PDF file.",
+    importFilesDenied: "File access is turned off. Allow access in your iPhone settings to choose a document.",
+    importPickerUnavailable: "The picker could not be opened right now. Please try again.",
     importUnsupportedType: "That file type is not supported. Use an image, a PDF or a CSV file.",
     importCameraDenied: "Camera access is turned off. Allow the camera in your iPhone settings to photograph a document.",
     importPhotosDenied: "Photo access is turned off. Allow access in your iPhone settings to choose a document.",

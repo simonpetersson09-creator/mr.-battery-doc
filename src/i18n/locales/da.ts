@@ -417,6 +417,9 @@ export const da = {
       "Vi kunne læse {{read}} af 12 måneder. Kontrollér eller udfyld de manglende værdier.",
   },
   errors: {
+    importImageUnreadable: "Dette billede kunne ikke læses. Tag et nyt foto, eller vælg en JPG-, PNG- eller PDF-fil.",
+    importFilesDenied: "Adgang til filer er slået fra. Tillad adgang i iPhone-indstillingerne for at vælge et dokument.",
+    importPickerUnavailable: "Vælgeren kunne ikke åbnes lige nu. Prøv igen.",
     importUnsupportedType: "Filtypen understøttes ikke. Brug et billede, en PDF eller en CSV-fil.",
     importCameraDenied: "Kameraet er ikke tilladt. Tillad kameraet i iPhone-indstillinger for at fotografere bilag.",
     importPhotosDenied: "Billeder er ikke tilladt. Tillad adgang i iPhone-indstillinger for at vælge bilag.",

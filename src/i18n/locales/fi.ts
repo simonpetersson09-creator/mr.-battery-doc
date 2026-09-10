@@ -412,6 +412,9 @@ export const fi = {
       "Luimme {{read}} kuukautta 12:sta. Tarkista tai täytä puuttuvat arvot.",
   },
   errors: {
+    importImageUnreadable: "Tätä kuvaa ei voitu lukea. Ota uusi valokuva tai valitse JPG-, PNG- tai PDF-tiedosto.",
+    importFilesDenied: "Tiedostojen käyttö on estetty. Salli käyttö iPhonen asetuksissa valitaksesi asiakirjan.",
+    importPickerUnavailable: "Valitsinta ei voitu avata juuri nyt. Yritä uudelleen.",
     importUnsupportedType: "Tiedostotyyppiä ei tueta. Käytä kuvaa, PDF- tai CSV-tiedostoa.",
     importCameraDenied: "Kameran käyttö ei ole sallittu. Salli kamera iPhonen asetuksissa, jotta voit kuvata asiakirjan.",
     importPhotosDenied: "Kuvien käyttö ei ole sallittu. Salli käyttö iPhonen asetuksissa, jotta voit valita asiakirjan.",
