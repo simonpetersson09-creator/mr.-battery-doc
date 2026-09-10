@@ -85,7 +85,7 @@ export function WizardShell({
               nextDisabled ? (
                 <Button
                   variant="cta"
-                  className={`h-12 flex-[2] rounded-[0.875rem] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
+                  className={`h-12 flex-[2] rounded-[0.875rem] text-[16px] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
                   disabled
                   aria-disabled="true"
                 >
@@ -96,7 +96,7 @@ export function WizardShell({
                 <Button
                   asChild
                   variant="cta"
-                  className={`h-12 flex-[2] rounded-[0.875rem] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
+                  className={`h-12 flex-[2] rounded-[0.875rem] text-[16px] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
                 >
                   <Link to={next}>
                     {nextLabel ?? t("common.next")}
@@ -108,7 +108,7 @@ export function WizardShell({
               <Button
                 asChild
                 variant="cta"
-                className={`h-12 flex-[2] rounded-[0.875rem] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
+                className={`h-12 flex-[2] rounded-[0.875rem] text-[16px] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
               >
                 <Link to="/">{t("common.done")}</Link>
               </Button>
