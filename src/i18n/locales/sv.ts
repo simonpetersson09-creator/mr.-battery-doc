@@ -331,6 +331,10 @@ export const sv = {
       withoutSolar:
         "{{capacity}} kWh ger en bra balans mellan hur mycket energi batteriet kan flytta och nyttan av ytterligare kapacitet. Ett större batteri ger relativt liten ytterligare nytta med din förbrukning.",
     },
+    powerCap: {
+      note:
+        "Fastighetens beräknade fysiska effektbehov ({{physical}} kW) är större än den största effektnivå som går att köpa ({{product}} kW). Rekommendationen begränsas därför till {{product}} kW.",
+    },
     powerWhy: {
       raised:
         "{{recommended}} kW ger högst beräknad årlig nytta av de systemeffekter som har jämförts. Fastighetens eget effektbehov är lägre ({{physical}} kW).",
@@ -414,6 +418,9 @@ export const sv = {
       "Vi kunde läsa {{read}} av 12 månader. Kontrollera eller fyll i de saknade värdena.",
   },
   errors: {
+    importImageUnreadable: "Den här bilden kunde inte läsas. Prova att ta ett nytt foto eller välj en JPG-, PNG- eller PDF-fil.",
+    importFilesDenied: "Filer är inte tillåtna. Tillåt åtkomst i iPhones inställningar för att välja underlag.",
+    importPickerUnavailable: "Det gick inte att öppna väljaren just nu. Försök igen.",
     importUnsupportedType: "Filtypen stöds inte. Använd en bild, en PDF eller en CSV-fil.",
     importCameraDenied: "Kameran är inte tillåten. Tillåt kameran i iPhones inställningar för att fotografera underlag.",
     importPhotosDenied: "Bilder är inte tillåtna. Tillåt åtkomst i iPhones inställningar för att välja underlag.",

@@ -40,6 +40,8 @@ export interface ResultPresentation {
   /** The ONLY power the customer-facing recommendation is allowed to show. */
   recommendedPowerKw: number;
   physicalPowerNeedKw: number;
+  /** Set when the physical need is above the largest purchasable product level. */
+  powerCapNote: string | null;
   actualDispatchPowerKw: number;
   fcrHeldPowerKw: number | null;
 
@@ -244,6 +246,18 @@ export function buildResultPresentation(
 
 
 
+  /**
+   * PRODUCT CAP. The physical need may exceed the largest product level we sell; the
+   * recommendation may not. Only the wording differs — no value is recalculated.
+   */
+  const powerCapNote =
+    !noBattery && r.productCapBound && r.maxProductPowerKw > 0
+      ? t("results.powerCap.note", {
+          physical: physKw,
+          product: nf(r.maxProductPowerKw, 1),
+        })
+      : null;
+
   const capacityKWh = r.capacityKWh;
   const productPowerKw = r.productPowerKw;
   const systemCRate = capacityKWh > 0 ? recommendedPowerKw / capacityKWh : 0;
@@ -295,6 +309,7 @@ export function buildResultPresentation(
     capacityKWh: r.capacityKWh,
     recommendedPowerKw,
     physicalPowerNeedKw: r.physicalPowerNeedKw,
+    powerCapNote,
     actualDispatchPowerKw: r.actualDispatchPowerKw,
     fcrHeldPowerKw: showFcr ? s.fcr.avgHeldPowerKw : null,
 

@@ -20,6 +20,7 @@ import {
   DEFAULT_MAX_PRODUCT_C_RATE,
   EMPTY_FCR_MARKET_REALISM,
   POWER_TIE_TOLERANCE_SEK,
+  maxProductStepKw,
   runEconomicPowerSizing,
 } from "../lab/economicPowerSizing";
 
@@ -99,6 +100,10 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
         physicalPowerNeedKw: sweep.powerSizing.physicalNeedKw,
         productPowerKw,
         maxProductCRate: input.battery?.maxProductCRateForCandidates ?? DEFAULT_MAX_PRODUCT_C_RATE,
+        maxProductPowerKw: maxProductStepKw(cfg.powerSizing.productStepsKw),
+        productCapBound:
+          maxProductStepKw(cfg.powerSizing.productStepsKw) > 0 &&
+          sweep.powerSizing.physicalNeedKw > maxProductStepKw(cfg.powerSizing.productStepsKw) + 1e-9,
         candidatePowersKw: [],
         options: [],
         operatingOptimalPowerKw: null,
@@ -222,6 +227,8 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
         result.dispatchPower.maxDischargeKw,
       ),
       productPowerKw,
+      maxProductPowerKw: economicPowerSizing.maxProductPowerKw,
+      productCapBound: economicPowerSizing.productCapBound,
       operatingOptimalPowerKw: economicPowerSizing.operatingOptimalPowerKw,
       recommendedPowerKw: powerKw,
       economicallyOptimalPowerKw: economicPowerSizing.economicallyOptimalPowerKw,

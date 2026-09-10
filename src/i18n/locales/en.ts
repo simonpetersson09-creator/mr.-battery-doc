@@ -330,6 +330,10 @@ export const en = {
       withoutSolar:
         "{{capacity}} kWh gives a good balance between how much energy the battery can move and the benefit of additional capacity. A larger battery gives relatively little extra benefit with your consumption.",
     },
+    powerCap: {
+      note:
+        "The property's calculated physical power need ({{physical}} kW) is larger than the largest available product level ({{product}} kW). The recommendation is therefore limited to {{product}} kW.",
+    },
     powerWhy: {
       raised:
         "{{recommended}} kW gives the highest calculated annual benefit of the system power levels compared. The property's own power need is lower ({{physical}} kW).",
@@ -413,6 +417,9 @@ export const en = {
       "We could read {{read}} of 12 months. Check or fill in the missing values.",
   },
   errors: {
+    importImageUnreadable: "This image could not be read. Try taking a new photo or choose a JPG, PNG or PDF file.",
+    importFilesDenied: "File access is turned off. Allow access in your iPhone settings to choose a document.",
+    importPickerUnavailable: "The picker could not be opened right now. Please try again.",
     importUnsupportedType: "That file type is not supported. Use an image, a PDF or a CSV file.",
     importCameraDenied: "Camera access is turned off. Allow the camera in your iPhone settings to photograph a document.",
     importPhotosDenied: "Photo access is turned off. Allow access in your iPhone settings to choose a document.",

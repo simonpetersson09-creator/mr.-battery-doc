@@ -8,17 +8,17 @@
 
 import { createFileRoute } from "@tanstack/react-router";
 import { extractMonthlyInputSchema } from "@/lib/import/extractMonthlyInput";
+import { DEFAULT_ALLOWED_ORIGIN, isAllowedImportOrigin } from "@/lib/import/corsOrigins";
 
-/** Capacitor WebView origins. Explicit allowlist — no wildcard. */
-const ALLOWED_ORIGINS = new Set([
-  "capacitor://localhost",
-  "ionic://localhost",
-  "https://localhost",
-  "http://localhost",
-]);
+/** true only for local dev/preview builds; production bundles ship false. */
+function isDevelopment(): boolean {
+  return import.meta.env.DEV === true;
+}
 
 function corsHeaders(origin: string | null): Record<string, string> {
-  const allowed = origin && ALLOWED_ORIGINS.has(origin) ? origin : "capacitor://localhost";
+  const allowed = isAllowedImportOrigin(origin, isDevelopment())
+    ? origin!
+    : DEFAULT_ALLOWED_ORIGIN;
   return {
     "Access-Control-Allow-Origin": allowed,
     "Access-Control-Allow-Methods": "POST, OPTIONS",

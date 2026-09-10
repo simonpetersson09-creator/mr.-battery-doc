@@ -24,6 +24,7 @@ import {
   DEFAULT_MAX_PRODUCT_C_RATE,
   POWER_TIE_TOLERANCE_SEK,
   simulateAtPower,
+  maxProductStepKw,
 } from "@/lib/lab/economicPowerSizing";
 
 export interface WithoutFcrOption {
@@ -75,7 +76,10 @@ export function buildWithoutFcrCandidates(
   maxProductCRate: number = DEFAULT_MAX_PRODUCT_C_RATE,
 ): number[] {
   if (!(capacityKWh > 0)) return [];
-  const ceiling = maxProductCRate > 0 ? round3(capacityKWh * maxProductCRate) : 0;
+  // Product levels only: the C-rate ceiling can never exceed the largest product step.
+  const productCapKw = maxProductStepKw(productStepsKw);
+  const rawCeiling = maxProductCRate > 0 ? round3(capacityKWh * maxProductCRate) : 0;
+  const ceiling = productCapKw > 0 ? Math.min(rawCeiling, productCapKw) : rawCeiling;
   const out = new Set<number>();
   for (const step of productStepsKw)
     if (step > 0 && step <= ceiling + 1e-9) out.add(round3(step));

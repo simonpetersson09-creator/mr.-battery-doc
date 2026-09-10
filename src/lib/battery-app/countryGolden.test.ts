@@ -245,7 +245,12 @@ const EXPECTED: Record<string, { capacityKWh: number; powerKw: number }> = {
   CG12: { capacityKWh: 100, powerKw: 50 },
   CG13: { capacityKWh: 5, powerKw: 3 },
   CG14: { capacityKWh: 50, powerKw: 25 },
-  CG15: { capacityKWh: 500, powerKw: 250 },
+  /**
+   * CG15 previously froze 250 kW — the PHYSICAL need at 500 kWh / 0.5 C. That is not a
+   * purchasable product level; the recommendation is capped at the 200 kW product step.
+   * The physical need itself is still reported unclamped.
+   */
+  CG15: { capacityKWh: 500, powerKw: 200 },
 };
 
 function buildState(c: Case): WizardState {
