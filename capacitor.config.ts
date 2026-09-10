@@ -7,13 +7,13 @@ import type { CapacitorConfig } from "@capacitor/cli";
  * decided together with the Apple Developer account and then replaced here AND in
  * Xcode (Signing & Capabilities). Nothing else in the app depends on this value.
  *
- * `webDir` points at the static SPA build produced by `bun run build:native`
- * (TanStack Start SPA mode, which emits dist/client/index.html).
+ * `webDir` points at capacitor-www/, the locally packaged SPA bundle produced by
+ * `bun run build:native`. The entire UI ships inside the app; no remote frontend.
  */
 const config: CapacitorConfig = {
   appId: "com.todo.mrbatterydoc",
   appName: "Mr. Battery Doc",
-  webDir: "dist/client",
+  webDir: "capacitor-www",
   /* App background painted by the native container behind the WebView. */
   backgroundColor: "#FDFBF4",
   ios: {

@@ -10,8 +10,8 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "build:native": "CAPACITOR_BUILD=1 vite build",
-    "sync:ios": "CAPACITOR_BUILD=1 vite build && cap sync ios",
+    "build:native": "node scripts/build-native.mjs",
+    "sync:ios": "node scripts/build-native.mjs && cap sync ios",
     "open:ios": "cap open ios"
   },
   "overrides": {
