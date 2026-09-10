@@ -15,7 +15,7 @@ const purchased = {
 
 describe("server-verified purchase flow", () => {
   it("unlocks only after the backend verifies the transaction", async () => {
-    const verify = verifier({ status: "verified" });
+    const verify = verifier({ status: "verified", premiumExpiresISO: null });
     const out = await verifyPurchaseOutcome("singleReport", purchased, "calc-1", verify);
     expect(out.result.status).toBe("purchased");
     expect(out.finishTransaction).toBe(true);
@@ -53,7 +53,7 @@ describe("server-verified purchase flow", () => {
   });
 
   it("cannot verify a purchase without a transaction id", async () => {
-    const verify = verifier({ status: "verified" });
+    const verify = verifier({ status: "verified", premiumExpiresISO: null });
     const out = await verifyPurchaseOutcome(
       "singleReport",
       { status: "purchased", key: "singleReport" },
@@ -65,7 +65,7 @@ describe("server-verified purchase flow", () => {
   });
 
   it("passes cancelled, pending and failed through untouched", async () => {
-    const verify = verifier({ status: "verified" });
+    const verify = verifier({ status: "verified", premiumExpiresISO: null });
     for (const result of [
       { status: "cancelled" as const },
       { status: "pending" as const },
@@ -81,7 +81,7 @@ describe("server-verified purchase flow", () => {
   it("marks recovered transactions verified only on an explicit server verdict", async () => {
     const verify = vi.fn(async (req: { transactionId: string }) =>
       req.transactionId === "good"
-        ? ({ status: "verified" } as VerificationResult)
+        ? ({ status: "verified", premiumExpiresISO: null } as VerificationResult)
         : ({ status: "unavailable" } as VerificationResult),
     );
     const out = await verifyUnfinishedTransactions(
