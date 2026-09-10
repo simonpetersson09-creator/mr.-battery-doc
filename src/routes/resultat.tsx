@@ -197,32 +197,25 @@ function ResultStep() {
     simulation rendered above — never from a cached or recalculated result.
   */
   const pdfReport = (
-    <div>
-      <Button
-        type="button"
-        variant="outline"
-        className="h-12 w-full rounded-[0.875rem] text-[16px] font-semibold"
-        disabled={!PDF_REPORT_AVAILABLE}
-        aria-disabled={!PDF_REPORT_AVAILABLE}
-        onClick={() => {
-          if (!PDF_REPORT_AVAILABLE) return;
-          generatePdfReport({
-            outcome,
-            language: currentLanguage(),
-            customerEconomy: ce,
-            targetPaybackYears: targetYears,
-          });
-        }}
-      >
-        <FileText className="size-4" />
-        {t("results.pdfReport")}
-      </Button>
-      {PDF_REPORT_AVAILABLE ? null : (
-        <p className="mt-2 text-center text-[14px]" role="status">
-          {t("results.pdfReportPending")}
-        </p>
-      )}
-    </div>
+    <Button
+      type="button"
+      variant="outline"
+      className="h-12 w-full rounded-[0.875rem] text-[16px] font-semibold bg-primary text-primary-foreground"
+      disabled={!PDF_REPORT_AVAILABLE}
+      aria-disabled={!PDF_REPORT_AVAILABLE}
+      onClick={() => {
+        if (!PDF_REPORT_AVAILABLE) return;
+        generatePdfReport({
+          outcome,
+          language: currentLanguage(),
+          customerEconomy: ce,
+          targetPaybackYears: targetYears,
+        });
+      }}
+    >
+      <FileText className="size-4" />
+      {t("results.pdfReport")}
+    </Button>
   );
 
   return (
