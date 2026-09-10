@@ -24,6 +24,7 @@ import {
   type PickerSource,
 } from "@/lib/import/nativePicker";
 import {
+  ImageConversionError,
   prepareFileUpload,
   prepareImageUpload,
   textFromDataUrl,
@@ -124,8 +125,9 @@ export function MonthlyImport({
       } else {
         setCandidates(choice.all);
       }
-    } catch {
-      setError(t("errors.importUnreadable"));
+    } catch (err) {
+      // A HEIC we could not convert is aborted here: nothing raw is ever uploaded.
+      setError(t(err instanceof ImageConversionError ? "errors.importImageUnreadable" : "errors.importUnreadable"));
     } finally {
       setBusy(false);
     }
@@ -151,8 +153,8 @@ export function MonthlyImport({
         dataUrl: upload.dataUrl,
         size: file.size,
       });
-    } catch {
-      setError(t("errors.importUnreadable"));
+    } catch (err) {
+      setError(t(err instanceof ImageConversionError ? "errors.importImageUnreadable" : "errors.importUnreadable"));
       setBusy(false);
     }
   };
@@ -169,7 +171,19 @@ export function MonthlyImport({
       case "cancelled":
         return;
       case "denied":
-        setError(t(source === "camera" ? "errors.importCameraDenied" : "errors.importPhotosDenied"));
+      case "restricted":
+        setError(
+          t(
+            source === "camera"
+              ? "errors.importCameraDenied"
+              : source === "photos"
+                ? "errors.importPhotosDenied"
+                : "errors.importFilesDenied",
+          ),
+        );
+        return;
+      case "unsupported":
+        setError(t("errors.importPickerUnavailable"));
         return;
       case "tooLarge":
         setError(t("errors.importTooLarge"));
