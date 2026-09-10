@@ -40,7 +40,7 @@ export const INTENDED_PRICES: Record<ProductKey, { amount: number; currency: str
  * StoreKit's localized price is always the authoritative price; the intended
  * prices above are only used as a fallback label before StoreKit answers.
  */
-export const APP_STORE_CONNECT_CONFIRMED = true;
+export const APP_STORE_CONNECT_CONFIRMED = false;
 
 /** Subscription group name for the yearly plan — must match App Store Connect. */
 export const PREMIUM_SUBSCRIPTION_GROUP = "Mr Battery Doc Premium";
