@@ -31,6 +31,7 @@ export const fi = {
   },
   units: {
     perYear: "/v",
+    perYearShort: "kr/v",
     kwhPerYear: "kWh/v",
     perKwh: "{{currency}}/kWh",
     perKwMonth: "{{currency}}/kW/kk",
@@ -244,6 +245,7 @@ export const fi = {
       text: "Nykyisillä tiedoillasi akku ei tuo riittävää hyötyä suositeltavaksi.",
     },
     hero: { title: "Suositeltu akku" },
+    bestChoice: "Paras valinta",
     level: { lower: "Pienempi", recommended: "Suositeltu", higher: "Suurempi" },
     balance: {
       base: "Suositeltu on koko, joka antaa parhaan tasapainon kiinteistön energiatarpeen kannalta.",

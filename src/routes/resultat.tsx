@@ -195,62 +195,87 @@ function ResultStep() {
           <p className="ui-help mt-1 text-foreground/70">{t("results.noBattery.text")}</p>
         </div>
       ) : (
-        <div className="hero-metric rounded-[1.0625rem] px-3 py-3">
+        <div className="hero-metric rounded-[1.25rem] px-3 py-3">
           <p className="ui-caption text-center">{t("results.hero.title")}</p>
           <div
-            className="mt-2 grid items-end gap-2"
+            className="mt-2 grid items-stretch gap-2"
             style={{ gridTemplateColumns: `repeat(${alternatives.length}, minmax(0, 1fr))` }}
           >
             {alternatives.map((alt) => {
               const main = alt.level === "recommended";
+              const label =
+                alt.level === "lower"
+                  ? t("results.level.lower")
+                  : alt.level === "higher"
+                    ? t("results.level.higher")
+                    : t("results.level.recommended");
               return (
                 <div
                   key={alt.level}
                   className={
-                    "rounded-[1rem] px-1.5 py-2 text-center " +
-                    (main ? "bg-foreground/5" : "opacity-70")
+                    "relative flex flex-col items-center justify-between rounded-[0.75rem] px-2 py-2.5 text-center " +
+                    (main
+                      ? "z-10 scale-[1.04] bg-background shadow-lg shadow-amber-900/10 ring-1 ring-foreground/10"
+                      : "bg-foreground/[0.04] opacity-80")
                   }
                 >
-                  <p
+                  {main ? (
+                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-foreground px-2 py-0.5 text-[8px] font-bold uppercase tracking-tight text-background whitespace-nowrap">
+                      {t("results.bestChoice")}
+                    </span>
+                  ) : null}
+                  <span
                     className={
-                      main
-                        ? "ui-caption font-bold uppercase tracking-wide"
-                        : "ui-caption uppercase tracking-wide"
+                      "text-[10px] font-bold uppercase tracking-wider " +
+                      (main ? "text-foreground" : "text-foreground/50")
                     }
                   >
-                    {alt.level === "lower"
-                      ? t("results.level.lower")
-                      : alt.level === "higher"
-                        ? t("results.level.higher")
-                        : t("results.level.recommended")}
-                  </p>
-                  <p
-                    className={
-                      main
-                        ? "mt-1 text-xl font-extrabold tabular-nums leading-tight"
-                        : "mt-1 text-sm font-semibold tabular-nums leading-tight"
-                    }
-                  >
-                    {nf(alt.capacityKWh)} <span className="text-xs font-bold">kWh</span>
-                  </p>
-                  <p
-                    className={
-                      main
-                        ? "text-sm font-bold tabular-nums"
-                        : "ui-help font-semibold tabular-nums"
-                    }
-                  >
-                    {nf(alt.powerKw, 1)} kW
-                  </p>
-                  <p
-                    className={
-                      main
-                        ? "mt-1 text-sm font-bold tabular-nums"
-                        : "ui-help mt-1 tabular-nums"
-                    }
-                  >
-                    {moneyPerYear(alt.customerBenefitSek)}
-                  </p>
+                    {label}
+                  </span>
+                  <div className="mt-1.5 text-center">
+                    <span
+                      className={
+                        "font-bold tabular-nums " +
+                        (main ? "text-2xl" : "text-xl text-foreground/80")
+                      }
+                    >
+                      {nf(alt.capacityKWh)}
+                    </span>
+                    <span
+                      className={
+                        "ml-0.5 text-xs font-medium " +
+                        (main ? "text-foreground/60" : "text-foreground/40")
+                      }
+                    >
+                      kWh
+                    </span>
+                    <p
+                      className={
+                        "text-[10px] font-medium tabular-nums " +
+                        (main ? "text-foreground/70" : "text-foreground/50")
+                      }
+                    >
+                      {nf(alt.powerKw, 1)} kW
+                    </p>
+                  </div>
+                  <div className="mt-2 w-full border-t border-foreground/10 pt-1.5 text-center">
+                    <p
+                      className={
+                        "font-bold tabular-nums " +
+                        (main ? "text-sm" : "text-xs text-foreground/70")
+                      }
+                    >
+                      {moneyPerYear(alt.customerBenefitSek)}
+                    </p>
+                    <p
+                      className={
+                        "text-[9px] font-semibold uppercase " +
+                        (main ? "text-foreground/60" : "text-foreground/40")
+                      }
+                    >
+                      {t("units.perYearShort")}
+                    </p>
+                  </div>
                 </div>
               );
             })}
@@ -270,7 +295,7 @@ function ResultStep() {
                 : t("results.balance.higher")
               : t("results.balance.base");
             return (
-              <p className="ui-help mt-1.5 text-center text-foreground/60">{text}</p>
+              <p className="ui-help mt-2 text-center text-foreground/60">{text}</p>
             );
           })()}
         </div>

@@ -32,6 +32,7 @@ export const de = {
   },
   units: {
     perYear: "/Jahr",
+    perYearShort: "kr/Jahr",
     kwhPerYear: "kWh/Jahr",
     perKwh: "{{currency}}/kWh",
     perKwMonth: "{{currency}}/kW/Monat",
@@ -251,6 +252,7 @@ export const de = {
       text: "Mit Ihren aktuellen Angaben bringt eine Batterie keinen ausreichenden Nutzen für eine Empfehlung.",
     },
     hero: { title: "Empfohlene Batterie" },
+    bestChoice: "Beste Wahl",
     level: { lower: "Kleiner", recommended: "Empfohlen", higher: "Größer" },
     balance: {
       base: "Empfohlen ist die Größe mit der besten Balance für den Energiebedarf der Immobilie.",
