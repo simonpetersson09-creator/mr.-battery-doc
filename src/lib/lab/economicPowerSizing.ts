@@ -206,10 +206,16 @@ export interface PowerOption {
   fcrGrossSek: number | null;
   /** Gross adjusted for verified market realism. Null while realism data is missing. */
   fcrRealisticNetSek: number | null;
-  /** energy + peak + FCR. THE optimisation objective. */
+  /** energy + peak + FCR gross. Reported total, NOT the choice objective. */
   totalOperatingBenefitSek: number;
   /** Alias kept for existing consumers; identical to totalOperatingBenefitSek. */
   operatingBenefitSek: number;
+  /**
+   * energy + peak + ancillary CUSTOMER value. MODEL RULE: the power level is chosen on
+   * this, so raw FCR gross alone can never drive a higher power level.
+   */
+  annualCustomerBenefitSek: number;
+
   /** Difference in total operating benefit against the NEXT LOWER candidate. */
   deltaVsPreviousKw: number | null;
   /** PARKED product-cost reporting. Never part of the objective. Null by default. */
