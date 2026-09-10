@@ -316,7 +316,7 @@ function ResultStep() {
       ) : null}
 
       {p.showEnergySection || p.showPeakSection ? (
-        <SectionCard compact className="surface-primary" title={t("results.improvements.title")} titleClassName={RESULT_CARD_TITLE_CLASS}>
+        <SectionCard compact centerTitle className="surface-primary" title={t("results.improvements.title")} titleClassName={RESULT_CARD_TITLE_CLASS}>
           <div className="surface-secondary rounded-[1rem] p-3">
             <div className="space-y-1.5">
               {p.showSelfConsumption ? (
@@ -387,7 +387,7 @@ function ResultStep() {
       ) : null}
 
       <SectionLabel>{t("results.section.benefit")}</SectionLabel>
-      <SectionCard compact className="surface-primary" title={t("results.benefit.title")} titleClassName={RESULT_CARD_TITLE_CLASS}>
+      <SectionCard compact centerTitle className="surface-primary" title={t("results.benefit.title")} titleClassName={RESULT_CARD_TITLE_CLASS}>
         {p.noEconomy ? (
           <>
             <p className="text-[30px] font-extrabold tracking-tight tabular-nums">{moneyPerYear(0)}</p>
@@ -517,7 +517,7 @@ function ResultStep() {
       <SectionLabel>{t("results.section.details")}</SectionLabel>
       {p.showFcrPowerCard ? (
         <details className="ui-card ui-card-compact ui-expandable surface-primary [&>summary::after]:text-[16px]">
-          <summary className="text-[14px] font-medium">{p.fcrPowerCardTitle}</summary>
+          <summary className="text-center text-[14px] font-medium">{p.fcrPowerCardTitle}</summary>
           <div className="surface-secondary mt-2 space-y-1.5 rounded-[1rem] p-3">
             {p.fcrPowerLevels.map((lvl) => (
               <Row key={lvl.label} label={lvl.label} value={kw(lvl.kw, 1)} />
@@ -528,7 +528,7 @@ function ResultStep() {
       ) : null}
 
       <details className="ui-card ui-card-compact ui-expandable surface-primary [&>summary::after]:text-[16px]">
-        <summary className="text-[14px] font-medium">{t("technical.title")}</summary>
+        <summary className="text-center text-[14px] font-medium">{t("technical.title")}</summary>
 
         <div className="mt-2 space-y-2">
           {/* All key figures below come from the FINAL simulation of the recommended system. */}
@@ -558,7 +558,7 @@ function ResultStep() {
       </details>
 
       <details className="ui-card ui-card-compact ui-expandable surface-primary [&>summary::after]:text-[16px]">
-        <summary className="text-[14px] font-medium">{importantInfoTitle()}</summary>
+        <summary className="text-center text-[14px] font-medium">{importantInfoTitle()}</summary>
         <div className="surface-secondary mt-2 rounded-[1rem] p-3">
           <ul className="space-y-1.5 text-[11px] leading-relaxed">
             {importantInfoPoints().map((point: string) => (

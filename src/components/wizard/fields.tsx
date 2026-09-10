@@ -12,6 +12,7 @@ export function SectionCard({
   className,
   titleClassName,
   descriptionClassName,
+  centerTitle,
 }: {
   title?: string;
   description?: string;
@@ -24,6 +25,8 @@ export function SectionCard({
   /** Optional page-local typography overrides; defaults keep every other page unchanged. */
   titleClassName?: string;
   descriptionClassName?: string;
+  /** Center the title/description block (used by the result page). */
+  centerTitle?: boolean;
 }) {
   return (
     <section
@@ -33,7 +36,7 @@ export function SectionCard({
     >
       {(title || description || action) && (
         <div className="flex items-start justify-between gap-2">
-          <div className="flex min-w-0 items-start gap-2">
+          <div className={"flex min-w-0 items-start gap-2" + (centerTitle ? " w-full justify-center text-center" : "")}>
             {icon ? (
               <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent [&_svg]:size-4">
                 {icon}
