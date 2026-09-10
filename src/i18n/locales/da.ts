@@ -238,7 +238,6 @@ export const da = {
     title: "Resultat",
     intro: "Sådan ser forslaget ud for din ejendom.",
     pdfReport: "Download rapport som PDF",
-    pdfReportPending: "",
     incomplete: {
       intro: "Vi mangler lidt mere information.",
       title: "Udfyld det, der mangler",
