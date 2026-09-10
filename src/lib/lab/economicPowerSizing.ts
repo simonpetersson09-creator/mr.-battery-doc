@@ -408,10 +408,10 @@ export function runEconomicPowerSizing(
     );
   }
 
-  /* --- Winner: highest benefit, ties within the tolerance go to the LOWER power. --- */
-  const best = Math.max(...options.map((o) => o.totalOperatingBenefitSek));
+  /* --- Winner: highest TOTAL CUSTOMER BENEFIT; ties within the tolerance go LOWER. --- */
+  const best = Math.max(...options.map((o) => o.annualCustomerBenefitSek));
   const winner =
-    options.find((o) => o.totalOperatingBenefitSek >= best - POWER_TIE_TOLERANCE_SEK) ??
+    options.find((o) => o.annualCustomerBenefitSek >= best - POWER_TIE_TOLERANCE_SEK) ??
     options[0]!;
   winner.selected = true;
 
