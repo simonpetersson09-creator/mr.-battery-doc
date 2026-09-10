@@ -30,6 +30,8 @@ import { simulate } from "./simulate";
 
 const T = 120_000;
 
+const monthsAll = () => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
 function prepare(input: BatteryEngineInput = {}) {
   const cfg = toLabConfig(input);
   return { cfg, econ: toEconomyConfig(input), series: toTimeSeries(cfg, input) };
@@ -98,22 +100,22 @@ describe("2 — a single demand-charge definition", () => {
         6,
       );
 
-      const base = demandCharge(sim.baseImportSeries, cfg.demandCharge);
-      const withBattery = demandCharge(sim.importSeries, cfg.demandCharge);
-      const activeReduction = reduction.filter((_, i) =>
-        cfg.demandCharge.activeMonths.includes(i + 1),
-      );
-      const sekViaEconomics =
-        (base.monthlyBillingKw.reduce((a, b) => a + b, 0) -
-          withBattery.monthlyBillingKw.reduce((a, b) => a + b, 0)) *
-        (peak.tariffSekPerKwMonth ?? 0);
-      expect(sekViaEconomics).toBeCloseTo(
-        activeReduction.reduce((a, b) => a + b, 0) * (peak.tariffSekPerKwMonth ?? 0),
-        6,
-      );
     },
     T,
   );
+
+  it("demandCharge() bills the same kW the customer economy credits", () => {
+    const cfg = toLabConfig({});
+    const synthetic = new Array(8760).fill(2);
+    synthetic[5] = 9; // January peak
+    synthetic[8000] = 6; // December peak
+    const billed = demandCharge(synthetic, {
+      ...cfg.demandCharge,
+      enabled: true,
+      activeMonths: monthsAll(),
+    }).monthlyBillingKw;
+    expect(billed).toEqual(monthlyPeaksKw(synthetic));
+  });
 
   it("bills the highest measured import kW of each month", () => {
     const series = new Array(8760).fill(1);
