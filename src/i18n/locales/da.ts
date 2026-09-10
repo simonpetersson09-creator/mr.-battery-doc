@@ -391,6 +391,9 @@ export const da = {
       "Systemydelser kan endnu ikke beregnes for {{where}} – verificerede historiske prisdata mangler. Ingen indtægt antages.",
   },
   monthlyImport: {
+    takePhoto: "Tag foto",
+    choosePhoto: "Vælg billede",
+    chooseFile: "Vælg fil",
     reading: "Læser dokumentet…",
     reimport: "Importér igen",
     import: "Importér månedsdata",
@@ -410,6 +413,9 @@ export const da = {
       "Vi kunne læse {{read}} af 12 måneder. Kontrollér eller udfyld de manglende værdier.",
   },
   errors: {
+    importUnsupportedType: "Filtypen understøttes ikke. Brug et billede, en PDF eller en CSV-fil.",
+    importCameraDenied: "Kameraet er ikke tilladt. Tillad kameraet i iPhone-indstillinger for at fotografere bilag.",
+    importPhotosDenied: "Billeder er ikke tilladt. Tillad adgang i iPhone-indstillinger for at vælge bilag.",
     importNoData:
       "Vi fandt ingen månedsdata i filen. Kontrollér, at månederne er tydeligt synlige.",
     importUnreadable: "Filen kunne ikke læses. Prøv med et tydeligere billede eller en PDF.",

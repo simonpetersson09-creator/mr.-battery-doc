@@ -386,6 +386,9 @@ export const fi = {
       "Reservipalveluita ei voida vielä laskea alueelle {{where}} – varmennettu historiallinen hinta-aineisto puuttuu. Tuottoa ei oleteta.",
   },
   monthlyImport: {
+    takePhoto: "Ota kuva",
+    choosePhoto: "Valitse kuva",
+    chooseFile: "Valitse tiedosto",
     reading: "Luetaan asiakirjaa…",
     reimport: "Tuo uudelleen",
     import: "Tuo kuukausitiedot",
@@ -405,6 +408,9 @@ export const fi = {
       "Luimme {{read}} kuukautta 12:sta. Tarkista tai täytä puuttuvat arvot.",
   },
   errors: {
+    importUnsupportedType: "Tiedostotyyppiä ei tueta. Käytä kuvaa, PDF- tai CSV-tiedostoa.",
+    importCameraDenied: "Kameran käyttö ei ole sallittu. Salli kamera iPhonen asetuksissa, jotta voit kuvata asiakirjan.",
+    importPhotosDenied: "Kuvien käyttö ei ole sallittu. Salli käyttö iPhonen asetuksissa, jotta voit valita asiakirjan.",
     importNoData:
       "Emme löytäneet tiedostosta kuukausitietoja. Tarkista, että kuukaudet näkyvät selvästi.",
     importUnreadable: "Tiedostoa ei voitu lukea. Kokeile selkeämpää kuvaa tai PDF-tiedostoa.",

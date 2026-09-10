@@ -391,6 +391,9 @@ export const en = {
       "Grid services cannot be calculated for {{where}} yet – verified historical price data is missing. No revenue is assumed.",
   },
   monthlyImport: {
+    takePhoto: "Take photo",
+    choosePhoto: "Choose image",
+    chooseFile: "Choose file",
     reading: "Reading the document…",
     reimport: "Import again",
     import: "Import monthly data",
@@ -410,6 +413,9 @@ export const en = {
       "We could read {{read}} of 12 months. Check or fill in the missing values.",
   },
   errors: {
+    importUnsupportedType: "That file type is not supported. Use an image, a PDF or a CSV file.",
+    importCameraDenied: "Camera access is turned off. Allow the camera in your iPhone settings to photograph a document.",
+    importPhotosDenied: "Photo access is turned off. Allow access in your iPhone settings to choose a document.",
     importNoData:
       "We found no monthly data in the file. Check that the months are clearly visible.",
     importUnreadable: "The file could not be read. Try a clearer image or a PDF.",
