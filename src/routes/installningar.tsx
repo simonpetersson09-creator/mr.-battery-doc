@@ -26,8 +26,8 @@ import { Button } from "@/components/ui/button";
 import { LanguageSelect } from "@/components/LanguageSelect";
 import { useT } from "@/i18n";
 import { useAccess } from "@/state/access";
+import { LEGAL_LINKS } from "@/lib/access/legalLinks";
 import {
-  APPLE_STANDARD_EULA_URL,
   MANAGE_SUBSCRIPTION_URL,
   openExternalUrl,
 } from "@/lib/platform/runtime";
