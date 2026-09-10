@@ -10,12 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AnvandarvillkorRouteImport } from './routes/anvandarvillkor'
 import { Route as BatteriRouteImport } from './routes/batteri'
 import { Route as BetalvaggRouteImport } from './routes/betalvagg'
 import { Route as EkonomiRouteImport } from './routes/ekonomi'
 import { Route as ForbrukningRouteImport } from './routes/forbrukning'
 import { Route as HistorikRouteImport } from './routes/historik'
 import { Route as InstallningarRouteImport } from './routes/installningar'
+import { Route as IntegritetspolicyRouteImport } from './routes/integritetspolicy'
 import { Route as NatRouteImport } from './routes/nat'
 import { Route as ProduktionRouteImport } from './routes/produktion'
 import { Route as ResultatRouteImport } from './routes/resultat'
@@ -23,6 +25,11 @@ import { Route as ResultatRouteImport } from './routes/resultat'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnvandarvillkorRoute = AnvandarvillkorRouteImport.update({
+  id: '/anvandarvillkor',
+  path: '/anvandarvillkor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BatteriRoute = BatteriRouteImport.update({
@@ -55,6 +62,11 @@ const InstallningarRoute = InstallningarRouteImport.update({
   path: '/installningar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IntegritetspolicyRoute = IntegritetspolicyRouteImport.update({
+  id: '/integritetspolicy',
+  path: '/integritetspolicy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NatRoute = NatRouteImport.update({
   id: '/nat',
   path: '/nat',
@@ -73,24 +85,28 @@ const ResultatRoute = ResultatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/anvandarvillkor': typeof AnvandarvillkorRoute
   '/batteri': typeof BatteriRoute
   '/betalvagg': typeof BetalvaggRoute
   '/ekonomi': typeof EkonomiRoute
   '/forbrukning': typeof ForbrukningRoute
   '/historik': typeof HistorikRoute
   '/installningar': typeof InstallningarRoute
+  '/integritetspolicy': typeof IntegritetspolicyRoute
   '/nat': typeof NatRoute
   '/produktion': typeof ProduktionRoute
   '/resultat': typeof ResultatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/anvandarvillkor': typeof AnvandarvillkorRoute
   '/batteri': typeof BatteriRoute
   '/betalvagg': typeof BetalvaggRoute
   '/ekonomi': typeof EkonomiRoute
   '/forbrukning': typeof ForbrukningRoute
   '/historik': typeof HistorikRoute
   '/installningar': typeof InstallningarRoute
+  '/integritetspolicy': typeof IntegritetspolicyRoute
   '/nat': typeof NatRoute
   '/produktion': typeof ProduktionRoute
   '/resultat': typeof ResultatRoute
@@ -98,12 +114,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/anvandarvillkor': typeof AnvandarvillkorRoute
   '/batteri': typeof BatteriRoute
   '/betalvagg': typeof BetalvaggRoute
   '/ekonomi': typeof EkonomiRoute
   '/forbrukning': typeof ForbrukningRoute
   '/historik': typeof HistorikRoute
   '/installningar': typeof InstallningarRoute
+  '/integritetspolicy': typeof IntegritetspolicyRoute
   '/nat': typeof NatRoute
   '/produktion': typeof ProduktionRoute
   '/resultat': typeof ResultatRoute
@@ -112,36 +130,42 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/anvandarvillkor'
     | '/batteri'
     | '/betalvagg'
     | '/ekonomi'
     | '/forbrukning'
     | '/historik'
     | '/installningar'
+    | '/integritetspolicy'
     | '/nat'
     | '/produktion'
     | '/resultat'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/anvandarvillkor'
     | '/batteri'
     | '/betalvagg'
     | '/ekonomi'
     | '/forbrukning'
     | '/historik'
     | '/installningar'
+    | '/integritetspolicy'
     | '/nat'
     | '/produktion'
     | '/resultat'
   id:
     | '__root__'
     | '/'
+    | '/anvandarvillkor'
     | '/batteri'
     | '/betalvagg'
     | '/ekonomi'
     | '/forbrukning'
     | '/historik'
     | '/installningar'
+    | '/integritetspolicy'
     | '/nat'
     | '/produktion'
     | '/resultat'
@@ -149,12 +173,14 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnvandarvillkorRoute: typeof AnvandarvillkorRoute
   BatteriRoute: typeof BatteriRoute
   BetalvaggRoute: typeof BetalvaggRoute
   EkonomiRoute: typeof EkonomiRoute
   ForbrukningRoute: typeof ForbrukningRoute
   HistorikRoute: typeof HistorikRoute
   InstallningarRoute: typeof InstallningarRoute
+  IntegritetspolicyRoute: typeof IntegritetspolicyRoute
   NatRoute: typeof NatRoute
   ProduktionRoute: typeof ProduktionRoute
   ResultatRoute: typeof ResultatRoute
@@ -167,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anvandarvillkor': {
+      id: '/anvandarvillkor'
+      path: '/anvandarvillkor'
+      fullPath: '/anvandarvillkor'
+      preLoaderRoute: typeof AnvandarvillkorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/batteri': {
@@ -211,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InstallningarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/integritetspolicy': {
+      id: '/integritetspolicy'
+      path: '/integritetspolicy'
+      fullPath: '/integritetspolicy'
+      preLoaderRoute: typeof IntegritetspolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/nat': {
       id: '/nat'
       path: '/nat'
@@ -237,12 +277,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnvandarvillkorRoute: AnvandarvillkorRoute,
   BatteriRoute: BatteriRoute,
   BetalvaggRoute: BetalvaggRoute,
   EkonomiRoute: EkonomiRoute,
   ForbrukningRoute: ForbrukningRoute,
   HistorikRoute: HistorikRoute,
   InstallningarRoute: InstallningarRoute,
+  IntegritetspolicyRoute: IntegritetspolicyRoute,
   NatRoute: NatRoute,
   ProduktionRoute: ProduktionRoute,
   ResultatRoute: ResultatRoute,
