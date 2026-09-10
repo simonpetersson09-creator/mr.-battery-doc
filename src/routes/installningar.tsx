@@ -196,39 +196,33 @@ function SettingsPage() {
             <ChevronRight className="size-4 text-muted-foreground" />
           </Link>
 
-          <Link
-            to="/anvandarvillkor"
-            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5"
-          >
-            <span className="flex size-8 items-center justify-center rounded-full bg-muted">
-              <FileText className="size-4" />
-            </span>
-            <span className="flex-1 text-[14px] font-semibold">{t("settings.terms")}</span>
-            <ChevronRight className="size-4 text-muted-foreground" />
-          </Link>
+          {LEGAL_LINKS.terms ? (
+            <button
+              type="button"
+              onClick={() => openExternalUrl(LEGAL_LINKS.terms!)}
+              className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5 text-left"
+            >
+              <span className="flex size-8 items-center justify-center rounded-full bg-muted">
+                <FileText className="size-4" />
+              </span>
+              <span className="flex-1 text-[14px] font-semibold">{t("settings.terms")}</span>
+              <ChevronRight className="size-4 text-muted-foreground" />
+            </button>
+          ) : null}
 
-          <Link
-            to="/integritetspolicy"
-            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5"
-          >
-            <span className="flex size-8 items-center justify-center rounded-full bg-muted">
-              <ShieldCheck className="size-4" />
-            </span>
-            <span className="flex-1 text-[14px] font-semibold">{t("settings.privacy")}</span>
-            <ChevronRight className="size-4 text-muted-foreground" />
-          </Link>
-
-          <button
-            type="button"
-            onClick={() => openExternalUrl(APPLE_STANDARD_EULA_URL)}
-            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5 text-left"
-          >
-            <span className="flex size-8 items-center justify-center rounded-full bg-muted">
-              <ScrollText className="size-4" />
-            </span>
-            <span className="flex-1 text-[14px] font-semibold">{t("settings.eula")}</span>
-            <ChevronRight className="size-4 text-muted-foreground" />
-          </button>
+          {LEGAL_LINKS.privacy ? (
+            <button
+              type="button"
+              onClick={() => openExternalUrl(LEGAL_LINKS.privacy!)}
+              className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5 text-left"
+            >
+              <span className="flex size-8 items-center justify-center rounded-full bg-muted">
+                <ShieldCheck className="size-4" />
+              </span>
+              <span className="flex-1 text-[14px] font-semibold">{t("settings.privacy")}</span>
+              <ChevronRight className="size-4 text-muted-foreground" />
+            </button>
+          ) : null}
         </div>
 
         {notice ? (
