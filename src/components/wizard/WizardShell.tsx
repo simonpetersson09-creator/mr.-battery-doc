@@ -19,6 +19,11 @@ interface WizardShellProps {
   footerAction?: ReactNode;
   /** Tighter card spacing and page padding for dense steps. */
   compact?: boolean;
+  /** Optional page-local typography overrides; defaults keep every other page unchanged. */
+  titleClassName?: string;
+  eyebrowClassName?: string;
+  introClassName?: string;
+  navButtonClassName?: string;
 }
 
 export function WizardShell({
@@ -31,6 +36,10 @@ export function WizardShell({
   nextBlockedReason,
   footerAction,
   compact,
+  titleClassName,
+  eyebrowClassName,
+  introClassName,
+  navButtonClassName,
 }: WizardShellProps) {
   const t = useT();
   // Both back affordances follow the wizard's own step order.
@@ -41,7 +50,7 @@ export function WizardShell({
     <div className="app-shell surface-sun">
       <main className="pt-safe flex-1 px-4 pb-4">
         <div className="flex items-center justify-between pt-1">
-          <h1 className="ui-page-title">{title}</h1>
+          <h1 className={titleClassName ?? "ui-page-title"}>{title}</h1>
           <Link to="/" className="flex items-center">
             <img
               src={logo.url}
@@ -55,16 +64,16 @@ export function WizardShell({
         <StepIndicator stepIndex={stepIndex} />
 
         <section className="mt-2">
-          <p className="ui-caption">
+          <p className={eyebrowClassName ?? "ui-caption"}>
             {t("common.step", { current: stepIndex + 1, total: WIZARD_STEPS.length })}
           </p>
-          {intro ? <p className="ui-help mt-1">{intro}</p> : null}
+          {intro ? <p className={introClassName ?? "ui-help mt-1"}>{intro}</p> : null}
           <div className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}>{children}</div>
         </section>
 
         <nav className="pb-safe mt-4 pt-1" aria-label={t("common.step", { current: stepIndex + 1, total: WIZARD_STEPS.length })}>
           <div className="flex gap-2">
-            <Button asChild variant="outline" className="h-12 flex-1 rounded-[0.875rem]">
+            <Button asChild variant="outline" className={`h-12 flex-1 rounded-[0.875rem]${navButtonClassName ? ` ${navButtonClassName}` : ""}`}>
               <Link to={prev}>{t("common.back")}</Link>
             </Button>
             {footerAction ? (
@@ -73,7 +82,7 @@ export function WizardShell({
               nextDisabled ? (
                 <Button
                   variant="cta"
-                  className="h-12 flex-[2] rounded-[0.875rem] font-bold shadow-cta"
+                  className={`h-12 flex-[2] rounded-[0.875rem] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
                   disabled
                   aria-disabled="true"
                 >
@@ -84,7 +93,7 @@ export function WizardShell({
                 <Button
                   asChild
                   variant="cta"
-                  className="h-12 flex-[2] rounded-[0.875rem] font-bold shadow-cta"
+                  className={`h-12 flex-[2] rounded-[0.875rem] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
                 >
                   <Link to={next}>
                     {nextLabel ?? t("common.next")}
@@ -96,7 +105,7 @@ export function WizardShell({
               <Button
                 asChild
                 variant="cta"
-                className="h-12 flex-[2] rounded-[0.875rem] font-bold shadow-cta"
+                className={`h-12 flex-[2] rounded-[0.875rem] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
               >
                 <Link to="/">{t("common.done")}</Link>
               </Button>
