@@ -9,6 +9,7 @@ export function SectionCard({
   action,
   icon,
   compact,
+  className,
 }: {
   title?: string;
   description?: string;
@@ -16,9 +17,15 @@ export function SectionCard({
   action?: ReactNode;
   icon?: ReactNode;
   compact?: boolean;
+  /** Optional surface override (used by the result page colour hierarchy). */
+  className?: string;
 }) {
   return (
-    <section className={compact ? "ui-card ui-card-compact" : "ui-card"}>
+    <section
+      className={
+        (compact ? "ui-card ui-card-compact" : "ui-card") + (className ? ` ${className}` : "")
+      }
+    >
       {(title || description || action) && (
         <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 items-start gap-2">

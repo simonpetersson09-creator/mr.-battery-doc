@@ -107,6 +107,11 @@
   --brand-yellow-light: oklch(0.9277 0.1337 97.8);
   --brand-black: oklch(0.3172 0 0); /* #323232 */
   --brand-black-soft: oklch(0.2678 0.0097 355.6);
+  /* Result page surface hierarchy: primary → secondary → detail. */
+  --surface-level-primary: #ffdc38;
+  --surface-level-secondary: #fff0ae;
+  --surface-level-detail: #ffe879;
+
   --surface-cream: oklch(0.988 0.012 96);
   --surface-cream-strong: oklch(0.995 0.008 96);
 
