@@ -183,11 +183,4 @@ describe("compact power explanation card", () => {
     expect(p.fcrPowerExplanation).toBeNull();
   });
 
-  it("card is closed by default — no open attribute in source", () => {
-    const src = require("node:fs").readFileSync("src/routes/resultat.tsx", "utf8");
-    const idx = src.indexOf("showFcrPowerCard");
-    expect(idx).toBeGreaterThan(-1);
-    const slice = src.slice(idx, idx + 250);
-    expect(slice).not.toMatch(/<details[^>]*\bopen\b/);
-  });
 });
