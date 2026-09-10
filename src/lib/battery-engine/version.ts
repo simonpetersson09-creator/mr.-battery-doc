@@ -7,6 +7,7 @@
  */
 
 import { DEFAULT_EUR_SEK_RATE } from "../lab/ancillary/fcrEconomics";
+import { DEFAULT_EXPORT_MARGIN_PCT, DEFAULT_IMPORT_MARGIN_PCT } from "../lab/dispatch";
 import { FCR_D_UP_SE_2025 } from "../lab/ancillary/prices/fcrDUpSE2025";
 import {
   SWEDISH_DEFAULT_PEAK_TARIFF_SEK_PER_KW_MONTH,
@@ -56,8 +57,8 @@ export const SWEDEN_DEFAULTS = {
   gridVoltageV: 400,
   phases: 3,
   mainFuseA: 16,
-  importMarginPct: 90,
-  exportMarginPct: 95,
+  importMarginPct: DEFAULT_IMPORT_MARGIN_PCT,
+  exportMarginPct: DEFAULT_EXPORT_MARGIN_PCT,
   economy: { ...SWEDISH_OPERATING_ECONOMY } as OperatingEconomyConfig,
   peakTariffSekPerKwMonth: SWEDISH_DEFAULT_PEAK_TARIFF_SEK_PER_KW_MONTH,
   eurSekRate: DEFAULT_EUR_SEK_RATE,
@@ -74,7 +75,7 @@ export const SWEDEN_DEFAULT_PROVENANCE: DefaultProvenance[] = [
   },
   {
     key: "importMarginPct / exportMarginPct",
-    value: "90 % / 95 %",
+    value: `${DEFAULT_IMPORT_MARGIN_PCT} % / ${DEFAULT_EXPORT_MARGIN_PCT} %`,
     kind: "model-assumption",
     note: "Operational design margin on top of the physical limit. 100 = margin off.",
   },
