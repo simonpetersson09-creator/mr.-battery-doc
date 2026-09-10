@@ -14,6 +14,8 @@ const config: CapacitorConfig = {
   appId: "com.todo.mrbatterydoc",
   appName: "Mr. Battery Doc",
   webDir: "dist/client",
+  /* App background painted by the native container behind the WebView. */
+  backgroundColor: "#FDFBF4",
   ios: {
     /* Matches --background so the native view never flashes white/black behind
        the WebView or during rubber-band scrolling. */
