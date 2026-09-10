@@ -240,7 +240,6 @@ export const sv = {
     title: "Resultat",
     intro: "Så här ser förslaget ut för din fastighet.",
     pdfReport: "Ladda ner rapport som PDF",
-    pdfReportPending: "",
     incomplete: {
       intro: "Vi behöver lite mer information.",
       title: "Fyll i det som saknas",
