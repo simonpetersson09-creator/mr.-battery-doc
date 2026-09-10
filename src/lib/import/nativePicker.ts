@@ -29,6 +29,7 @@ export type PickOutcome =
   | { status: "picked"; file: PickedDocument }
   | { status: "cancelled" }
   | { status: "denied" }
+  | { status: "restricted" }
   | { status: "unsupported" }
   | { status: "tooLarge" }
   | { status: "unsupportedType" }
@@ -37,8 +38,18 @@ export type PickOutcome =
 export type PickerSource = "camera" | "photos" | "files";
 
 /** Minimal shape of @capacitor/camera we depend on. */
+export type PermissionState = "granted" | "denied" | "prompt" | "prompt-with-rationale" | "limited" | "restricted" | string;
+
+export interface CameraPermissionStatus {
+  camera?: PermissionState;
+  photos?: PermissionState;
+}
+
 export interface CameraLike {
   getPhoto(options: Record<string, unknown>): Promise<{ base64String?: string; format?: string }>;
+  /** Structured permission state — preferred over any error text. */
+  checkPermissions?(): Promise<CameraPermissionStatus>;
+  requestPermissions?(options?: Record<string, unknown>): Promise<CameraPermissionStatus>;
 }
 
 /** Minimal shape of @capawesome/capacitor-file-picker we depend on. */
@@ -53,14 +64,47 @@ export interface PickerAdapters {
   files?: FilePickerLike | null;
 }
 
+/** Maps a structured iOS permission state to an outcome. Null = go ahead. */
+export function outcomeForPermission(state: PermissionState | undefined): PickOutcome | null {
+  if (!state) return null;
+  const s = String(state).toLowerCase();
+  if (s === "denied") return { status: "denied" };
+  if (s === "restricted") return { status: "restricted" };
+  return null;
+}
+
+/** Reads a structured error code off a Capacitor/Cordova plugin rejection. */
+export function pluginErrorCode(error: unknown): string | null {
+  if (!error || typeof error !== "object") return null;
+  const e = error as Record<string, unknown>;
+  for (const key of ["code", "errorCode", "status", "errorMessage"]) {
+    const value = e[key];
+    if (typeof value === "string" && value.trim() !== "") return value.trim().toUpperCase();
+    if (typeof value === "number") return String(value);
+  }
+  return null;
+}
+
 /**
- * Maps a plugin rejection to an outcome. iOS reports a user cancel and a denied
- * permission as ordinary errors, and both must stay silent-but-handled.
+ * Maps a plugin rejection to an outcome.
+ *
+ * STRUCTURED FIRST: the plugin's own error code / permission status decides. English
+ * message matching is only a defensive last resort, because @capacitor/camera reports a
+ * user cancel and a denied permission as plain Error messages on some iOS versions.
  */
 export function classifyPickerError(error: unknown): PickOutcome {
+  const code = pluginErrorCode(error);
+  if (code) {
+    if (/(CANCEL)/.test(code)) return { status: "cancelled" };
+    if (/RESTRICTED/.test(code)) return { status: "restricted" };
+    if (/(DENIED|UNAUTHORIZED|NOT_AUTHORIZED|PERMISSION)/.test(code)) return { status: "denied" };
+    if (/(UNIMPLEMENTED|UNAVAILABLE|NOT_IMPLEMENTED|PLUGIN_NOT_FOUND|PLUGIN-NOT-FOUND)/.test(code))
+      return { status: "unsupported" };
+  }
   const message = (error instanceof Error ? error.message : String(error ?? "")).toLowerCase();
-  if (/cancel/.test(message)) return { status: "cancelled" };
-  if (/(denied|permission|not authorized|unauthorized|restricted|access to)/.test(message)) {
+  if (/(cancel|avbr|abgebrochen|peruut)/.test(message)) return { status: "cancelled" };
+  if (/restricted/.test(message)) return { status: "restricted" };
+  if (/(denied|permission|not authorized|unauthorized|access to)/.test(message)) {
     return { status: "denied" };
   }
   if (/(unimplemented|not implemented|unavailable)/.test(message)) return { status: "unsupported" };
@@ -117,7 +161,19 @@ function photoName(prefix: string): string {
 async function photo(source: "CAMERA" | "PHOTOS", adapters?: PickerAdapters): Promise<PickOutcome> {
   const camera = adapters?.camera !== undefined ? adapters.camera : await loadCamera();
   if (!camera) return { status: "unsupported" };
+  const permissionKey = source === "CAMERA" ? "camera" : "photos";
   try {
+    /* Structured permission check before the picker opens — no error text involved. */
+    if (camera.checkPermissions) {
+      let status = await camera.checkPermissions();
+      let state = status?.[permissionKey];
+      if (state && ["prompt", "prompt-with-rationale"].includes(String(state)) && camera.requestPermissions) {
+        status = await camera.requestPermissions({ permissions: [permissionKey] });
+        state = status?.[permissionKey];
+      }
+      const blocked = outcomeForPermission(state);
+      if (blocked) return blocked;
+    }
     const result = await camera.getPhoto({
       source,
       resultType: "base64",
