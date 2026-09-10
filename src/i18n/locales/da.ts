@@ -535,4 +535,27 @@ export const da = {
     },
     version: "Mr. Battery Doc · V1.0.0",
   },
+  history: {
+    title: "Historik",
+    subtitle: "Dine tidligere købte batteriberegninger.",
+    itemTitle: "Batteriberegning",
+    benefit: "Beregnet gevinst {{value}}",
+    open: "Åbn resultat",
+    edit: "Ændr oplysninger",
+    notVerified: "Købet kunne ikke bekræftes på denne enhed. Prøv Gendan køb.",
+    empty: {
+      title: "Ingen historik endnu",
+      text: "Her samles de beregninger, du har låst op.",
+    },
+    missing: {
+      intro: "Beregningen er ikke gemt her.",
+      title: "Resultatet mangler på enheden",
+      text: "Beregninger gemmes lokalt. Denne findes ikke på denne enhed – lav en ny beregning for at se et resultat.",
+    },
+    locked: {
+      intro: "Købet kunne ikke bekræftes.",
+      title: "Ingen adgang lige nu",
+      text: "Prøv Gendan køb i Indstillinger. Du betaler aldrig igen for en beregning, du allerede har købt.",
+    },
+  },
 } as const;

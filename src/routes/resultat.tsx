@@ -1,6 +1,8 @@
 import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
 import { ChevronDown, FileText } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { buildSnapshot, snapshotOutcome } from "@/lib/history/snapshot";
+import { loadSnapshot, saveSnapshot } from "@/lib/history/store";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { SectionCard } from "@/components/wizard/fields";
 import { Button } from "@/components/ui/button";
@@ -39,6 +41,11 @@ function SectionLabel({ children }: { children: string }) {
 }
 
 export const Route = createFileRoute("/resultat")({
+  /** `?calc=<id>` opens a stored, already purchased calculation from the history. */
+  validateSearch: (search: Record<string, unknown>): { calc?: string } => {
+    const calc = search["calc"];
+    return typeof calc === "string" && calc.length > 0 ? { calc } : {};
+  },
   head: () => ({
     meta: [
       { title: "Ditt batteriförslag — Mr. Battery Doc" },
@@ -64,8 +71,18 @@ const pct = (v: number) => `${nf(v, 0)} %`;
 
 function ResultStep() {
   const t = useT();
-  const { state, reset } = useWizard();
+  const { state: liveState, reset } = useWizard();
   const access = useAccess();
+  /**
+   * HISTORY MODE. `?calc=<id>` renders a stored snapshot of an already purchased
+   * calculation. Nothing is simulated again: inputs, summary, alternatives and
+   * customer economy all come from the immutable snapshot.
+   */
+  const historyId = Route.useSearch().calc;
+  const snapshot = useMemo(() => (historyId ? loadSnapshot(historyId) : null), [historyId]);
+  const missingSnapshot = Boolean(historyId) && snapshot === null;
+  /** In history mode the wizard state of that calculation replaces the current one. */
+  const state = snapshot ? snapshot.wizard : liveState;
   /**
    * Currency comes from the chosen country through the central currency layer — the
    * result page never assumes SEK, and it never follows the UI language. Every amount
@@ -81,8 +98,15 @@ function ResultStep() {
     Single integration point: wizard -> adapter -> frozen Battery Engine.
     The calculation ran when the user left step 5; this reads the cached outcome
     for the same inputs, so a purchase never triggers a re-run.
+    In history mode the engine is not touched at all.
   */
-  const calculation = useMemo(() => getCalculation(state), [state]);
+  const calculation = useMemo(
+    () =>
+      snapshot
+        ? { id: snapshot.calculationId, outcome: snapshotOutcome(snapshot) }
+        : getCalculation(liveState),
+    [snapshot, liveState],
+  );
   const outcome = calculation.outcome;
   /**
    * Genuine FCR-off counterfactual (same capacity, FCR switched off BEFORE dispatch).
@@ -90,23 +114,54 @@ function ResultStep() {
    */
   const withoutFcr = useMemo(
     () =>
-      outcome.status === "ok" && outcome.result.summary.fcr.enabled
-        ? computeWithoutFcrOptimum(outcome.input, outcome.result)
-        : null,
-    [outcome],
+      snapshot
+        ? snapshot.withoutFcr
+        : outcome.status === "ok" && outcome.result.summary.fcr.enabled
+          ? computeWithoutFcrOptimum(outcome.input, outcome.result)
+          : null,
+    [snapshot, outcome],
   );
   /** Comparison layer: nearest simulated capacity step below/above the recommendation. */
   const alternatives = useMemo(
     () =>
-      outcome.status === "ok"
-        ? computeBatteryAlternatives(
-            outcome.input,
-            outcome.result,
-            state.preferences.customerAncillaryShare,
-          )
-        : [],
-    [outcome, state.preferences.customerAncillaryShare],
+      snapshot
+        ? snapshot.alternatives
+        : outcome.status === "ok"
+          ? computeBatteryAlternatives(
+              outcome.input,
+              outcome.result,
+              state.preferences.customerAncillaryShare,
+            )
+          : [],
+    [snapshot, outcome, state.preferences.customerAncillaryShare],
   );
+
+  /**
+   * Every purchased calculation is snapshotted once, so it can be reopened from
+   * Settings -> History without a new simulation. Storing it can never change
+   * what is rendered.
+   */
+  const purchasedNow = access.hydrated && access.canOpenResult(calculation.id);
+  useEffect(() => {
+    if (snapshot || !purchasedNow || outcome.status !== "ok") return;
+    const ce = customerEconomyFromResult(outcome.result, state.preferences.customerAncillaryShare);
+    saveSnapshot(
+      buildSnapshot({
+        calculationId: calculation.id,
+        wizard: state,
+        outcome,
+        alternatives,
+        withoutFcr,
+        customerEconomy: ce,
+        maxInvestment: maxInvestmentSek(
+          ce.totalCustomerBenefitSek,
+          state.preferences.targetPaybackYears,
+        ),
+      }),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [snapshot, purchasedNow, calculation.id, outcome]);
+
 
   const restart = (
     <Button
@@ -121,6 +176,21 @@ function ResultStep() {
       {t("common.restart")}
     </Button>
   );
+
+  /* A history link whose local snapshot is gone or unreadable must never crash
+     the result page — it explains itself and leads back. */
+  if (missingSnapshot) {
+    return (
+      <WizardShell
+        stepIndex={5}
+        title={t("history.title")}
+        intro={t("history.missing.intro")}
+        footerAction={restart}
+      >
+        <SectionCard title={t("history.missing.title")} description={t("history.missing.text")} />
+      </WizardShell>
+    );
+  }
 
   if (outcome.status === "incomplete") {
     return (
@@ -169,6 +239,21 @@ function ResultStep() {
     result without one.
   */
   if (!access.canOpenResult(calculation.id)) {
+    /* A history entry never triggers a new payment: if the purchase right can no
+       longer be verified we say so instead of opening the paywall for an old
+       calculation. */
+    if (historyId) {
+      return (
+        <WizardShell
+          stepIndex={5}
+          title={t("history.title")}
+          intro={t("history.locked.intro")}
+          footerAction={restart}
+        >
+          <SectionCard title={t("history.locked.title")} description={t("history.locked.text")} />
+        </WizardShell>
+      );
+    }
     // No intermediate "unlock" button — the paywall comes up automatically.
     return <Navigate to="/betalvagg" replace />;
   }
@@ -203,9 +288,14 @@ function ResultStep() {
    * Customer economics: the engine total with only the customer's share of the ancillary
    * MARKET value counted. Physics, sizing and the market value itself are untouched.
    */
-  const ce = customerEconomyFromResult(outcome.result, state.preferences.customerAncillaryShare);
+  /* History mode reuses the stored economics as they were at purchase time. */
+  const ce = snapshot
+    ? snapshot.customerEconomy
+    : customerEconomyFromResult(outcome.result, state.preferences.customerAncillaryShare);
   const targetYears = state.preferences.targetPaybackYears;
-  const maxInvestment = maxInvestmentSek(ce.totalCustomerBenefitSek, targetYears);
+  const maxInvestment = snapshot
+    ? snapshot.headline.maxInvestment
+    : maxInvestmentSek(ce.totalCustomerBenefitSek, targetYears);
 
   const peakPct =
     g.importPeakBeforeKw > 0 ? (s.peak.peakReductionKw / g.importPeakBeforeKw) * 100 : 0;

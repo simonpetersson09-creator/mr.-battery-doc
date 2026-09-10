@@ -49,7 +49,7 @@ function SettingsPage() {
   const access = useAccess();
   const [busy, setBusy] = useState<"premium" | "restore" | null>(null);
   const [notice, setNotice] = useState<"restored" | "restoreNothing" | null>(null);
-  const [showHistory, setShowHistory] = useState(false);
+  
 
   async function buyPremium() {
     setNotice(null);
@@ -185,34 +185,16 @@ function SettingsPage() {
             <ChevronRight className="size-4 text-muted-foreground" />
           </a>
 
-          <button
-            type="button"
+          <Link
+            to="/historik"
             className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-3 text-left"
-            onClick={() => setShowHistory((v) => !v)}
-            aria-expanded={showHistory}
           >
             <span className="flex size-8 items-center justify-center rounded-full bg-muted">
               <History className="size-4" />
             </span>
             <span className="flex-1 text-[14px] font-semibold">{t("settings.history")}</span>
             <ChevronRight className="size-4 text-muted-foreground" />
-          </button>
-          {showHistory ? (
-            <div className="rounded-[1rem] border border-border bg-card px-3 py-2.5 text-[12px] leading-relaxed text-muted-foreground">
-              <p>
-                {access.premiumActive
-                  ? t("settings.historyPanel.premiumActive", {
-                      date: access.entitlements.premium.expiresISO?.slice(0, 10) ?? "—",
-                    })
-                  : t("settings.historyPanel.premiumInactive")}
-              </p>
-              <p>
-                {t("settings.historyPanel.reports", {
-                  count: access.entitlements.unlockedCalculations.length,
-                })}
-              </p>
-            </div>
-          ) : null}
+          </Link>
 
           {LEGAL_LINKS.terms ? (
             <a

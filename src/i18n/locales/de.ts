@@ -542,4 +542,27 @@ export const de = {
     },
     version: "Mr. Battery Doc · V1.0.0",
   },
+  history: {
+    title: "Verlauf",
+    subtitle: "Ihre bereits gekauften Batterieberechnungen.",
+    itemTitle: "Batterieberechnung",
+    benefit: "Berechneter Nutzen {{value}}",
+    open: "Ergebnis öffnen",
+    edit: "Angaben ändern",
+    notVerified: "Der Kauf konnte auf diesem Gerät nicht bestätigt werden. Versuchen Sie „Käufe wiederherstellen“.",
+    empty: {
+      title: "Noch kein Verlauf",
+      text: "Hier sammeln sich die Berechnungen, die Sie freigeschaltet haben.",
+    },
+    missing: {
+      intro: "Diese Berechnung ist hier nicht gespeichert.",
+      title: "Ergebnis auf diesem Gerät nicht vorhanden",
+      text: "Berechnungen werden lokal gespeichert. Diese liegt nicht auf diesem Gerät – starten Sie eine neue Berechnung.",
+    },
+    locked: {
+      intro: "Der Kauf konnte nicht bestätigt werden.",
+      title: "Derzeit kein Zugriff",
+      text: "Versuchen Sie „Käufe wiederherstellen“ in den Einstellungen. Für eine bereits gekaufte Berechnung zahlen Sie nie erneut.",
+    },
+  },
 } as const;

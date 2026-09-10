@@ -536,6 +536,29 @@ export const sv = {
     },
     version: "Mr. Battery Doc · V1.0.0",
   },
+  history: {
+    title: "Historik",
+    subtitle: "Dina tidigare köpta batteriberäkningar.",
+    itemTitle: "Batteriberäkning",
+    benefit: "Beräknad nytta {{value}}",
+    open: "Öppna resultat",
+    edit: "Ändra uppgifter",
+    notVerified: "Köpet kunde inte verifieras på den här enheten. Prova Återställ köp.",
+    empty: {
+      title: "Ingen historik ännu",
+      text: "Här samlas de beräkningar du har låst upp.",
+    },
+    missing: {
+      intro: "Beräkningen finns inte sparad här.",
+      title: "Resultatet saknas på enheten",
+      text: "Beräkningen sparas lokalt. Den finns inte på den här enheten – gör en ny beräkning för att se ett resultat.",
+    },
+    locked: {
+      intro: "Köpet kunde inte verifieras.",
+      title: "Ingen åtkomst just nu",
+      text: "Prova Återställ köp i Inställningar. Ingen ny betalning görs för en beräkning du redan har köpt.",
+    },
+  },
 } as const;
 
 export type TranslationSchema = typeof sv;
