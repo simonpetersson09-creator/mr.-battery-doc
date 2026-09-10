@@ -17,7 +17,6 @@ import {
   History,
   Loader2,
   RotateCcw,
-  ScrollText,
   ShieldCheck,
   SlidersHorizontal,
 } from "lucide-react";
