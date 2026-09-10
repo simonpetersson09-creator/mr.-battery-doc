@@ -35,7 +35,7 @@ function Welcome() {
   const t = useT();
   return (
     <div className="app-shell surface-sun pt-safe pb-safe max-w-md flex flex-col justify-between px-5">
-      <div className="flex flex-1 flex-col items-center justify-center text-center">
+      <div className="flex flex-1 flex-col items-center justify-center text-center -mt-8">
         <h1 className="sr-only">Mr. Battery Doc</h1>
         <img
           src={logo.url}
