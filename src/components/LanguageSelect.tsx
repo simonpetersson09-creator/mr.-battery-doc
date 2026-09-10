@@ -32,7 +32,7 @@ const LANGUAGE_COUNTRY: Partial<Record<Language, CountryCode>> = {
   fi: "FI",
 };
 
-export function LanguageSelect() {
+export function LanguageSelect({ pill = false }: { pill?: boolean }) {
   const { language, setLanguage } = useLanguage();
   const { suggestCountry } = useWizard();
   const onChange = (v: string) => {
@@ -45,13 +45,20 @@ export function LanguageSelect() {
     <Select value={language} onValueChange={onChange}>
       <SelectTrigger
         aria-label={LANGUAGE_NAMES[language]}
-        className="lang-trigger cta-primary h-12 w-12 shrink-0 justify-center rounded-[0.875rem] px-0 text-lg leading-none [&_svg]:hidden"
+        className={
+          pill
+            ? "lang-trigger h-9 shrink-0 gap-1.5 rounded-full border border-border bg-card px-3 text-[13px] font-semibold shadow-sm"
+            : "lang-trigger cta-primary h-12 w-12 shrink-0 justify-center rounded-[0.875rem] px-0 text-lg leading-none [&_svg]:hidden"
+        }
       >
         <SelectValue>
-          <span aria-hidden>{LANGUAGE_FLAGS[language]}</span>
+          <span className="flex items-center gap-1.5">
+            <span aria-hidden>{LANGUAGE_FLAGS[language]}</span>
+            {pill ? <span>{LANGUAGE_NAMES[language]}</span> : null}
+          </span>
         </SelectValue>
       </SelectTrigger>
-      <SelectContent side="top" align="center" className="min-w-[10rem]">
+      <SelectContent side={pill ? "bottom" : "top"} align="center" className="min-w-[10rem]">
         {SUPPORTED_LANGUAGES.map((l) => (
           <SelectItem key={l} value={l}>
             <span className="mr-2 text-base leading-none" aria-hidden>

@@ -502,6 +502,40 @@ export const sv = {
       cta: "Till betalvägg",
     },
   },
+  settings: {
+    title: "Inställningar",
+    languageTitle: "Språk",
+    languageHint: "Valutan styrs av landet i din adress, inte av språket.",
+    premium: {
+      title: "Premium",
+      badge: "Mest populär",
+      points: {
+        calculations: "Obegränsade beräkningar",
+        pdf: "Obegränsade PDF-rapporter",
+        full: "Full tillgång till resultatet",
+      },
+      cta: "Starta Premium",
+      active: "Premium är aktivt",
+      renewal: "Förnyas automatiskt årsvis. Kan avslutas när som helst.",
+    },
+    single: {
+      title: "En beräkning",
+      description: "Lås upp hela resultatet och PDF-rapporten för den här beräkningen.",
+      cta: "Köps vid din nästa beräkning",
+      note: "Engångsköpet görs i samband med att du startar en ny beräkning – inte härifrån.",
+    },
+    restore: "Återställ köp",
+    subscription: "Hantera abonnemang",
+    history: "Historik",
+    terms: "Användarvillkor",
+    privacy: "Integritetspolicy",
+    historyPanel: {
+      premiumActive: "Premium aktivt till {{date}}",
+      premiumInactive: "Inget aktivt Premium",
+      reports: "Upplåsta rapporter: {{count}}",
+    },
+    version: "Mr. Battery Doc · V1.0.0",
+  },
 } as const;
 
 export type TranslationSchema = typeof sv;

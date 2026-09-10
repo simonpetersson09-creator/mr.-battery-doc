@@ -496,4 +496,38 @@ export const fi = {
       cta: "Siirry maksuun",
     },
   },
+  settings: {
+    title: "Asetukset",
+    languageTitle: "Kieli",
+    languageHint: "Valuutta määräytyy osoitteesi maan mukaan, ei kielen mukaan.",
+    premium: {
+      title: "Premium",
+      badge: "Suosituin",
+      points: {
+        calculations: "Rajoittamattomat laskelmat",
+        pdf: "Rajoittamattomat PDF-raportit",
+        full: "Täysi käyttöoikeus tulokseen",
+      },
+      cta: "Aloita Premium",
+      active: "Premium on käytössä",
+      renewal: "Uusiutuu automaattisesti vuosittain. Voit peruuttaa milloin tahansa.",
+    },
+    single: {
+      title: "Yksi laskelma",
+      description: "Avaa koko tuloksen ja PDF-raportin kyseiselle laskelmalle.",
+      cta: "Ostetaan seuraavan laskelmasi yhteydessä",
+      note: "Kertaluonteinen ostos tehdään uuden laskelman aloittamisen yhteydessä – ei täältä.",
+    },
+    restore: "Palauta ostot",
+    subscription: "Hallitse tilausta",
+    history: "Historia",
+    terms: "Käyttöehdot",
+    privacy: "Tietosuojakäytäntö",
+    historyPanel: {
+      premiumActive: "Premium käytössä {{date}} asti",
+      premiumInactive: "Ei aktiivista Premiumia",
+      reports: "Avatut raportit: {{count}}",
+    },
+    version: "Mr. Battery Doc · V1.0.0",
+  },
 } as const;
