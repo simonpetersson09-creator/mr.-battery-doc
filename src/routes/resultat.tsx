@@ -661,6 +661,7 @@ function ResultStep() {
           <TechGroup title={t("technical.powerGroup")}>
             <Row label={t("technical.recommendedPower")} value={kw(p.recommendedPowerKw, 1)} />
             <Row label={t("technical.physicalNeed")} value={kw(p.physicalPowerNeedKw, 1)} />
+            {p.powerCapNote ? <p className="ui-help">{p.powerCapNote}</p> : null}
             {p.fcrHeldPowerKw !== null ? (
               <Row label={t("technical.heldPower")} value={kw(p.fcrHeldPowerKw, 2)} />
             ) : null}
