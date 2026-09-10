@@ -10,6 +10,8 @@ export function SectionCard({
   icon,
   compact,
   className,
+  titleClassName,
+  descriptionClassName,
 }: {
   title?: string;
   description?: string;
@@ -19,6 +21,9 @@ export function SectionCard({
   compact?: boolean;
   /** Optional surface override (used by the result page colour hierarchy). */
   className?: string;
+  /** Optional page-local typography overrides; defaults keep every other page unchanged. */
+  titleClassName?: string;
+  descriptionClassName?: string;
 }) {
   return (
     <section
@@ -35,9 +40,9 @@ export function SectionCard({
               </span>
             ) : null}
             <div className="min-w-0">
-              {title ? <h2 className="ui-card-title">{title}</h2> : null}
+              {title ? <h2 className={titleClassName ?? "ui-card-title"}>{title}</h2> : null}
               {description ? (
-                <p className={title ? "ui-help mt-0.5" : "ui-help"}>{description}</p>
+                <p className={descriptionClassName ?? (title ? "ui-help mt-0.5" : "ui-help")}>{description}</p>
               ) : null}
             </div>
           </div>

@@ -25,6 +25,9 @@ import { reserveProductName } from "@/i18n/labels";
 import { PDF_REPORT_AVAILABLE, generatePdfReport } from "@/lib/report/pdfReport";
 import { useWizard } from "@/state/wizard";
 
+const RESULT_CARD_TITLE_CLASS = "font-display text-[14px] font-semibold";
+const RESULT_CARD_DESCRIPTION_CLASS = "mt-0.5 text-[11px] leading-relaxed";
+
 export const Route = createFileRoute("/resultat")({
   head: () => ({
     meta: [
@@ -185,14 +188,18 @@ function ResultStep() {
       stepIndex={5}
       title={t("results.title")}
       intro={t("results.intro")}
+      titleClassName="font-display text-[24px] font-extrabold tracking-tight"
+      eyebrowClassName="text-[11px] font-bold uppercase tracking-widest"
+      introClassName="mt-1 text-[11px] leading-relaxed"
+      navButtonClassName="text-[16px]"
       footerAction={restart}
       compact
     >
       {noBattery ? (
         <div className="hero-metric rounded-[1.25rem] px-4 py-4 text-center">
-          <p className="ui-caption">{t("results.noBattery.badge")}</p>
-          <p className="ui-section-title mt-1.5">{t("results.noBattery.title")}</p>
-          <p className="ui-help mt-1 text-foreground/70">{t("results.noBattery.text")}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wide">{t("results.noBattery.badge")}</p>
+          <p className="mt-1.5 text-[14px] font-semibold">{t("results.noBattery.title")}</p>
+          <p className="mt-1 text-[11px] leading-relaxed text-foreground/70">{t("results.noBattery.text")}</p>
         </div>
       ) : (
         <div className="hero-metric rounded-[1.25rem] px-3 py-3">
@@ -219,13 +226,13 @@ function ResultStep() {
                   }
                 >
                   {main ? (
-                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-foreground px-2 py-0.5 text-[8px] font-bold uppercase tracking-tight text-background whitespace-nowrap">
+                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-foreground px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap text-background">
                       {t("results.bestChoice")}
                     </span>
                   ) : null}
                   <span
                     className={
-                      "text-[10px] font-bold uppercase tracking-wider " +
+                      "text-[11px] font-semibold uppercase tracking-wide " +
                       (main ? "text-foreground" : "text-foreground/75")
                     }
                   >
@@ -234,26 +241,21 @@ function ResultStep() {
                   <div className="mt-1.5 text-center">
                     <span
                       className={
-                        "font-bold tabular-nums " +
-                        (main ? "text-2xl" : "text-xl text-foreground/95")
+                        "tabular-nums " +
+                        (main ? "text-[30px] font-extrabold tracking-tight" : "text-[18px] font-bold text-foreground/95")
                       }
                     >
                       {nf(alt.capacityKWh)}
                     </span>
                     <span
                       className={
-                        "ml-0.5 text-xs font-medium " +
-                        (main ? "text-foreground/60" : "text-foreground/65")
+                        "ml-0.5 font-semibold " +
+                        (main ? "text-[16px] text-foreground/70" : "text-[11px] text-foreground/75")
                       }
                     >
                       kWh
                     </span>
-                    <p
-                      className={
-                        "text-[10px] font-medium tabular-nums " +
-                        (main ? "text-foreground/70" : "text-foreground/70")
-                      }
-                    >
+                    <p className="text-[11px] font-medium tabular-nums text-foreground/70">
                       {nf(alt.powerKw, 1)} kW
                     </p>
                   </div>
@@ -261,7 +263,7 @@ function ResultStep() {
                     <p
                       className={
                         "font-bold tabular-nums " +
-                        (main ? "text-sm" : "text-xs text-foreground/85")
+                        (main ? "text-[14px]" : "text-[12px] text-foreground/85")
                       }
                     >
                       {moneyPerYear(alt.customerBenefitSek)}
@@ -286,97 +288,107 @@ function ResultStep() {
                 : t("results.balance.higher")
               : t("results.balance.base");
             return (
-              <p className="ui-help mt-2 text-center text-foreground/60">{text}</p>
+              <p className="mt-2 text-center text-[11px] leading-relaxed text-foreground/75">{text}</p>
             );
           })()}
         </div>
       )}
 
       {p.limitedBenefit ? (
-        <SectionCard compact className="surface-primary" title={p.limitedBenefitTitle ?? ""} description={p.limitedBenefitText ?? ""} />
+        <SectionCard
+          compact
+          className="surface-primary"
+          title={p.limitedBenefitTitle ?? ""}
+          description={p.limitedBenefitText ?? ""}
+          titleClassName={RESULT_CARD_TITLE_CLASS}
+          descriptionClassName={RESULT_CARD_DESCRIPTION_CLASS}
+        />
       ) : null}
 
       {p.showEnergySection || p.showPeakSection ? (
-        <SectionCard compact className="surface-primary" title={t("results.improvements.title")}>
-          <div className="space-y-1.5">
-            {p.showSelfConsumption ? (
-              <BeforeAfter
-                label={t("results.energy.selfConsumption")}
-                before={pct(e.selfConsumptionBeforePct)}
-                after={pct(e.selfConsumptionAfterPct)}
-              />
-            ) : null}
-            {p.showSelfSufficiency ? (
-              <BeforeAfter
-                label={t("results.energy.selfSufficiency")}
-                before={pct(e.selfSufficiencyBeforePct)}
-                after={pct(e.selfSufficiencyAfterPct)}
-              />
-            ) : null}
-            {p.showImport ? (
-              <BeforeAfter
-                label={t("results.energy.gridImport")}
-                before={kwh(e.importBeforeKWh)}
-                after={kwh(e.importAfterKWh)}
-              />
-            ) : null}
-            {p.showPeakSection ? (
-              <BeforeAfter
-                label={t("results.power.peak")}
-                before={kw(g.importPeakBeforeKw)}
-                after={kw(g.importPeakAfterKw)}
-              />
-            ) : null}
-            {e.recoveredCurtailmentKWh > 0 ? (
-              <Row
-                label={t("results.energy.recoveredCurtailment")}
-                value={`${kwh(e.recoveredCurtailmentKWh)}${t("units.perYear")}`}
-              />
-            ) : null}
-          </div>
-          {(() => {
-            const parts: string[] = [];
-            if (p.showShiftedSolar) {
-              parts.push(
-                t("results.improvements.summaryShifted", {
-                  value: `${kwh(e.shiftedSolarKWh)}${t("units.perYear")}`,
-                }),
-              );
-            }
-            if (p.showPeakSection && p.peakChanged) {
-              parts.push(
-                t("results.improvements.summaryPeak", { value: `${nf(peakPct, 1)} %` }),
-              );
-            }
-            if (parts.length === 0) {
-              return p.showPeakSection && !p.peakChanged ? (
-                <p className="ui-help mt-2 border-t border-foreground/10 pt-2">
-                  {t("results.power.noReduction")}
+        <SectionCard compact className="surface-primary" title={t("results.improvements.title")} titleClassName={RESULT_CARD_TITLE_CLASS}>
+          <div className="surface-secondary rounded-[1rem] p-3">
+            <div className="space-y-1.5">
+              {p.showSelfConsumption ? (
+                <BeforeAfter
+                  label={t("results.energy.selfConsumption")}
+                  before={pct(e.selfConsumptionBeforePct)}
+                  after={pct(e.selfConsumptionAfterPct)}
+                />
+              ) : null}
+              {p.showSelfSufficiency ? (
+                <BeforeAfter
+                  label={t("results.energy.selfSufficiency")}
+                  before={pct(e.selfSufficiencyBeforePct)}
+                  after={pct(e.selfSufficiencyAfterPct)}
+                />
+              ) : null}
+              {p.showImport ? (
+                <BeforeAfter
+                  label={t("results.energy.gridImport")}
+                  before={kwh(e.importBeforeKWh)}
+                  after={kwh(e.importAfterKWh)}
+                />
+              ) : null}
+              {p.showPeakSection ? (
+                <BeforeAfter
+                  label={t("results.power.peak")}
+                  before={kw(g.importPeakBeforeKw)}
+                  after={kw(g.importPeakAfterKw)}
+                />
+              ) : null}
+              {e.recoveredCurtailmentKWh > 0 ? (
+                <Row
+                  label={t("results.energy.recoveredCurtailment")}
+                  value={`${kwh(e.recoveredCurtailmentKWh)}${t("units.perYear")}`}
+                  className="text-[12px]"
+                />
+              ) : null}
+            </div>
+            {(() => {
+              const parts: string[] = [];
+              if (p.showShiftedSolar) {
+                parts.push(
+                  t("results.improvements.summaryShifted", {
+                    value: `${kwh(e.shiftedSolarKWh)}${t("units.perYear")}`,
+                  }),
+                );
+              }
+              if (p.showPeakSection && p.peakChanged) {
+                parts.push(
+                  t("results.improvements.summaryPeak", { value: `${nf(peakPct, 1)} %` }),
+                );
+              }
+              if (parts.length === 0) {
+                return p.showPeakSection && !p.peakChanged ? (
+                  <p className="mt-2 border-t border-foreground/10 pt-2 text-[11px] leading-relaxed">
+                    {t("results.power.noReduction")}
+                  </p>
+                ) : null;
+              }
+              return (
+                <p className="mt-2 border-t border-foreground/10 pt-2 text-center text-[11px] leading-relaxed text-foreground/70">
+                  {parts.join(" · ")}
                 </p>
-              ) : null;
-            }
-            return (
-              <p className="ui-help mt-2 border-t border-foreground/10 pt-2 text-center text-foreground/70">
-                {parts.join(" · ")}
-              </p>
-            );
-          })()}
+              );
+            })()}
+          </div>
         </SectionCard>
       ) : null}
 
-      <SectionCard compact className="surface-primary" title={t("results.benefit.title")}>
+      <SectionCard compact className="surface-primary" title={t("results.benefit.title")} titleClassName={RESULT_CARD_TITLE_CLASS}>
         {p.noEconomy ? (
           <>
-            <p className="ui-section-title tabular-nums">{moneyPerYear(0)}</p>
-            <p className="ui-help mt-1">{t("results.benefit.none")}</p>
+            <p className="text-[30px] font-extrabold tracking-tight tabular-nums">{moneyPerYear(0)}</p>
+            <p className="mt-1 text-[11px] leading-relaxed">{t("results.benefit.none")}</p>
           </>
         ) : (
           <>
-            <p className="ui-hero text-[1.625rem] tabular-nums">
+            <p className="text-[30px] font-extrabold tracking-tight tabular-nums">
               {money(ce.totalCustomerBenefitSek)}
-              <span className="ui-help font-normal">{t("units.perYear")}</span>
+              <span className="ml-1 text-[11px] font-semibold">{t("units.perYear")}</span>
             </p>
-            <div className="mt-1.5 space-y-2">
+            <div className="surface-secondary mt-2 space-y-2 rounded-[1rem] p-3">
               {s.economy.energyBenefitSek !== 0 ? (
                 <BenefitRow
                   label={
@@ -400,7 +412,7 @@ function ResultStep() {
                 />
               ) : null}
               {ancillaryNote ? (
-                <p className="ui-help">{ancillaryNote}</p>
+                <p className="text-[11px] leading-relaxed">{ancillaryNote}</p>
               ) : s.fcr.enabled ? (
                 <>
                   {/* The customer's own ancillary compensation is the row that adds to the total. */}
@@ -435,24 +447,24 @@ function ResultStep() {
       </SectionCard>
 
       {maxInvestment === null ? (
-        <SectionCard compact className="surface-primary" title={t("results.investment.title")}>
-          <p className="ui-help">{t("payback.investment.none")}</p>
+        <SectionCard compact className="surface-primary" title={t("results.investment.title")} titleClassName={RESULT_CARD_TITLE_CLASS}>
+          <p className="text-[11px] leading-relaxed">{t("payback.investment.none")}</p>
         </SectionCard>
       ) : (
         <section className="surface-primary rounded-[1.5rem] border p-4 text-center shadow-sm">
-          <p className="font-display text-[1.05rem] font-bold leading-snug">
+          <p className="font-display text-[14px] font-semibold leading-snug">
             {t("results.investment.title")}
           </p>
-          <p className="ui-help mt-0.5">
+          <p className="mt-0.5 text-[11px] leading-relaxed">
             {t("results.investment.basedOn", {
               years: t("payback.years", { years: nf(targetYears, 0) }),
             })}
           </p>
-          <p className="ui-hero mt-1 text-[1.75rem] tabular-nums">
+          <p className="mt-1 text-[30px] font-extrabold tracking-tight tabular-nums">
             {t("results.investment.approx")} {money(maxInvestment)}
           </p>
           <div className="surface-secondary mt-3 rounded-[1.25rem] p-3.5 text-left">
-            <p className="ui-label text-center">{t("results.investment.otherTitle")}</p>
+            <p className="text-center text-[12px] font-semibold">{t("results.investment.otherTitle")}</p>
             <div className="mt-2 space-y-1">
               {[targetYears - 2, targetYears, targetYears + 2]
                 .map((y) => Math.min(20, Math.max(5, y)))
@@ -462,7 +474,7 @@ function ResultStep() {
                   return (
                     <div
                       key={y}
-                      className={`ui-body flex items-baseline justify-between gap-4 rounded-full px-3 py-1.5 ${
+                      className={`flex items-baseline justify-between gap-4 rounded-full px-3 py-1.5 text-[12px] font-medium ${
                         chosen ? "bg-background font-semibold shadow-sm" : ""
                       }`}
                     >
@@ -482,7 +494,7 @@ function ResultStep() {
                   );
                 })}
             </div>
-            <p className="ui-help mt-2.5 text-center">
+            <p className="mt-2.5 text-center text-[11px] leading-relaxed">
               {t("results.investment.explain")}
             </p>
           </div>
@@ -491,28 +503,28 @@ function ResultStep() {
 
 
       {p.showFcrPowerCard ? (
-        <details className="ui-card ui-card-compact ui-expandable surface-primary">
-          <summary className="ui-label">{p.fcrPowerCardTitle}</summary>
-          <div className="mt-2 space-y-1.5">
+        <details className="ui-card ui-card-compact ui-expandable surface-primary [&>summary::after]:text-[16px]">
+          <summary className="text-[14px] font-medium">{p.fcrPowerCardTitle}</summary>
+          <div className="surface-secondary mt-2 space-y-1.5 rounded-[1rem] p-3">
             {p.fcrPowerLevels.map((lvl) => (
               <Row key={lvl.label} label={lvl.label} value={kw(lvl.kw, 1)} />
             ))}
-            {p.fcrPowerExplanation ? <p className="ui-help">{p.fcrPowerExplanation}</p> : null}
+            {p.fcrPowerExplanation ? <p className="text-[11px] leading-relaxed">{p.fcrPowerExplanation}</p> : null}
           </div>
         </details>
       ) : null}
 
-      <details className="ui-card ui-card-compact ui-expandable surface-primary">
-        <summary className="ui-label">{t("technical.title")}</summary>
+      <details className="ui-card ui-card-compact ui-expandable surface-primary [&>summary::after]:text-[16px]">
+        <summary className="text-[14px] font-medium">{t("technical.title")}</summary>
 
-        <div className="mt-2 space-y-3">
+        <div className="mt-2 space-y-2">
           {/* All key figures below come from the FINAL simulation of the recommended system. */}
           {cal ? (
             <TechGroup title={t("technical.calibrationGroup")}>
               <Row label={t("technical.requested")} value={pct(cal.requestedPct)} />
               <Row label={t("technical.achieved")} value={pct(cal.achievedPct)} />
               {cal.status === "partial" ? (
-                <p className="ui-help">{t("technical.partialNote")}</p>
+                <p className="text-[11px] leading-relaxed">{t("technical.partialNote")}</p>
               ) : null}
             </TechGroup>
           ) : null}
@@ -532,17 +544,19 @@ function ResultStep() {
         </div>
       </details>
 
-      <details className="ui-card ui-card-compact ui-expandable surface-primary">
-        <summary className="ui-label">{importantInfoTitle()}</summary>
-        <ul className="ui-help mt-2 space-y-1.5 leading-relaxed">
-          {importantInfoPoints().map((point: string) => (
-            <li key={point} className="flex gap-2">
-              <span aria-hidden="true" className="shrink-0">•</span>
-              <span>{point}</span>
-            </li>
-          ))}
-        </ul>
-        <p className="ui-help mt-2 text-muted-foreground/80">{importantInfoFooter()}</p>
+      <details className="ui-card ui-card-compact ui-expandable surface-primary [&>summary::after]:text-[16px]">
+        <summary className="text-[14px] font-medium">{importantInfoTitle()}</summary>
+        <div className="surface-secondary mt-2 rounded-[1rem] p-3">
+          <ul className="space-y-1.5 text-[11px] leading-relaxed">
+            {importantInfoPoints().map((point: string) => (
+              <li key={point} className="flex gap-2">
+                <span aria-hidden="true" className="shrink-0">•</span>
+                <span>{point}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-[11px] leading-relaxed text-foreground/75">{importantInfoFooter()}</p>
+        </div>
       </details>
 
       {/*
@@ -553,7 +567,7 @@ function ResultStep() {
         <Button
           type="button"
           variant="outline"
-          className="h-11 w-full rounded-[0.875rem] font-semibold"
+          className="h-11 w-full rounded-[0.875rem] text-[16px] font-semibold"
           disabled={!PDF_REPORT_AVAILABLE}
           aria-disabled={!PDF_REPORT_AVAILABLE}
           onClick={() => {
@@ -570,7 +584,7 @@ function ResultStep() {
           {t("results.pdfReport")}
         </Button>
         {PDF_REPORT_AVAILABLE ? null : (
-          <p className="ui-help mt-2 text-center" role="status">
+          <p className="mt-2 text-center text-[14px]" role="status">
             {t("results.pdfReportPending")}
           </p>
         )}
@@ -579,9 +593,9 @@ function ResultStep() {
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
-    <div className="ui-body flex items-center justify-between gap-4">
+    <div className={`flex items-center justify-between gap-4 text-[14px] font-medium${className ? ` ${className}` : ""}`}>
       <span className="text-muted-foreground">{label}</span>
       <span className="font-semibold tabular-nums">{value}</span>
     </div>
@@ -604,11 +618,11 @@ function AncillaryDetails({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="ui-help flex w-full items-center justify-between gap-2 py-1 text-left text-foreground/60 transition-colors hover:text-foreground"
+        className="flex w-full items-center justify-between gap-2 py-1 text-left text-[14px] font-medium text-foreground/75 transition-colors hover:text-foreground"
       >
         <span>{toggleLabel}</span>
         <ChevronDown
-          className={`size-3.5 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`size-4 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
           aria-hidden="true"
         />
       </button>
@@ -618,7 +632,7 @@ function AncillaryDetails({
             <Row key={row.label} label={row.label} value={row.value} />
           ))}
           {hints.map((hint) => (
-            <p key={hint} className="ui-help">
+            <p key={hint} className="text-[11px] leading-relaxed">
               {hint}
             </p>
           ))}
@@ -631,11 +645,11 @@ function AncillaryDetails({
 function BenefitRow({ label, hint, value }: { label: string; hint: string; value: string }) {
   return (
     <div>
-      <div className="ui-body flex items-baseline justify-between gap-4">
+      <div className="flex items-baseline justify-between gap-4 text-[14px] font-medium">
         <span className="min-w-0 text-muted-foreground">{label}</span>
         <span className="shrink-0 font-semibold tabular-nums">{value}</span>
       </div>
-      <p className="ui-help mt-0.5">{hint}</p>
+      <p className="mt-0.5 text-[11px] leading-relaxed">{hint}</p>
     </div>
   );
 }
@@ -650,7 +664,7 @@ function BeforeAfter({
   after: string;
 }) {
   return (
-    <div className="ui-body flex items-center justify-between gap-4">
+    <div className="flex items-center justify-between gap-4 text-[12px] font-medium">
       <span className="text-muted-foreground">{label}</span>
       <span className="font-semibold tabular-nums">
         <span className="text-muted-foreground">{before}</span> → {after}
@@ -661,8 +675,8 @@ function BeforeAfter({
 
 function TechGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="space-y-2">
-      <p className="ui-caption uppercase tracking-wide">{title}</p>
+    <section className="surface-secondary space-y-2 rounded-[1rem] p-3">
+      <p className="text-[11px] font-bold uppercase tracking-widest">{title}</p>
       <div className="space-y-2">{children}</div>
     </section>
   );
