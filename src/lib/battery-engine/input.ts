@@ -14,7 +14,10 @@ import {
 } from "../lab/defaults";
 import { buildSeries } from "../lab/simulate";
 import { priceAreaForMarket, reserveModeForMarket } from "../lab/ancillary";
-import { SWEDISH_OPERATING_ECONOMY } from "../lab/operatingEconomy";
+import {
+  DEFAULT_ENGINE_CUSTOMER_ANCILLARY_SHARE,
+  SWEDISH_OPERATING_ECONOMY,
+} from "../lab/operatingEconomy";
 import type { OperatingEconomyConfig } from "../lab/operatingEconomy";
 import type { LabConfig, TimeSeries } from "../lab/types";
 import { HOURS_PER_YEAR } from "../lab/defaults";
