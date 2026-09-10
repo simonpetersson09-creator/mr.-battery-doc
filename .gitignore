@@ -30,3 +30,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Capacitor / iOS
+ios/App/Pods/
+ios/App/App/public/
+ios/App/output/
+ios/DerivedData/

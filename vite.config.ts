@@ -6,8 +6,17 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
+/**
+ * CAPACITOR_BUILD=1 produces a static SPA bundle (dist/client/index.html) for the
+ * native iOS shell. The normal web build is unchanged (SSR on the hosting edge).
+ */
+const isCapacitorBuild = process.env["CAPACITOR_BUILD"] === "1";
+
 export default defineConfig({
   tanstackStart: {
+    ...(isCapacitorBuild
+      ? { spa: { enabled: true, prerender: { enabled: true, crawlLinks: false, outputPath: "/index.html" } } }
+      : {}),
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },

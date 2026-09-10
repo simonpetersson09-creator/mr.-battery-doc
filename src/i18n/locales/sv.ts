@@ -529,6 +529,7 @@ export const sv = {
     history: "Historik",
     terms: "Användarvillkor",
     privacy: "Integritetspolicy",
+    eula: "Licensavtal (Apple)",
     historyPanel: {
       premiumActive: "Premium aktivt till {{date}}",
       premiumInactive: "Inget aktivt Premium",

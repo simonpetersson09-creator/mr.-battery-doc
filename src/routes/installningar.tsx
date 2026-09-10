@@ -17,6 +17,7 @@ import {
   History,
   Loader2,
   RotateCcw,
+  ScrollText,
   ShieldCheck,
   SlidersHorizontal,
 } from "lucide-react";
@@ -25,9 +26,11 @@ import { Button } from "@/components/ui/button";
 import { LanguageSelect } from "@/components/LanguageSelect";
 import { useT } from "@/i18n";
 import { useAccess } from "@/state/access";
-
-/** Apples standard-URL for subscription management (opens the App Store sheet on iOS). */
-const MANAGE_SUBSCRIPTION_URL = "https://apps.apple.com/account/subscriptions";
+import {
+  APPLE_STANDARD_EULA_URL,
+  MANAGE_SUBSCRIPTION_URL,
+  openExternalUrl,
+} from "@/lib/platform/runtime";
 
 export const Route = createFileRoute("/installningar")({
   head: () => ({
@@ -171,18 +174,17 @@ function SettingsPage() {
             <ChevronRight className="size-4 text-muted-foreground" />
           </button>
 
-          <a
-            href={MANAGE_SUBSCRIPTION_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5"
+          <button
+            type="button"
+            onClick={() => openExternalUrl(MANAGE_SUBSCRIPTION_URL)}
+            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5 text-left"
           >
             <span className="flex size-8 items-center justify-center rounded-full bg-muted">
               <SlidersHorizontal className="size-4" />
             </span>
             <span className="flex-1 text-[14px] font-semibold">{t("settings.subscription")}</span>
             <ChevronRight className="size-4 text-muted-foreground" />
-          </a>
+          </button>
 
           <Link
             to="/historik"
@@ -216,6 +218,18 @@ function SettingsPage() {
             <span className="flex-1 text-[14px] font-semibold">{t("settings.privacy")}</span>
             <ChevronRight className="size-4 text-muted-foreground" />
           </Link>
+
+          <button
+            type="button"
+            onClick={() => openExternalUrl(APPLE_STANDARD_EULA_URL)}
+            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5 text-left"
+          >
+            <span className="flex size-8 items-center justify-center rounded-full bg-muted">
+              <ScrollText className="size-4" />
+            </span>
+            <span className="flex-1 text-[14px] font-semibold">{t("settings.eula")}</span>
+            <ChevronRight className="size-4 text-muted-foreground" />
+          </button>
         </div>
 
         {notice ? (

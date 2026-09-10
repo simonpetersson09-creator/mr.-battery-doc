@@ -535,6 +535,7 @@ export const de = {
     history: "Verlauf",
     terms: "Nutzungsbedingungen",
     privacy: "Datenschutzerklärung",
+    eula: "Lizenzvereinbarung (Apple)",
     historyPanel: {
       premiumActive: "Premium aktiv bis {{date}}",
       premiumInactive: "Kein aktives Premium",
