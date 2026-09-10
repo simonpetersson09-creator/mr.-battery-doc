@@ -9,6 +9,7 @@
 import type { BatteryAppResult } from "@/lib/battery-app";
 import type { BatteryAlternative } from "@/lib/battery-app/capacityAlternatives";
 import type { CustomerEconomy } from "@/lib/battery-app/customerEconomy";
+import { isNativePlatform } from "@/lib/platform/runtime";
 import { buildDocDefinition } from "./docDefinition";
 import { buildReportModel, type ReportModel } from "./reportModel";
 

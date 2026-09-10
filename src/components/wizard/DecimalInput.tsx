@@ -20,11 +20,11 @@ export function DecimalInput({
 }: {
   value: number | null;
   onChange: (v: number | null) => void;
-  placeholder?: string;
-  className?: string;
+  placeholder?: string | undefined;
+  className?: string | undefined;
   /** Kept for API compatibility with the previous number input. */
-  step?: string;
-  ariaLabel?: string;
+  step?: string | undefined;
+  ariaLabel?: string | undefined;
 }) {
   const [text, setText] = useState(value === null || value === undefined ? "" : String(value));
   const focused = useRef(false);
