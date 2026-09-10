@@ -51,7 +51,7 @@ export function WizardShell({
 
   return (
     <div className="app-shell surface-sun">
-      <main className="pt-safe flex-1 px-4 pb-4">
+      <main className="pt-safe flex flex-1 flex-col px-4 pb-4">
         <div className="flex items-center justify-between pt-1">
           <h1 className={titleClassName ?? "ui-page-title"}>{title}</h1>
           <Link to="/" className="flex items-center">
@@ -74,7 +74,7 @@ export function WizardShell({
           <div className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}>{children}</div>
         </section>
 
-        <nav className="pb-safe mt-4 pt-1" aria-label={t("common.step", { current: stepIndex + 1, total: WIZARD_STEPS.length })}>
+        <nav className="pb-safe mt-auto pt-4" aria-label={t("common.step", { current: stepIndex + 1, total: WIZARD_STEPS.length })}>
           <div className="flex gap-2">
             <Button asChild variant="outline" className={`h-10 flex-1 rounded-[0.75rem] text-[15px] font-semibold${navButtonClassName ? ` ${navButtonClassName}` : ""}`}>
               <Link to={prev}>{t("common.back")}</Link>
