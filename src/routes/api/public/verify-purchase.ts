@@ -69,21 +69,49 @@ export const Route = createFileRoute("/api/public/verify-purchase")({
         }
 
         // Read credentials inside the handler — env is injected per request.
-        const configured =
-          Boolean(process.env["APPLE_ISSUER_ID"]) &&
-          Boolean(process.env["APPLE_KEY_ID"]) &&
-          Boolean(process.env["APPLE_PRIVATE_KEY"]) &&
-          Boolean(process.env["APPLE_BUNDLE_ID"]);
+        // Server-only module, loaded lazily so nothing Apple-related can reach
+        // the client graph.
+        const apple = await import("@/lib/access/appleServer.server");
+        const cfg = apple.readAppleConfig();
 
-        if (!configured) {
+        if (!cfg.ok) {
           // No Apple credentials yet: no server opinion. The app keeps using
           // StoreKit's own verification and does not unlock anything extra.
           return new Response(JSON.stringify({ status: "config-required" }), { status: 200, headers });
         }
 
-        // App Store Server API call goes here once the credentials exist.
-        // Deliberately not implemented against invented credentials.
-        return new Response(JSON.stringify({ status: "config-required" }), { status: 200, headers });
+        const { productId, transactionId } = parsed.data;
+        const info = await apple.fetchTransactionInfo(transactionId, cfg.config);
+        if (!info.ok) {
+          const blocking = info.reason === "transaction-not-found";
+          return new Response(
+            JSON.stringify(
+              blocking
+                ? { status: "invalid", reason: info.reason }
+                : { status: "unavailable" },
+            ),
+            { status: 200, headers },
+          );
+        }
+
+        const outcome = apple.evaluateTransaction(info.payload, {
+          bundleId: cfg.config.bundleId,
+          productId,
+          transactionId,
+        });
+        if (outcome.status === "verified") {
+          return new Response(
+            JSON.stringify({ status: "verified", premiumExpiresISO: outcome.premiumExpiresISO }),
+            { status: 200, headers },
+          );
+        }
+        if (outcome.status === "invalid") {
+          return new Response(JSON.stringify({ status: "invalid", reason: outcome.reason }), {
+            status: 200,
+            headers,
+          });
+        }
+        return new Response(JSON.stringify({ status: "unavailable" }), { status: 200, headers });
       },
     },
   },
