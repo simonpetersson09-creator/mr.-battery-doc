@@ -160,7 +160,7 @@ function Paywall() {
           {t("paywall.ready")}
         </p>
 
-        <section className="mt-3 rounded-[1rem] border border-border bg-secondary/60 px-3 py-3">
+        <section className="mt-3 rounded-[1rem] border border-border bg-card px-3 py-3">
           <p className="text-[12px] font-semibold">{t("paywall.includesTitle")}</p>
           <ul className="mt-1.5 space-y-1">
             {INCLUDES.map((key) => (
@@ -173,7 +173,7 @@ function Paywall() {
         </section>
 
         {/* Premium — visually recommended */}
-        <section className="mt-3 rounded-[1rem] border-2 border-accent bg-primary/25 px-3 py-3">
+        <section className="mt-3 rounded-[1rem] border-2 border-accent bg-secondary px-3 py-3">
           <div className="flex items-center justify-between gap-2">
             <p className="font-display text-[14px] font-bold">{t("paywall.premium.label")}</p>
             <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent-foreground">
