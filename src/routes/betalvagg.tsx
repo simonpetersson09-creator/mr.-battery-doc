@@ -190,7 +190,7 @@ function Paywall() {
           <Button
             variant="cta"
             className="mt-2 h-10 w-full rounded-[0.75rem] text-[15px] font-bold shadow-cta"
-            disabled={busy !== null}
+            disabled={busy !== null || access.purchaseInFlight}
             onClick={() => void buy("premiumYear")}
           >
             {busy === "premiumYear" ? <Loader2 className="size-4 animate-spin" /> : null}
@@ -208,7 +208,7 @@ function Paywall() {
           <Button
             variant="outline"
             className="mt-2 h-10 w-full rounded-[0.75rem] text-[15px] font-semibold"
-            disabled={busy !== null}
+            disabled={busy !== null || access.purchaseInFlight}
             onClick={() => void buy("singleReport")}
           >
             {busy === "singleReport" ? <Loader2 className="size-4 animate-spin" /> : null}
@@ -236,7 +236,7 @@ function Paywall() {
           <Button
             variant="ghost"
             className="h-9 w-full text-[13px] font-semibold"
-            disabled={busy !== null}
+            disabled={busy !== null || access.purchaseInFlight}
             onClick={() => void restore()}
           >
             {busy === "restore" ? t("paywall.restoring") : t("paywall.restore")}

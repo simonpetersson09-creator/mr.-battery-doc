@@ -27,9 +27,9 @@ import { useT } from "@/i18n";
 import { useAccess } from "@/state/access";
 import { LEGAL_LINKS } from "@/lib/access/legalLinks";
 import {
-  MANAGE_SUBSCRIPTION_URL,
   openExternalUrl,
 } from "@/lib/platform/runtime";
+import { openManageSubscription } from "@/lib/access/manageSubscription";
 
 export const Route = createFileRoute("/installningar")({
   head: () => ({
@@ -175,7 +175,7 @@ function SettingsPage() {
 
           <button
             type="button"
-            onClick={() => openExternalUrl(MANAGE_SUBSCRIPTION_URL)}
+            onClick={() => void openManageSubscription()}
             className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5 text-left"
           >
             <span className="flex size-8 items-center justify-center rounded-full bg-muted">
