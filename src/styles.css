@@ -325,6 +325,32 @@ html[data-native="true"] {
     0 5px 12px oklch(0.3172 0 0 / 0.12);
 }
 
+/* --- Result page surface hierarchy ------------------------------------- */
+/* Level 1: the most important results. */
+@utility surface-primary {
+  background-color: var(--surface-level-primary);
+  background-image: var(--yellow-sheen);
+  color: var(--brand-black);
+  border-color: oklch(0.3172 0 0 / 0.18);
+}
+
+/* Level 2: supporting information cards, clearly subordinate. */
+@utility surface-secondary {
+  background-color: var(--surface-level-secondary);
+  background-image: none;
+  color: var(--brand-black);
+  border-color: oklch(0.3172 0 0 / 0.1);
+  box-shadow: 0 1px 2px oklch(0.2185 0.0066 0.7 / 0.05);
+}
+
+/* Level 3: inner panels and details inside larger cards. */
+@utility surface-detail {
+  background-color: var(--surface-level-detail);
+  background-image: none;
+  color: var(--brand-black);
+  border: 1px solid oklch(0.3172 0 0 / 0.12);
+}
+
 @utility glass-panel {
   background-color: var(--surface-cream-strong);
   backdrop-filter: blur(16px) saturate(120%);
