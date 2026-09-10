@@ -186,46 +186,90 @@ export function MonthlyImport({
 
   const review = values ? reviewState(values) : null;
 
+  const importIcon = (
+    <svg
+      viewBox="0 0 24 24"
+      className="size-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M12 16V4" />
+      <path d="m7 9 5-5 5 5" />
+      <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+    </svg>
+  );
+
+  const label = busy
+    ? t("monthlyImport.reading")
+    : applied
+      ? t("monthlyImport.reimport")
+      : t("monthlyImport.import");
+
   return (
     <div className="space-y-2">
-      <Button
-        type="button"
-        variant="ghost"
-        className="cta-primary w-full"
-        disabled={busy}
-        onClick={() => inputRef.current?.click()}
-      >
-        <svg
-          viewBox="0 0 24 24"
-          className="size-4"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
+      {native ? (
+        <div className="space-y-2">
+          <Button
+            type="button"
+            variant="ghost"
+            className="cta-primary w-full"
+            disabled={busy}
+            onClick={() => void handleNativePick("camera")}
+          >
+            {importIcon}
+            {busy ? label : t("monthlyImport.takePhoto")}
+          </Button>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              disabled={busy}
+              onClick={() => void handleNativePick("photos")}
+            >
+              {t("monthlyImport.choosePhoto")}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              disabled={busy}
+              onClick={() => void handleNativePick("files")}
+            >
+              {t("monthlyImport.chooseFile")}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <Button
+          type="button"
+          variant="ghost"
+          className="cta-primary w-full"
+          disabled={busy}
+          onClick={() => inputRef.current?.click()}
         >
-          <path d="M12 16V4" />
-          <path d="m7 9 5-5 5 5" />
-          <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
-        </svg>
-        {busy
-          ? t("monthlyImport.reading")
-          : applied
-            ? t("monthlyImport.reimport")
-            : t("monthlyImport.import")}
-      </Button>
+          {importIcon}
+          {label}
+        </Button>
+      )}
+      {pickedName && !applied ? (
+        <p className="ui-help text-foreground truncate text-center">{pickedName}</p>
+      ) : null}
       {applied ? (
         <p className="ui-help text-foreground text-center">{t("monthlyImport.applied")}</p>
       ) : (
         <p className="ui-help text-center">{description}</p>
       )}
-      {error ? <p className="ui-help text-destructive">{error}</p> : null}
+      {error ? <p className="ui-help text-destructive text-center">{error}</p> : null}
 
       <input
         ref={inputRef}
         type="file"
-        accept="image/*,application/pdf,.csv,.txt,.tsv"
+        accept={IMPORT_ACCEPT}
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];
@@ -233,6 +277,7 @@ export function MonthlyImport({
           if (file) void handleFile(file);
         }}
       />
+
 
       {candidates ? (
         <div className="ui-card space-y-2">
