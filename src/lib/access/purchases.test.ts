@@ -60,12 +60,13 @@ describe("product identification", () => {
     expect(productKeyForId("com.someone.else")).toBeNull();
   });
 
-  it("uses the real App Store Connect product ids and types", () => {
+  it("uses the decided App Store Connect product ids and types", () => {
     expect(PRODUCT_TYPES.singleReport).toBe("consumable");
     expect(PRODUCT_TYPES.premiumYear).toBe("auto-renewable-subscription");
     expect(PRODUCT_IDS.singleReport).toBe("com.mrbatterydoc.calculation.unlock");
     expect(PRODUCT_IDS.premiumYear).toBe("com.mrbatterydoc.premium.yearly");
-    expect(APP_STORE_CONNECT_CONFIRMED).toBe(true);
+    // Only true once a real StoreKit fetch has verified the products.
+    expect(APP_STORE_CONNECT_CONFIRMED).toBe(false);
   });
 
   it("buys the product the user picked", async () => {
@@ -301,5 +302,42 @@ describe("no legacy product ids remain in production code", () => {
       }
     }
     expect(offenders).toEqual([]);
+  });
+});
+
+describe("subscription group name is documentation only", () => {
+  it("never appears in runtime purchase, entitlement or recovery logic", async () => {
+    const fs = await import("node:fs/promises");
+    const path = await import("node:path");
+    const files: string[] = [];
+    async function walk(p: string) {
+      const stat = await fs.stat(p);
+      if (stat.isFile()) return void files.push(p);
+      for (const entry of await fs.readdir(p)) await walk(path.join(p, entry));
+    }
+    await walk("src");
+    const offenders: string[] = [];
+    for (const file of files) {
+      if (!/\.(ts|tsx)$/.test(file) || file.includes("test")) continue;
+      if (file.endsWith("src/lib/access/products.ts")) continue;
+      const text = await fs.readFile(file, "utf8");
+      if (text.includes("PREMIUM_SUBSCRIPTION_GROUP") || text.includes("Mr Battery Doc Premium"))
+        offenders.push(file);
+    }
+    expect(offenders).toEqual([]);
+  });
+});
+
+describe("the paywall never hardcodes a currency price", () => {
+  it("has no fallback SEK amounts in the paywall or its copy", async () => {
+    const fs = await import("node:fs/promises");
+    const paywall = await fs.readFile("src/routes/betalvagg.tsx", "utf8");
+    expect(paywall).not.toMatch(/fallbackPrice/);
+    for (const lang of ["sv", "en", "de", "da", "fi"]) {
+      const copy = await fs.readFile(`src/i18n/locales/${lang}.ts`, "utf8");
+      const paywallBlock = copy.slice(copy.indexOf("paywall:"), copy.indexOf("settings:"));
+      expect(paywallBlock).not.toMatch(/fallbackPrice/);
+      expect(paywallBlock).not.toMatch(/49|199/);
+    }
   });
 });
