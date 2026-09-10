@@ -657,7 +657,7 @@ export function optimizeFcrReservation(
 
 
   const notes: string[] = [
-    "Optimeringsmål: energinytta + minskad effektkostnad + FCR-brutto. Alternativkostnaden dras inte av separat — den syns redan som lägre energi-/effektnytta.",
+    `Optimeringsmål: total kundnytta = energinytta + minskad effektkostnad + kundens andel (${Math.round(customerAncillaryShareOf(econ) * 100)} %) av FCR-värdet. Alternativkostnaden dras inte av separat — den syns redan som lägre energi-/effektnytta.`,
     `Tie-break: skillnader under ${FCR_TIE_TOLERANCE_SEK} kr/år räknas som likvärdiga och då väljs den LÄGRE reservationen.`,
     "0 % ingår alltid som kandidat, så en olönsam stödtjänst rekommenderas aldrig.",
     "Intäkten baseras endast på effekt som reservationsmotorn faktiskt kunde hålla, aldrig på nominellt erbjuden effekt.",
