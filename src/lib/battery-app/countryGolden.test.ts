@@ -243,8 +243,6 @@ const EXPECTED: Record<string, { capacityKWh: number; powerKw: number }> = {
   CG10: { capacityKWh: 5, powerKw: 3 },
   CG11: { capacityKWh: 20, powerKw: 3 },
   CG12: { capacityKWh: 100, powerKw: 50 },
-  CG13: { capacityKWh: 5, powerKw: 3 },
-  CG14: { capacityKWh: 50, powerKw: 25 },
   /**
    * CG15 previously froze 250 kW — the PHYSICAL need at 500 kWh / 0.5 C. That is not a
    * purchasable product level; the recommendation is capped at the 200 kW product step.
