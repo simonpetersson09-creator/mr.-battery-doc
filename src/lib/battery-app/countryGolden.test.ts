@@ -25,7 +25,9 @@ import {
   clampTargetPaybackYears,
 } from "./customerEconomy";
 import { createInitialState, type WizardState } from "@/state/wizard";
-import type { CountryCode, MarketArea } from "@/lib/country-config";
+import type { CountryCode } from "@/lib/country-config";
+
+type MarketArea = NonNullable<WizardState["grid"]["marketArea"]>;
 
 /** Full 8760 engine runs are slow. */
 const T = 240_000;
@@ -228,9 +230,7 @@ const CASES: Record<string, Case> = {
  * before freezing: capacity scales with consumption and solar surplus, power
  * never exceeds the grid connection or the 200 kW product ceiling.
  */
-const EXPECTED: Record<string, { capacityKWh: number; powerKw: number }> = {
-  CG01: { capacityKWh: 0, powerKw: 0 },
-};
+const EXPECTED: Record<string, { capacityKWh: number; powerKw: number }> = {};
 
 function buildState(c: Case): WizardState {
   const s = createInitialState(c.country);
@@ -258,7 +258,7 @@ function buildState(c: Case): WizardState {
   if (c.importPrice !== undefined) s.economy.importPrice = c.importPrice;
   if (c.exportPrice !== undefined) s.economy.exportPrice = c.exportPrice;
   if (c.demandCharge !== undefined) s.economy.demandCharge = c.demandCharge;
-  if (c.ancillaryShare !== undefined) s.economy.customerAncillaryShare = c.ancillaryShare;
+  if (c.ancillaryShare !== undefined) s.preferences.customerAncillaryShare = c.ancillaryShare;
   if (c.paybackYears !== undefined) s.preferences.targetPaybackYears = c.paybackYears;
   return s;
 }
@@ -299,7 +299,7 @@ describe("country golden regression cases", () => {
         expect(s.energyBalance.ok, `${key} energy balance must close`).toBe(true);
 
         // --- customer economy identities ---------------------------------
-        const share = c.ancillaryShare ?? state.economy.customerAncillaryShare;
+        const share = state.preferences.customerAncillaryShare;
         const ce = customerEconomyFromResult(outcome.result, share);
         expect(ce.ancillaryCustomerValueSek).toBeCloseTo(
           ce.ancillaryMarketValueSek * ce.customerAncillaryShare,
