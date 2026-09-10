@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Check } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { DecimalInput } from "./DecimalInput";
 
 export function SectionCard({
   title,
