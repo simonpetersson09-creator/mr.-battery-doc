@@ -96,4 +96,68 @@ describe("native StoreKit adapter", () => {
     const res = await a.purchase("com.unknown.product");
     expect(res.status).toBe("failed");
   });
+
+  /** Regression: v13 RESOLVES with an IError instead of throwing. */
+  describe("order() returns an IError instead of throwing", () => {
+    function adapterOrderingWith(result: unknown) {
+      const store = {
+        ...f.store,
+        get: (id: string) => ({
+          id,
+          pricing: { price: "59,00 kr" },
+          offers: [{ order: async () => result }],
+        }),
+      };
+      return createCdvPurchaseAdapter({ ...f.ns, store } as never);
+    }
+
+    it("maps a cancelled IError to cancelled, never purchased", async () => {
+      const a = adapterOrderingWith({ isError: true, code: 6500, message: "Purchase cancelled" });
+      const res = await a.purchase(PRODUCT_IDS.singleReport);
+      expect(res).toEqual({ status: "cancelled" });
+      expect(f.transaction.finish).not.toHaveBeenCalled();
+    });
+
+    it("maps a pending IError to pending", async () => {
+      const a = adapterOrderingWith({ isError: true, code: 6777031, message: "Payment pending" });
+      expect((await a.purchase(PRODUCT_IDS.singleReport)).status).toBe("pending");
+    });
+
+    it("maps payment-not-allowed, unavailable and generic IErrors to failed", async () => {
+      const cases = [
+        { isError: true, code: 6501, message: "Payment not allowed" },
+        { isError: true, code: 6777010, message: "Product not available" },
+        { isError: true, code: 6777001, message: "Store internal error" },
+      ];
+      for (const c of cases) {
+        const res = await adapterOrderingWith(c).purchase(PRODUCT_IDS.singleReport);
+        expect(res.status).toBe("failed");
+        expect("transactionId" in res).toBe(false);
+      }
+    });
+
+    it("still handles a thrown exception", async () => {
+      const store = {
+        ...f.store,
+        get: (id: string) => ({
+          id,
+          offers: [
+            {
+              order: async () => {
+                throw Object.assign(new Error("Store error"), { code: 6777001 });
+              },
+            },
+          ],
+        }),
+      };
+      const a = createCdvPurchaseAdapter({ ...f.ns, store } as never);
+      const res = await a.purchase(PRODUCT_IDS.singleReport);
+      expect(res.status).toBe("failed");
+    });
+
+    it("does not mistake a plain resolved value for an error", async () => {
+      const a = createCdvPurchaseAdapter(f.ns as never);
+      expect((await a.purchase(PRODUCT_IDS.singleReport)).status).toBe("purchased");
+    });
+  });
 });
