@@ -349,6 +349,14 @@ export interface EngineEconomySummary {
   fcrGrossSek: number | null;
   totalOperatingBenefitSek: number | null;
   totalIsIncomplete: boolean;
+  /**
+   * MODEL RULE: energy + peak + the customer's share of the ancillary value. This is the
+   * benefit the customer actually gets, and the one a recommendation must be judged on.
+   */
+  annualCustomerBenefitSek: number | null;
+  /** False when the calculated customer benefit is zero or negative. */
+  hasPositiveCustomerBenefit: boolean;
+
   /** Human-readable list of which values are estimates/assumptions. */
   assumptions: string[];
   notes: string[];

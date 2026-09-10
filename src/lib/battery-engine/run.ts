@@ -344,6 +344,7 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       fcrRealisticNetSek: o.fcrRealisticNetSek,
       totalOperatingBenefitSek: o.totalOperatingBenefitSek,
       operatingBenefitSek: o.operatingBenefitSek,
+      annualCustomerBenefitSek: o.annualCustomerBenefitSek,
       deltaVsPreviousKw: o.deltaVsPreviousKw,
       selected: o.selected,
       physicalSizingChoice: o.physicalSizingChoice,
