@@ -240,6 +240,12 @@ export interface EconomicPowerSizingResult {
   maxProductPowerKw: number;
   /** True when the physical need is above the largest available product level. */
   productCapBound: boolean;
+  /**
+   * True when the SELECTED candidate is the largest analysed/purchasable power level AND
+   * the last step still improved the customer benefit by more than the tie tolerance —
+   * i.e. the candidate range, not the economics, ended the search.
+   */
+  powerCeilingBinding: boolean;
   candidatePowersKw: number[];
   options: PowerOption[];
   /** Highest annual operating benefit. THE v1 recommendation. */
@@ -344,6 +350,7 @@ export function runEconomicPowerSizing(
       operatingOptimalPowerKw: null,
       recommendedPowerKw: productPowerKw,
       recommendationUsesHistoricalFcr: false,
+      powerCeilingBinding: false,
       status: "incomplete",
       reason: "no-candidates",
       notes: ["Inga giltiga effektkandidater kunde byggas för den valda kapaciteten."],
@@ -415,6 +422,21 @@ export function runEconomicPowerSizing(
     options[0]!;
   winner.selected = true;
 
+  /**
+   * SEARCH-BOUNDARY CLASSIFICATION. Only true when the winner sits at the very top of
+   * the analysed candidate range, that top equals the largest purchasable product level,
+   * and the last step was still worth more than the tie tolerance. Simply landing on
+   * 200 kW is NOT enough.
+   */
+  const topOption = options[options.length - 1]!;
+  const belowTop = options.length >= 2 ? options[options.length - 2]! : null;
+  const powerCeilingBinding =
+    winner === topOption &&
+    maxProductPowerKw > 0 &&
+    winner.powerKw >= maxProductPowerKw - 1e-9 &&
+    belowTop !== null &&
+    winner.annualCustomerBenefitSek - belowTop.annualCustomerBenefitSek > POWER_TIE_TOLERANCE_SEK;
+
   const physical = options.find((o) => o.physicalSizingChoice);
   const fcrDecided =
     fcrActive &&
@@ -446,6 +468,7 @@ export function runEconomicPowerSizing(
     operatingOptimalPowerKw: winner.powerKw,
     recommendedPowerKw: winner.powerKw,
     recommendationUsesHistoricalFcr: fcrDecided,
+    powerCeilingBinding,
     status: fcrMarketGaps.length > 0 ? "partial" : "complete",
     reason: fcrMarketGaps.length > 0 ? "historical-fcr-scenario" : "ok",
     notes,
