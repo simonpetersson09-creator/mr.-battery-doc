@@ -46,9 +46,11 @@ export function LanguageSelect({ pill = false }: { pill?: boolean }) {
       <SelectTrigger
         aria-label={LANGUAGE_NAMES[language]}
         className={
+          /* line-clamp-none: the shared trigger clamps its value span, which turns the
+             flag + name row into a truncated box with an ellipsis between them. */
           pill
-            ? "lang-trigger h-9 w-auto shrink-0 gap-1.5 rounded-full border border-border bg-card px-3 text-[13px] font-semibold shadow-sm"
-            : "lang-trigger cta-primary h-12 w-12 shrink-0 justify-center rounded-[0.875rem] px-0 text-lg leading-none [&_svg]:hidden"
+            ? "lang-trigger h-9 w-auto shrink-0 gap-1.5 rounded-full border border-border bg-card px-3 text-[13px] font-semibold shadow-sm [&>span]:line-clamp-none [&>span]:overflow-visible"
+            : "lang-trigger cta-primary h-12 w-12 shrink-0 justify-center rounded-[0.875rem] px-0 text-lg leading-none [&_svg]:hidden [&>span]:line-clamp-none [&>span]:overflow-visible"
         }
       >
         <SelectValue>

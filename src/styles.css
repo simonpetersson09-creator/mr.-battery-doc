@@ -229,7 +229,9 @@ html[data-native="true"] {
         transparent 60%
       ),
       radial-gradient(90% 70% at 0% 0%, oklch(0.8982 0.171 96.2 / 0.14) 0%, transparent 55%);
-    background-attachment: fixed;
+    /* `fixed` forces a full repaint of the gradient on every scroll frame in the
+       iOS WebView and makes scrolling stutter; `scroll` looks the same here. */
+    background-attachment: scroll;
     background-repeat: no-repeat;
     /* Paint the app background behind the status bar / home indicator and keep it
        during rubber-band scrolling, so no white or black edge can appear. */
@@ -626,3 +628,26 @@ html[data-native="true"] {
 
 
 /* Touch devices need >=16px on form fields to avoid iOS auto-zoom. */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea,
+  .ui-control,
+  .ui-control-sm {
+    font-size: 16px;
+  }
+}
+
+/* Momentum scrolling inside the native WebView. */
+html,
+body {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* iOS must never scale the app: a pinch inside the WebView cannot be undone. */
+html[data-native="true"] {
+  touch-action: pan-x pan-y;
+}
+html[data-native="true"] * {
+  -webkit-text-size-adjust: 100%;
+}

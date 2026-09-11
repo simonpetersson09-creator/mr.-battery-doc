@@ -140,6 +140,14 @@ function RootComponent() {
     if (isNativePlatform()) {
       root.dataset["native"] = "true";
       root.dataset["platform"] = platformName();
+      /* Native only: focusing a field must never zoom the WebView, because the
+         user has no way to pinch back out inside the app shell. The web build
+         keeps its accessible, zoomable viewport. */
+      const viewport = document.querySelector('meta[name="viewport"]');
+      viewport?.setAttribute(
+        "content",
+        "width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover",
+      );
     } else {
       delete root.dataset["native"];
     }

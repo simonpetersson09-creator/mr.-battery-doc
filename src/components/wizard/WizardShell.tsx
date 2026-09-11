@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { WIZARD_STEPS } from "./steps";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/i18n";
-import logo from "@/assets/mr-battery-doc-logo.png.asset.json";
+import logo from "@/assets/mr-battery-doc-logo.png";
 
 interface WizardShellProps {
   stepIndex: number;
@@ -56,7 +56,7 @@ export function WizardShell({
           <h1 className={titleClassName ?? "ui-page-title"}>{title}</h1>
           <Link to="/" className="flex items-center">
             <img
-              src={logo.url}
+              src={logo}
               alt="Mr. Battery Doc"
               className="h-14 w-auto"
               width={1536}

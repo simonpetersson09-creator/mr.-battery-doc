@@ -18,7 +18,7 @@ import type { ProductKey } from "@/lib/access/products";
 import type { PurchaseErrorCode, StoreProduct } from "@/lib/access/purchaseGateway";
 import { useAccess } from "@/state/access";
 import { useWizard } from "@/state/wizard";
-import logo from "@/assets/mr-battery-doc-logo.png.asset.json";
+import logo from "@/assets/mr-battery-doc-logo.png";
 
 export const Route = createFileRoute("/betalvagg")({
   head: () => ({
@@ -158,7 +158,7 @@ function Paywall() {
         <div className="flex items-center justify-between pt-1">
           <h1 className="ui-page-title">{t("paywall.title")}</h1>
           <img
-            src={logo.url}
+            src={logo}
             alt="Mr. Battery Doc"
             className="h-14 w-auto"
             width={1536}

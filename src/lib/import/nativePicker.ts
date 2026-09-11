@@ -161,15 +161,20 @@ function photoName(prefix: string): string {
 async function photo(source: "CAMERA" | "PHOTOS", adapters?: PickerAdapters): Promise<PickOutcome> {
   const camera = adapters?.camera !== undefined ? adapters.camera : await loadCamera();
   if (!camera) return { status: "unsupported" };
-  const permissionKey = source === "CAMERA" ? "camera" : "photos";
   try {
-    /* Structured permission check before the picker opens — no error text involved. */
-    if (camera.checkPermissions) {
+    /*
+     * Only the camera is gated up front. The photo library goes through the iOS
+     * photo picker, which needs no library permission at all — but the plugin still
+     * reports "denied" whenever full library access was never granted, which would
+     * block a picker that works perfectly well. Any real refusal surfaces as a
+     * structured error from getPhoto instead.
+     */
+    if (source === "CAMERA" && camera.checkPermissions) {
       let status = await camera.checkPermissions();
-      let state = status?.[permissionKey];
+      let state = status?.camera;
       if (state && ["prompt", "prompt-with-rationale"].includes(String(state)) && camera.requestPermissions) {
-        status = await camera.requestPermissions({ permissions: [permissionKey] });
-        state = status?.[permissionKey];
+        status = await camera.requestPermissions({ permissions: ["camera"] });
+        state = status?.camera;
       }
       const blocked = outcomeForPermission(state);
       if (blocked) return blocked;
@@ -205,21 +210,37 @@ export function pickPhoto(adapters?: PickerAdapters): Promise<PickOutcome> {
   return photo("PHOTOS", adapters);
 }
 
-/** iOS document picker (Files) — PDFs and the other supported document types. */
+/**
+ * iOS document picker (Files) — PDFs and the other supported document types.
+ *
+ * iOS maps every requested MIME type to a UTType and refuses to open the picker at
+ * all if one of them is unknown to the system (text/tab-separated-values is a real
+ * case). If the filtered call fails for any reason other than a user cancel, retry
+ * once without a type filter; `rejectionFor` still rejects anything unsupported.
+ */
 export async function pickFile(adapters?: PickerAdapters): Promise<PickOutcome> {
   const picker = adapters?.files !== undefined ? adapters.files : await loadFilePicker();
   if (!picker) return { status: "unsupported" };
-  try {
+  const run = async (types?: string[]): Promise<PickOutcome> => {
     const result = await picker.pickFiles({
-      types: IMPORT_PICKER_TYPES,
+      ...(types ? { types } : {}),
       limit: 1,
       readData: true,
     });
     const file = result.files?.[0];
     if (!file) return { status: "cancelled" };
     return documentFromBase64(file.name ?? "underlag", file.mimeType, file.data);
+  };
+  try {
+    return await run(IMPORT_PICKER_TYPES);
   } catch (error) {
-    return classifyPickerError(error);
+    const outcome = classifyPickerError(error);
+    if (outcome.status === "cancelled") return outcome;
+    try {
+      return await run();
+    } catch (fallbackError) {
+      return classifyPickerError(fallbackError);
+    }
   }
 }
 
