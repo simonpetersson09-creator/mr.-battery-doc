@@ -89,7 +89,17 @@ export function AccessProvider({
         : (req) => verifyPurchaseWithServer(req)),
     [verifier],
   );
-  const resolved = useMemo(() => gateway ?? selectPurchaseGateway(), [gateway]);
+  // The StoreKit adapter registers asynchronously (the Cordova bridge loads after
+  // React mounts). Selecting the gateway only once would leave the app on the
+  // non-purchasing web gateway and make every buy button do nothing.
+  const [detected, setDetected] = useState<PurchaseGateway>(() =>
+    gateway ?? selectPurchaseGateway(),
+  );
+  useEffect(() => {
+    if (gateway) return;
+    return subscribeNativePurchasePlugin(() => setDetected(selectPurchaseGateway()));
+  }, [gateway]);
+  const resolved = useMemo(() => gateway ?? detected, [gateway, detected]);
   const [entitlements, setEntitlements] = useState<Entitlements>(EMPTY_ENTITLEMENTS);
   const [hydrated, setHydrated] = useState(false);
   const [purchaseInFlight, setPurchaseInFlight] = useState(false);
