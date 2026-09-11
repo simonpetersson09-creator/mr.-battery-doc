@@ -25,6 +25,7 @@ import {
 } from "@/lib/access/entitlements";
 import { applyPurchase, applyRestore } from "@/lib/access/applyPurchase";
 import { selectPurchaseGateway } from "@/lib/access/gateways";
+import { subscribeNativePurchasePlugin } from "@/lib/access/gateways/native";
 import type {
   LoadProductsResult,
   PurchaseGateway,
