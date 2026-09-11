@@ -20,11 +20,11 @@ describe("annual consumption profile scaling", () => {
   it("keeps explicit monthly readings unchanged while retaining the selected hourly profile", () => {
     const monthlyKWh = Array.from({ length: 12 }, (_, month) => 700 + month * 37);
     const cfg = toLabConfig({
-      consumption: { annualKWh: 999_999, monthlyKWh, profile: "pool-summer" },
+      consumption: { monthlyKWh, profile: "pool-summer" },
     });
 
     expect(cfg.consumption.monthlyKWh).toEqual(monthlyKWh);
-    expect(cfg.consumption.annualKWh).toBe(999_999);
+    expect(cfg.consumption.annualKWh).toBe(monthlyKWh.reduce((sum, value) => sum + value, 0));
     expect(cfg.consumption.shape).toBe("pool-summer");
     expect(cfg.consumption.monthlyIsModelled).toBe(false);
   });
