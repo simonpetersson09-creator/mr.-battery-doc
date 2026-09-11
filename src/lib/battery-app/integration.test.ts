@@ -81,6 +81,7 @@ describe("adapter cases", () => {
     const s = standardVilla();
     s.production.mode = "none";
     s.strategies.peakShaving = true;
+    const input = normalizeWizardToEngineInput(s);
     const r = ok(s);
     const direct = runBatteryEngine({
       consumption: input.consumption,
