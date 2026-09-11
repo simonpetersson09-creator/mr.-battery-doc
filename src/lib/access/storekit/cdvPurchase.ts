@@ -65,7 +65,6 @@ function cdv(): CdvNamespace | null {
   return (window as unknown as { CdvPurchase?: CdvNamespace }).CdvPurchase ?? null;
 }
 
-const APPLE = "ios-appstore";
 const PRODUCT_LOAD_TIMEOUT_MS = 15_000;
 
 function productTypeFor(key: ProductKey, ns: CdvNamespace): string {
@@ -169,14 +168,18 @@ export function createCdvPurchaseAdapter(ns: CdvNamespace): NativePurchasePlugin
           code: first?.code,
         });
       }
-    })();
+    })().catch((error) => {
+      // Do not pin a transient StoreKit/network failure for the whole app session.
+      initialized = null;
+      throw error;
+    });
     return initialized;
   }
 
   function loadedProducts(productIds: string[]): Array<{ productId: string; displayPrice: string }> {
     const out: Array<{ productId: string; displayPrice: string }> = [];
     for (const id of productIds) {
-      const p = store.get(id, APPLE);
+      const p = store.get(id, ns.Platform.APPLE_APPSTORE);
       const price = p?.pricing?.price ?? p?.offers?.[0]?.pricingPhases?.[0]?.price;
       if (p && price) out.push({ productId: id, displayPrice: price });
     }
@@ -186,15 +189,17 @@ export function createCdvPurchaseAdapter(ns: CdvNamespace): NativePurchasePlugin
   async function waitForProducts(
     productIds: string[],
   ): Promise<Array<{ productId: string; displayPrice: string }>> {
+    const configuredIds = new Set(Object.values(PRODUCT_IDS));
+    const expectedIds = productIds.filter((id) => configuredIds.has(id));
     const current = loadedProducts(productIds);
-    if (current.length === productIds.length) return current;
+    if (current.length === expectedIds.length) return current;
 
     return new Promise((resolve) => {
       let settled = false;
       const finish = () => {
         if (settled) return;
         const products = loadedProducts(productIds);
-        if (products.length !== productIds.length) return;
+        if (products.length !== expectedIds.length) return;
         settled = true;
         clearTimeout(timer);
         productListeners.delete(finish);
@@ -224,14 +229,17 @@ export function createCdvPurchaseAdapter(ns: CdvNamespace): NativePurchasePlugin
         ),
       ]);
       const immediate = loadedProducts(productIds);
-      if (immediate.length === productIds.length) return immediate;
+      const expectedCount = productIds.filter((id) =>
+        Object.values(PRODUCT_IDS).includes(id as (typeof PRODUCT_IDS)[ProductKey]),
+      ).length;
+      if (immediate.length === expectedCount) return immediate;
       await store.update?.();
       return waitingForProducts;
     },
 
     async purchase(productId: string) {
       await ensureInit();
-      const product = store.get(productId, APPLE);
+      const product = store.get(productId, ns.Platform.APPLE_APPSTORE);
       if (!product) return { status: "failed" as const, code: "PRODUCT_UNAVAILABLE" };
 
       const transaction = new Promise<CdvTransaction | null>((resolve) => {

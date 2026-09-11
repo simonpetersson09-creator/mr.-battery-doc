@@ -158,6 +158,7 @@ function RootComponent() {
   useEffect(() => {
     if (!isNativePlatform()) return;
     let cancelled = false;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
     void (async () => {
       const { initNativeStoreKit } = await import("@/lib/access/storekit/cdvPurchase");
       if (cancelled) return;
@@ -165,12 +166,21 @@ function RootComponent() {
       let attempts = 0;
       const tryInit = () => {
         if (cancelled || initNativeStoreKit()) return;
-        if (attempts++ < 20) setTimeout(tryInit, 250);
+        // Keep covering slow TestFlight cold starts instead of permanently
+        // falling back to the web gateway after only five seconds.
+        if (attempts++ < 120) retryTimer = setTimeout(tryInit, 500);
       };
+      document.addEventListener("deviceready", tryInit);
+      document.addEventListener("visibilitychange", tryInit);
       tryInit();
+      return () => {
+        document.removeEventListener("deviceready", tryInit);
+        document.removeEventListener("visibilitychange", tryInit);
+      };
     })();
     return () => {
       cancelled = true;
+      if (retryTimer) clearTimeout(retryTimer);
     };
   }, []);
 
