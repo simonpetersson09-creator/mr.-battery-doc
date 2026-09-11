@@ -22,8 +22,8 @@ export interface ResultPresentationOptions {
   /** True when the customer typed their own demand charge. */
   demandChargeTouched: boolean;
   /**
-   * Genuine FCR-off counterfactual for the SAME capacity. Omit it and no "utan FCR"
-   * level is presented — a reconstructed level is never acceptable.
+   * Genuine FCR-off counterfactual from a complete capacity-and-power sizing run. Omit it
+   * and no "utan FCR" level is presented — a reconstructed level is never acceptable.
    */
   withoutFcr?: WithoutFcrOptimum | null;
   /**
