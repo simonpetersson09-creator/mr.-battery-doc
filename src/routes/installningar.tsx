@@ -161,15 +161,31 @@ function SettingsPage() {
               <Button
                 variant="ink"
                 className="mt-2 h-10 w-full rounded-[0.75rem] text-[15px] font-bold"
-                disabled={busy !== null}
+                disabled={busy !== null || access.purchaseInFlight || (products !== null && !premiumPrice)}
                 onClick={() => void buyPremium()}
               >
                 {busy === "premium" ? <Loader2 className="size-4 animate-spin" /> : null}
                 {t("settings.premium.cta")}
               </Button>
               <p className="mt-1 text-center text-[11px] leading-relaxed opacity-80">
-                {t("settings.premium.renewal")}
+                {premiumPrice
+                  ? t("paywall.premium.renewal", { price: premiumPrice })
+                  : t("settings.premium.renewal")}
               </p>
+              {products !== null && !premiumPrice ? (
+                <div className="text-center">
+                  <Button
+                    variant="ghost"
+                    className="mt-1 h-8 text-[12px] font-semibold"
+                    onClick={() => {
+                      setProducts(null);
+                      setPriceAttempt((n) => n + 1);
+                    }}
+                  >
+                    {t("paywall.retry")}
+                  </Button>
+                </div>
+              ) : null}
             </>
           )}
         </section>
