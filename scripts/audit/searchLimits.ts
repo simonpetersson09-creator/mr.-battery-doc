@@ -30,20 +30,25 @@ function build(
 ): BatteryEngineInput {
   const extraPower = (max: number, base: number[]) =>
     max <= 200 ? base : [...base, ...[250, 300, 350, 400].filter((p) => p <= max)];
+  const base = defaultConfig();
+  const maxCap = opts.maxCapacityKWh ?? 500;
+  const maxKw = opts.maxPowerKw ?? 200;
   const advanced =
     opts.maxCapacityKWh || opts.maxPowerKw
       ? {
-          ...(opts.maxCapacityKWh
-            ? { sweetSpot: { maxNormalCapacityKWh: opts.maxCapacityKWh } as never }
-            : {}),
-          ...(opts.maxPowerKw
-            ? {
-                powerSizing: {
-                  fineStepsKw: extraPower(opts.maxPowerKw, FINE_BASE),
-                  productStepsKw: extraPower(opts.maxPowerKw, PRODUCT_BASE),
-                } as never,
-              }
-            : {}),
+          sweetSpot: { ...base.sweetSpot, maxNormalCapacityKWh: maxCap },
+          powerSizing: {
+            ...base.powerSizing,
+            fineStepsKw: extraPower(maxKw, FINE_BASE),
+            productStepsKw: extraPower(maxKw, PRODUCT_BASE),
+          },
+          sweep: {
+            ...base.sweep,
+            capacitiesKWh: [
+              ...base.sweep.capacitiesKWh,
+              ...[600, 750, 900, 1000].filter((c) => c <= maxCap),
+            ],
+          },
         }
       : undefined;
   return {
