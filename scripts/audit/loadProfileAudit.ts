@@ -433,3 +433,28 @@ ${metrics
   .join("")}`;
 writeFileSync("/mnt/documents/battery-load-profiles.html", html);
 console.log("\nDiagram: /mnt/documents/battery-load-profiles.html");
+
+/* ---------------- 6b: benefit split, before-values ---------------- */
+console.log("\n=========== 6b. VARFÖR SKILJER DET SIG ===========");
+console.log(
+  "Profil".padEnd(20) +
+    "egenanv före".padStart(13) +
+    "peak före".padStart(11) +
+    "energinytta".padStart(13) +
+    "peaknytta".padStart(11) +
+    "FCR-nytta".padStart(11) +
+    "FCR kW".padStart(8),
+);
+for (const id of ids) {
+  const r = runBatteryEngine(engineInput(id));
+  const e = r.summary.economy;
+  console.log(
+    id.padEnd(20) +
+      `${r.summary.energy.selfConsumptionBeforePct.toFixed(0)}%`.padStart(13) +
+      `${r.summary.grid.importPeakBeforeKw.toFixed(1)}`.padStart(11) +
+      `${Math.round(e.energyBenefitSek ?? 0)}`.padStart(13) +
+      `${Math.round(e.peakBenefitSek ?? 0)}`.padStart(11) +
+      `${Math.round(e.ancillaryCustomerValueSek ?? 0)}`.padStart(11) +
+      `${r.summary.fcr.offeredPowerKw.toFixed(1)}`.padStart(8),
+  );
+}
