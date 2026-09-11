@@ -83,11 +83,7 @@ describe("adapter cases", () => {
     s.strategies.peakShaving = true;
     const input = normalizeWizardToEngineInput(s);
     const r = ok(s);
-    const direct = runBatteryEngine({
-      consumption: input.consumption,
-      production: { enabled: false },
-      strategies: { peakShaving: true },
-    });
+    const direct = runBatteryEngine(input);
     expect(r.summary.recommendation.capacityKWh).toBe(direct.summary.recommendation.capacityKWh);
     expect(r.summary.peak.peakReductionKw).toBeCloseTo(direct.summary.peak.peakReductionKw, 6);
   }, T);
