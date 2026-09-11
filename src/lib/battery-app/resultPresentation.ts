@@ -22,8 +22,8 @@ export interface ResultPresentationOptions {
   /** True when the customer typed their own demand charge. */
   demandChargeTouched: boolean;
   /**
-   * Genuine FCR-off counterfactual for the SAME capacity. Omit it and no "utan FCR"
-   * level is presented — a reconstructed level is never acceptable.
+   * Genuine FCR-off counterfactual from a complete capacity-and-power sizing run. Omit it
+   * and no "utan FCR" level is presented — a reconstructed level is never acceptable.
    */
   withoutFcr?: WithoutFcrOptimum | null;
   /**
@@ -159,7 +159,7 @@ export function buildResultPresentation(
   const raisedAbovePhysical = recommendedPowerKw > r.productPowerKw + 1e-9;
 
   /**
-   * The power level the property alone motivates. This MUST come from a genuine FCR-off
+    * The power level the property alone motivates. This MUST come from a full FCR-off
    * counterfactual (`computeWithoutFcrOptimum`), never from "FCR-influenced total minus FCR
    * revenue" — the reservation also changes dispatch, SOC, energy, peak and import/export.
    * When no counterfactual is supplied, no "utan FCR" level is shown at all.

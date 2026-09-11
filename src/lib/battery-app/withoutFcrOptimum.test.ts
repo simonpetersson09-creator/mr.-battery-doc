@@ -10,6 +10,7 @@ import { describe, expect, it } from "vitest";
 import { runBatteryApp } from "./index";
 import { buildResultPresentation } from "./resultPresentation";
 import { computeWithoutFcrOptimum } from "./withoutFcrOptimum";
+import { runBatteryEngine } from "@/lib/battery-engine";
 import { createInitialState, type WizardState } from "@/state/wizard";
 
 /** The audited reference case: 20 000 kWh, 14 kWp / 14 000 kWh, 25 A, FCR on. */
@@ -49,14 +50,24 @@ describe("true without-FCR counterfactual", () => {
     expect(rec.physicalPowerNeedKw).toBeCloseTo(3.5, 6);
   });
 
-  it("keeps the already chosen capacity and compares the required power candidates", () => {
-    expect(wo.capacityKWh).toBe(rec.capacityKWh);
+  it("fully re-sizes capacity and power exactly like an independent FCR-off engine run", () => {
+    const direct = runBatteryEngine({
+      ...outcome.input,
+      strategies: {
+        ...outcome.input.strategies,
+        fcrDUp: false,
+        fcrOfferedPowerKw: 0,
+        optimiseFcrReservation: false,
+      },
+    });
+    expect(wo.capacityKWh).toBe(direct.summary.recommendation.capacityKWh);
+    expect(wo.withoutFcrOptimalPowerKw).toBe(direct.summary.recommendation.recommendedPowerKw);
     for (const kw of [3, 3.5, 5, 7.5, 10, 12.5]) expect(wo.candidatePowersKw).toContain(kw);
   });
 
-  it("A: picks 3,5 kW — the lowest candidate within the 25 SEK/year tie tolerance", () => {
+  it("A: returns the full engine's purchasable 5 kW recommendation", () => {
     expect(wo.tieToleranceSek).toBe(25);
-    expect(wo.withoutFcrOptimalPowerKw).toBe(3.5);
+    expect(wo.withoutFcrOptimalPowerKw).toBe(5);
     expect(wo.bestBenefitSek - wo.withoutFcrBenefitSek).toBeLessThanOrEqual(25);
   });
 
@@ -65,6 +76,16 @@ describe("true without-FCR counterfactual", () => {
       expect(o.fcrRevenueSek).toBe(0);
       expect(o.fcrReservedPowerKw).toBe(0);
     }
+  });
+
+  it("does not inherit a fixed or already recommended capacity", () => {
+    const inputWithFixedSizing = {
+      ...outcome.input,
+      battery: { ...outcome.input.battery, fixedCapacityKWh: 200, fixedPowerKw: 100 },
+    };
+    const counterfactual = computeWithoutFcrOptimum(inputWithFixedSizing, outcome.result);
+    expect(counterfactual?.capacityKWh).toBe(25);
+    expect(counterfactual?.withoutFcrOptimalPowerKw).toBe(5);
   });
 
   it("F: the old subtraction method is gone — FCR-off totals differ from total minus FCR", () => {
@@ -84,23 +105,23 @@ describe("true without-FCR counterfactual", () => {
     expect(wrongPick.powerKw).not.toBe(wo.withoutFcrOptimalPowerKw);
   });
 
-  it("G: tie tolerance — differences under 25 kr/år choose the lower kW", () => {
-    const sorted = [...wo.options].sort((a, b) => a.powerKw - b.powerKw);
-    const winnerIdx = sorted.findIndex((o) => o.powerKw === wo.withoutFcrOptimalPowerKw);
-    for (const lower of sorted.slice(0, winnerIdx))
-      expect(wo.bestBenefitSek - lower.totalOperatingBenefitSek).toBeGreaterThan(25);
+  it("G: selected power follows the full engine recommendation", () => {
+    expect(wo.options.filter((option) => option.selected)).toHaveLength(1);
+    expect(wo.options.find((option) => option.selected)?.powerKw).toBe(
+      wo.withoutFcrOptimalPowerKw,
+    );
   });
 
-  it("C: identical physical and without-FCR levels collapse to two customer rows", () => {
+  it("C: physical need and purchasable without-FCR power remain distinct", () => {
     const p = buildResultPresentation(outcome.result, {
       peakShavingSelected: true,
       demandChargeTouched: false,
       withoutFcr: wo,
     });
-    expect(p.withoutFcrPowerKw).toBe(3.5);
+    expect(p.withoutFcrPowerKw).toBe(5);
     expect(p.physicalPowerNeedKw).toBeCloseTo(3.5, 6);
-    expect(p.showPhysicalNeedRow).toBe(false);
-    expect(p.fcrPowerCardText).toContain("3,5 kW");
+    expect(p.showPhysicalNeedRow).toBe(true);
+    expect(p.fcrPowerCardText).toContain("5,0 kW");
     expect(p.fcrPowerCardText).toContain("12,5 kW");
   });
 
@@ -129,19 +150,21 @@ describe("compact power explanation card", () => {
   const outcome = run(refState(true));
   const wo = computeWithoutFcrOptimum(outcome.input, outcome.result)!;
 
-  it("control case: two rows when physical need equals without-FCR power (no 10 kW)", () => {
+  it("control case: shows physical need, full without-FCR product and FCR product", () => {
     const p = buildResultPresentation(outcome.result, {
       peakShavingSelected: true,
       demandChargeTouched: false,
       withoutFcr: wo,
     });
     expect(p.showFcrPowerCard).toBe(true);
-    expect(p.showPhysicalNeedRow).toBe(false);
-    expect(p.fcrPowerLevels).toHaveLength(2);
-    expect(p.fcrPowerLevels[0]!.label).toBe("För fastighetens eget behov");
+    expect(p.showPhysicalNeedRow).toBe(true);
+    expect(p.fcrPowerLevels).toHaveLength(3);
+    expect(p.fcrPowerLevels[0]!.label).toBe("Fysiskt effektbehov");
     expect(p.fcrPowerLevels[0]!.kw).toBeCloseTo(3.5, 6);
-    expect(p.fcrPowerLevels[1]!.label).toBe("Med stödtjänst");
-    expect(p.fcrPowerLevels[1]!.kw).toBeCloseTo(12.5, 6);
+    expect(p.fcrPowerLevels[1]!.label).toBe("Utan FCR-D upp");
+    expect(p.fcrPowerLevels[1]!.kw).toBe(5);
+    expect(p.fcrPowerLevels[2]!.label).toBe("Med stödtjänst");
+    expect(p.fcrPowerLevels[2]!.kw).toBeCloseTo(12.5, 6);
     // The old stale 10 kW level must never appear.
     for (const lvl of p.fcrPowerLevels) {
       expect(Math.abs(lvl.kw - 10)).toBeGreaterThan(0.1);
