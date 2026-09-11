@@ -161,15 +161,20 @@ function photoName(prefix: string): string {
 async function photo(source: "CAMERA" | "PHOTOS", adapters?: PickerAdapters): Promise<PickOutcome> {
   const camera = adapters?.camera !== undefined ? adapters.camera : await loadCamera();
   if (!camera) return { status: "unsupported" };
-  const permissionKey = source === "CAMERA" ? "camera" : "photos";
   try {
-    /* Structured permission check before the picker opens — no error text involved. */
-    if (camera.checkPermissions) {
+    /*
+     * Only the camera is gated up front. The photo library goes through the iOS
+     * photo picker, which needs no library permission at all — but the plugin still
+     * reports "denied" whenever full library access was never granted, which would
+     * block a picker that works perfectly well. Any real refusal surfaces as a
+     * structured error from getPhoto instead.
+     */
+    if (source === "CAMERA" && camera.checkPermissions) {
       let status = await camera.checkPermissions();
-      let state = status?.[permissionKey];
+      let state = status?.camera;
       if (state && ["prompt", "prompt-with-rationale"].includes(String(state)) && camera.requestPermissions) {
-        status = await camera.requestPermissions({ permissions: [permissionKey] });
-        state = status?.[permissionKey];
+        status = await camera.requestPermissions({ permissions: ["camera"] });
+        state = status?.camera;
       }
       const blocked = outcomeForPermission(state);
       if (blocked) return blocked;
