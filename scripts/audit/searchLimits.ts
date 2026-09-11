@@ -6,6 +6,7 @@
  * the results correctly. Production limits are untouched: the widening happens only in
  * this script through `input.advanced`.
  */
+import { defaultConfig } from "../../src/lib/lab/defaults";
 import { runBatteryEngine } from "../../src/lib/battery-engine/run";
 import type { BatteryEngineInput } from "../../src/lib/battery-engine/types";
 
