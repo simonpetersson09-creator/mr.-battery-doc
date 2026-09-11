@@ -241,11 +241,16 @@ export function WizardProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!hydrated) return;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch {
-      /* storage full or unavailable */
-    }
+    // Serialising the whole wizard on every keystroke blocks the main thread in
+    // the iOS WebView; a short idle debounce keeps typing and taps responsive.
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch {
+        /* storage full or unavailable */
+      }
+    }, 250);
+    return () => clearTimeout(timer);
   }, [state, hydrated]);
 
   const value = useMemo<WizardContextValue>(() => {
