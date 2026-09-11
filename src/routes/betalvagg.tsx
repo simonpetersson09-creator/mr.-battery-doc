@@ -198,13 +198,14 @@ function Paywall() {
           <p
             className={`mt-1 leading-none ${premiumPrice ? "text-[20px] font-extrabold tabular-nums" : "text-[13px] font-semibold text-muted-foreground"}`}
           >
-            {premiumPrice ?? t("paywall.premium.loadingPrice")}
+            {premiumPrice ??
+              (products === null ? t("paywall.premium.loadingPrice") : t("paywall.priceUnavailable"))}
           </p>
           <p className="ui-help mt-1">{t("paywall.premium.description")}</p>
           <Button
             variant="cta"
             className="mt-2 h-10 w-full rounded-[0.75rem] text-[15px] font-bold shadow-cta"
-            disabled={busy !== null || access.purchaseInFlight}
+            disabled={busy !== null || access.purchaseInFlight || products !== null && !premiumPrice}
             onClick={() => void buy("premiumYear")}
           >
             {busy === "premiumYear" ? <Loader2 className="size-4 animate-spin" /> : null}
@@ -222,13 +223,14 @@ function Paywall() {
           <p
             className={`mt-1 leading-none ${singlePrice ? "text-[18px] font-extrabold tabular-nums" : "text-[13px] font-semibold text-muted-foreground"}`}
           >
-            {singlePrice ?? t("paywall.single.loadingPrice")}
+            {singlePrice ??
+              (products === null ? t("paywall.single.loadingPrice") : t("paywall.priceUnavailable"))}
           </p>
           <p className="ui-help mt-1">{t("paywall.single.description")}</p>
           <Button
             variant="outline"
             className="mt-2 h-10 w-full rounded-[0.75rem] text-[15px] font-semibold"
-            disabled={busy !== null || access.purchaseInFlight}
+            disabled={busy !== null || access.purchaseInFlight || products !== null && !singlePrice}
             onClick={() => void buy("singleReport")}
           >
             {busy === "singleReport" ? <Loader2 className="size-4 animate-spin" /> : null}
