@@ -304,7 +304,7 @@ export const LOAD_PROFILES: LoadProfileDef[] = [
     audience: "customer",
     monthShare: SUMMER_YEAR,
     shape: { weekday: HOUSE_WEEKDAY, weekend: HOUSE_WEEKEND },
-    summerBlendByMonth: [0.05, 0.05, 0.1, 0.25, 0.55, 0.85, 1, 0.85, 0.55, 0.25, 0.1, 0.05],
+    summerBlendByMonth: [0, 0, 0, 0.5, 1, 1, 1, 1, 1, 0.67, 0.33, 0],
     summerShape: {
       weekday: addBlock(
         h(
