@@ -88,20 +88,43 @@ export function resolveInitialLanguage(): Language {
   return FALLBACK_LANGUAGE;
 }
 
+/** Raw resource bundles per language — single source for init and dev HMR. */
+export const translationResources: Record<Language, Record<string, unknown>> = {
+  sv,
+  en,
+  de,
+  da,
+  fi,
+};
+
 if (!i18next.isInitialized) {
   void i18next.use(initReactI18next).init({
-    resources: {
-      sv: { translation: sv },
-      en: { translation: en },
-      de: { translation: de },
-      da: { translation: da },
-      fi: { translation: fi },
-    },
+    resources: Object.fromEntries(
+      SUPPORTED_LANGUAGES.map((lang) => [lang, { translation: translationResources[lang] }]),
+    ),
     lng: DEFAULT_LANGUAGE,
     fallbackLng: FALLBACK_LANGUAGE,
     supportedLngs: [...SUPPORTED_LANGUAGES],
     interpolation: { escapeValue: false },
     returnNull: false,
+  });
+}
+
+/**
+ * Dev-only HMR: when a locale file is hot-updated, push the fresh strings into
+ * the live i18next store and notify subscribers. Without this, a long-lived
+ * preview session keeps the old resource bundle and renders raw keys for
+ * newly added strings.
+ */
+if (import.meta.hot) {
+  import.meta.hot.accept((mod) => {
+    const fresh = (mod as { translationResources?: typeof translationResources } | undefined)
+      ?.translationResources;
+    if (!fresh) return;
+    for (const lang of SUPPORTED_LANGUAGES) {
+      i18next.addResourceBundle(lang, "translation", fresh[lang], true, true);
+    }
+    i18next.emit("languageChanged", i18next.language);
   });
 }
 
