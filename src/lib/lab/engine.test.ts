@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { createHash } from "node:crypto";
 import { DEFAULT_LOAD_MONTH_SHARE, DEFAULT_PV_MONTH_SHARE, defaultConfig, HOURS_PER_YEAR, spreadAnnual } from "./defaults";
 import { buildLoadSeries, buildPvSeries, monthlySums } from "./profiles";
 import { computeGridLimits, dispatch, resolveWindow } from "./dispatch";
@@ -9,6 +10,7 @@ import type { LabConfig, LoadProfileShape } from "./types";
 import {
   applyLoadProfile,
   CUSTOMER_LOAD_PROFILES,
+  diurnalSetFor,
   hourWeightsOf,
   INTERNAL_LOAD_PROFILES,
   isWeekendDay,
@@ -687,6 +689,48 @@ describe("load profile catalogue", () => {
       expect(load.reduce((a, b) => a + b, 0)).toBeCloseTo(10000, 6);
       expect(load.every((v) => Number.isFinite(v) && v >= 0)).toBe(true);
     }
+  });
+
+  it("locks the eight untouched customer profile definitions", () => {
+    const expected = new Map([
+      ["normal", "03e2c54a14885d9f7922fbd5e8ae09702cce00628fc5783a6200de1464a01645"],
+      ["day-heavy", "8218605b4f0c575b47c0665a6493710027ec0f44e356ee30b35a4e8a9bd57c47"],
+      ["heat-pump", "f7881d71a3b5a8fb8ead85c855bdb7be903428ac94861d2e5ea319255f212f31"],
+      ["direct-electric", "77ca1489ed5d69a751c42d58d575248ef14608821f88f5d66c248f67c722d754"],
+      ["heat-pump-ev", "6ce331d913ddea5e73596911f46c977626af3b0fc03a1a0fd7ca11f2485a725b"],
+      ["ev-evening", "24655463bc5a144be90bf127dfe593686c6e0c35f168e5408df5e633e7292ea5"],
+      ["office", "4cf5f82f781b5fbb10d76af4d5a53893980a595c650801c91a1d3a747bbe4665"],
+      ["retail-restaurant", "f573e2d538cda426b46df4eb1211e5a9fcfba27424e9837113ca2a05b6991aa9"],
+    ]);
+    for (const profile of CUSTOMER_LOAD_PROFILES) {
+      const hash = expected.get(profile.id);
+      if (!hash) continue;
+      expect(createHash("sha256").update(JSON.stringify(profile)).digest("hex"), profile.id).toBe(hash);
+    }
+  });
+
+  it("applies only the four approved profile corrections", () => {
+    const byId = (id: LoadProfileShape) => CUSTOMER_LOAD_PROFILES.find((p) => p.id === id);
+    const normal = byId("normal");
+    const commuter = byId("evening-heavy");
+    const evNight = byId("ev-night");
+    const workshop = byId("workshop");
+    const pool = byId("pool-summer");
+    expect(normal).toBeDefined();
+    expect(commuter?.monthShare).toEqual(normal?.monthShare);
+    expect(evNight?.shape.weekend[2]).toBeGreaterThan(evNight?.shape.weekend[3] ?? Infinity);
+
+    const weekday = workshop?.shape.weekday ?? [];
+    const mean = weekday.reduce((a, b) => a + b, 0) / weekday.length;
+    expect(weekday.slice(0, 6).reduce((a, b) => a + b, 0) / 6 / mean).toBeCloseTo(0.32, 2);
+    expect(Math.max(...weekday.slice(7, 17))).toBeGreaterThan(mean * 2);
+    expect(weekday[12]).toBeLessThan(weekday[11] ?? 0);
+
+    expect(pool).toBeDefined();
+    const noon = Array.from({ length: 12 }, (_, i) => diurnalSetFor(pool!, i + 1).weekday[12] ?? 0);
+    expect(noon.slice(0, 9)).toEqual([...noon.slice(0, 9)].sort((a, b) => a - b));
+    expect(noon.slice(8)).toEqual([...noon.slice(8)].sort((a, b) => b - a));
+    expect(new Set(noon).size).toBeGreaterThanOrEqual(5);
   });
 
   it("commercial profiles use clearly less energy on weekends", () => {
