@@ -342,6 +342,15 @@ export const sv = {
       withoutSolar:
         "{{capacity}} kWh ger en bra balans mellan hur mycket energi batteriet kan flytta och nyttan av ytterligare kapacitet. Ett större batteri ger relativt liten ytterligare nytta med din förbrukning.",
     },
+    searchLimit: {
+      atLeast: "Minst {{value}}",
+      capacityNote:
+        "Analysens övre kapacitetsgräns har nåtts. Ett större batteri kan ge ytterligare nytta.",
+      powerNote:
+        "Analysens övre effektgräns har nåtts. Ett system med högre effekt kan behöva analyseras separat.",
+      bothNote:
+        "Anläggningen ligger vid analysens övre dimensioneringsgräns. Större system bör dimensioneras med en utökad projekteringsanalys.",
+    },
     powerCap: {
       note:
         "Fastighetens beräknade fysiska effektbehov ({{physical}} kW) är större än den största effektnivå som går att köpa ({{product}} kW). Rekommendationen begränsas därför till {{product}} kW.",

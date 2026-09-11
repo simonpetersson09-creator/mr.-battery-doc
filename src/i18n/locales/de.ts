@@ -345,6 +345,15 @@ export const de = {
       withoutSolar:
         "{{capacity}} kWh bieten eine gute Balance zwischen der verschiebbaren Energiemenge und dem Nutzen zusätzlicher Kapazität. Eine größere Batterie bringt bei Ihrem Verbrauch relativ wenig Zusatznutzen.",
     },
+    searchLimit: {
+      atLeast: "Mindestens {{value}}",
+      capacityNote:
+        "Die obere Kapazitätsgrenze der Analyse ist erreicht. Ein größerer Speicher kann zusätzlichen Nutzen bringen.",
+      powerNote:
+        "Die obere Leistungsgrenze der Analyse ist erreicht. Ein System mit höherer Leistung sollte separat analysiert werden.",
+      bothNote:
+        "Die Anlage liegt an der oberen Auslegungsgrenze der Analyse. Größere Systeme sollten mit einer erweiterten Projektierung ausgelegt werden.",
+    },
     powerCap: {
       note:
         "Der berechnete physikalische Leistungsbedarf ({{physical}} kW) liegt über der größten verfügbaren Produktstufe ({{product}} kW). Die Empfehlung wird daher auf {{product}} kW begrenzt.",
