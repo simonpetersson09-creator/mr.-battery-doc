@@ -111,7 +111,7 @@ function ResultStep() {
   );
   const outcome = calculation.outcome;
   /**
-   * Genuine FCR-off counterfactual (same capacity, FCR switched off BEFORE dispatch).
+   * Genuine FCR-off counterfactual (full capacity + power sizing with FCR switched off).
    * Only needed while the reserve product is actually part of the recommendation.
    */
   const withoutFcr = useMemo(

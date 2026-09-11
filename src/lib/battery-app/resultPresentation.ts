@@ -159,7 +159,7 @@ export function buildResultPresentation(
   const raisedAbovePhysical = recommendedPowerKw > r.productPowerKw + 1e-9;
 
   /**
-   * The power level the property alone motivates. This MUST come from a genuine FCR-off
+    * The power level the property alone motivates. This MUST come from a full FCR-off
    * counterfactual (`computeWithoutFcrOptimum`), never from "FCR-influenced total minus FCR
    * revenue" — the reservation also changes dispatch, SOC, energy, peak and import/export.
    * When no counterfactual is supplied, no "utan FCR" level is shown at all.

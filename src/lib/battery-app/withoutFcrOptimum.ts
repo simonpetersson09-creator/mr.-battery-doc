@@ -1,7 +1,7 @@
 /**
  * TRUE WITHOUT-FCR COUNTERFACTUAL.
  *
- * "Vilken systemeffekt hade passat detta batteri om FCR-D upp inte ingick?"
+ * "Vilket batteri hade rekommenderats om FCR-D upp inte ingick?"
  *
  * The only correct way to answer that is to switch FCR-D up OFF **before** the dispatch
  * runs and simulate again. Subtracting the FCR revenue from an FCR-influenced result is
@@ -9,17 +9,16 @@
  * shaving and import/export.
  *
  * This module therefore:
- *   - keeps the ALREADY CHOSEN capacity fixed (no capacity re-sizing),
- *   - reuses the engine's own candidate/dispatch/economy path (`simulateAtPower`),
- *   - forces `strategies.ancillaryServices = false` and an empty reservation,
- *   - applies the SAME tie tolerance (POWER_TIE_TOLERANCE_SEK, 25 SEK/year, lower kW wins).
+ *   - switches FCR-D up off in the public engine input,
+ *   - runs the complete existing sizing + dispatch + economy path again,
+ *   - reports the resulting capacity and power without changing the ordinary result.
  *
  * It changes nothing in the frozen Battery Engine: it is an additional, explicitly
  * counterfactual run on top of an existing result.
  */
 
 import type { BatteryEngineInput, BatteryEngineResult } from "@/lib/battery-engine";
-import { toEconomyConfig, toLabConfig, toTimeSeries } from "@/lib/battery-engine";
+import { runBatteryEngine, toEconomyConfig, toLabConfig, toTimeSeries } from "@/lib/battery-engine";
 import {
   DEFAULT_MAX_PRODUCT_C_RATE,
   POWER_TIE_TOLERANCE_SEK,
@@ -91,26 +90,38 @@ export function buildWithoutFcrCandidates(
 }
 
 /**
- * Runs the genuine FCR-off counterfactual for the capacity the engine already recommended.
- * Returns null when there is no battery or no candidate to compare.
+ * Runs the genuine FCR-off counterfactual through the complete sizing chain.
+ * Returns null when that independent run recommends no battery or has no power candidate.
  */
 export function computeWithoutFcrOptimum(
   input: BatteryEngineInput,
   result: BatteryEngineResult,
 ): WithoutFcrOptimum | null {
-  const rec = result.summary.recommendation;
+  if (!result.summary.fcr.enabled) return null;
+
+  const {
+    fixedCapacityKWh: _fixedCapacityKWh,
+    fixedPowerKw: _fixedPowerKw,
+    ...batteryWithoutFixedSizing
+  } = input.battery ?? {};
+  const withoutFcrInput: BatteryEngineInput = {
+    ...input,
+    battery: batteryWithoutFixedSizing,
+    strategies: {
+      ...input.strategies,
+      fcrDUp: false,
+      fcrOfferedPowerKw: 0,
+      optimiseFcrReservation: false,
+    },
+  };
+  const withoutFcrResult = runBatteryEngine(withoutFcrInput);
+  const rec = withoutFcrResult.summary.recommendation;
   const capacityKWh = rec.capacityKWh;
   if (!(capacityKWh > 0)) return null;
 
-  const baseCfg = toLabConfig(input);
-  /* FCR-D up is switched OFF before any dispatch runs. */
-  const cfg = {
-    ...baseCfg,
-    strategies: { ...baseCfg.strategies, ancillaryServices: false },
-    ancillary: { ...baseCfg.ancillary, enabled: false, offeredPowerKw: 0 },
-  };
-  const econ = toEconomyConfig(input);
-  const series = toTimeSeries(cfg, input);
+  const cfg = toLabConfig(withoutFcrInput);
+  const econ = toEconomyConfig(withoutFcrInput);
+  const series = toTimeSeries(cfg, withoutFcrInput);
 
   const candidatePowersKw = buildWithoutFcrCandidates(
     capacityKWh,
@@ -150,6 +161,7 @@ export function computeWithoutFcrOptimum(
 
   const bestBenefitSek = Math.max(...options.map((o) => o.totalOperatingBenefitSek));
   const winner =
+    options.find((o) => Math.abs(o.powerKw - rec.recommendedPowerKw) < 1e-9) ??
     options.find((o) => o.totalOperatingBenefitSek >= bestBenefitSek - POWER_TIE_TOLERANCE_SEK) ??
     options[0]!;
   winner.selected = true;
