@@ -1,7 +1,21 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Check } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { DecimalInput } from "./DecimalInput";
+
+/**
+ * Short inline error shown right below the field it belongs to.
+ * The message always comes from the existing validation source of truth.
+ */
+export function FieldError({ message }: { message?: string | null }) {
+  if (!message) return null;
+  return (
+    <p role="alert" className="ui-help mt-1 font-medium text-destructive">
+      {message}
+    </p>
+  );
+}
+
 
 export function SectionCard({
   title,
@@ -71,6 +85,7 @@ export function NumberField({
   badge,
   dense,
   compact,
+  error,
 }: {
   label: string;
   unit?: string;
@@ -85,7 +100,14 @@ export function NumberField({
   dense?: boolean;
   /** Smaller height + text to match compact month grids. */
   compact?: boolean;
+  /** Localized message from the step's validation — shown once the field is used. */
+  error?: string | null;
 }) {
+  // An untouched, still-empty field stays quiet; a value the user entered (or an
+  // invalid stored value) shows the message immediately.
+  const [touched, setTouched] = useState(false);
+  const showError = !!error && (touched || value !== null);
+
   const suffix = unit ? (
     <span className="ui-control-text-sm pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 font-medium text-muted-foreground">
       {unit}
@@ -95,10 +117,13 @@ export function NumberField({
   const input = (
     <DecimalInput
       value={value}
-      onChange={onChange}
+      onChange={(v) => {
+        setTouched(true);
+        onChange(v);
+      }}
       placeholder={placeholder}
       step={step}
-      className={`ui-control tabular-nums ${compact ? "h-9 ui-control-text-sm" : ""} ${unit ? "pr-[4.5rem]" : ""}`}
+      className={`ui-control tabular-nums ${compact ? "h-9 ui-control-text-sm" : ""} ${unit ? "pr-[4.5rem]" : ""}${showError ? " border-destructive" : ""}`}
     />
   );
   return (
@@ -126,10 +151,16 @@ export function NumberField({
           ) : null}
         </span>
       )}
+      {showError ? (
+        <span role="alert" className="ui-help mt-1 block font-medium text-destructive">
+          {error}
+        </span>
+      ) : null}
       {hint ? <span className="ui-help mt-1 block">{hint}</span> : null}
     </label>
   );
 }
+
 
 
 export function OptionCard({

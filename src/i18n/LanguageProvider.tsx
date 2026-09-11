@@ -4,6 +4,11 @@
  * Nothing here touches country, market area, currency, fuse, economy, strategies or
  * any engine input. Old persisted wizard states (which never had a language field)
  * keep working untouched: the language lives under its own storage key.
+ *
+ * INITIALIZATION: the stored choice / system language is resolved before any
+ * localized UI is rendered. Server and the first client render both output the same
+ * neutral, text-free shell, so hydration matches exactly and no wrong-language text
+ * can ever flash. The localized tree mounts once the language is known.
  */
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
@@ -23,22 +28,38 @@ interface LanguageContextValue {
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>(DEFAULT_LANGUAGE);
+/** Keeps <html lang> in sync — presentation only. */
+function applyDocumentLanguage(lang: Language) {
+  if (typeof document === "undefined") return;
+  document.documentElement.lang = lang;
+}
 
-  // Stored choice / browser preference is applied after hydration, so server and
-  // client render the same markup on the first pass.
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  // `null` = not resolved yet. Identical on the server and in the first client
+  // render, which is what keeps hydration free of mismatches.
+  const [language, setLanguageState] = useState<Language | null>(null);
+
   useEffect(() => {
+    let cancelled = false;
     const initial = resolveInitialLanguage();
-    setLanguageState(initial);
-    void i18n.changeLanguage(initial);
+    const apply = () => {
+      if (cancelled) return;
+      applyDocumentLanguage(initial);
+      setLanguageState(initial);
+    };
+    if (i18n.resolvedLanguage === initial) apply();
+    else void i18n.changeLanguage(initial).then(apply, apply);
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const value = useMemo<LanguageContextValue>(
     () => ({
-      language,
+      language: language ?? DEFAULT_LANGUAGE,
       setLanguage: (lang) => {
         setLanguageState(lang);
+        applyDocumentLanguage(lang);
         void i18n.changeLanguage(lang);
         try {
           window.localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
@@ -49,6 +70,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }),
     [language],
   );
+
+  // Neutral, text-free shell for the one frame before the language is known.
+  if (language === null) {
+    return <div className="app-shell surface-sun" aria-busy="true" aria-hidden="true" />;
+  }
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 }

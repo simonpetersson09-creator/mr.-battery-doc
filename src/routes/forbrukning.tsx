@@ -5,8 +5,8 @@ import { WizardShell } from "@/components/wizard/WizardShell";
 import { MonthlyImport } from "@/components/wizard/MonthlyImport";
 import { MonthGrid } from "@/components/wizard/MonthGrid";
 
-import { NumberField, SectionCard } from "@/components/wizard/fields";
-import { validateConsumptionStep } from "@/lib/battery-app/stepValidation";
+import { FieldError, NumberField, SectionCard } from "@/components/wizard/fields";
+import { consumptionFieldErrors, validateConsumptionStep } from "@/lib/battery-app/stepValidation";
 import {
   Select,
   SelectContent,
@@ -51,6 +51,7 @@ function ConsumptionStep() {
   const { state, update } = useWizard();
   const c = state.consumption;
   const validity = validateConsumptionStep(state);
+  const fieldError = consumptionFieldErrors(state);
   const [importOpen, setImportOpen] = useState(false);
   const [justImported, setJustImported] = useState(false);
   // Values already in state (earlier import in this session) keep the card visible.
@@ -136,6 +137,7 @@ function ConsumptionStep() {
             value={c.annualKwh}
             placeholder={t("consumption.annual.placeholder")}
             compact
+            error={fieldError.annualKwh}
             onChange={(v) =>
               update((s) => ({ ...s, consumption: { ...s.consumption, annualKwh: v } }))
             }
@@ -143,7 +145,7 @@ function ConsumptionStep() {
         </SectionCard>
       ) : null}
 
-      <ProfilePicker />
+      <ProfilePicker error={fieldError.profileId} />
 
       {c.mode === "monthly" ? (
         <>
@@ -166,6 +168,7 @@ function ConsumptionStep() {
                   })
                 }
               />
+              <FieldError message={fieldError.monthlyKwh} />
             </SectionCard>
           ) : null}
         </>
@@ -175,7 +178,7 @@ function ConsumptionStep() {
   );
 }
 
-function ProfilePicker() {
+function ProfilePicker({ error }: { error: string | null }) {
   const t = useT();
   const { state, update } = useWizard();
   const selected = state.consumption.profileId
@@ -204,6 +207,7 @@ function ProfilePicker() {
           ))}
         </SelectContent>
       </Select>
+      <FieldError message={error} />
       {selected ? <ProfileShapeChart profileId={selected.id} /> : null}
     </SectionCard>
   );

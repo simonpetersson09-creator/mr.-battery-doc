@@ -5,8 +5,8 @@ import { WizardShell } from "@/components/wizard/WizardShell";
 import { MonthlyImport } from "@/components/wizard/MonthlyImport";
 import { MonthGrid } from "@/components/wizard/MonthGrid";
 
-import { NumberField, SectionCard } from "@/components/wizard/fields";
-import { validateProductionStep } from "@/lib/battery-app/stepValidation";
+import { FieldError, NumberField, SectionCard } from "@/components/wizard/fields";
+import { productionFieldErrors, validateProductionStep } from "@/lib/battery-app/stepValidation";
 import {
   Select,
   SelectContent,
@@ -40,6 +40,7 @@ function ProductionStep() {
   const { state, update } = useWizard();
   const p = state.production;
   const validity = validateProductionStep(state);
+  const fieldError = productionFieldErrors(state);
   const [importOpen, setImportOpen] = useState(false);
   const [justImported, setJustImported] = useState(false);
   const hasImported =
@@ -158,6 +159,7 @@ function ProductionStep() {
             value={p.dcKwp}
             placeholder={t("errors.egValue", { value: "14" })}
             compact
+            error={fieldError.dcKwp}
             onChange={(v) => update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))}
           />
           <NumberField
@@ -166,6 +168,7 @@ function ProductionStep() {
             value={p.acKw}
             placeholder={t("errors.egValue", { value: "12" })}
             compact
+            error={fieldError.acKw}
             onChange={(v) => update((s) => ({ ...s, production: { ...s.production, acKw: v } }))}
           />
           <NumberField
@@ -174,6 +177,7 @@ function ProductionStep() {
             value={p.annualKwh}
             placeholder={t("errors.egValue", { value: "14000" })}
             compact
+            error={fieldError.annualKwh}
             onChange={(v) =>
               update((s) => ({ ...s, production: { ...s.production, annualKwh: v } }))
             }
@@ -191,6 +195,7 @@ function ProductionStep() {
                 value={p.dcKwp}
                 placeholder="14"
                 compact
+                error={fieldError.dcKwp}
                 onChange={(v) =>
                   update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))
                 }
@@ -201,6 +206,7 @@ function ProductionStep() {
                 value={p.acKw}
                 placeholder="12"
                 compact
+                error={fieldError.acKw}
                 onChange={(v) =>
                   update((s) => ({ ...s, production: { ...s.production, acKw: v } }))
                 }
@@ -233,6 +239,7 @@ function ProductionStep() {
                   })
                 }
               />
+              <FieldError message={fieldError.monthlyKwh} />
             </SectionCard>
           ) : null}
         </>
