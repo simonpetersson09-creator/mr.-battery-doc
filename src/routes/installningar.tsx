@@ -20,7 +20,9 @@ import {
   ShieldCheck,
   SlidersHorizontal,
 } from "lucide-react";
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
+import type { ProductKey } from "@/lib/access/products";
+import type { StoreProduct } from "@/lib/access/purchaseGateway";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/i18n";
 import { useAccess } from "@/state/access";
@@ -61,6 +63,28 @@ function SettingsPage() {
     "restored" | "restoreNothing" | "manageWeb" | null
   >(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Apple's localized prices — the same source the paywall uses. Never a
+  // hardcoded amount, and the buy button stays disabled until a price exists.
+  const [products, setProducts] = useState<StoreProduct[] | null>(null);
+  const [priceAttempt, setPriceAttempt] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    void access.loadProducts().then((res) => {
+      if (!alive) return;
+      setProducts(res.status === "ok" ? res.products : []);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [access, priceAttempt]);
+  const priceOf = (key: ProductKey): string | null =>
+    products?.find((p) => p.key === key)?.displayPrice ?? null;
+  const premiumPrice = priceOf("premiumYear");
+  const singlePrice = priceOf("singleReport");
+  const priceFallback =
+    products === null ? t("paywall.premium.loadingPrice") : t("paywall.priceUnavailable");
+
   
 
   async function buyPremium() {
@@ -114,6 +138,11 @@ function SettingsPage() {
             <Crown className="size-4" />
             {t("settings.premium.title")}
           </p>
+          <p
+            className={`mt-0.5 leading-none ${premiumPrice ? "text-[20px] font-extrabold tabular-nums" : "text-[12px] font-semibold opacity-80"}`}
+          >
+            {premiumPrice ?? priceFallback}
+          </p>
           <ul className="mt-1 space-y-0.5">
             {PREMIUM_POINTS.map((key) => (
               <li key={key} className="flex gap-2 text-[11px] leading-relaxed">
@@ -132,15 +161,31 @@ function SettingsPage() {
               <Button
                 variant="ink"
                 className="mt-2 h-10 w-full rounded-[0.75rem] text-[15px] font-bold"
-                disabled={busy !== null}
+                disabled={busy !== null || access.purchaseInFlight || (products !== null && !premiumPrice)}
                 onClick={() => void buyPremium()}
               >
                 {busy === "premium" ? <Loader2 className="size-4 animate-spin" /> : null}
                 {t("settings.premium.cta")}
               </Button>
               <p className="mt-1 text-center text-[11px] leading-relaxed opacity-80">
-                {t("settings.premium.renewal")}
+                {premiumPrice
+                  ? t("paywall.premium.renewal", { price: premiumPrice })
+                  : t("settings.premium.renewal")}
               </p>
+              {products !== null && !premiumPrice ? (
+                <div className="text-center">
+                  <Button
+                    variant="ghost"
+                    className="mt-1 h-8 text-[12px] font-semibold"
+                    onClick={() => {
+                      setProducts(null);
+                      setPriceAttempt((n) => n + 1);
+                    }}
+                  >
+                    {t("paywall.retry")}
+                  </Button>
+                </div>
+              ) : null}
             </>
           )}
         </section>
@@ -148,6 +193,11 @@ function SettingsPage() {
         {/* One-off report */}
         <section className="mt-1.5 rounded-[1rem] bg-accent px-3 py-2.5 text-accent-foreground">
           <p className="font-display text-[14px] font-bold">{t("settings.single.title")}</p>
+          <p
+            className={`mt-0.5 leading-none ${singlePrice ? "text-[18px] font-extrabold tabular-nums" : "text-[12px] font-semibold opacity-80"}`}
+          >
+            {singlePrice ?? priceFallback}
+          </p>
           <p className="mt-1 text-[11px] leading-relaxed">{t("settings.single.description")}</p>
           <p className="mt-1.5 flex h-10 w-full items-center justify-center rounded-[0.75rem] bg-foreground/15 text-[15px] font-bold">
             {t("settings.single.cta")}
