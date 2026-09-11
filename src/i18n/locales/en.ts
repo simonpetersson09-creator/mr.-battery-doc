@@ -263,6 +263,10 @@ export const en = {
     bestChoice: "Best choice",
     yourBattery: "Your battery",
     level: { lower: "Smaller", recommended: "Best choice", higher: "Larger" },
+    withoutAncillary: {
+      title: "Recommended without ancillary revenue",
+      description: "The same property, without income from ancillary services.",
+    },
     balance: {
       base: "Best balance between battery size and calculated benefit.",
       higher: "Best balance between battery size and calculated benefit.",

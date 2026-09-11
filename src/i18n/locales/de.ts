@@ -266,6 +266,10 @@ export const de = {
     bestChoice: "Beste Wahl",
     yourBattery: "Deine Batterie",
     level: { lower: "Kleiner", recommended: "Beste Wahl", higher: "Größer" },
+    withoutAncillary: {
+      title: "Empfehlung ohne Erlöse aus Systemdienstleistungen",
+      description: "Dieselbe Immobilie, ohne Erlöse aus Systemdienstleistungen.",
+    },
     balance: {
       base: "Beste Balance zwischen Batteriegröße und berechnetem Nutzen.",
       higher: "Beste Balance zwischen Batteriegröße und berechnetem Nutzen.",

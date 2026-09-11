@@ -265,6 +265,10 @@ export const sv = {
     bestChoice: "Bäst val",
     yourBattery: "Ditt batteri",
     level: { lower: "Mindre", recommended: "Bäst val", higher: "Större" },
+    withoutAncillary: {
+      title: "Rekommenderat utan stödtjänstintäkter",
+      description: "Samma fastighet, utan intäkt från stödtjänster.",
+    },
     balance: {
       base: "Bäst balans mellan batteristorlek och beräknad nytta.",
       higher: "Bäst balans mellan batteristorlek och beräknad nytta.",
