@@ -317,6 +317,17 @@ export interface PowerSizing {
   upgradeGainKWh: number;
   upgradeGainPct: number;
   upgradeApplied: boolean;
+  /**
+   * Relative gain in useful energy of the LAST (highest) analysed power step, %.
+   * Diagnostic input to `powerUpperLimitReached`; never used for sizing.
+   */
+  topStepGainPct: number;
+  /**
+   * True when the physical power need lands on the highest analysed power AND that top
+   * step still delivered more than the utility tolerance. The search area, not physics,
+   * is then the binding constraint. Classification only — no sizing rule changes.
+   */
+  powerUpperLimitReached: boolean;
   explanation: string;
 }
 

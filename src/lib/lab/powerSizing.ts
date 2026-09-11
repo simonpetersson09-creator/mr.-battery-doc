@@ -58,6 +58,8 @@ export function sizePower(
       upgradeGainKWh: 0,
       upgradeGainPct: 0,
       upgradeApplied: false,
+      topStepGainPct: 0,
+      powerUpperLimitReached: false,
       explanation: "Inget batteri — ingen effektdimensionering.",
 
     };
