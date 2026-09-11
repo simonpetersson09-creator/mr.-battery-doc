@@ -299,6 +299,7 @@ export const de = {
         "Mit Ihren aktuellen Angaben ergibt sich kein positiver berechneter wirtschaftlicher Nutzen pro Jahr. Das technische Ergebnis wird trotzdem unten gezeigt.",
       ancillaryTitle: "Systemdienstleistungen",
       ancillaryCustomerHint: "Ihre berechnete Vergütung.",
+      ancillaryPower: "Berechnete vergütungsrelevante Leistung",
       ancillaryMarket: "Historischer Marktwert der Systemdienstleistungen",
       ancillaryShare: "Ihr Anteil am Wert der Systemdienstleistungen",
       ancillaryShareHint:
@@ -388,6 +389,9 @@ export const de = {
     cRate: "C-Rate",
     ancillaryGroup: "Systemdienstleistungen",
     reservedPower: "Reservierte Leistung",
+    reservablePower: "Physikalisch reservierbare Leistung (Durchschnitt)",
+    reservableNote:
+      "Ein separater durchschnittlicher Reservierbarkeitswert – nicht die Leistung, auf der die Vergütung basiert.",
     selectedServices: "Gewählte Systemdienstleistungen",
   },
   importantInformation: {

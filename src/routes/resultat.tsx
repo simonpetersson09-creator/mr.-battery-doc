@@ -607,6 +607,14 @@ function ResultStep() {
                   {/* Background only: how that figure was derived. Collapsed by default. */}
                   <AncillaryDetails
                     rows={[
+                      ...(p.fcrMonetizedPowerKw !== null
+                        ? [
+                            {
+                              label: t("results.benefit.ancillaryPower"),
+                              value: kw(p.fcrMonetizedPowerKw, 1),
+                            },
+                          ]
+                        : []),
                       {
                         label: t("results.benefit.ancillaryMarket"),
                         value: moneyPerYear(ce.ancillaryMarketValueSek),
@@ -704,6 +712,15 @@ function ResultStep() {
             {s.fcr.enabled ? (
               <>
                 <Row label={t("technical.reservedPower")} value={kw(s.fcr.avgHeldPowerKw, 2)} />
+                {p.fcrReservableAvgPowerKw !== null ? (
+                  <>
+                    <Row
+                      label={t("technical.reservablePower")}
+                      value={kw(p.fcrReservableAvgPowerKw, 2)}
+                    />
+                    <p className="ui-help">{t("technical.reservableNote")}</p>
+                  </>
+                ) : null}
                 <Row label={t("technical.selectedServices")} value={productLabel} />
               </>
             ) : null}

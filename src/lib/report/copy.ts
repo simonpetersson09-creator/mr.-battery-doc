@@ -59,6 +59,8 @@ export interface ReportCopy {
     product: string;
     offered: string;
     reservable: string;
+    technicalTitle: string;
+    technicalNote: string;
     held: string;
     monetized: string;
     availability: string;
@@ -217,8 +219,11 @@ const sv: ReportCopy = {
     product: "Vald stödtjänst",
     offered: "Erbjuden effekt",
     reservable: "Fysiskt reserverbar effekt (medel)",
+    technicalTitle: "Tekniska detaljer",
+    technicalNote:
+      "Fysiskt reserverbar effekt är ett separat genomsnittligt reservabilitetsmått och inte den effekt som ersättningen beräknas på.",
     held: "Hållen effekt (medel)",
-    monetized: "Effekt som ersättning beräknas på",
+    monetized: "Beräknad ersättningsgrundande effekt",
     availability: "Tillgänglighet",
     limiting: "Begränsande faktor",
     limitingPower: "Batteriets effekt",
@@ -460,8 +465,11 @@ const en: ReportCopy = {
     product: "Selected service",
     offered: "Offered power",
     reservable: "Physically reservable power (average)",
+    technicalTitle: "Technical details",
+    technicalNote:
+      "Physically reservable power is a separate average reservability measure, not the power the compensation is calculated from.",
     held: "Held power (average)",
-    monetized: "Power the compensation is based on",
+    monetized: "Estimated compensable power",
     availability: "Availability",
     limiting: "Limiting factor",
     limitingPower: "Battery power",

@@ -296,6 +296,7 @@ export const en = {
         "With your current inputs the battery gives no positive calculated economic benefit per year. The technical result is still shown below.",
       ancillaryTitle: "Ancillary services",
       ancillaryCustomerHint: "Your calculated compensation.",
+      ancillaryPower: "Estimated compensable power",
       ancillaryMarket: "Historical market value of ancillary services",
       ancillaryShare: "Your share of the ancillary value",
       ancillaryShareHint:
@@ -384,6 +385,9 @@ export const en = {
     cRate: "C-rate",
     ancillaryGroup: "Ancillary services",
     reservedPower: "Reserved power",
+    reservablePower: "Physically reservable power (average)",
+    reservableNote:
+      "A separate average reservability measure – not the power the compensation is calculated from.",
     selectedServices: "Selected services",
   },
   importantInformation: {
