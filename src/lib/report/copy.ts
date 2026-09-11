@@ -25,6 +25,25 @@ export interface ReportCopy {
     external: string;
   };
 
+  searchLimit: {
+    atLeastCapacity: string;
+    atLeastPower: string;
+    capacityNote: string;
+    powerNote: string;
+    bothNote: string;
+  };
+
+  searchLimit: {
+    atLeastCapacity: "Minst {value}",
+    atLeastPower: "Minst {value}",
+    capacityNote:
+      "Analysens övre kapacitetsgräns har nåtts. Ett större batteri kan ge ytterligare nytta.",
+    powerNote:
+      "Analysens övre effektgräns har nåtts. Ett system med högre effekt kan behöva analyseras separat.",
+    bothNote:
+      "Anläggningen ligger vid analysens övre dimensioneringsgräns. Större system bör dimensioneras med en utökad projekteringsanalys.",
+  },
+
   summary: {
     title: string;
     capacity: string;
@@ -183,6 +202,17 @@ const sv: ReportCopy = {
     calculated: "Beräknat",
     default: "Standardantagande",
     external: "Extern datakälla",
+  },
+
+  searchLimit: {
+    atLeastCapacity: "At least {value}",
+    atLeastPower: "At least {value}",
+    capacityNote:
+      "The upper capacity limit of the analysis has been reached. A larger battery may add further benefit.",
+    powerNote:
+      "The upper power limit of the analysis has been reached. A system with higher power may need a separate analysis.",
+    bothNote:
+      "The property is at the upper sizing limit of the analysis. Larger systems should be sized with an extended engineering study.",
   },
 
   summary: {
