@@ -59,6 +59,9 @@ function Paywall() {
   const calc = useMemo(() => getCalculation(state), [state]);
 
   const [products, setProducts] = useState<StoreProduct[] | null>(null);
+  // Lets the user ask the App Store for prices again after a transient failure,
+  // instead of being stuck with permanently disabled purchase buttons.
+  const [priceAttempt, setPriceAttempt] = useState(0);
   const [busy, setBusy] = useState<ProductKey | "restore" | null>(null);
   const [error, setError] = useState<PurchaseErrorCode | null>(null);
   const [notice, setNotice] = useState<
@@ -81,7 +84,7 @@ function Paywall() {
     return () => {
       alive = false;
     };
-  }, [access]);
+  }, [access, priceAttempt]);
 
   const priceOf = (key: ProductKey): string | null =>
     products?.find((p) => p.key === key)?.displayPrice ?? null;
