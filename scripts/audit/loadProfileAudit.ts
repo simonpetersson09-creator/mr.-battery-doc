@@ -453,8 +453,8 @@ for (const id of ids) {
       `${r.summary.energy.selfConsumptionBeforePct.toFixed(0)}%`.padStart(13) +
       `${r.summary.grid.importPeakBeforeKw.toFixed(1)}`.padStart(11) +
       `${Math.round(e.energyBenefitSek ?? 0)}`.padStart(13) +
-      `${Math.round(e.peakBenefitSek ?? 0)}`.padStart(11) +
-      `${Math.round(e.ancillaryCustomerValueSek ?? 0)}`.padStart(11) +
+      `${Math.round(e.demandCostSavingSek ?? 0)}`.padStart(11) +
+      `${Math.round(0.75 * (e.fcrGrossSek ?? 0))}`.padStart(11) +
       `${r.summary.fcr.offeredPowerKw.toFixed(1)}`.padStart(8),
   );
 }
