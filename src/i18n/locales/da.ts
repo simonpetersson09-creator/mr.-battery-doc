@@ -341,6 +341,15 @@ export const da = {
       withoutSolar:
         "{{capacity}} kWh giver en god balance mellem, hvor meget energi batteriet kan flytte, og nytten af yderligere kapacitet. Et større batteri giver relativt lidt ekstra nytte med dit forbrug.",
     },
+    searchLimit: {
+      atLeast: "Mindst {{value}}",
+      capacityNote:
+        "Analysens øvre kapacitetsgrænse er nået. Et større batteri kan give yderligere nytte.",
+      powerNote:
+        "Analysens øvre effektgrænse er nået. Et system med højere effekt kan kræve en separat analyse.",
+      bothNote:
+        "Anlægget ligger ved analysens øvre dimensioneringsgrænse. Større systemer bør dimensioneres med en udvidet projekteringsanalyse.",
+    },
     powerCap: {
       note:
         "Ejendommens beregnede fysiske effektbehov ({{physical}} kW) er større end det største produktniveau, der kan købes ({{product}} kW). Anbefalingen begrænses derfor til {{product}} kW.",

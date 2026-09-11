@@ -111,6 +111,20 @@ export interface ResultPresentation {
   baseUtilityPct: number;
   baseUtilityLabel: string;
 
+  /**
+   * SEARCH-BOUNDARY CLASSIFICATION (presentation only). True when the engine reports
+   * that the analysed capacity/power range — not the property — bounded the result.
+   * The recommended values themselves are unchanged.
+   */
+  capacityAtSearchLimit: boolean;
+  powerAtSearchLimit: boolean;
+  /** Ready-to-show values, prefixed with "at least" when the search limit was hit. */
+  capacityDisplay: string;
+  powerDisplay: string;
+  capacityLimitNote: string | null;
+  powerLimitNote: string | null;
+  bothLimitsNote: string | null;
+
   capacityWhy: string;
   powerWhy: string | null;
 }
@@ -200,6 +214,12 @@ export function buildResultPresentation(
     showFcrPowerCard &&
     propertyOnlyPowerKw !== null &&
     Math.abs(propertyOnlyPowerKw - r.physicalPowerNeedKw) > 0.05;
+
+  const capacityAtSearchLimit = !noBattery && r.upperLimitReached;
+  const powerAtSearchLimit = !noBattery && r.powerUpperLimitReached;
+  const atLeast = (value: string) => t("results.searchLimit.atLeast", { value });
+  const capacityValue = `${nf(r.capacityKWh)} kWh`;
+  const powerValue = `${nf(recommendedPowerKw, 1)} kW`;
 
   const capacityWhy = noBattery
     ? t("results.capacityWhy.none")
@@ -374,6 +394,15 @@ export function buildResultPresentation(
     sizingMethodLines,
     baseUtilityPct: ps.utilityPctOfReference,
     baseUtilityLabel: t("results.sizing.basePhysicalUtility"),
+
+    capacityAtSearchLimit,
+    powerAtSearchLimit,
+    capacityDisplay: capacityAtSearchLimit ? atLeast(capacityValue) : capacityValue,
+    powerDisplay: powerAtSearchLimit ? atLeast(powerValue) : powerValue,
+    capacityLimitNote: capacityAtSearchLimit ? t("results.searchLimit.capacityNote") : null,
+    powerLimitNote: powerAtSearchLimit ? t("results.searchLimit.powerNote") : null,
+    bothLimitsNote:
+      capacityAtSearchLimit && powerAtSearchLimit ? t("results.searchLimit.bothNote") : null,
 
     capacityWhy,
     powerWhy,

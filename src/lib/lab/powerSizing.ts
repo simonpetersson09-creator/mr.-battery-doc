@@ -58,6 +58,8 @@ export function sizePower(
       upgradeGainKWh: 0,
       upgradeGainPct: 0,
       upgradeApplied: false,
+      topStepGainPct: 0,
+      powerUpperLimitReached: false,
       explanation: "Inget batteri — ingen effektdimensionering.",
 
     };
@@ -91,6 +93,26 @@ export function sizePower(
   const threshold = cfg.powerSizing.utilityThresholdPct;
   const physicalNeedKw =
     curve.find((p) => p.pctOfReference >= threshold - 1e-9)?.powerKw ?? referencePowerKw;
+
+  /**
+   * SEARCH-BOUNDARY CLASSIFICATION (no sizing rule is changed by this).
+   *
+   * `physicalNeedKw` is defined relative to the HIGHEST analysed power, so when the need
+   * lands on that reference the answer is only trustworthy if the curve had actually
+   * flattened there. The top step is therefore compared against the same tolerance the
+   * utility threshold uses (100 - threshold): if the last step still delivered more than
+   * that, the analysed range — not the property — is what bounds the result.
+   */
+  const tolerancePct = Math.max(0, 100 - threshold);
+  const topPoint = curve[curve.length - 1];
+  const beforeTopPoint = curve.length >= 2 ? curve[curve.length - 2] : undefined;
+  const topStepGainPct =
+    topPoint && beforeTopPoint && beforeTopPoint.usefulKWh > 0
+      ? ((topPoint.usefulKWh - beforeTopPoint.usefulKWh) / beforeTopPoint.usefulKWh) * 100
+      : 0;
+  const powerUpperLimitReached =
+    physicalNeedKw >= referencePowerKw - 1e-9 && topStepGainPct > tolerancePct;
+
 
   /**
    * ---- product layer ----
@@ -220,6 +242,8 @@ export function sizePower(
     upgradeGainKWh,
     upgradeGainPct,
     upgradeApplied,
+    topStepGainPct,
+    powerUpperLimitReached,
     explanation,
 
   };

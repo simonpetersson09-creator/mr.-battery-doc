@@ -193,6 +193,12 @@ export interface EngineRecommendation {
   reasonableRangeKWh: [number, number];
   diminishingFromKWh: number | null;
   upperLimitReached: boolean;
+  /**
+   * True when the recommended SYSTEM POWER is bounded by the highest analysed power
+   * level rather than by the property's need. Classification only: the recommended
+   * power itself is unchanged.
+   */
+  powerUpperLimitReached: boolean;
   explanation: string;
   powerExplanation: string;
   utilisationWarning: string | null;

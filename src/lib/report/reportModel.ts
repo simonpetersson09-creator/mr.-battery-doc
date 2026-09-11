@@ -178,6 +178,14 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
 
   const capacityKWh = r.capacityKWh;
   const powerKw = r.recommendedPowerKw;
+  /**
+   * SEARCH-BOUNDARY CLASSIFICATION (presentation only). The engine values above are
+   * unchanged; only the way they are labelled differs when the analysed range bound the
+   * result.
+   */
+  const capacityAtSearchLimit = capacityKWh > 0 && r.upperLimitReached;
+  const powerAtSearchLimit = capacityKWh > 0 && r.powerUpperLimitReached;
+  const atLeast = (template: string, value: string) => template.replace("{value}", value);
   const hasSolar = e.annualPvKWh > 0;
   const ancillaryEnabled = fcr.enabled;
   const ancillaryPriced = ancillaryEnabled && fcr.grossSek !== null;
@@ -190,8 +198,18 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
 
   /* ============================ 1. SUMMARY ============================ */
   const summaryCards: { label: string; value: string }[] = [
-    { label: copy.summary.capacity, value: kwh(capacityKWh) },
-    { label: copy.summary.power, value: kw(powerKw, 1) },
+    {
+      label: copy.summary.capacity,
+      value: capacityAtSearchLimit
+        ? atLeast(copy.searchLimit.atLeastCapacity, kwh(capacityKWh))
+        : kwh(capacityKWh),
+    },
+    {
+      label: copy.summary.power,
+      value: powerAtSearchLimit
+        ? atLeast(copy.searchLimit.atLeastPower, kw(powerKw, 1))
+        : kw(powerKw, 1),
+    },
     { label: copy.summary.benefit, value: perYear(ce.totalCustomerBenefitSek) },
     {
       label: copy.summary.maxInvestment,
@@ -405,8 +423,20 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       {
         kind: "rows",
         rows: [
-          { label: copy.sizing.capacity, value: kwh(capacityKWh), source: "calculated" },
-          { label: copy.sizing.power, value: kw(powerKw, 1), source: "calculated" },
+          {
+            label: copy.sizing.capacity,
+            value: capacityAtSearchLimit
+              ? atLeast(copy.searchLimit.atLeastCapacity, kwh(capacityKWh))
+              : kwh(capacityKWh),
+            source: "calculated",
+          },
+          {
+            label: copy.sizing.power,
+            value: powerAtSearchLimit
+              ? atLeast(copy.searchLimit.atLeastPower, kw(powerKw, 1))
+              : kw(powerKw, 1),
+            source: "calculated",
+          },
           {
             label: copy.sizing.cRate,
             value: capacityKWh > 0 ? num(powerKw / capacityKWh, 2) : copy.notAvailable,
@@ -426,6 +456,15 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
           ]
         : []),
       { kind: "text", text: r.explanation },
+      ...(capacityAtSearchLimit
+        ? [{ kind: "note" as const, text: copy.searchLimit.capacityNote }]
+        : []),
+      ...(powerAtSearchLimit
+        ? [{ kind: "note" as const, text: copy.searchLimit.powerNote }]
+        : []),
+      ...(capacityAtSearchLimit && powerAtSearchLimit
+        ? [{ kind: "note" as const, text: copy.searchLimit.bothNote }]
+        : []),
       { kind: "note", text: copy.sizing.balance },
     ],
   });

@@ -396,6 +396,11 @@ function ResultStep() {
                     {label}
                   </span>
                   <div className="mt-1.5 text-center">
+                    {main && p.capacityAtSearchLimit ? (
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-foreground/70">
+                        {t("results.searchLimit.atLeast", { value: "" }).trim()}
+                      </p>
+                    ) : null}
                     <span
                       className={
                         "tabular-nums " +
@@ -413,7 +418,9 @@ function ResultStep() {
                       kWh
                     </span>
                     <p className="text-[11px] font-medium tabular-nums text-foreground/70">
-                      {nf(alt.powerKw, 1)} kW
+                      {main && p.powerAtSearchLimit
+                        ? p.powerDisplay
+                        : `${nf(alt.powerKw, 1)} kW`}
                     </p>
                   </div>
                   <div className="mt-2 w-full border-t border-foreground/10 pt-1.5 text-center">
@@ -430,6 +437,19 @@ function ResultStep() {
               );
             })}
           </div>
+          {p.capacityAtSearchLimit || p.powerAtSearchLimit ? (
+            <div className="surface-secondary mt-3 space-y-1 rounded-[0.75rem] px-3 py-2.5 text-left">
+              {p.capacityLimitNote ? (
+                <p className="text-[10px] leading-snug text-foreground/75">{p.capacityLimitNote}</p>
+              ) : null}
+              {p.powerLimitNote ? (
+                <p className="text-[10px] leading-snug text-foreground/75">{p.powerLimitNote}</p>
+              ) : null}
+              {p.bothLimitsNote ? (
+                <p className="text-[10px] font-semibold leading-snug">{p.bothLimitsNote}</p>
+              ) : null}
+            </div>
+          ) : null}
           {withoutFcr ? (
             <div className="surface-secondary mt-3 flex w-full items-center justify-between gap-3 rounded-[0.75rem] px-3 py-2.5">
               <div className="min-w-0">

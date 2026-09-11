@@ -341,6 +341,15 @@ export const en = {
       withoutSolar:
         "{{capacity}} kWh gives a good balance between how much energy the battery can move and the benefit of additional capacity. A larger battery gives relatively little extra benefit with your consumption.",
     },
+    searchLimit: {
+      atLeast: "At least {{value}}",
+      capacityNote:
+        "The upper capacity limit of the analysis has been reached. A larger battery may add further benefit.",
+      powerNote:
+        "The upper power limit of the analysis has been reached. A system with higher power may need a separate analysis.",
+      bothNote:
+        "The property is at the upper sizing limit of the analysis. Larger systems should be sized with an extended engineering study.",
+    },
     powerCap: {
       note:
         "The property's calculated physical power need ({{physical}} kW) is larger than the largest available product level ({{product}} kW). The recommendation is therefore limited to {{product}} kW.",
