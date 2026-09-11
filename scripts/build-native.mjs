@@ -13,8 +13,23 @@ import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, statSync } from "no
 import { join, resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
-const src = join(root, "dist", "client");
 const out = join(root, "capacitor-www");
+
+/**
+ * Where the static SPA build lands depends on the Vite/TanStack Start/Nitro versions in
+ * use: older setups wrote dist/client, newer ones write .output/public. Instead of
+ * hardcoding one of them, probe the known output directories and pick the first that
+ * actually contains a complete static bundle (index.html + an assets directory).
+ */
+const CANDIDATE_DIRS = [
+  join(root, "dist", "client"),
+  join(root, ".output", "public"),
+  join(root, "dist", "public"),
+  join(root, "dist"),
+];
+
+const isStaticBundle = (dir) =>
+  existsSync(join(dir, "index.html")) && existsSync(join(dir, "assets"));
 
 /**
  * Backend base URL for the few native API calls that need a server (AI import).
@@ -26,10 +41,16 @@ const NATIVE_BACKEND_URL = process.env["VITE_NATIVE_BACKEND_URL"] || "https://ba
 
 execSync("vite build", { cwd: root, stdio: "inherit", env: { ...process.env, CAPACITOR_BUILD: "1", VITE_NATIVE_BACKEND_URL: NATIVE_BACKEND_URL } });
 
-if (!existsSync(join(src, "index.html"))) {
-  console.error("[build:native] FAILED: dist/client/index.html was not produced by the SPA build.");
+const src = CANDIDATE_DIRS.find(isStaticBundle);
+if (!src) {
+  console.error(
+    "[build:native] FAILED: no static SPA bundle (index.html + assets/) was produced.\n" +
+      "  Searched:\n" +
+      CANDIDATE_DIRS.map((d) => `    - ${d.replace(root + "/", "")}`).join("\n"),
+  );
   process.exit(1);
 }
+console.log(`[build:native] static SPA output: ${src.replace(root + "/", "")}`);
 
 rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
@@ -40,7 +61,9 @@ const files = existsSync(assets) ? readdirSync(assets) : [];
 const js = files.filter((f) => f.endsWith(".js"));
 const css = files.filter((f) => f.endsWith(".css"));
 if (js.length === 0 || css.length === 0) {
-  console.error("[build:native] FAILED: local JS/CSS assets missing in capacitor-www/assets.");
+  console.error(
+    `[build:native] FAILED: local JS/CSS assets missing in capacitor-www/assets (copied from ${src.replace(root + "/", "")}).`,
+  );
   process.exit(1);
 }
 const size = readdirSync(out, { recursive: true }).reduce((n, f) => {
