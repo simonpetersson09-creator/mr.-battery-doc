@@ -430,6 +430,25 @@ function ResultStep() {
               );
             })}
           </div>
+          {withoutFcr ? (
+            <div className="surface-secondary mt-3 flex w-full items-center justify-between gap-3 rounded-[0.75rem] px-3 py-2.5">
+              <div className="min-w-0">
+                <p className="text-[11px] font-bold leading-snug">
+                  {t("results.withoutAncillary.title")}
+                </p>
+                <p className="mt-0.5 text-[10px] leading-snug text-foreground/65">
+                  {t("results.withoutAncillary.description")}
+                </p>
+              </div>
+              <p className="shrink-0 text-right font-bold tabular-nums">
+                <span className="text-[18px]">{nf(withoutFcr.capacityKWh)}</span>
+                <span className="ml-1 text-[11px] text-foreground/70">kWh</span>
+                <span className="mx-1 text-foreground/35">/</span>
+                <span className="text-[18px]">{nf(withoutFcr.withoutFcrOptimalPowerKw, 1)}</span>
+                <span className="ml-1 text-[11px] text-foreground/70">kW</span>
+              </p>
+            </div>
+          ) : null}
           {(() => {
             const recommended = alternatives.find((a) => a.level === "recommended");
             const higher = alternatives.find((a) => a.level === "higher");

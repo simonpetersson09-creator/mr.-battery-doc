@@ -259,6 +259,10 @@ export const fi = {
     bestChoice: "Paras valinta",
     yourBattery: "Oma akkusi",
     level: { lower: "Pienempi", recommended: "Paras valinta", higher: "Suurempi" },
+    withoutAncillary: {
+      title: "Suositus ilman tukipalvelutuloja",
+      description: "Sama kiinteistö ilman tukipalveluista saatavia tuloja.",
+    },
     balance: {
       base: "Paras tasapaino akun koon ja lasketun hyödyn välillä.",
       higher: "Paras tasapaino akun koon ja lasketun hyödyn välillä.",

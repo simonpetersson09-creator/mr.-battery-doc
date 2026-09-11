@@ -263,6 +263,10 @@ export const da = {
     bestChoice: "Bedste valg",
     yourBattery: "Dit batteri",
     level: { lower: "Mindre", recommended: "Bedste valg", higher: "Større" },
+    withoutAncillary: {
+      title: "Anbefalet uden indtægt fra støttetjenester",
+      description: "Den samme ejendom, uden indtægt fra støttetjenester.",
+    },
     balance: {
       base: "Bedste balance mellem batteristørrelse og beregnet nytte.",
       higher: "Bedste balance mellem batteristørrelse og beregnet nytte.",
