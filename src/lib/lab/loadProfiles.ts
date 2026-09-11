@@ -44,6 +44,8 @@ export interface LoadProfileDef {
   winterShape?: DiurnalSet;
   /** Optional summer shape (May–Sep). */
   summerShape?: DiurnalSet;
+  /** Optional month-by-month blend from `shape` (0) to `summerShape` (1). */
+  summerBlendByMonth?: number[];
 }
 
 /* ------------------------------------------------------------------ */
@@ -152,7 +154,7 @@ export const LOAD_PROFILES: LoadProfileDef[] = [
     description:
       "Huset står nästan tomt mitt på dagen och allt händer på kvällen: mat, tvätt, dusch och tv.",
     audience: "customer",
-    monthShare: DEFAULT_YEAR,
+    monthShare: FLAT_YEAR,
     shape: {
       weekday: h(
         0.34, 0.3, 0.28, 0.28, 0.32, 0.6, 1.15, 1.7, 0.85, 0.42, 0.36, 0.36, 0.4, 0.36, 0.42, 0.75,
@@ -279,7 +281,7 @@ export const LOAD_PROFILES: LoadProfileDef[] = [
     monthShare: FLAT_YEAR,
     shape: {
       weekday: addBlock(HOUSE_WEEKDAY, [23, 0, 1, 2], 2.6),
-      weekend: addBlock(HOUSE_WEEKEND, [23, 0, 1], 2.0),
+      weekend: addBlock(HOUSE_WEEKEND, [23, 0, 1, 2], 2.0),
     },
   },
   {
@@ -302,6 +304,7 @@ export const LOAD_PROFILES: LoadProfileDef[] = [
     audience: "customer",
     monthShare: SUMMER_YEAR,
     shape: { weekday: HOUSE_WEEKDAY, weekend: HOUSE_WEEKEND },
+    summerBlendByMonth: [0.05, 0.05, 0.1, 0.25, 0.55, 0.85, 1, 0.85, 0.55, 0.25, 0.1, 0.05],
     summerShape: {
       weekday: addBlock(
         h(
@@ -386,8 +389,8 @@ export const LOAD_PROFILES: LoadProfileDef[] = [
     monthShare: WORKSHOP_YEAR,
     shape: {
       weekday: h(
-        0.22, 0.21, 0.21, 0.21, 0.24, 0.5, 1.5, 2.6, 2.8, 2.5, 2.75, 2.4, 1.5, 2.5, 2.7, 2.35,
-        1.25, 0.6, 0.38, 0.3, 0.25, 0.23, 0.22, 0.22,
+        0.382, 0.382, 0.382, 0.382, 0.382, 0.382, 1.429, 2.477, 2.668, 2.382, 2.62, 2.287, 1.429, 2.382,
+        2.572, 2.239, 1.191, 0.382, 0.382, 0.382, 0.382, 0.382, 0.382, 0.382,
       ),
       weekend: h(
         0.2, 0.2, 0.2, 0.2, 0.2, 0.21, 0.24, 0.28, 0.3, 0.3, 0.3, 0.3, 0.28, 0.28, 0.27, 0.26,
@@ -447,6 +450,18 @@ export function getLoadProfile(id: LoadProfileShape): LoadProfileDef {
 
 /** Diurnal set that applies for a given month (1-12). */
 export function diurnalSetFor(def: LoadProfileDef, month: number): DiurnalSet {
+  const summerBlend = def.summerBlendByMonth?.[month - 1];
+  if (summerBlend !== undefined && def.summerShape) {
+    const mix = Math.max(0, Math.min(1, summerBlend));
+    return {
+      weekday: def.shape.weekday.map(
+        (v, i) => v * (1 - mix) + (def.summerShape?.weekday[i] ?? v) * mix,
+      ),
+      weekend: def.shape.weekend.map(
+        (v, i) => v * (1 - mix) + (def.summerShape?.weekend[i] ?? v) * mix,
+      ),
+    };
+  }
   const season = seasonOfMonth(month);
   if (season === "winter" && def.winterShape) return def.winterShape;
   if (season === "summer" && def.summerShape) return def.summerShape;
