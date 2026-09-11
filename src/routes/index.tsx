@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BatteryFull, Gauge, Settings, TrendingUp, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LanguageSelect } from "@/components/LanguageSelect";
-import logo from "@/assets/mr-battery-doc-logo.png.asset.json";
+import logo from "@/assets/mr-battery-doc-logo.png";
 import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/")({
@@ -38,7 +38,7 @@ function Welcome() {
       <div className="flex flex-1 flex-col items-center justify-center text-center -mt-8">
         <h1 className="sr-only">Mr. Battery Doc</h1>
         <img
-          src={logo.url}
+          src={logo}
           alt="Mr. Battery Doc"
           className="w-full max-w-[11rem]"
           width={1536}
