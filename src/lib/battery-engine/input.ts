@@ -22,6 +22,7 @@ import {
 import type { OperatingEconomyConfig } from "../lab/operatingEconomy";
 import type { LabConfig, TimeSeries } from "../lab/types";
 import { HOURS_PER_YEAR } from "../lab/defaults";
+import { getLoadProfile } from "../lab/loadProfiles";
 import type { BatteryEngineInput } from "./types";
 
 function monthly(
@@ -46,7 +47,12 @@ export function toLabConfig(input: BatteryEngineInput = {}): LabConfig {
   const bat = input.battery ?? {};
   const st = input.strategies ?? {};
 
-  const load = monthly(cons.monthlyKWh, cons.annualKWh, DEFAULT_LOAD_MONTH_SHARE, base.consumption.monthlyKWh);
+  // Annual-only consumption follows the selected profile's seasonal distribution.
+  // Explicit 12-month values still take precedence unchanged inside `monthly()`.
+  const loadMonthShare = cons.profile
+    ? getLoadProfile(cons.profile).monthShare
+    : DEFAULT_LOAD_MONTH_SHARE;
+  const load = monthly(cons.monthlyKWh, cons.annualKWh, loadMonthShare, base.consumption.monthlyKWh);
   const pvEnabled = prod.enabled ?? base.solar.enabled;
   const pv = monthly(prod.monthlyKWh, prod.annualKWh, DEFAULT_PV_MONTH_SHARE, base.solar.monthlyKWh);
 
