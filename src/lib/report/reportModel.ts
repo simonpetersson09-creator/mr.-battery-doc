@@ -456,6 +456,15 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
           ]
         : []),
       { kind: "text", text: r.explanation },
+      ...(capacityAtSearchLimit
+        ? [{ kind: "note" as const, text: copy.searchLimit.capacityNote }]
+        : []),
+      ...(powerAtSearchLimit
+        ? [{ kind: "note" as const, text: copy.searchLimit.powerNote }]
+        : []),
+      ...(capacityAtSearchLimit && powerAtSearchLimit
+        ? [{ kind: "note" as const, text: copy.searchLimit.bothNote }]
+        : []),
       { kind: "note", text: copy.sizing.balance },
     ],
   });
