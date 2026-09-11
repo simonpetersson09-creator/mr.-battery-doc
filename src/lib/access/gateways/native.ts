@@ -62,13 +62,24 @@ export interface NativePurchasePlugin {
 }
 
 let plugin: NativePurchasePlugin | null = null;
+const listeners = new Set<() => void>();
 
 export function registerNativePurchasePlugin(p: NativePurchasePlugin | null): void {
   plugin = p;
+  // The Cordova bridge loads AFTER React mounts, so anything that already picked
+  // a gateway must be told to pick again — otherwise the app stays on the
+  // non-purchasing web gateway for the whole session.
+  for (const l of [...listeners]) l();
 }
 
 export function nativePurchasePlugin(): NativePurchasePlugin | null {
   return plugin;
+}
+
+/** Notifies when the native StoreKit adapter becomes available. */
+export function subscribeNativePurchasePlugin(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
 }
 
 export function createNativeGateway(p: NativePurchasePlugin): PurchaseGateway {
