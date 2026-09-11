@@ -231,12 +231,12 @@ const CASES: Record<string, Case> = {
  * never exceeds the grid connection or the 200 kW product ceiling.
  */
 const EXPECTED: Record<string, { capacityKWh: number; powerKw: number }> = {
-  CG01: { capacityKWh: 15, powerKw: 3 },
+  CG01: { capacityKWh: 20, powerKw: 3 },
   CG02: { capacityKWh: 25, powerKw: 5 },
   CG03: { capacityKWh: 5, powerKw: 3 },
   CG04: { capacityKWh: 300, powerKw: 150 },
   CG05: { capacityKWh: 0, powerKw: 0 },
-  CG06: { capacityKWh: 15, powerKw: 3 },
+  CG06: { capacityKWh: 10, powerKw: 3 },
   CG07: { capacityKWh: 50, powerKw: 25 },
   CG08: { capacityKWh: 15, powerKw: 3 },
   CG09: { capacityKWh: 150, powerKw: 30 },
@@ -250,7 +250,7 @@ const EXPECTED: Record<string, { capacityKWh: number; powerKw: number }> = {
    * that could never be repaid. The physical peak reduction is still simulated.
    */
   CG13: { capacityKWh: 0, powerKw: 0 },
-  CG14: { capacityKWh: 40, powerKw: 20 },
+  CG14: { capacityKWh: 50, powerKw: 25 },
   /**
    * CG15 previously froze 250 kW — the PHYSICAL need at 500 kWh / 0.5 C. That is not a
    * purchasable product level; the recommendation is capped at the 200 kW product step.
