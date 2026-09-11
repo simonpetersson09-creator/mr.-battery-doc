@@ -138,6 +138,11 @@ function SettingsPage() {
             <Crown className="size-4" />
             {t("settings.premium.title")}
           </p>
+          <p
+            className={`mt-0.5 leading-none ${premiumPrice ? "text-[20px] font-extrabold tabular-nums" : "text-[12px] font-semibold opacity-80"}`}
+          >
+            {premiumPrice ?? priceFallback}
+          </p>
           <ul className="mt-1 space-y-0.5">
             {PREMIUM_POINTS.map((key) => (
               <li key={key} className="flex gap-2 text-[11px] leading-relaxed">
