@@ -244,7 +244,19 @@ function Paywall() {
         </section>
 
         {products !== null && products.length === 0 ? (
-          <p className="ui-help mt-2 text-center">{t("paywall.priceUnavailable")}</p>
+          <div className="mt-2 text-center">
+            <p className="ui-help">{t("paywall.priceUnavailable")}</p>
+            <Button
+              variant="ghost"
+              className="mt-1 h-8 text-[12px] font-semibold"
+              onClick={() => {
+                setProducts(null);
+                setPriceAttempt((n) => n + 1);
+              }}
+            >
+              {t("paywall.retry")}
+            </Button>
+          </div>
         ) : null}
 
         {notice ? (
