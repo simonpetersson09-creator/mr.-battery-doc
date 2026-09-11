@@ -210,21 +210,37 @@ export function pickPhoto(adapters?: PickerAdapters): Promise<PickOutcome> {
   return photo("PHOTOS", adapters);
 }
 
-/** iOS document picker (Files) — PDFs and the other supported document types. */
+/**
+ * iOS document picker (Files) — PDFs and the other supported document types.
+ *
+ * iOS maps every requested MIME type to a UTType and refuses to open the picker at
+ * all if one of them is unknown to the system (text/tab-separated-values is a real
+ * case). If the filtered call fails for any reason other than a user cancel, retry
+ * once without a type filter; `rejectionFor` still rejects anything unsupported.
+ */
 export async function pickFile(adapters?: PickerAdapters): Promise<PickOutcome> {
   const picker = adapters?.files !== undefined ? adapters.files : await loadFilePicker();
   if (!picker) return { status: "unsupported" };
-  try {
+  const run = async (types?: string[]): Promise<PickOutcome> => {
     const result = await picker.pickFiles({
-      types: IMPORT_PICKER_TYPES,
+      ...(types ? { types } : {}),
       limit: 1,
       readData: true,
     });
     const file = result.files?.[0];
     if (!file) return { status: "cancelled" };
     return documentFromBase64(file.name ?? "underlag", file.mimeType, file.data);
+  };
+  try {
+    return await run(IMPORT_PICKER_TYPES);
   } catch (error) {
-    return classifyPickerError(error);
+    const outcome = classifyPickerError(error);
+    if (outcome.status === "cancelled") return outcome;
+    try {
+      return await run();
+    } catch (fallbackError) {
+      return classifyPickerError(fallbackError);
+    }
   }
 }
 
