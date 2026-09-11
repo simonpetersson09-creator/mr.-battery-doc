@@ -63,6 +63,28 @@ function SettingsPage() {
     "restored" | "restoreNothing" | "manageWeb" | null
   >(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Apple's localized prices — the same source the paywall uses. Never a
+  // hardcoded amount, and the buy button stays disabled until a price exists.
+  const [products, setProducts] = useState<StoreProduct[] | null>(null);
+  const [priceAttempt, setPriceAttempt] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    void access.loadProducts().then((res) => {
+      if (!alive) return;
+      setProducts(res.status === "ok" ? res.products : []);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [access, priceAttempt]);
+  const priceOf = (key: ProductKey): string | null =>
+    products?.find((p) => p.key === key)?.displayPrice ?? null;
+  const premiumPrice = priceOf("premiumYear");
+  const singlePrice = priceOf("singleReport");
+  const priceFallback =
+    products === null ? t("paywall.premium.loadingPrice") : t("paywall.priceUnavailable");
+
   
 
   async function buyPremium() {
