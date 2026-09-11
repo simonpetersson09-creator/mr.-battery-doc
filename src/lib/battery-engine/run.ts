@@ -105,6 +105,7 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
         productCapBound:
           maxProductStepKw(cfg.powerSizing.productStepsKw) > 0 &&
           sweep.powerSizing.physicalNeedKw > maxProductStepKw(cfg.powerSizing.productStepsKw) + 1e-9,
+        powerCeilingBinding: false,
         candidatePowersKw: [],
         options: [],
         operatingOptimalPowerKw: null,
@@ -230,6 +231,18 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       reasonableRangeKWh: sweep.sweetSpot.reasonableRangeKWh,
       diminishingFromKWh: sweep.sweetSpot.diminishingFromKWh,
       upperLimitReached: sweep.sweetSpot.upperLimitReached,
+      /**
+       * The power search area is only reported as binding when the recommendation sits
+       * at the largest purchasable power AND either the physical curve or the economic
+       * candidate ladder was still climbing there.
+       */
+      powerUpperLimitReached:
+        !sizingWasFixed &&
+        economicPowerSizing.maxProductPowerKw > 0 &&
+        powerKw >= economicPowerSizing.maxProductPowerKw - 1e-9 &&
+        (sweep.powerSizing.powerUpperLimitReached ||
+          economicPowerSizing.productCapBound ||
+          economicPowerSizing.powerCeilingBinding),
       explanation: sweep.sweetSpot.explanation,
       powerExplanation: sweep.powerSizing.explanation,
       utilisationWarning: sweep.sweetSpot.utilisationWarning,
