@@ -15,7 +15,11 @@ import {
   MAX_TARGET_PAYBACK_YEARS,
   MIN_TARGET_PAYBACK_YEARS,
 } from "@/lib/battery-app/customerEconomy";
-import { validateEconomyStep, validatePaybackStep } from "@/lib/battery-app/stepValidation";
+import {
+  economyFieldErrors,
+  validateEconomyStep,
+  validatePaybackStep,
+} from "@/lib/battery-app/stepValidation";
 import { useWizard } from "@/state/wizard";
 import { formatNumber, useT } from "@/i18n";
 import { countryName } from "@/i18n/labels";
@@ -54,6 +58,7 @@ function EconomyStep() {
   const setEconomy = (patch: Partial<typeof state.economy>) =>
     update((s) => ({ ...s, economy: { ...s.economy, ...patch, touched: true } }));
   const economyValidity = validateEconomyStep(state);
+  const fieldError = economyFieldErrors(state);
   const paybackValidity = validatePaybackStep(state);
   const validity = economyValidity.ok ? paybackValidity : economyValidity;
 
@@ -108,6 +113,7 @@ function EconomyStep() {
             step="0.01"
             value={state.economy.importPrice}
             hint={t("economics.importPrice.hint")}
+            error={fieldError.importPrice}
             onChange={(v) => setEconomy({ importPrice: v ?? 0 })}
           />
           <NumberField
@@ -118,6 +124,7 @@ function EconomyStep() {
             step="0.01"
             value={state.economy.exportPrice}
             hint={t("economics.exportPrice.hint")}
+            error={fieldError.exportPrice}
             onChange={(v) => setEconomy({ exportPrice: v ?? 0 })}
           />
         </div>
@@ -129,6 +136,7 @@ function EconomyStep() {
           step="1"
           value={state.economy.demandCharge}
           hint={demandChargeHint(state.economy.demandCharge)}
+          error={fieldError.demandCharge}
           onChange={(v) => setEconomy({ demandCharge: v ?? 0, demandChargeTouched: true })}
         />
       </SectionCard>

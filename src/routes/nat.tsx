@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Globe, MapPin, ShieldCheck, PlugZap } from "lucide-react";
 import { WizardShell } from "@/components/wizard/WizardShell";
-import { NumberField, SectionCard } from "@/components/wizard/fields";
+import { FieldError, NumberField, SectionCard } from "@/components/wizard/fields";
 import {
   Select,
   SelectContent,
@@ -17,7 +17,7 @@ import {
   type CountryCode,
 } from "@/lib/country-config";
 import { marketAreaOptions, type MarketArea } from "@/lib/reserve-market";
-import { validateGridStep } from "@/lib/battery-app/stepValidation";
+import { gridFieldErrors, validateGridStep } from "@/lib/battery-app/stepValidation";
 import { useWizard } from "@/state/wizard";
 import { useT } from "@/i18n";
 import { countryName, marketAreaName } from "@/i18n/labels";
@@ -46,6 +46,7 @@ function GridStep() {
   const { state, setCountry, update } = useWizard();
   const country = getCountry(state.grid.country);
   const validity = validateGridStep(state);
+  const fieldError = gridFieldErrors(state);
   const areaOptions = marketAreaOptions(state.grid.country);
 
   return (
@@ -101,6 +102,7 @@ function GridStep() {
               ))}
             </SelectContent>
           </Select>
+          <FieldError message={fieldError.marketArea} />
         </SectionCard>
       ) : null}
 
@@ -140,6 +142,7 @@ function GridStep() {
             unit="A"
             value={state.grid.mainFuseA}
             placeholder={t("network.fuse.manualPlaceholder")}
+            error={fieldError.mainFuseA}
             onChange={(v) =>
               update((s) => ({
                 ...s,
@@ -182,6 +185,7 @@ function GridStep() {
           />
           <span className="ui-label">{t("network.values.confirm")}</span>
         </label>
+        <FieldError message={fieldError.gridValuesConfirmed} />
       </SectionCard>
     </WizardShell>
   );
