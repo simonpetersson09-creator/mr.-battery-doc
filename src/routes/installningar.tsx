@@ -193,6 +193,11 @@ function SettingsPage() {
         {/* One-off report */}
         <section className="mt-1.5 rounded-[1rem] bg-accent px-3 py-2.5 text-accent-foreground">
           <p className="font-display text-[14px] font-bold">{t("settings.single.title")}</p>
+          <p
+            className={`mt-0.5 leading-none ${singlePrice ? "text-[18px] font-extrabold tabular-nums" : "text-[12px] font-semibold opacity-80"}`}
+          >
+            {singlePrice ?? priceFallback}
+          </p>
           <p className="mt-1 text-[11px] leading-relaxed">{t("settings.single.description")}</p>
           <p className="mt-1.5 flex h-10 w-full items-center justify-center rounded-[0.75rem] bg-foreground/15 text-[15px] font-bold">
             {t("settings.single.cta")}
