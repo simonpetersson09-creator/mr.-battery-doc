@@ -161,8 +161,8 @@ function Paywall() {
             src={logo}
             alt="Mr. Battery Doc"
             className="h-14 w-auto"
-            width={1536}
-            height={1024}
+            width={480}
+            height={320}
           />
         </div>
 

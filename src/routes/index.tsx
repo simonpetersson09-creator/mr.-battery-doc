@@ -41,8 +41,8 @@ function Welcome() {
           src={logo}
           alt="Mr. Battery Doc"
           className="w-full max-w-[11rem]"
-          width={1536}
-          height={1024}
+          width={480}
+          height={320}
         />
         <ul className="mt-5 w-full space-y-3 text-left">
           {POINTS.map(({ icon: Icon, key }) => (

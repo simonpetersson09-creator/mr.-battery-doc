@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LanguageSelect } from "@/components/LanguageSelect";
 import { useT } from "@/i18n";
 import { useAccess } from "@/state/access";
 import { LEGAL_LINKS } from "@/lib/access/legalLinks";
