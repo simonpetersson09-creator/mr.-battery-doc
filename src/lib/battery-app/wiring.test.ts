@@ -18,6 +18,8 @@ import {
 } from "./stepValidation";
 import { createInitialState, type WizardState } from "@/state/wizard";
 import { SUPPORTED_COUNTRY_CODES, getCountry } from "@/lib/country-config";
+import { getLoadProfile } from "@/lib/battery-engine";
+import { spreadAnnual } from "@/lib/lab/defaults";
 
 const read = (p: string) => readFileSync(p, "utf8");
 
@@ -124,6 +126,17 @@ describe("EUR/SEK", () => {
 });
 
 describe("monthly consumption + profile", () => {
+  it("scales annual consumption with the selected profile's months and preserves the total", () => {
+    const s = base();
+    s.consumption.annualKwh = 20_000;
+    s.consumption.profileId = "heat-pump";
+    const input = normalizeWizardToEngineInput(s);
+    expect(input.consumption?.monthlyKWh).toEqual(
+      spreadAnnual(20_000, getLoadProfile("heat-pump").monthShare),
+    );
+    expect(input.consumption?.monthlyKWh?.reduce((sum, value) => sum + value, 0)).toBe(20_000);
+  });
+
   it("actual months win and the profile still reaches the engine", () => {
     const s = base();
     s.consumption.mode = "monthly";

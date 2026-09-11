@@ -18,6 +18,8 @@ import type {
 } from "@/lib/battery-engine";
 import { isKnownProfile } from "@/lib/consumption-profiles";
 import { getCountry } from "@/lib/country-config";
+import { getLoadProfile } from "@/lib/battery-engine";
+import { spreadAnnual } from "@/lib/lab/defaults";
 import type { WizardState } from "@/state/wizard";
 
 export interface NormalizeOptions {
@@ -68,8 +70,16 @@ export function normalizeWizardToEngineInput(
     consumption.monthlyKWh = actualMonths;
     consumption.annualKWh = actualMonths.reduce((a, b) => a + b, 0);
   } else if (typeof state.consumption.annualKwh === "number") {
-    // B. Annual energy + the engine's own profile distribution.
+    // B. Annual energy is distributed with the selected profile's seasonal weights.
+    // The exact annual total is preserved; the engine then applies the same profile hourly.
     consumption.annualKWh = state.consumption.annualKwh;
+    if (isKnownProfile(state.consumption.profileId)) {
+      consumption.monthlyKWh = spreadAnnual(
+        state.consumption.annualKwh,
+        getLoadProfile(state.consumption.profileId as NonNullable<EngineConsumptionInput["profile"]>)
+          .monthShare,
+      );
+    }
   }
   if (isKnownProfile(state.consumption.profileId)) {
     consumption.profile = state.consumption.profileId as NonNullable<
