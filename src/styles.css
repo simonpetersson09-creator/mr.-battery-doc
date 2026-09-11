@@ -628,3 +628,26 @@ html[data-native="true"] {
 
 
 /* Touch devices need >=16px on form fields to avoid iOS auto-zoom. */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea,
+  .ui-control,
+  .ui-control-sm {
+    font-size: 16px;
+  }
+}
+
+/* Momentum scrolling inside the native WebView. */
+html,
+body {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* iOS must never scale the app: a pinch inside the WebView cannot be undone. */
+html[data-native="true"] {
+  touch-action: pan-x pan-y;
+}
+html[data-native="true"] * {
+  -webkit-text-size-adjust: 100%;
+}
