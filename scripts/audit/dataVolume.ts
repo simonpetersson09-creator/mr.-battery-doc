@@ -21,7 +21,7 @@ const series = [
 let priceTotal = 0;
 console.log("=== A1. HISTORISKA FCR-PRISSERIER ===");
 for (const [name, s] of series) {
-  const v = (s as any).valuesEurPerMwPerHour ?? (s as any).values ?? [];
+  const v = (s as any).pricesEurPerMw ?? [];
   const arr: number[] = Array.isArray(v) ? v : [];
   const bad = arr.filter((x) => !Number.isFinite(x)).length;
   priceTotal += arr.length;
@@ -77,3 +77,13 @@ console.log(`Numeriska modell-/nät-/batteri-/ekonomiparametrar: ${params}`);
 console.log("\n=== SUMMA A ===");
 const A = priceTotal + profileTotal + DEFAULT_PV_MONTH_SHARE.length + DEFAULT_LOAD_MONTH_SHARE.length + reqCount + params;
 console.log(`Permanent modellunderlag: ${A} unika numeriska datapunkter`);
+
+console.log("\n=== A1b. KÄLLDATA (importerade rader före indexmappning) ===");
+let src = 0;
+for (const [name, s] of series) {
+  const sh = (s as any).sourceHours ?? (s as any).hours;
+  const sp = (s as any).sourcePricesEurPerMw?.length ?? (s as any).pricesEurPerMw.length;
+  src += sp;
+  console.log(`${name.padEnd(26)} källtimmar ${sh}, källvärden ${sp}`);
+}
+console.log(`SUMMA källvärden: ${src}`);
