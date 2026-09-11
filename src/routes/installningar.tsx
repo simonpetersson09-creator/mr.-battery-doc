@@ -20,7 +20,9 @@ import {
   ShieldCheck,
   SlidersHorizontal,
 } from "lucide-react";
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
+import type { ProductKey } from "@/lib/access/products";
+import type { StoreProduct } from "@/lib/access/purchaseGateway";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/i18n";
 import { useAccess } from "@/state/access";
