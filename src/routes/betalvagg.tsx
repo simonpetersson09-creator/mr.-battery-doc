@@ -59,6 +59,9 @@ function Paywall() {
   const calc = useMemo(() => getCalculation(state), [state]);
 
   const [products, setProducts] = useState<StoreProduct[] | null>(null);
+  // Lets the user ask the App Store for prices again after a transient failure,
+  // instead of being stuck with permanently disabled purchase buttons.
+  const [priceAttempt, setPriceAttempt] = useState(0);
   const [busy, setBusy] = useState<ProductKey | "restore" | null>(null);
   const [error, setError] = useState<PurchaseErrorCode | null>(null);
   const [notice, setNotice] = useState<
@@ -81,7 +84,7 @@ function Paywall() {
     return () => {
       alive = false;
     };
-  }, [access]);
+  }, [access, priceAttempt]);
 
   const priceOf = (key: ProductKey): string | null =>
     products?.find((p) => p.key === key)?.displayPrice ?? null;
@@ -241,7 +244,19 @@ function Paywall() {
         </section>
 
         {products !== null && products.length === 0 ? (
-          <p className="ui-help mt-2 text-center">{t("paywall.priceUnavailable")}</p>
+          <div className="mt-2 text-center">
+            <p className="ui-help">{t("paywall.priceUnavailable")}</p>
+            <Button
+              variant="ghost"
+              className="mt-1 h-8 text-[12px] font-semibold"
+              onClick={() => {
+                setProducts(null);
+                setPriceAttempt((n) => n + 1);
+              }}
+            >
+              {t("paywall.retry")}
+            </Button>
+          </div>
         ) : null}
 
         {notice ? (
