@@ -362,12 +362,24 @@ for (const id of ids) {
   const mean = tot / s.length;
   const spike = Math.max(...s) / mean;
   if (spike > 12) flag(`${id}: extrem timspik ${f(spike, 1)}x medel`);
-  // month boundary discontinuity: same hour-of-day+daytype across boundary
+  // month boundary discontinuity, comparing the SAME day type on both sides
   MR.slice(1).forEach((r, i) => {
-    const before = s[r.start - 24 + 12]!;
-    const after = s[r.start + 12]!;
+    const firstDay = r.start / 24;
+    let before = -1;
+    let after = -1;
+    for (let d = firstDay - 1; d >= firstDay - 7; d--)
+      if (!isWeekendDay(d)) {
+        before = s[d * 24 + 12]!;
+        break;
+      }
+    for (let d = firstDay; d < firstDay + 7; d++)
+      if (!isWeekendDay(d)) {
+        after = s[d * 24 + 12]!;
+        break;
+      }
     const ratio = Math.max(before, after) / Math.max(Math.min(before, after), 1e-9);
-    if (ratio > 2.5) flag(`${id}: månadsskifte ${i + 2} hoppar ${f(ratio, 2)}x (kl 12)`);
+    if (ratio > 2.0)
+      flag(`${id}: månadsskifte ${i + 2} hoppar ${f(ratio, 2)}x (vardag kl 12)`);
   });
   // UI chart parity
   const ui = hourWeightsOf(id);
