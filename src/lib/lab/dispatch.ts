@@ -396,7 +396,6 @@ export interface DispatchArgs {
  * Charging and discharging can never happen in the same hour.
  */
 export function dispatch(args: DispatchArgs): DispatchOutput {
-  (globalThis as any).__DISPATCH_CALLS = ((globalThis as any).__DISPATCH_CALLS ?? 0) + 1;
   const { series, battery, strategies, peak, spot, flex } = args;
   const plan = strategies.ancillaryServices ? (args.ancillary ?? null) : null;
   const limits = computeGridLimits(args.grid);
