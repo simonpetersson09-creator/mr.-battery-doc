@@ -127,7 +127,11 @@ export const da = {
       importDescription: "Importér et billede, en PDF eller CSV",
       monthsTitle: "Importeret månedlig data",
     },
-    profile: { title: "Hvornår bruger du mest strøm?", placeholder: "Vælg profil" },
+    profile: {
+      title: "Hvornår bruger du mest strøm?",
+      placeholder: "Vælg profil",
+      chartCaption: "Typisk hverdag",
+    },
   },
   production: {
     title: "Produktion",

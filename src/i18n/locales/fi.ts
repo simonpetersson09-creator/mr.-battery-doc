@@ -125,7 +125,11 @@ export const fi = {
       importDescription: "Tuo kuva, PDF tai CSV",
       monthsTitle: "Tuodut kuukausitiedot",
     },
-    profile: { title: "Milloin käytät eniten sähköä?", placeholder: "Valitse profiili" },
+    profile: {
+      title: "Milloin käytät eniten sähköä?",
+      placeholder: "Valitse profiili",
+      chartCaption: "Tyypillinen arkipäivä",
+    },
   },
   production: {
     title: "Tuotanto",

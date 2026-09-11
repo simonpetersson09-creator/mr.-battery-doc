@@ -127,7 +127,11 @@ export const en = {
       importDescription: "Import an image, PDF or CSV",
       monthsTitle: "Imported monthly data",
     },
-    profile: { title: "When do you use the most electricity?", placeholder: "Choose profile" },
+    profile: {
+      title: "When do you use the most electricity?",
+      placeholder: "Choose profile",
+      chartCaption: "Typical weekday",
+    },
   },
   production: {
     title: "Production",

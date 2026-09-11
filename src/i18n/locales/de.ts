@@ -127,7 +127,11 @@ export const de = {
       importDescription: "Bild, PDF oder CSV importieren",
       monthsTitle: "Importierte monatliche Daten",
     },
-    profile: { title: "Wann verbrauchen Sie am meisten Strom?", placeholder: "Profil wählen" },
+    profile: {
+      title: "Wann verbrauchen Sie am meisten Strom?",
+      placeholder: "Profil wählen",
+      chartCaption: "Typischer Werktag",
+    },
   },
   production: {
     title: "Erzeugung",

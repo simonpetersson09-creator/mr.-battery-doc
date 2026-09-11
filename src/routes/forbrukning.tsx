@@ -15,6 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PROFILE_CATALOG, getProfile, isKnownProfile } from "@/lib/consumption-profiles";
+import { hourWeightsOf } from "@/lib/lab/loadProfiles";
+import type { LoadProfileShape } from "@/lib/lab/types";
 import { useWizard, type ConsumptionMode } from "@/state/wizard";
 import { useT } from "@/i18n";
 
@@ -148,7 +150,6 @@ function ConsumptionStep() {
           <SectionCard compact icon={<CalendarRange />} title={t("consumption.monthly.title")}>
             <MonthlyImport
               kind="consumption"
-              description={t("consumption.monthly.importDescription")}
               onApply={applyImported}
               onOpenChange={setImportOpen}
             />
@@ -203,6 +204,65 @@ function ProfilePicker() {
           ))}
         </SelectContent>
       </Select>
+      {selected ? <ProfileShapeChart profileId={selected.id} /> : null}
     </SectionCard>
+  );
+}
+
+/**
+ * Small 24 h bar chart of the selected profile's typical weekday shape.
+ * Purely visual — uses the same engine weights the simulation uses,
+ * normalised so the tallest hour fills the chart.
+ */
+function ProfileShapeChart({ profileId }: { profileId: string }) {
+  const t = useT();
+  const weights = hourWeightsOf(profileId as LoadProfileShape);
+  const max = Math.max(...weights, 1e-9);
+  const barW = 6;
+  const gap = 3;
+  const step = barW + gap;
+  const width = 24 * step - gap;
+  const chartH = 44;
+  const labelH = 12;
+  return (
+    <figure className="mt-1 space-y-1" aria-label={t("consumption.profile.chartCaption")}>
+      <svg
+        viewBox={`0 0 ${width} ${chartH + labelH}`}
+        className="h-16 w-full"
+        role="img"
+        aria-hidden="true"
+      >
+        {weights.map((w, i) => {
+          const h = Math.max(1.5, (w / max) * chartH);
+          const peak = w / max >= 0.75;
+          return (
+            <rect
+              key={i}
+              x={i * step}
+              y={chartH - h}
+              width={barW}
+              height={h}
+              rx={1.5}
+              className={peak ? "fill-accent" : "fill-muted-foreground/35"}
+            />
+          );
+        })}
+        {[0, 6, 12, 18].map((hr) => (
+          <text
+            key={hr}
+            x={hr * step + barW / 2}
+            y={chartH + labelH - 2}
+            textAnchor="middle"
+            className="fill-muted-foreground"
+            fontSize="7"
+          >
+            {String(hr).padStart(2, "0")}
+          </text>
+        ))}
+      </svg>
+      <figcaption className="ui-caption text-center">
+        {t("consumption.profile.chartCaption")}
+      </figcaption>
+    </figure>
   );
 }

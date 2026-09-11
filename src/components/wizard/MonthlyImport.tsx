@@ -47,7 +47,7 @@ export function MonthlyImport({
   onOpenChange,
 }: {
   kind: Exclude<SeriesKind, "unknown">;
-  description: string;
+  description?: string;
   onApply: (valuesKwh: number[], selfConsumptionPct?: number | null) => void;
   /** true while the picker/review overlay owns the month values. */
   onOpenChange?: (open: boolean) => void;
@@ -274,9 +274,9 @@ export function MonthlyImport({
       ) : null}
       {applied ? (
         <p className="ui-help text-foreground text-center">{t("monthlyImport.applied")}</p>
-      ) : (
+      ) : description ? (
         <p className="ui-help text-center">{description}</p>
-      )}
+      ) : null}
       {error ? <p className="ui-help text-destructive text-center">{error}</p> : null}
 
       <input
