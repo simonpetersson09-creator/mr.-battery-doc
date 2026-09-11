@@ -5,6 +5,7 @@ import { PRODUCT_IDS } from "../products";
 /** Minimal fake of the cordova-plugin-purchase global. */
 function fakeStore() {
   const approved: Array<(t: unknown) => void> = [];
+  const productUpdated: Array<(p: unknown) => void> = [];
   const registered: Array<{ id: string; type: string }> = [];
   const finished: string[] = [];
   const transaction = {
@@ -32,6 +33,7 @@ function fakeStore() {
           ? { id, pricing: { price: "219,00 kr" }, offers: [{ order: async () => undefined }] }
           : undefined,
     when: () => ({
+      productUpdated: (cb: (p: unknown) => void) => productUpdated.push(cb),
       approved: (cb: (t: unknown) => void) => approved.push(cb),
       pending: () => undefined,
     }),
@@ -43,7 +45,7 @@ function fakeStore() {
     Platform: { APPLE_APPSTORE: "ios-appstore" },
     ProductType: { CONSUMABLE: "consumable", PAID_SUBSCRIPTION: "paid subscription" },
   };
-  return { ns, store, registered, transaction, finished };
+  return { ns, store, registered, transaction, finished, productUpdated };
 }
 
 describe("native StoreKit adapter", () => {
@@ -65,6 +67,35 @@ describe("native StoreKit adapter", () => {
     const a = createCdvPurchaseAdapter(f.ns as never);
     const products = await a.getProducts([PRODUCT_IDS.premiumYear, "com.unknown.product"]);
     expect(products).toEqual([{ productId: PRODUCT_IDS.premiumYear, displayPrice: "219,00 kr" }]);
+  });
+
+  it("waits for a delayed StoreKit product update instead of leaving the price loading", async () => {
+    let available = false;
+    const store = {
+      ...f.store,
+      get: (id: string) =>
+        available
+          ? { id, pricing: { price: id === PRODUCT_IDS.premiumYear ? "219,00 kr" : "59,00 kr" } }
+          : undefined,
+      update: vi.fn(async () => {
+        available = true;
+        for (const cb of f.productUpdated) cb({ id: PRODUCT_IDS.singleReport });
+      }),
+    };
+    const a = createCdvPurchaseAdapter({ ...f.ns, store } as never);
+    await expect(a.getProducts([PRODUCT_IDS.singleReport, PRODUCT_IDS.premiumYear])).resolves.toEqual([
+      { productId: PRODUCT_IDS.singleReport, displayPrice: "59,00 kr" },
+      { productId: PRODUCT_IDS.premiumYear, displayPrice: "219,00 kr" },
+    ]);
+  });
+
+  it("surfaces StoreKit initialization errors instead of loading forever", async () => {
+    const store = {
+      ...f.store,
+      initialize: vi.fn(async () => [{ code: 6777002, message: "Store unavailable" }]),
+    };
+    const a = createCdvPurchaseAdapter({ ...f.ns, store } as never);
+    await expect(a.getProducts([PRODUCT_IDS.singleReport])).rejects.toThrow("Store unavailable");
   });
 
   it("returns the StoreKit transaction reference and does not finish it", async () => {

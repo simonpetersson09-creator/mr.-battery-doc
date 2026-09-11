@@ -44,6 +44,7 @@ interface CdvStore {
   get(id: string, platform?: string): CdvProduct | undefined;
   order?(offer: unknown): Promise<unknown>;
   when(): {
+    productUpdated?: (cb: (p: CdvProduct) => void) => unknown;
     approved: (cb: (t: CdvTransaction) => void) => unknown;
     finished?: (cb: (t: CdvTransaction) => void) => unknown;
     pending?: (cb: (t: CdvTransaction) => void) => unknown;
@@ -65,6 +66,7 @@ function cdv(): CdvNamespace | null {
 }
 
 const APPLE = "ios-appstore";
+const PRODUCT_LOAD_TIMEOUT_MS = 15_000;
 
 function productTypeFor(key: ProductKey, ns: CdvNamespace): string {
   return PRODUCT_TYPES[key] === "consumable"
@@ -129,6 +131,7 @@ function mapPluginError(
 export function createCdvPurchaseAdapter(ns: CdvNamespace): NativePurchasePlugin {
   const store = ns.store;
   let initialized: Promise<void> | null = null;
+  const productListeners = new Set<() => void>();
 
   /** Resolvers waiting for the transaction of an in-flight order, per product id. */
   const waiting = new Map<string, (t: CdvTransaction) => void>();
@@ -141,9 +144,11 @@ export function createCdvPurchaseAdapter(ns: CdvNamespace): NativePurchasePlugin
           { id: PRODUCT_IDS[key], type: productTypeFor(key, ns), platform: ns.Platform.APPLE_APPSTORE },
         ]);
       }
-      store
-        .when()
-        .approved((t) => {
+      const events = store.when();
+      events.productUpdated?.(() => {
+        for (const listener of [...productListeners]) listener();
+      });
+      events.approved((t) => {
           // Approved = paid. We do NOT finish here: our backend must verify first.
           rememberTransaction(t);
           const id = t.products?.[0]?.id;
@@ -153,27 +158,75 @@ export function createCdvPurchaseAdapter(ns: CdvNamespace): NativePurchasePlugin
             resolve(t);
           }
         });
-      store.when().pending?.((t) => rememberTransaction(t));
+      events.pending?.((t) => rememberTransaction(t));
       store.error(() => {
         /* individual calls surface their own errors */
       });
-      await store.initialize([{ platform: ns.Platform.APPLE_APPSTORE }]);
+      const errors = await store.initialize([{ platform: ns.Platform.APPLE_APPSTORE }]);
+      if (Array.isArray(errors) && errors.length > 0) {
+        const first = errors[0] as { code?: unknown; message?: unknown } | undefined;
+        throw Object.assign(new Error(String(first?.message ?? "StoreKit initialization failed")), {
+          code: first?.code,
+        });
+      }
     })();
     return initialized;
   }
 
+  function loadedProducts(productIds: string[]): Array<{ productId: string; displayPrice: string }> {
+    const out: Array<{ productId: string; displayPrice: string }> = [];
+    for (const id of productIds) {
+      const p = store.get(id, APPLE);
+      const price = p?.pricing?.price ?? p?.offers?.[0]?.pricingPhases?.[0]?.price;
+      if (p && price) out.push({ productId: id, displayPrice: price });
+    }
+    return out;
+  }
+
+  async function waitForProducts(
+    productIds: string[],
+  ): Promise<Array<{ productId: string; displayPrice: string }>> {
+    const current = loadedProducts(productIds);
+    if (current.length === productIds.length) return current;
+
+    return new Promise((resolve) => {
+      let settled = false;
+      const finish = () => {
+        if (settled) return;
+        const products = loadedProducts(productIds);
+        if (products.length !== productIds.length) return;
+        settled = true;
+        clearTimeout(timer);
+        productListeners.delete(finish);
+        resolve(products);
+      };
+      const timer = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        productListeners.delete(finish);
+        resolve(loadedProducts(productIds));
+      }, PRODUCT_LOAD_TIMEOUT_MS);
+      productListeners.add(finish);
+      finish();
+    });
+  }
+
   return {
     async getProducts(productIds: string[]) {
-      await ensureInit();
+      // Product metadata can arrive before the initialization promise resolves
+      // (receipt/storefront loading may still be running), or in a later update.
+      // Listen first so a fast StoreKit callback cannot be missed.
+      const waitingForProducts = waitForProducts(productIds);
+      await Promise.race([
+        ensureInit(),
+        new Promise<void>((_, reject) =>
+          setTimeout(() => reject(new Error("StoreKit initialization timed out")), PRODUCT_LOAD_TIMEOUT_MS),
+        ),
+      ]);
+      const immediate = loadedProducts(productIds);
+      if (immediate.length === productIds.length) return immediate;
       await store.update?.();
-      const out: Array<{ productId: string; displayPrice: string }> = [];
-      for (const id of productIds) {
-        // Explicit lookup by product id — never by index.
-        const p = store.get(id, APPLE);
-        const price = p?.pricing?.price ?? p?.offers?.[0]?.pricingPhases?.[0]?.price;
-        if (p && price) out.push({ productId: id, displayPrice: price });
-      }
-      return out;
+      return waitingForProducts;
     },
 
     async purchase(productId: string) {
