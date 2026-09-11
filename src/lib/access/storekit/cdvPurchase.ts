@@ -220,8 +220,6 @@ export function createCdvPurchaseAdapter(ns: CdvNamespace): NativePurchasePlugin
     async getProducts(productIds: string[]) {
       // Product metadata can arrive before the initialization promise resolves
       // (receipt/storefront loading may still be running), or in a later update.
-      // Listen first so a fast StoreKit callback cannot be missed.
-      const waitingForProducts = waitForProducts(productIds);
       await Promise.race([
         ensureInit(),
         new Promise<void>((_, reject) =>
@@ -234,7 +232,9 @@ export function createCdvPurchaseAdapter(ns: CdvNamespace): NativePurchasePlugin
       ).length;
       if (immediate.length === expectedCount) return immediate;
       await store.update?.();
-      return waitingForProducts;
+      // waitForProducts checks synchronously before subscribing, so an update
+      // delivered during store.update() cannot be missed.
+      return waitForProducts(productIds);
     },
 
     async purchase(productId: string) {
