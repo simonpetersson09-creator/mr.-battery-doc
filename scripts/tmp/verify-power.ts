@@ -7,7 +7,7 @@ for (const [kwh, kw] of combos) {
     site: { country: "SE", marketArea: "SE3", mainFuseA: 63 },
     consumption: { annualKWh: 60000, profileId: "evening-heavy" },
     production: { acKw: 30 },
-    strategies: { ancillaryServices: true, solarSelfConsumption: true, reducedGridImport: true, peakShaving: true },
+    strategies: { fcrDUp: true, optimiseFcrReservation: true, solarSelfConsumption: true, reducedGridImport: true, peakShaving: true },
     battery: { fixedCapacityKWh: kwh, fixedPowerKw: kw },
   } as never);
   const f = (res as never as { summary: { fcr: Record<string, number> } }).summary.fcr;
