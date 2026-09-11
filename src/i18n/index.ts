@@ -89,7 +89,7 @@ export function resolveInitialLanguage(): Language {
 }
 
 /** Raw resource bundles per language — single source for init and dev HMR. */
-export const translationResources: Record<Language, typeof sv> = {
+export const translationResources: Record<Language, Record<string, unknown>> = {
   sv,
   en,
   de,
