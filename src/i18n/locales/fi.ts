@@ -292,6 +292,7 @@ export const fi = {
         "Nykyisillä tiedoillasi akku ei tuota positiivista laskennallista taloudellista hyötyä vuodessa. Tekninen tulos näytetään silti alla.",
       ancillaryTitle: "Tukipalvelut",
       ancillaryCustomerHint: "Laskennallinen korvauksesi.",
+      ancillaryPower: "Laskettu korvausperusteinen teho",
       ancillaryMarket: "Tukipalveluiden historiallinen markkina-arvo",
       ancillaryShare: "Osuutesi tukipalveluiden arvosta",
       ancillaryShareHint:
@@ -379,6 +380,9 @@ export const fi = {
     cRate: "C-arvo",
     ancillaryGroup: "Reservipalvelut",
     reservedPower: "Varattu teho",
+    reservablePower: "Fyysisesti varattavissa oleva teho (keskiarvo)",
+    reservableNote:
+      "Erillinen varattavuuden keskiarvo – ei se teho, jonka perusteella korvaus lasketaan.",
     selectedServices: "Valitut reservipalvelut",
   },
   importantInformation: {

@@ -44,6 +44,8 @@ export interface ResultPresentation {
   powerCapNote: string | null;
   actualDispatchPowerKw: number;
   fcrHeldPowerKw: number | null;
+  fcrMonetizedPowerKw: number | null;
+  fcrReservableAvgPowerKw: number | null;
 
   /** Energy section relevance. */
   hasSolar: boolean;
@@ -312,6 +314,11 @@ export function buildResultPresentation(
     powerCapNote,
     actualDispatchPowerKw: r.actualDispatchPowerKw,
     fcrHeldPowerKw: showFcr ? s.fcr.avgHeldPowerKw : null,
+    // Presentation only: primary customer-facing ancillary power measure (the one
+    // the compensation is calculated from) and the separate technical average
+    // reservability measure. No calculation is performed here.
+    fcrMonetizedPowerKw: showFcr ? s.fcr.monetizedPowerKw : null,
+    fcrReservableAvgPowerKw: showFcr ? s.fcr.reservablePowerAvgKw : null,
 
     hasSolar,
     showSelfConsumption,

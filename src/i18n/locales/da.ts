@@ -296,6 +296,7 @@ export const da = {
         "Med dine nuværende oplysninger giver batteriet ingen positiv beregnet økonomisk fordel per år. Det tekniske resultat vises alligevel nedenfor.",
       ancillaryTitle: "Støttetjenester",
       ancillaryCustomerHint: "Din beregnede betaling.",
+      ancillaryPower: "Beregnet betalingsgrundlag i effekt",
       ancillaryMarket: "Historisk markedsværdi for støttetjenester",
       ancillaryShare: "Din andel af værdien fra støttetjenester",
       ancillaryShareHint:
@@ -384,6 +385,9 @@ export const da = {
     cRate: "C-rate",
     ancillaryGroup: "Systemydelser",
     reservedPower: "Reserveret effekt",
+    reservablePower: "Fysisk reserverbar effekt (gennemsnit)",
+    reservableNote:
+      "Et separat gennemsnitligt mål for reserverbarhed – ikke den effekt, som betalingen beregnes ud fra.",
     selectedServices: "Valgte systemydelser",
   },
   importantInformation: {

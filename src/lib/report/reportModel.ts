@@ -308,15 +308,9 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
             ? copy.ancillary.limitingGrid
             : copy.ancillary.limitingNone;
 
+    // Primary customer view: one single power measure — the compensable power.
     const rows: ReportRow[] = [
       { label: copy.ancillary.product, value: productLabel, source: "user" },
-      { label: copy.ancillary.offered, value: kw(fcr.offeredPowerKw, 1), source: "calculated" },
-      {
-        label: copy.ancillary.reservable,
-        value: kw(fcr.reservablePowerAvgKw, 1),
-        source: "calculated",
-      },
-      { label: copy.ancillary.held, value: kw(fcr.avgHeldPowerKw, 1), source: "calculated" },
       {
         label: copy.ancillary.monetized,
         value: kw(fcr.monetizedPowerKw, 1),
@@ -334,6 +328,17 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
         value: `${num(fcr.reservedHours)} h`,
         source: "calculated",
       },
+    ];
+
+    // Transparency only: separate technical power measures.
+    const technicalRows: ReportRow[] = [
+      { label: copy.ancillary.offered, value: kw(fcr.offeredPowerKw, 1), source: "calculated" },
+      {
+        label: copy.ancillary.reservable,
+        value: kw(fcr.reservablePowerAvgKw, 1),
+        source: "calculated",
+      },
+      { label: copy.ancillary.held, value: kw(fcr.avgHeldPowerKw, 1), source: "calculated" },
     ];
 
     if (ancillaryPriced) {
@@ -370,6 +375,9 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
         ...(ancillaryPriced
           ? []
           : [{ kind: "text" as const, text: copy.ancillary.noPriceData }]),
+        { kind: "text" as const, text: copy.ancillary.technicalTitle },
+        { kind: "rows" as const, rows: technicalRows },
+        { kind: "note", text: copy.ancillary.technicalNote },
         { kind: "note", text: copy.ancillary.note },
       ],
     });

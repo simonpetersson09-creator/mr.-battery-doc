@@ -298,6 +298,7 @@ export const sv = {
         "Med dina nuvarande uppgifter ger batteriet ingen positiv beräknad ekonomisk nytta per år. Det tekniska resultatet visas ändå nedan.",
       ancillaryTitle: "Stödtjänster",
       ancillaryCustomerHint: "Din beräknade ersättning.",
+      ancillaryPower: "Beräknad ersättningsgrundande effekt",
       ancillaryMarket: "Historiskt marknadsvärde för stödtjänster",
       ancillaryShare: "Din andel av stödtjänstvärdet",
       ancillaryShareHint:
@@ -385,6 +386,9 @@ export const sv = {
     cRate: "C-rate",
     ancillaryGroup: "Stödtjänster",
     reservedPower: "Reserverad effekt",
+    reservablePower: "Fysiskt reserverbar effekt (medel)",
+    reservableNote:
+      "Separat tekniskt medelvärde för reserverbarhet – inte den effekt som ersättningen beräknas på.",
     selectedServices: "Valda stödtjänster",
   },
   importantInformation: {
