@@ -68,6 +68,10 @@ const CASES: Record<string, { label: string; input: BatteryEngineInput }> = {
  *  - GM10 (fixed 500 kWh/200 kW) improves from −399,91 to −262,64 kr/year because the
  *    stored start energy is no longer discharged into the load, so more solar is exported.
  * No energy balance, SOC window, efficiency, product step or FCR price changed.
+ *
+ * GM12 was regenerated after the approved EV-night profile correction made the
+ * weekend charging window match weekdays (23–02). Only this profile case moves;
+ * its battery recommendation remains 25 kWh / 5 kW.
  */
 const EXPECTED = {
   "GM01": {
@@ -382,27 +386,27 @@ const EXPECTED = {
     "capacityKWh": 25,
     "powerKw": 5,
     "physicalPowerNeedKw": 3.5,
-    "importBeforeKWh": 13967.396,
-    "importAfterKWh": 10450.9339,
-    "exportBeforeKWh": 7967.396,
-    "exportAfterKWh": 3870.6108,
-    "shiftedToLoadKWh": 3636.9317,
+    "importBeforeKWh": 14019.3075,
+    "importAfterKWh": 10453.3502,
+    "exportBeforeKWh": 8019.3075,
+    "exportAfterKWh": 3867.5664,
+    "shiftedToLoadKWh": 3686.0726,
     "recoveredCurtailmentKWh": 0,
-    "cycles": 161.6414,
-    "utilisationPct": 44.2853,
-    "peakBeforeKw": 9.2524,
-    "peakAfterKw": 9.2724,
+    "cycles": 163.8255,
+    "utilisationPct": 44.8837,
+    "peakBeforeKw": 9.0698,
+    "peakAfterKw": 9.0898,
     "gridStatus": "none",
     "unservedKWh": 0,
     "peakReductionKw": -0.02,
-    "demandCostSavingSek": 130.34,
+    "demandCostSavingSek": 146.06,
     "fcrEnabled": false,
     "fcrOfferedKw": 0,
     "fcrHeldKw": 0,
     "fcrGrossSek": null,
     "fcrOptimisedKw": null,
-    "energyBenefitSek": 2816.62,
-    "totalOperatingBenefitSek": 2946.96,
+    "energyBenefitSek": 2857.89,
+    "totalOperatingBenefitSek": 3003.95,
     "balanceOk": true,
     "residualKWh": 0
   }
