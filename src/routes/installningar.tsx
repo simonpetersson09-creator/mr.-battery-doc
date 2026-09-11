@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LanguageSelect } from "@/components/LanguageSelect";
 import { useT } from "@/i18n";
 import { useAccess } from "@/state/access";
 import { LEGAL_LINKS } from "@/lib/access/legalLinks";
@@ -103,16 +102,8 @@ function SettingsPage() {
           <h1 className="ui-page-title">{t("settings.title")}</h1>
         </div>
 
-        {/* Language */}
-        <section className="mt-2 rounded-[1rem] bg-accent px-3 py-2.5 text-accent-foreground">
-          <div className="flex items-center justify-between gap-2">
-            <p className="font-display text-[14px] font-bold">{t("settings.languageTitle")}</p>
-            <LanguageSelect pill />
-          </div>
-          <p className="mt-1 text-[11px] leading-relaxed opacity-80">
-            {t("settings.languageHint")}
-          </p>
-        </section>
+
+
 
         {/* Premium */}
         <section className="relative mt-1.5 rounded-[1rem] bg-accent px-3 py-2.5 text-accent-foreground">
