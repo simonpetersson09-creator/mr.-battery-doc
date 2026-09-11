@@ -726,8 +726,8 @@ describe("load profile catalogue", () => {
     expect(Math.max(...weekday.slice(7, 17))).toBeGreaterThan(mean * 2);
     expect(weekday[12]).toBeLessThan(weekday[11] ?? 0);
 
-    expect(pool).toBeDefined();
-    const noon = Array.from({ length: 12 }, (_, i) => diurnalSetFor(pool!, i + 1).weekday[12] ?? 0);
+    if (!pool) throw new Error("pool-summer profile is missing");
+    const noon = Array.from({ length: 12 }, (_, i) => diurnalSetFor(pool, i + 1).weekday[12] ?? 0);
     expect(noon.slice(0, 9)).toEqual([...noon.slice(0, 9)].sort((a, b) => a - b));
     expect(noon.slice(8)).toEqual([...noon.slice(8)].sort((a, b) => b - a));
     expect(new Set(noon).size).toBeGreaterThanOrEqual(5);
