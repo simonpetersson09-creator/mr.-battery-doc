@@ -60,12 +60,12 @@ function SettingsPage() {
   const access = useAccess();
   const [busy, setBusy] = useState<"premium" | "restore" | null>(null);
   const [notice, setNotice] = useState<
-    "restored" | "restoreNothing" | "manageWeb" | null
+    "restored" | "restoreNothing" | "manageWeb" | "pending" | "unresolved" | null
   >(null);
   const [error, setError] = useState<string | null>(null);
 
   // Apple's localized prices — the same source the paywall uses. Never a
-  // hardcoded amount, and the buy button stays disabled until a price exists.
+  // hardcoded amount.
   const [products, setProducts] = useState<StoreProduct[] | null>(null);
   const [priceAttempt, setPriceAttempt] = useState(0);
   useEffect(() => {
@@ -85,14 +85,41 @@ function SettingsPage() {
   const priceFallback =
     products === null ? t("paywall.premium.loadingPrice") : t("paywall.priceUnavailable");
 
-  
+  // Same error mapping as the paywall — a tap must always end in visible feedback.
+  const errorText = (code: string): string =>
+    t(
+      code === "network"
+        ? "paywall.errors.network"
+        : code === "products-unavailable"
+          ? "paywall.errors.products"
+          : code === "product-unavailable"
+            ? "paywall.errors.productUnavailable"
+            : code === "verification"
+              ? "paywall.errors.verification"
+              : code === "not-supported"
+                ? "paywall.errors.notSupported"
+                : "paywall.errors.unknown",
+    );
 
   async function buyPremium() {
     setNotice(null);
+    setError(null);
     setBusy("premium");
     try {
       // Premium is not tied to a calculation — the id is unused for subscriptions.
-      await access.purchase("premiumYear", "");
+      // Every outcome gets a visible answer: silence looks like a dead button.
+      const res = await access.purchase("premiumYear", "");
+      if (res.status === "purchased") return; // Premium-active state takes over.
+      if (res.status === "cancelled") return; // Not an error — user stays here.
+      if (res.status === "pending") {
+        setNotice("pending");
+        return;
+      }
+      if (res.status === "unresolved") {
+        setNotice("unresolved");
+        return;
+      }
+      setError(errorText(res.code));
     } finally {
       setBusy(null);
     }
