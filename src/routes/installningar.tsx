@@ -60,12 +60,12 @@ function SettingsPage() {
   const access = useAccess();
   const [busy, setBusy] = useState<"premium" | "restore" | null>(null);
   const [notice, setNotice] = useState<
-    "restored" | "restoreNothing" | "manageWeb" | null
+    "restored" | "restoreNothing" | "manageWeb" | "pending" | "unresolved" | null
   >(null);
   const [error, setError] = useState<string | null>(null);
 
   // Apple's localized prices — the same source the paywall uses. Never a
-  // hardcoded amount, and the buy button stays disabled until a price exists.
+  // hardcoded amount.
   const [products, setProducts] = useState<StoreProduct[] | null>(null);
   const [priceAttempt, setPriceAttempt] = useState(0);
   useEffect(() => {
@@ -85,14 +85,41 @@ function SettingsPage() {
   const priceFallback =
     products === null ? t("paywall.premium.loadingPrice") : t("paywall.priceUnavailable");
 
-  
+  // Same error mapping as the paywall — a tap must always end in visible feedback.
+  const errorText = (code: string): string =>
+    t(
+      code === "network"
+        ? "paywall.errors.network"
+        : code === "products-unavailable"
+          ? "paywall.errors.products"
+          : code === "product-unavailable"
+            ? "paywall.errors.productUnavailable"
+            : code === "verification"
+              ? "paywall.errors.verification"
+              : code === "not-supported"
+                ? "paywall.errors.notSupported"
+                : "paywall.errors.unknown",
+    );
 
   async function buyPremium() {
     setNotice(null);
+    setError(null);
     setBusy("premium");
     try {
       // Premium is not tied to a calculation — the id is unused for subscriptions.
-      await access.purchase("premiumYear", "");
+      // Every outcome gets a visible answer: silence looks like a dead button.
+      const res = await access.purchase("premiumYear", "");
+      if (res.status === "purchased") return; // Premium-active state takes over.
+      if (res.status === "cancelled") return; // Not an error — user stays here.
+      if (res.status === "pending") {
+        setNotice("pending");
+        return;
+      }
+      if (res.status === "unresolved") {
+        setNotice("unresolved");
+        return;
+      }
+      setError(errorText(res.code));
     } finally {
       setBusy(null);
     }
@@ -161,8 +188,17 @@ function SettingsPage() {
               <Button
                 variant="ink"
                 className="mt-2 h-10 w-full rounded-[0.75rem] text-[15px] font-bold"
-                disabled={busy !== null || access.purchaseInFlight || (products !== null && !premiumPrice)}
-                onClick={() => void buyPremium()}
+                // Never disabled for a missing price: a dead-looking button fails
+                // App Review. Tapping without prices retries the store lookup and
+                // the purchase itself answers with a visible error if it fails.
+                disabled={busy !== null || access.purchaseInFlight}
+                onClick={() => {
+                  if (products !== null && !premiumPrice) {
+                    setProducts(null);
+                    setPriceAttempt((n) => n + 1);
+                  }
+                  void buyPremium();
+                }}
               >
                 {busy === "premium" ? <Loader2 className="size-4 animate-spin" /> : null}
                 {t("settings.premium.cta")}
