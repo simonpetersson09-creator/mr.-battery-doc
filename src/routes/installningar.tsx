@@ -188,8 +188,17 @@ function SettingsPage() {
               <Button
                 variant="ink"
                 className="mt-2 h-10 w-full rounded-[0.75rem] text-[15px] font-bold"
-                disabled={busy !== null || access.purchaseInFlight || (products !== null && !premiumPrice)}
-                onClick={() => void buyPremium()}
+                // Never disabled for a missing price: a dead-looking button fails
+                // App Review. Tapping without prices retries the store lookup and
+                // the purchase itself answers with a visible error if it fails.
+                disabled={busy !== null || access.purchaseInFlight}
+                onClick={() => {
+                  if (products !== null && !premiumPrice) {
+                    setProducts(null);
+                    setPriceAttempt((n) => n + 1);
+                  }
+                  void buyPremium();
+                }}
               >
                 {busy === "premium" ? <Loader2 className="size-4 animate-spin" /> : null}
                 {t("settings.premium.cta")}
