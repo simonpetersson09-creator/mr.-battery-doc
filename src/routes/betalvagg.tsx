@@ -208,12 +208,21 @@ function Paywall() {
           <Button
             variant="cta"
             className="mt-2 h-10 w-full rounded-[0.75rem] text-[15px] font-bold shadow-cta"
-            disabled={busy !== null || access.purchaseInFlight || products !== null && !premiumPrice}
-            onClick={() => void buy("premiumYear")}
+            // Never disabled for a missing price: a dead-looking button fails App
+            // Review. A tap retries the store lookup and always answers visibly.
+            disabled={busy !== null || access.purchaseInFlight}
+            onClick={() => {
+              if (products !== null && !premiumPrice) {
+                setProducts(null);
+                setPriceAttempt((n) => n + 1);
+              }
+              void buy("premiumYear");
+            }}
           >
             {busy === "premiumYear" ? <Loader2 className="size-4 animate-spin" /> : null}
             {t("paywall.premium.cta")}
           </Button>
+
           <p className="ui-help mt-1.5">{t("paywall.premium.value")}</p>
           {premiumPrice ? (
             <p className="ui-help mt-1">{t("paywall.premium.renewal", { price: premiumPrice })}</p>
@@ -233,14 +242,21 @@ function Paywall() {
           <Button
             variant="outline"
             className="mt-2 h-10 w-full rounded-[0.75rem] text-[15px] font-semibold"
-            disabled={busy !== null || access.purchaseInFlight || products !== null && !singlePrice}
-            onClick={() => void buy("singleReport")}
+            disabled={busy !== null || access.purchaseInFlight}
+            onClick={() => {
+              if (products !== null && !singlePrice) {
+                setProducts(null);
+                setPriceAttempt((n) => n + 1);
+              }
+              void buy("singleReport");
+            }}
           >
             {busy === "singleReport" ? <Loader2 className="size-4 animate-spin" /> : null}
             {singlePrice
               ? t("paywall.single.cta", { price: singlePrice })
               : t("paywall.single.ctaPending")}
           </Button>
+
         </section>
 
         {products !== null && products.length === 0 ? (
