@@ -242,14 +242,21 @@ function Paywall() {
           <Button
             variant="outline"
             className="mt-2 h-10 w-full rounded-[0.75rem] text-[15px] font-semibold"
-            disabled={busy !== null || access.purchaseInFlight || products !== null && !singlePrice}
-            onClick={() => void buy("singleReport")}
+            disabled={busy !== null || access.purchaseInFlight}
+            onClick={() => {
+              if (products !== null && !singlePrice) {
+                setProducts(null);
+                setPriceAttempt((n) => n + 1);
+              }
+              void buy("singleReport");
+            }}
           >
             {busy === "singleReport" ? <Loader2 className="size-4 animate-spin" /> : null}
             {singlePrice
               ? t("paywall.single.cta", { price: singlePrice })
               : t("paywall.single.ctaPending")}
           </Button>
+
         </section>
 
         {products !== null && products.length === 0 ? (
