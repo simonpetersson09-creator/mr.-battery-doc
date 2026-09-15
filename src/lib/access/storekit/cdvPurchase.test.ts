@@ -5,6 +5,7 @@ import { PRODUCT_IDS } from "../products";
 /** Minimal fake of the cordova-plugin-purchase global. */
 function fakeStore() {
   const approved: Array<(t: unknown) => void> = [];
+  const pending: Array<(t: unknown) => void> = [];
   const productUpdated: Array<(p: unknown) => void> = [];
   const registered: Array<{ id: string; type: string }> = [];
   const finished: string[] = [];
@@ -35,7 +36,7 @@ function fakeStore() {
     when: () => ({
       productUpdated: (cb: (p: unknown) => void) => productUpdated.push(cb),
       approved: (cb: (t: unknown) => void) => approved.push(cb),
-      pending: () => undefined,
+      pending: (cb: (t: unknown) => void) => pending.push(cb),
     }),
     error: () => undefined,
     localTransactions: [transaction],
@@ -45,7 +46,7 @@ function fakeStore() {
     Platform: { APPLE_APPSTORE: "ios-appstore" },
     ProductType: { CONSUMABLE: "consumable", PAID_SUBSCRIPTION: "paid subscription" },
   };
-  return { ns, store, registered, transaction, finished, productUpdated };
+  return { ns, store, registered, transaction, finished, productUpdated, pending };
 }
 
 describe("native StoreKit adapter", () => {
@@ -143,21 +144,21 @@ describe("native StoreKit adapter", () => {
     }
 
     it("maps a cancelled IError to cancelled, never purchased", async () => {
-      const a = adapterOrderingWith({ isError: true, code: 6500, message: "Purchase cancelled" });
+      const a = adapterOrderingWith({ isError: true, code: 6777006, message: "Purchase cancelled" });
       const res = await a.purchase(PRODUCT_IDS.singleReport);
       expect(res).toEqual({ status: "cancelled" });
       expect(f.transaction.finish).not.toHaveBeenCalled();
     });
 
     it("maps a pending IError to pending", async () => {
-      const a = adapterOrderingWith({ isError: true, code: 6777031, message: "Payment pending" });
+      const a = adapterOrderingWith({ isError: true, code: 6777003, message: "Payment pending" });
       expect((await a.purchase(PRODUCT_IDS.singleReport)).status).toBe("pending");
     });
 
     it("maps payment-not-allowed, unavailable and generic IErrors to failed", async () => {
       const cases = [
-        { isError: true, code: 6501, message: "Payment not allowed" },
-        { isError: true, code: 6777010, message: "Product not available" },
+        { isError: true, code: 6777008, message: "Payment not allowed" },
+        { isError: true, code: 6777023, message: "Product not available" },
         { isError: true, code: 6777001, message: "Store internal error" },
       ];
       for (const c of cases) {
@@ -190,5 +191,35 @@ describe("native StoreKit adapter", () => {
       const a = createCdvPurchaseAdapter(f.ns as never);
       expect((await a.purchase(PRODUCT_IDS.singleReport)).status).toBe("purchased");
     });
+  });
+
+  it("returns pending immediately when StoreKit defers an order", async () => {
+    const deferred = {
+      ...f.transaction,
+      state: "pending",
+      isPending: true,
+      products: [{ id: PRODUCT_IDS.premiumYear }],
+    };
+    const store = {
+      ...f.store,
+      get: (id: string) => ({
+        id,
+        pricing: { price: "219,00 kr" },
+        offers: [{ order: async () => f.pending.forEach((cb) => cb(deferred)) }],
+      }),
+    };
+    const a = createCdvPurchaseAdapter({ ...f.ns, store } as never);
+    await expect(a.purchase(PRODUCT_IDS.premiumYear)).resolves.toEqual({ status: "pending" });
+  });
+
+  it("fails visibly when StoreKit initialization rejects during purchase", async () => {
+    const store = {
+      ...f.store,
+      initialize: vi.fn(async () => [{ code: 6777001, message: "Store unavailable" }]),
+    };
+    const a = createCdvPurchaseAdapter({ ...f.ns, store } as never);
+    const res = await a.purchase(PRODUCT_IDS.premiumYear);
+    expect(res.status).toBe("failed");
+    expect("transactionId" in res).toBe(false);
   });
 });

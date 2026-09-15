@@ -220,7 +220,7 @@ function Paywall() {
             }}
           >
             {busy === "premiumYear" ? <Loader2 className="size-4 animate-spin" /> : null}
-            {t("paywall.premium.cta")}
+            {busy === "premiumYear" ? t("paywall.processing") : t("paywall.premium.cta")}
           </Button>
 
           <p className="ui-help mt-1.5">{t("paywall.premium.value")}</p>
@@ -252,7 +252,9 @@ function Paywall() {
             }}
           >
             {busy === "singleReport" ? <Loader2 className="size-4 animate-spin" /> : null}
-            {singlePrice
+            {busy === "singleReport"
+              ? t("paywall.processing")
+              : singlePrice
               ? t("paywall.single.cta", { price: singlePrice })
               : t("paywall.single.ctaPending")}
           </Button>

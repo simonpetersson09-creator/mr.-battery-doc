@@ -66,6 +66,8 @@ function cdv(): CdvNamespace | null {
 }
 
 const PRODUCT_LOAD_TIMEOUT_MS = 15_000;
+const PURCHASE_INIT_TIMEOUT_MS = 15_000;
+const PURCHASE_APPROVAL_TIMEOUT_MS = 120_000;
 
 function productTypeFor(key: ProductKey, ns: CdvNamespace): string {
   return PRODUCT_TYPES[key] === "consumable"
@@ -87,9 +89,8 @@ function expiresISO(t: CdvTransaction): string | null {
 }
 
 /** cordova-plugin-purchase error codes we treat specially (CdvPurchase.ErrorCode). */
-const ERR_PAYMENT_CANCELLED = 6500;
-const ERR_PAYMENT_NOT_ALLOWED = 6501;
-const ERR_PAYMENT_PENDING = 6777031;
+const ERR_PAYMENT_CANCELLED = 6777006;
+const ERR_PAYMENT_NOT_ALLOWED = 6777008;
 
 type PluginError = { code?: number | string; message?: string; isError?: boolean };
 
@@ -120,7 +121,7 @@ function mapPluginError(
   const message = String(e.message ?? "");
   if (rawCode === ERR_PAYMENT_CANCELLED || /cancel/i.test(code) || /cancel/i.test(message))
     return { status: "cancelled" };
-  if (rawCode === ERR_PAYMENT_PENDING || /pending|deferred|ask to buy/i.test(`${code} ${message}`))
+  if (/pending|deferred|ask to buy/i.test(`${code} ${message}`))
     return { status: "pending" };
   if (rawCode === ERR_PAYMENT_NOT_ALLOWED || /not allowed/i.test(`${code} ${message}`))
     return { status: "failed", code: code || "PAYMENT_NOT_ALLOWED", message };
@@ -132,8 +133,36 @@ export function createCdvPurchaseAdapter(ns: CdvNamespace): NativePurchasePlugin
   let initialized: Promise<void> | null = null;
   const productListeners = new Set<() => void>();
 
-  /** Resolvers waiting for the transaction of an in-flight order, per product id. */
-  const waiting = new Map<string, (t: CdvTransaction) => void>();
+  /** Resolvers waiting for the outcome of an in-flight order, per product id. */
+  const waiting = new Map<
+    string,
+    { resolve: (t: CdvTransaction | null) => void; timer: ReturnType<typeof setTimeout> }
+  >();
+
+  function settleWaiting(productId: string, transaction: CdvTransaction | null): void {
+    const entry = waiting.get(productId);
+    if (!entry) return;
+    waiting.delete(productId);
+    clearTimeout(entry.timer);
+    entry.resolve(transaction);
+  }
+
+  async function ensureInitForPurchase(): Promise<void> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      await Promise.race([
+        ensureInit(),
+        new Promise<void>((_, reject) => {
+          timer = setTimeout(
+            () => reject(Object.assign(new Error("StoreKit initialization timed out"), { code: "network" })),
+            PURCHASE_INIT_TIMEOUT_MS,
+          );
+        }),
+      ]);
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  }
 
   function ensureInit(): Promise<void> {
     if (initialized) return initialized;
@@ -151,13 +180,15 @@ export function createCdvPurchaseAdapter(ns: CdvNamespace): NativePurchasePlugin
           // Approved = paid. We do NOT finish here: our backend must verify first.
           rememberTransaction(t);
           const id = t.products?.[0]?.id;
-          const resolve = id ? waiting.get(id) : undefined;
-          if (id && resolve) {
-            waiting.delete(id);
-            resolve(t);
-          }
+           if (id) settleWaiting(id, t);
         });
-      events.pending?.((t) => rememberTransaction(t));
+      events.pending?.((t) => {
+        rememberTransaction(t);
+        const id = t.products?.[0]?.id;
+        // Ask to Buy / deferred purchases must return control to the UI now.
+        // StoreKit will replay an approved transaction later for recovery.
+        if (id) settleWaiting(id, null);
+      });
       store.error(() => {
         /* individual calls surface their own errors */
       });
@@ -238,34 +269,44 @@ export function createCdvPurchaseAdapter(ns: CdvNamespace): NativePurchasePlugin
     },
 
     async purchase(productId: string) {
-      await ensureInit();
+      try {
+        await ensureInitForPurchase();
+      } catch (err) {
+        return mapPluginError(err);
+      }
       const product = store.get(productId, ns.Platform.APPLE_APPSTORE);
       if (!product) return { status: "failed" as const, code: "PRODUCT_UNAVAILABLE" };
 
       const transaction = new Promise<CdvTransaction | null>((resolve) => {
-        waiting.set(productId, resolve);
+        const previous = waiting.get(productId);
+        if (previous) {
+          clearTimeout(previous.timer);
+          previous.resolve(null);
+        }
         // StoreKit may take a long time (Ask to Buy); the timeout only ends OUR
         // wait — the transaction itself stays unfinished and is recovered later.
-        setTimeout(() => {
-          if (waiting.get(productId)) {
-            waiting.delete(productId);
-            resolve(null);
-          }
-        }, 120_000);
+        const timer = setTimeout(
+          () => settleWaiting(productId, null),
+          PURCHASE_APPROVAL_TIMEOUT_MS,
+        );
+        waiting.set(productId, { resolve, timer });
       });
 
       try {
         const offer = product.getOffer?.() ?? product.offers?.[0];
-        if (!offer) return { status: "failed" as const, code: "PRODUCT_UNAVAILABLE" };
+        if (!offer) {
+          settleWaiting(productId, null);
+          return { status: "failed" as const, code: "PRODUCT_UNAVAILABLE" };
+        }
         // v13 may RETURN an IError instead of throwing it — both paths must fail.
         const ordered = await (offer.order ? offer.order() : store.order?.(offer));
         const returnedError = asPluginError(ordered);
         if (returnedError) {
-          waiting.delete(productId);
+          settleWaiting(productId, null);
           return mapPluginError(returnedError);
         }
       } catch (err) {
-        waiting.delete(productId);
+        settleWaiting(productId, null);
         return mapPluginError(err);
       }
 

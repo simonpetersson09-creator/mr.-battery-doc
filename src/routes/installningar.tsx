@@ -201,7 +201,7 @@ function SettingsPage() {
                 }}
               >
                 {busy === "premium" ? <Loader2 className="size-4 animate-spin" /> : null}
-                {t("settings.premium.cta")}
+                {busy === "premium" ? t("paywall.processing") : t("settings.premium.cta")}
               </Button>
               <p className="mt-1 text-center text-[11px] leading-relaxed opacity-80">
                 {premiumPrice
