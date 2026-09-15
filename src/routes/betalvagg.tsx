@@ -14,6 +14,7 @@ import { useT } from "@/i18n";
 import { getCalculation } from "@/lib/access/calculationCache";
 import { LEGAL_LINKS } from "@/lib/access/legalLinks";
 import { openManageSubscription } from "@/lib/access/manageSubscription";
+import { openExternalUrl } from "@/lib/platform/runtime";
 import type { ProductKey } from "@/lib/access/products";
 import type { PurchaseErrorCode, StoreProduct } from "@/lib/access/purchaseGateway";
 import { useAccess } from "@/state/access";
@@ -321,14 +322,16 @@ function Paywall() {
           {LEGAL_LINKS.terms || LEGAL_LINKS.privacy ? (
             <p className="flex justify-center gap-3 text-[11px] text-muted-foreground">
               {LEGAL_LINKS.terms ? (
-                <a href={LEGAL_LINKS.terms} target="_blank" rel="noreferrer">
+                // Opens in Safari on iPhone (like Settings) — a plain <a> can be
+                // dead inside the native app, which Apple rejects at review.
+                <button type="button" onClick={() => openExternalUrl(LEGAL_LINKS.terms!)}>
                   {t("paywall.legal.terms")}
-                </a>
+                </button>
               ) : null}
               {LEGAL_LINKS.privacy ? (
-                <a href={LEGAL_LINKS.privacy} target="_blank" rel="noreferrer">
+                <button type="button" onClick={() => openExternalUrl(LEGAL_LINKS.privacy!)}>
                   {t("paywall.legal.privacy")}
-                </a>
+                </button>
               ) : null}
             </p>
           ) : null}
