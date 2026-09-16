@@ -670,7 +670,7 @@ export interface SimResult {
      * SYMMETRIC FCR (Germany, DK1). "upward" = classic FCR-D up. Directional fields are
      * engine/audit diagnostics — the customer view only needs held power + availability.
      */
-    reserveMode: "upward" | "symmetric";
+    reserveMode: "upward" | "symmetric" | "up-and-down";
     reservableUpAvgKw: number;
     reservableDownAvgKw: number;
     gridUpLimitedHours: number;
@@ -678,6 +678,14 @@ export interface SimResult {
     energyUpLimitedHours: number;
     energyDownLimitedHours: number;
     symmetricHeldPowerKw: number;
+    /**
+     * FCR-D NED (Sweden only, "up-and-down" product). Separate historical revenue on the
+     * down reservation the battery actually held. Null when the market has no verified
+     * down price series or the product is not active.
+     */
+    fcrDown: FcrRevenueResult | null;
+    /** Mean held DOWN-regulation power the down economics was paid on, kW. */
+    downHeldPowerAvgKw: number;
     /**
      * Mean held reserve power straight from the PHYSICS, independent of any price data.
      * heldPowerAvgKw stays price-derived so existing reporting is unchanged.

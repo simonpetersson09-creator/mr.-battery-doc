@@ -15,9 +15,11 @@ import { FCR_SYMMETRIC_DE_2025 } from "./fcrSymmetricDE2025";
 import { FCR_SYMMETRIC_DK1_2025 } from "./fcrSymmetricDK1_2025";
 import { FCR_D_UP_DK2_2025 } from "./fcrDUpDK2_2025";
 import { FCR_D_UP_SE_2025 } from "./fcrDUpSE2025";
+import { FCR_D_DOWN_SE_2025 } from "./fcrDDownSE2025";
 import type { FcrPriceSeries } from "./fcrDUpSE2025";
 
 export {
+  FCR_D_DOWN_SE_2025,
   FCR_D_UP_FI_2025,
   FCR_D_UP_SE_2025,
   FCR_SYMMETRIC_DE_2025,
@@ -66,3 +68,20 @@ export function hasVerifiedFcrPrices(country: FcrMarketArea | undefined): boolea
 
 /** Market areas that currently have verified data, for reporting/UI. */
 export const VERIFIED_FCR_MARKET_AREAS = Object.keys(SERIES_BY_AREA) as FcrMarketArea[];
+
+/**
+ * VERIFIED DOWN-REGULATION SERIES (FCR-D ned). Sweden only: the Svenska kraftnät 2025
+ * file is the single verified source. Finland, DK1, DK2 and Germany get null — a Swedish
+ * down series is never used as a stand-in for another market, and a missing series means
+ * "no down revenue is calculated", never 0 kr.
+ */
+const DOWN_SERIES_BY_AREA: Partial<Record<FcrMarketArea, FcrPriceSeries>> = {
+  SE: FCR_D_DOWN_SE_2025,
+};
+
+export function fcrDownPriceSeriesForCountry(
+  country: FcrMarketArea | undefined,
+): FcrPriceSeries | null {
+  if (country === undefined) return null;
+  return DOWN_SERIES_BY_AREA[country] ?? null;
+}

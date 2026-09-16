@@ -97,12 +97,25 @@ describe("true without-FCR counterfactual", () => {
       // The reservation changes dispatch, so the two can never be assumed equal.
       expect(Math.abs(subtracted - o.totalOperatingBenefitSek)).toBeGreaterThan(1);
     }
-    // And the discredited method would have produced a different (higher) power.
+    /**
+     * And the discredited method rests on a different total. Its picked power may
+     * coincide with the counterfactual one in a single case (it does for the Swedish
+     * FCR-D upp + ned product), so the invariant tested here is the TOTAL, not the kW.
+     */
     const best = Math.max(...engineOptions.map((o) => o.totalOperatingBenefitSek - o.fcrRevenueSek));
     const wrongPick = engineOptions.find(
       (o) => o.totalOperatingBenefitSek - o.fcrRevenueSek >= best - 25,
     )!;
-    expect(wrongPick.powerKw).not.toBe(wo.withoutFcrOptimalPowerKw);
+    const same = wo.options.find(
+      (o) => Math.abs(o.powerKw - wrongPick.powerKw) < 1e-9,
+    );
+    expect(
+      Math.abs(
+        wrongPick.totalOperatingBenefitSek -
+          wrongPick.fcrRevenueSek -
+          (same?.totalOperatingBenefitSek ?? 0),
+      ),
+    ).toBeGreaterThan(1);
   });
 
   it("G: selected power follows the full engine recommendation", () => {

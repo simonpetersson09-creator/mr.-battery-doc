@@ -36,9 +36,9 @@ function caseFor(country: "SE" | "FI" | "DK" | "DE", marketArea?: "DK1" | "DK2")
 }
 
 describe("reserve product per market", () => {
-  it("keeps SE, FI and DK2 on the upward product", () => {
+  it("keeps FI and DK2 on the upward product, SE on FCR-D upp + ned", () => {
+    expect(caseFor("SE").reserve.reserveMode).toBe("up-and-down");
     for (const [c, a] of [
-      ["SE", undefined],
       ["FI", undefined],
       ["DK", "DK2"],
     ] as const) {

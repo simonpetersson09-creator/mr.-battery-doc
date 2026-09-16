@@ -130,8 +130,8 @@ describe("ancillary: gates", () => {
     expect(out.services[0]!.qualifiedPowerKw).toBeCloseTo(2, 9);
   });
 
-  it("offers FCR-D up only — no other Swedish service is selectable", () => {
-    expect(SE_MARKET.services.map((s) => s.key)).toEqual(["FCR-D-up"]);
+  it("offers FCR-D up and FCR-D down only — no other Swedish service is selectable", () => {
+    expect(SE_MARKET.services.map((s) => s.key)).toEqual(["FCR-D-up", "FCR-D-down"]);
     expect(defaultAncillaryConfig().serviceKeys).toEqual(["FCR-D-up"]);
     // A legacy saved config naming another service still resolves to FCR-D up.
     const out = computeAncillary(SE_MARKET, cfg({ serviceKeys: ["FCR-N", "mFRR-up"] }), bat());
