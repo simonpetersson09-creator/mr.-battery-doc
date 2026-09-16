@@ -87,7 +87,15 @@ export function marketProfile(id: MarketId): MarketProfile {
  * behaviour for saved cases created before the country was tracked).
  */
 export function marketProfileForPriceArea(area: FcrMarketArea | undefined): MarketProfile {
-  return area === "FI" ? FI_MARKET : SE_MARKET;
+  if (area === "FI") return FI_MARKET;
+  /**
+   * DE and DK1 are CONTINENTAL symmetric FCR, not Nordic FCR-D. They keep the frozen
+   * legacy profile so Nordic corrections (20 min endurance, NEM) cannot leak into a
+   * market where they were never verified. Both still need own verified profiles.
+   * DK2 is part of the Nordic FCR-D market and keeps the Swedish rule set.
+   */
+  if (area === "DE" || area === "DK1") return CONTINENTAL_LEGACY_MARKET;
+  return SE_MARKET;
 }
 
 /** Default config: market rules only, NO prices and NO assumed revenue. */
