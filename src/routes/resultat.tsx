@@ -11,7 +11,11 @@ import { useAccess } from "@/state/access";
 import { buildResultPresentation } from "@/lib/battery-app/resultPresentation";
 import { computeWithoutFcrOptimum } from "@/lib/battery-app/withoutFcrOptimum";
 import { computeBatteryAlternatives } from "@/lib/battery-app/capacityAlternatives";
-import { computeAncillaryScenario } from "@/lib/battery-app/ancillaryScenario";
+import {
+  ancillaryAlternatives,
+  bestAncillaryCandidate,
+  computeAncillaryScenario,
+} from "@/lib/battery-app/ancillaryScenario";
 import {
   customerEconomyFromResult,
   maxInvestmentSek,
@@ -140,9 +144,9 @@ function ResultStep() {
   );
 
   /**
-   * MODEL C: separate ancillary-services comparison. Only exists when the physical
-   * recommendation is 0 kWh and ancillary services are selected. It never changes the
-   * recommendation, the economy or anything else on this page.
+   * Ancillary-only case: the physical sizing finds no battery need (no solar, no peak
+   * shaving), but the reserve market still pays for standing by. The best-paying size
+   * is then shown in the ordinary cards — same layout, no extra section.
    */
   const ancillaryScenario = useMemo(
     () =>
@@ -160,6 +164,9 @@ function ResultStep() {
       state.preferences.targetPaybackYears,
     ],
   );
+  const ancillaryBest = useMemo(() => bestAncillaryCandidate(ancillaryScenario), [ancillaryScenario]);
+  /** The three cards at the top: ordinary alternatives, or the ancillary-only ones. */
+  const shownAlternatives = ancillaryBest ? ancillaryAlternatives(ancillaryScenario) : alternatives;
 
 
   /**
@@ -302,7 +309,8 @@ function ResultStep() {
     reserveProductLabel: productLabel,
   });
 
-  const noBattery = p.noBattery;
+  /* An ancillary-only recommendation replaces the "no battery" answer. */
+  const noBattery = p.noBattery && !ancillaryBest;
 
   /* Countries without a verified historical price dataset get an explicit
      "not available" note instead of a fabricated 0 ancillary revenue. */
@@ -319,9 +327,11 @@ function ResultStep() {
     ? snapshot.customerEconomy
     : customerEconomyFromResult(outcome.result, state.preferences.customerAncillaryShare);
   const targetYears = state.preferences.targetPaybackYears;
-  const maxInvestment = snapshot
-    ? snapshot.headline.maxInvestment
-    : maxInvestmentSek(ce.totalCustomerBenefitSek, targetYears);
+  const maxInvestment = ancillaryBest
+    ? ancillaryBest.maxInvestmentSek
+    : snapshot
+      ? snapshot.headline.maxInvestment
+      : maxInvestmentSek(ce.totalCustomerBenefitSek, targetYears);
 
   const peakPct =
     g.importPeakBeforeKw > 0 ? (s.peak.peakReductionKw / g.importPeakBeforeKw) * 100 : 0;
@@ -353,7 +363,7 @@ function ResultStep() {
           language: currentLanguage(),
           customerEconomy: ce,
           targetPaybackYears: targetYears,
-          alternatives,
+          alternatives: shownAlternatives,
           ancillaryScenario,
         }).finally(() => setPdfBusy(false));
       }}
@@ -387,9 +397,9 @@ function ResultStep() {
         <div className="hero-metric rounded-[1.0625rem] px-3 py-3">
           <div
             className="grid items-stretch gap-2"
-            style={{ gridTemplateColumns: `repeat(${alternatives.length}, minmax(0, 1fr))` }}
+            style={{ gridTemplateColumns: `repeat(${shownAlternatives.length}, minmax(0, 1fr))` }}
           >
-            {alternatives.map((alt) => {
+            {shownAlternatives.map((alt) => {
               const main = alt.level === "recommended";
               const label =
                 alt.level === "lower"
@@ -599,16 +609,45 @@ function ResultStep() {
 
       
       <SectionCard compact centerTitle className="surface-primary" title={t("results.benefit.title")} titleClassName={RESULT_CARD_TITLE_CLASS}>
-        {p.noEconomy ? (
+        {ancillaryBest ? (
+          <>
+            {/* Ancillary-only: the benefit is the reserve compensation for the best size. */}
+            <p className="text-center text-[30px] font-extrabold tracking-tight tabular-nums">
+              {money(ancillaryBest.customerBenefitSek)}
+              <span className="ml-1 text-[11px] font-semibold">{t("units.perYear")}</span>
+            </p>
+            <div className="surface-secondary mt-2 space-y-2 rounded-[1rem] p-3">
+              <BenefitRow
+                label={t("results.benefit.ancillaryTitle")}
+                hint={t("results.benefit.ancillaryCustomerHint")}
+                value={moneyPerYear(ancillaryBest.ancillaryCustomerValueSek)}
+              />
+              <AncillaryDetails
+                rows={[
+                  {
+                    label: t("results.benefit.ancillaryMarket"),
+                    value: moneyPerYear(ancillaryBest.ancillaryMarketValueSek),
+                  },
+                  {
+                    label: t("results.benefit.ancillaryShare"),
+                    value: `${nf(ce.customerAncillaryShare * 100, 0)} %`,
+                  },
+                ]}
+                hints={[
+                  t("results.benefit.ancillaryShareHint"),
+                  t("results.benefit.ancillaryNote"),
+                ]}
+                toggleLabel={t("results.benefit.showCalculation")}
+              />
+            </div>
+            <p className="mt-2 text-[11px] leading-relaxed text-foreground/70">
+              {t("results.ancillaryScenario.note")}
+            </p>
+          </>
+        ) : p.noEconomy ? (
           <>
             <p className="text-center text-[30px] font-extrabold tracking-tight tabular-nums">{moneyPerYear(0)}</p>
             <p className="mt-1 text-center text-[11px] leading-relaxed">{t("results.benefit.none")}</p>
-            {/* MODEL C: 0 kr applies to the ordinary sizing only — never to the scenario. */}
-            {ancillaryScenario ? (
-              <p className="mt-2 text-center text-[11px] leading-relaxed text-foreground/70">
-                {t("results.ancillaryScenario.benefitNote")}
-              </p>
-            ) : null}
           </>
         ) : (
           <>
@@ -688,80 +727,9 @@ function ResultStep() {
         )}
       </SectionCard>
 
-      {/* MODEL C — comparison scenario. Deliberately separated from the recommendation:
-          no candidate is selected, highlighted or called best/optimal. */}
-      {ancillaryScenario ? (
-        <>
-          <SectionLabel>{t("results.ancillaryScenario.title")}</SectionLabel>
-          <SectionCard
-            compact
-            className="border-2 border-dashed border-foreground/20 bg-background"
-            title={t("results.ancillaryScenario.title")}
-            titleClassName={RESULT_CARD_TITLE_CLASS}
-            description={t("results.ancillaryScenario.lead")}
-            descriptionClassName={RESULT_CARD_DESCRIPTION_CLASS}
-          >
-            <p className="text-[11px] leading-relaxed">{t("results.ancillaryScenario.intro")}</p>
-            <p className="mt-2 rounded-[0.75rem] bg-muted px-3 py-2 text-[11px] font-semibold leading-relaxed">
-              {t("results.ancillaryScenario.notRecommendation")}
-            </p>
-            <div className="mt-3 space-y-2">
-              {ancillaryScenario.candidates.map((c) => (
-                <div
-                  key={c.capacityKWh}
-                  className="surface-secondary rounded-[1rem] p-3"
-                  data-testid="ancillary-scenario-candidate"
-                >
-                  <p className="text-[13px] font-bold tabular-nums">
-                    {kwh(c.capacityKWh)} / {kw(c.powerKw, 1)}
-                  </p>
-                  <div className="mt-1.5 space-y-1 text-[11px]">
-                    <div className="flex items-baseline justify-between gap-3">
-                      <span className="text-muted-foreground">
-                        {t("results.ancillaryScenario.compensation")}
-                      </span>
-                      <span className="font-semibold tabular-nums">
-                        {moneyPerYear(c.ancillaryCustomerValueSek)}
-                      </span>
-                    </div>
-                    <div className="flex items-baseline justify-between gap-3">
-                      <span className="text-muted-foreground">
-                        {t("results.ancillaryScenario.totalBenefit")}
-                      </span>
-                      <span className="font-semibold tabular-nums">
-                        {moneyPerYear(c.customerBenefitSek)}
-                      </span>
-                    </div>
-                    <div className="flex items-baseline justify-between gap-3">
-                      <span className="text-muted-foreground">
-                        {t("results.ancillaryScenario.maxInvestment")}
-                      </span>
-                      <span className="font-semibold tabular-nums">
-                        {c.maxInvestmentSek === null
-                          ? t("results.ancillaryScenario.maxInvestmentNone")
-                          : money(c.maxInvestmentSek)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
-              {t("results.ancillaryScenario.note")}
-            </p>
-          </SectionCard>
-        </>
-      ) : null}
-
-      
       {maxInvestment === null ? (
         <SectionCard compact className="surface-primary" title={t("results.investment.title")} titleClassName={RESULT_CARD_TITLE_CLASS}>
           <p className="text-[11px] leading-relaxed">{t("payback.investment.none")}</p>
-          {ancillaryScenario ? (
-            <p className="mt-2 text-[11px] leading-relaxed text-foreground/70">
-              {t("results.ancillaryScenario.investmentNote")}
-            </p>
-          ) : null}
         </SectionCard>
       ) : (
         <section className="ui-card ui-card-compact surface-primary text-center">

@@ -16,6 +16,7 @@
 import { runBatteryEngine } from "@/lib/battery-engine";
 import type { BatteryEngineInput, BatteryEngineResult } from "@/lib/battery-engine";
 import { capacityLadder } from "./capacityAlternatives";
+import type { BatteryAlternative } from "./capacityAlternatives";
 import { defaultConfig } from "@/lib/lab/defaults";
 import { DEFAULT_MAX_PRODUCT_C_RATE } from "@/lib/lab/economicPowerSizing";
 import {
@@ -41,6 +42,8 @@ export interface AncillaryScenarioCandidate {
   ancillaryMarketValueSek: number;
   /** The customer's share of that market value. */
   ancillaryCustomerValueSek: number;
+  /** Engine total for that candidate (ancillary at 100 % market value). */
+  annualBenefitSek: number | null;
   /** Full modelled annual customer benefit for that candidate (may be negative). */
   customerBenefitSek: number | null;
   /** Annual customer benefit x chosen payback years. Null when the benefit is not positive. */
@@ -97,6 +100,7 @@ function runCandidate(
       powerKw: rec.recommendedPowerKw ?? rec.productPowerKw,
       ancillaryMarketValueSek: market,
       ancillaryCustomerValueSek: market * share,
+      annualBenefitSek: total,
       customerBenefitSek: customerBenefit,
       maxInvestmentSek: maxInvestmentSek(customerBenefit, years),
     };
@@ -138,4 +142,50 @@ export function computeAncillaryScenario(
 
   candidates.sort((a, b) => a.capacityKWh - b.capacityKWh);
   return { candidates, customerAncillaryShare: share, targetPaybackYears: years };
+}
+
+/**
+ * The scenario candidate with the highest modelled customer benefit, or null when no
+ * candidate is economically positive (then the ordinary "no battery" answer stands).
+ */
+export function bestAncillaryCandidate(
+  scenario: AncillaryScenario | null,
+): AncillaryScenarioCandidate | null {
+  if (!scenario) return null;
+  let best: AncillaryScenarioCandidate | null = null;
+  for (const c of scenario.candidates) {
+    if (c.customerBenefitSek === null || !(c.customerBenefitSek > 0)) continue;
+    if (!best || c.customerBenefitSek > (best.customerBenefitSek ?? 0)) best = c;
+  }
+  return best;
+}
+
+/**
+ * The best candidate plus its nearest simulated neighbours, mapped onto the ordinary
+ * three-battery comparison card. Same shape, same card, no extra section.
+ */
+export function ancillaryAlternatives(
+  scenario: AncillaryScenario | null,
+): BatteryAlternative[] {
+  const best = bestAncillaryCandidate(scenario);
+  if (!scenario || !best) return [];
+  const idx = scenario.candidates.indexOf(best);
+  const toAlt = (
+    c: AncillaryScenarioCandidate,
+    level: BatteryAlternative["level"],
+  ): BatteryAlternative => ({
+    level,
+    capacityKWh: c.capacityKWh,
+    powerKw: c.powerKw,
+    annualBenefitSek: c.annualBenefitSek,
+    ancillaryMarketValueSek: c.ancillaryMarketValueSek,
+    customerBenefitSek: c.customerBenefitSek,
+  });
+  const out: BatteryAlternative[] = [];
+  const lower = idx > 0 ? scenario.candidates[idx - 1] : undefined;
+  const higher = idx < scenario.candidates.length - 1 ? scenario.candidates[idx + 1] : undefined;
+  if (lower) out.push(toAlt(lower, "lower"));
+  out.push(toAlt(best, "recommended"));
+  if (higher) out.push(toAlt(higher, "higher"));
+  return out;
 }

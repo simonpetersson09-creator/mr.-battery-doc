@@ -69,7 +69,9 @@ describe("reserve product labels come from the market config", () => {
 
   it("H+I+J: the market-value note is tied to the ancillary rows and changes no engine number", () => {
     // The note lives inside the same conditional block as the ancillary rows.
-    const anchor = resultatSource.indexOf("results.benefit.ancillaryMarket");
+    // The result page now has two ancillary blocks: the ancillary-only recommendation
+    // (no solar, no peak shaving) and the ordinary one. This guards the ordinary block.
+    const anchor = resultatSource.lastIndexOf("results.benefit.ancillaryMarket");
     const block = resultatSource.slice(anchor, anchor + 1400);
     // The MARKET value row is still the untouched engine figure.
     expect(block).toContain("moneyPerYear(ce.ancillaryMarketValueSek)");
@@ -77,7 +79,7 @@ describe("reserve product labels come from the market config", () => {
     // No fee/percentage is ever applied to the engine figure inline in the UI.
     expect(block).not.toMatch(/0\.\d+\s*\*\s*s\.fcr/);
     // J: nothing outside `s.fcr.enabled` prints the note.
-    expect(resultatSource.indexOf("results.benefit.ancillaryNote")).toBeGreaterThan(
+    expect(resultatSource.lastIndexOf("results.benefit.ancillaryNote")).toBeGreaterThan(
       resultatSource.indexOf("s.fcr.enabled ?"),
     );
     // The customer-facing wording itself is unchanged, now centralized in the locale.

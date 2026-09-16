@@ -212,17 +212,21 @@ export function ToggleRow({
   description,
   checked,
   onChange,
+  disabled = false,
 }: {
   title: string;
   description?: string;
   checked: boolean;
   onChange: (v: boolean) => void;
+  /** Locked row: shown, explained, but not changeable (e.g. needs solar). */
+  disabled?: boolean;
 }) {
   return (
     <div
       className={
         "flex items-center justify-between gap-3 rounded-[1.25rem] px-3.5 py-3 transition-colors " +
-        (checked ? "chip-selected" : "chip-unselected")
+        (checked ? "chip-selected" : "chip-unselected") +
+        (disabled ? " opacity-55" : "")
       }
     >
       <div className="min-w-0 flex-1">
@@ -233,6 +237,7 @@ export function ToggleRow({
       </div>
       <Switch
         checked={checked}
+        disabled={disabled}
         onCheckedChange={onChange}
         className="shrink-0 data-[state=checked]:border-[oklch(0.3172_0_0/0.3)] data-[state=checked]:bg-[var(--brand-yellow)]"
       />

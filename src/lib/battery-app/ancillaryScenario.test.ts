@@ -217,6 +217,7 @@ describe("ancillary scenario (Model C)", () => {
         expect(Object.keys(c).sort()).toEqual(
           [
             "ancillaryCustomerValueSek",
+            "annualBenefitSek",
             "ancillaryMarketValueSek",
             "capacityKWh",
             "customerBenefitSek",
