@@ -1147,9 +1147,11 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
       const absorbableKWh =
         Math.max(0, serviceCeilKWh - socHigh) / Math.max(win.chargeEff, 1e-9);
       const energyUpCapabilityKw =
-        enduranceHours > 0 ? deliverableKWh / enduranceHours : upPowerCapabilityKw;
+        upEnduranceHours > 0 ? deliverableKWh / upEnduranceHours : upPowerCapabilityKw;
       const energyDownCapabilityKw =
-        enduranceHours > 0 ? absorbableKWh / enduranceHours : downPowerCapabilityKw;
+        downEnduranceHours > 0
+          ? absorbableKWh / downEnduranceHours
+          : downPowerCapabilityKw;
 
       const gridUpHeadroomKw =
         (imp[h] ?? 0) + Math.max(0, limits.maxExportKw - (exp[h] ?? 0));
