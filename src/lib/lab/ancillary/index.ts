@@ -41,7 +41,7 @@ export function reserveModeForMarket(
   if (country === "DE") return "symmetric";
   if (country === "DK") return marketArea === "DK1" ? "symmetric" : "upward";
   /**
-   * SWEDEN and FINLAND run the same two separate Nordic products on the Fingrid market, with the
+   * SWEDEN and FINLAND run two separate Nordic products on the same battery, each with its
    * verified national FCR-D ned price series (SvK 2025 / Fingrid dataset 283) and their
    * own market definitions. DK2 keeps the pure upward
    * product until a verified national FCR-D ned series and definition exists for it —
