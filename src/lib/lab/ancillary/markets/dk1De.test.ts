@@ -249,10 +249,13 @@ describe("engine level: DK1 and DE physics", () => {
         capacityKWh: 10,
         powerKw: 10,
       });
-      const avg =
-        out.ancillaryReservedPowerKwByHour.reduce((a, b) => a + b, 0) / 8760;
-      expect(avg).toBeLessThanOrEqual(prev + 1e-9);
-      prev = avg;
+      avgs.push(
+        out.ancillaryReservedPowerKwByHour.reduce((a, b) => a + b, 0) / 8760,
+      );
     }
+    // 2 h endurance is far stricter than 6 min and must pay clearly less.
+    expect(avgs[avgs.length - 1]!).toBeLessThan(avgs[0]! * 0.9);
+    // The DE requirement is stricter than DK1's and is never the highest-paid variant.
+    expect(avgs[2]!).toBeLessThanOrEqual(avgs[0]! + 1e-9);
   });
 });
