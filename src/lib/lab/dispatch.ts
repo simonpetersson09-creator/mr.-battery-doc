@@ -1208,18 +1208,24 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
 
       if (powerOk && energyOk) {
         /**
-         * Monetizable power. UPWARD (unchanged): the power/energy readiness is already
-         * decided by powerOk/energyOk above, so only the grid gate clips the paid series.
-         * SYMMETRIC: the DOWN direction has no readiness test of its own, so its power,
-         * energy and grid capability clip the paid series here — held is then
-         * min(offered, up grid gate, down capability) and can never exceed the upward
-         * result under identical conditions.
+         * Monetizable power — SYMMETRIC TREATMENT OF UP AND DOWN (physics fix).
+         *
+         * The readiness test above is binary: it only asks whether the offered power and
+         * the endurance energy were present all hour. It does NOT say how many kW the
+         * stored energy could actually carry through the product endurance. The paid up
+         * series is therefore clipped by the SAME hourly capability the down side already
+         * used:
+         *   upReservableKw = min(discharge power, energy capability, grid up headroom)
+         * where the energy capability is measured from the worst-case SOC of the hour down
+         * to the ACTIVE SERVICE FLOOR, i.e. max(technical floor, market service floor for
+         * the active product combination), divided by the market endurance.
+         * SYMMETRIC: the same kW must clear both directions, so both capabilities clip.
          */
         const heldKw = Math.max(
           0,
           symmetric
-            ? Math.min(offeredKw, gridUpHeadroomKw, downReservableKw)
-            : Math.min(offeredKw, gridUpHeadroomKw),
+            ? Math.min(offeredKw, upReservableKw, downReservableKw)
+            : Math.min(offeredKw, upReservableKw),
         );
         t.fcrGridClippedSumKw += Math.max(0, offeredKw - heldKw);
         if (heldKw > 1e-9) {
