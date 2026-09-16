@@ -225,6 +225,23 @@ export const da = {
     },
   },
   results: {
+    ancillaryScenario: {
+      title: "Systemydelsescenarie",
+      intro:
+        "Selv uden et batteribehov fra solceller eller effekttoppe kan et batteri bruges til systemydelser. Her kan du sammenligne, hvordan forskellige batteristørrelser påvirker den beregnede betaling.",
+      notRecommendation: "Dette er et sammenligningsscenarie, ikke en anbefalet batteristørrelse.",
+      lead: "Systemydelser kan alligevel give betaling for et batteri. Sammenlign nogle størrelser nedenfor.",
+      battery: "Batteri",
+      compensation: "Betaling for systemydelser",
+      totalBenefit: "Beregnet samlet nytte",
+      maxInvestment: "Maksimal investering ved valgt tilbagebetalingstid",
+      maxInvestmentNone: "Kan ikke beregnes",
+      note: "Beregningen bygger på historiske betalingsniveauer. Faktisk betaling, tilgængelighed og mulighed for at deltage i systemydelser afhænger blandt andet af marked, aggregator og tekniske krav.",
+      benefitNote:
+        "Den almindelige dimensionering giver ikke noget batteribehov. Systemydelser kan alligevel give betaling – se scenariet nedenfor.",
+      investmentNote:
+        "Den almindelige dimensionering giver ikke noget batteribehov. Maksimal investering pr. batteristørrelse vises i scenariet nedenfor.",
+    },
     section: {
       battery: "Batteriet",
       benefit: "Nytten",

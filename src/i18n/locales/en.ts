@@ -225,6 +225,23 @@ export const en = {
     },
   },
   results: {
+    ancillaryScenario: {
+      title: "Ancillary services scenario",
+      intro:
+        "Even without a battery need from solar or peak demand, a battery can be used for ancillary services. Here you can compare how different battery sizes affect the calculated compensation.",
+      notRecommendation: "This is a comparison scenario, not a recommended battery size.",
+      lead: "Ancillary services can still pay for a battery. Compare a few sizes below.",
+      battery: "Battery",
+      compensation: "Ancillary compensation",
+      totalBenefit: "Calculated total benefit",
+      maxInvestment: "Maximum investment at your chosen payback time",
+      maxInvestmentNone: "Cannot be calculated",
+      note: "The calculation is based on historical compensation levels. Actual compensation, availability and the ability to take part in ancillary services depend on the market, the aggregator and technical requirements, among other things.",
+      benefitNote:
+        "The standard sizing finds no battery need. Ancillary services can still pay — see the scenario below.",
+      investmentNote:
+        "The standard sizing finds no battery need. Maximum investment per battery size is shown in the scenario below.",
+    },
     section: {
       battery: "Battery",
       benefit: "Benefit",

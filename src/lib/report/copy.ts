@@ -88,6 +88,18 @@ export interface ReportCopy {
     note: string;
   };
 
+  ancillaryScenario: {
+    title: string;
+    intro: string;
+    notRecommendation: string;
+    battery: string;
+    compensation: string;
+    totalBenefit: string;
+    maxInvestment: string;
+    maxInvestmentNone: string;
+    note: string;
+  };
+
   sizing: {
     title: string;
     capacity: string;
@@ -259,6 +271,19 @@ const sv: ReportCopy = {
     noPriceData:
       "Ekonomiskt värde kan inte beräknas för den här marknaden eftersom verifierat prisunderlag saknas. Effekt och tillgänglighet är beräknade, men ingen intäkt redovisas.",
     note: "Deltagande förutsätter normalt aggregator, förkvalificering och godkänd anläggning. Faktisk ersättning beror på avtal, marknadstillträde och villkor.",
+  },
+
+  ancillaryScenario: {
+    title: "Jämförelse av batteristorlekar för stödtjänster",
+    intro:
+      "Den vanliga dimensioneringen ger inget batteribehov. Nedan jämförs hur olika batteristorlekar skulle ersättas för stödtjänster.",
+    notRecommendation: "Detta är ett jämförelsescenario, inte en rekommenderad batteristorlek.",
+    battery: "Batteri",
+    compensation: "Stödtjänstersättning",
+    totalBenefit: "Beräknad total nytta",
+    maxInvestment: "Maxinvestering vid vald återbetalningstid",
+    maxInvestmentNone: "Kan inte beräknas",
+    note: "Beräkningen bygger på historiska ersättningsnivåer. Faktisk ersättning, tillgänglighet och möjlighet att delta i stödtjänster beror bland annat på marknad, aggregator och tekniska krav.",
   },
 
   sizing: {
@@ -516,6 +541,19 @@ const en: ReportCopy = {
     noPriceData:
       "No economic value can be calculated for this market because verified price data is missing. Power and availability are calculated, but no revenue is reported.",
     note: "Participation normally requires an aggregator, prequalification and an approved installation. Actual compensation depends on contract, market access and terms.",
+  },
+
+  ancillaryScenario: {
+    title: "Comparison of battery sizes for ancillary services",
+    intro:
+      "The standard sizing finds no battery need. Below is a comparison of how different battery sizes would be compensated for ancillary services.",
+    notRecommendation: "This is a comparison scenario, not a recommended battery size.",
+    battery: "Battery",
+    compensation: "Ancillary compensation",
+    totalBenefit: "Calculated total benefit",
+    maxInvestment: "Maximum investment at the chosen payback time",
+    maxInvestmentNone: "Cannot be calculated",
+    note: "The calculation is based on historical compensation levels. Actual compensation, availability and the ability to take part in ancillary services depend on the market, the aggregator and technical requirements, among other things.",
   },
 
   sizing: {

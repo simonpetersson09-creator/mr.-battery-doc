@@ -227,6 +227,23 @@ export const sv = {
     },
   },
   results: {
+    ancillaryScenario: {
+      title: "Stödtjänstscenario",
+      intro:
+        "Även utan ett batteribehov från solceller eller effekttoppar kan ett batteri användas för stödtjänster. Här kan du jämföra hur olika batteristorlekar påverkar den beräknade ersättningen.",
+      notRecommendation: "Detta är ett jämförelsescenario, inte en rekommenderad batteristorlek.",
+      lead: "Stödtjänster kan ändå ge ersättning för ett batteri. Jämför några olika storlekar nedan.",
+      battery: "Batteri",
+      compensation: "Stödtjänstersättning",
+      totalBenefit: "Beräknad total nytta",
+      maxInvestment: "Maxinvestering vid vald återbetalningstid",
+      maxInvestmentNone: "Kan inte beräknas",
+      note: "Beräkningen bygger på historiska ersättningsnivåer. Faktisk ersättning, tillgänglighet och möjlighet att delta i stödtjänster beror bland annat på marknad, aggregator och tekniska krav.",
+      benefitNote:
+        "Den vanliga dimensioneringen ger inget batteribehov. Stödtjänster kan ändå ge ersättning – se stödtjänstscenariot nedan.",
+      investmentNote:
+        "Den vanliga dimensioneringen ger inget batteribehov. Maxinvestering per batteristorlek visas i stödtjänstscenariot nedan.",
+    },
     section: {
       battery: "Batteriet",
       benefit: "Nyttan",

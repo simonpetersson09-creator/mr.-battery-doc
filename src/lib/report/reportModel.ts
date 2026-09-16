@@ -16,6 +16,7 @@ import { getProfile } from "@/lib/consumption-profiles";
 import { reserveProductName } from "@/i18n/labels";
 import type { BatteryAppResult } from "@/lib/battery-app";
 import type { BatteryAlternative } from "@/lib/battery-app/capacityAlternatives";
+import type { AncillaryScenario } from "@/lib/battery-app/ancillaryScenario";
 import {
   clampTargetPaybackYears,
   maxInvestmentSek,
@@ -110,6 +111,11 @@ export interface ReportModelRequest {
   targetPaybackYears: number;
   /** Pre-simulated alternatives from the result page. Never re-run inside the report. */
   alternatives: BatteryAlternative[];
+  /**
+   * MODEL C comparison scenario, exactly as rendered on the result page. It is NOT a
+   * recommendation and no candidate may be presented as one.
+   */
+  ancillaryScenario?: AncillaryScenario | null;
   /** Fixed clock/id for deterministic tests. */
   now?: Date;
   reportId?: string;
@@ -314,6 +320,43 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       { kind: "note", text: copy.benefit.note },
     ],
   });
+
+  /* ================= 2b. ANCILLARY SCENARIO (MODEL C, comparison only) ================= */
+  if (req.ancillaryScenario && req.ancillaryScenario.candidates.length > 0) {
+    const rows: ReportRow[] = [];
+    for (const c of req.ancillaryScenario.candidates) {
+      const label = `${kwh(c.capacityKWh)} / ${kw(c.powerKw, 1)}`;
+      rows.push({
+        label: `${label} — ${copy.ancillaryScenario.compensation}`,
+        value: perYear(c.ancillaryCustomerValueSek),
+        source: "calculated",
+      });
+      rows.push({
+        label: `${label} — ${copy.ancillaryScenario.totalBenefit}`,
+        value: perYear(c.customerBenefitSek),
+        source: "calculated",
+      });
+      rows.push({
+        label: `${label} — ${copy.ancillaryScenario.maxInvestment}`,
+        value:
+          c.maxInvestmentSek === null
+            ? copy.ancillaryScenario.maxInvestmentNone
+            : money(c.maxInvestmentSek),
+        source: "calculated",
+      });
+    }
+    sections.push({
+      id: "ancillary-scenario",
+      title: copy.ancillaryScenario.title,
+      pageBreak: true,
+      blocks: [
+        { kind: "text", text: copy.ancillaryScenario.intro },
+        { kind: "note", text: copy.ancillaryScenario.notRecommendation },
+        { kind: "rows", rows },
+        { kind: "note", text: copy.ancillaryScenario.note },
+      ],
+    });
+  }
 
   /* ============================ 3. ANCILLARY ============================ */
   if (ancillaryEnabled) {
