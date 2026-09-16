@@ -41,6 +41,8 @@ export interface AncillaryScenarioCandidate {
   ancillaryMarketValueSek: number;
   /** The customer's share of that market value. */
   ancillaryCustomerValueSek: number;
+  /** Engine total for that candidate (ancillary at 100 % market value). */
+  annualBenefitSek: number | null;
   /** Full modelled annual customer benefit for that candidate (may be negative). */
   customerBenefitSek: number | null;
   /** Annual customer benefit x chosen payback years. Null when the benefit is not positive. */
