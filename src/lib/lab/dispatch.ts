@@ -1224,7 +1224,11 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
         : upAndDown
           ? nem.downKw
           : downCapabilityKw;
-      if (nem.limiting) t.fcrNemLimitedHours++;
+      const symmetricNemBinding =
+        symmetric &&
+        nemShare > 0 &&
+        Math.min(upCapabilityKw, downCapabilityKw) > symmetricNemCeilingKw + 1e-9;
+      if (nem.limiting || symmetricNemBinding) t.fcrNemLimitedHours++;
       /**
        * UPWARD product: only the up side is sold, so the reservable power is the up side
        * (identical to the previous gate — Sweden/Finland/DK2 are unchanged).
