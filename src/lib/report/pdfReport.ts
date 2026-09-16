@@ -8,6 +8,7 @@
  */
 import type { BatteryAppResult } from "@/lib/battery-app";
 import type { BatteryAlternative } from "@/lib/battery-app/capacityAlternatives";
+import type { AncillaryScenario } from "@/lib/battery-app/ancillaryScenario";
 import type { CustomerEconomy } from "@/lib/battery-app/customerEconomy";
 import { isNativePlatform } from "@/lib/platform/runtime";
 import { buildDocDefinition } from "./docDefinition";
@@ -29,6 +30,8 @@ export interface PdfReportRequest {
   targetPaybackYears: number;
   /** The SAME simulated alternatives the result page renders. */
   alternatives: BatteryAlternative[];
+  /** The SAME MODEL C comparison scenario the result page renders, when it exists. */
+  ancillaryScenario?: AncillaryScenario | null;
 }
 
 interface PdfMakeApi {

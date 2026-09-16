@@ -228,6 +228,23 @@ export const de = {
     },
   },
   results: {
+    ancillaryScenario: {
+      title: "Systemdienstleistungs-Szenario",
+      intro:
+        "Auch ohne Batteriebedarf aus Photovoltaik oder Lastspitzen kann eine Batterie für Systemdienstleistungen genutzt werden. Hier können Sie vergleichen, wie sich verschiedene Batteriegrößen auf die berechnete Vergütung auswirken.",
+      notRecommendation: "Dies ist ein Vergleichsszenario, keine empfohlene Batteriegröße.",
+      lead: "Systemdienstleistungen können trotzdem eine Vergütung bringen. Vergleichen Sie unten einige Größen.",
+      battery: "Batterie",
+      compensation: "Vergütung für Systemdienstleistungen",
+      totalBenefit: "Berechneter Gesamtnutzen",
+      maxInvestment: "Maximale Investition bei gewählter Amortisationszeit",
+      maxInvestmentNone: "Nicht berechenbar",
+      note: "Die Berechnung basiert auf historischen Vergütungsniveaus. Tatsächliche Vergütung, Verfügbarkeit und die Möglichkeit zur Teilnahme hängen unter anderem vom Markt, vom Aggregator und von technischen Anforderungen ab.",
+      benefitNote:
+        "Die normale Auslegung ergibt keinen Batteriebedarf. Systemdienstleistungen können dennoch vergütet werden – siehe Szenario unten.",
+      investmentNote:
+        "Die normale Auslegung ergibt keinen Batteriebedarf. Die maximale Investition je Batteriegröße steht im Szenario unten.",
+    },
     section: {
       battery: "Batterie",
       benefit: "Nutzen",

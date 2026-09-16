@@ -222,6 +222,23 @@ export const fi = {
     },
   },
   results: {
+    ancillaryScenario: {
+      title: "Tukipalveluskenaario",
+      intro:
+        "Vaikka aurinkosähkö tai tehohuiput eivät loisi akkutarvetta, akkua voi käyttää tukipalveluihin. Täällä voit verrata, miten eri akkukoot vaikuttavat laskettuun korvaukseen.",
+      notRecommendation: "Tämä on vertailuskenaario, ei suositeltu akkukoko.",
+      lead: "Tukipalvelut voivat silti tuoda korvausta akulle. Vertaa alla muutamaa kokoa.",
+      battery: "Akku",
+      compensation: "Tukipalvelukorvaus",
+      totalBenefit: "Laskettu kokonaishyöty",
+      maxInvestment: "Enimmäisinvestointi valitulla takaisinmaksuajalla",
+      maxInvestmentNone: "Ei voida laskea",
+      note: "Laskelma perustuu historiallisiin korvaustasoihin. Todellinen korvaus, saatavuus ja mahdollisuus osallistua tukipalveluihin riippuvat muun muassa markkinasta, aggregaattorista ja teknisistä vaatimuksista.",
+      benefitNote:
+        "Tavanomainen mitoitus ei tuota akkutarvetta. Tukipalvelut voivat silti tuoda korvausta – katso skenaario alta.",
+      investmentNote:
+        "Tavanomainen mitoitus ei tuota akkutarvetta. Enimmäisinvestointi akkukokoa kohden näkyy alla olevassa skenaariossa.",
+    },
     section: {
       battery: "Akku",
       benefit: "Hyöty",

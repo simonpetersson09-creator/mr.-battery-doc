@@ -11,6 +11,7 @@ import { useAccess } from "@/state/access";
 import { buildResultPresentation } from "@/lib/battery-app/resultPresentation";
 import { computeWithoutFcrOptimum } from "@/lib/battery-app/withoutFcrOptimum";
 import { computeBatteryAlternatives } from "@/lib/battery-app/capacityAlternatives";
+import { computeAncillaryScenario } from "@/lib/battery-app/ancillaryScenario";
 import {
   customerEconomyFromResult,
   maxInvestmentSek,
@@ -137,6 +138,29 @@ function ResultStep() {
           : [],
     [snapshot, outcome, state.preferences.customerAncillaryShare],
   );
+
+  /**
+   * MODEL C: separate ancillary-services comparison. Only exists when the physical
+   * recommendation is 0 kWh and ancillary services are selected. It never changes the
+   * recommendation, the economy or anything else on this page.
+   */
+  const ancillaryScenario = useMemo(
+    () =>
+      outcome.status === "ok"
+        ? computeAncillaryScenario(
+            outcome.input,
+            outcome.result,
+            state.preferences.customerAncillaryShare,
+            state.preferences.targetPaybackYears,
+          )
+        : null,
+    [
+      outcome,
+      state.preferences.customerAncillaryShare,
+      state.preferences.targetPaybackYears,
+    ],
+  );
+
 
   /**
    * Every purchased calculation is snapshotted once, so it can be reopened from
@@ -330,6 +354,7 @@ function ResultStep() {
           customerEconomy: ce,
           targetPaybackYears: targetYears,
           alternatives,
+          ancillaryScenario,
         }).finally(() => setPdfBusy(false));
       }}
     >
@@ -578,6 +603,12 @@ function ResultStep() {
           <>
             <p className="text-center text-[30px] font-extrabold tracking-tight tabular-nums">{moneyPerYear(0)}</p>
             <p className="mt-1 text-center text-[11px] leading-relaxed">{t("results.benefit.none")}</p>
+            {/* MODEL C: 0 kr applies to the ordinary sizing only — never to the scenario. */}
+            {ancillaryScenario ? (
+              <p className="mt-2 text-center text-[11px] leading-relaxed text-foreground/70">
+                {t("results.ancillaryScenario.benefitNote")}
+              </p>
+            ) : null}
           </>
         ) : (
           <>
@@ -657,10 +688,80 @@ function ResultStep() {
         )}
       </SectionCard>
 
+      {/* MODEL C — comparison scenario. Deliberately separated from the recommendation:
+          no candidate is selected, highlighted or called best/optimal. */}
+      {ancillaryScenario ? (
+        <>
+          <SectionLabel>{t("results.ancillaryScenario.title")}</SectionLabel>
+          <SectionCard
+            compact
+            className="border-2 border-dashed border-foreground/20 bg-background"
+            title={t("results.ancillaryScenario.title")}
+            titleClassName={RESULT_CARD_TITLE_CLASS}
+            description={t("results.ancillaryScenario.lead")}
+            descriptionClassName={RESULT_CARD_DESCRIPTION_CLASS}
+          >
+            <p className="text-[11px] leading-relaxed">{t("results.ancillaryScenario.intro")}</p>
+            <p className="mt-2 rounded-[0.75rem] bg-muted px-3 py-2 text-[11px] font-semibold leading-relaxed">
+              {t("results.ancillaryScenario.notRecommendation")}
+            </p>
+            <div className="mt-3 space-y-2">
+              {ancillaryScenario.candidates.map((c) => (
+                <div
+                  key={c.capacityKWh}
+                  className="surface-secondary rounded-[1rem] p-3"
+                  data-testid="ancillary-scenario-candidate"
+                >
+                  <p className="text-[13px] font-bold tabular-nums">
+                    {kwh(c.capacityKWh)} / {kw(c.powerKw, 1)}
+                  </p>
+                  <div className="mt-1.5 space-y-1 text-[11px]">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="text-muted-foreground">
+                        {t("results.ancillaryScenario.compensation")}
+                      </span>
+                      <span className="font-semibold tabular-nums">
+                        {moneyPerYear(c.ancillaryCustomerValueSek)}
+                      </span>
+                    </div>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="text-muted-foreground">
+                        {t("results.ancillaryScenario.totalBenefit")}
+                      </span>
+                      <span className="font-semibold tabular-nums">
+                        {moneyPerYear(c.customerBenefitSek)}
+                      </span>
+                    </div>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="text-muted-foreground">
+                        {t("results.ancillaryScenario.maxInvestment")}
+                      </span>
+                      <span className="font-semibold tabular-nums">
+                        {c.maxInvestmentSek === null
+                          ? t("results.ancillaryScenario.maxInvestmentNone")
+                          : money(c.maxInvestmentSek)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+              {t("results.ancillaryScenario.note")}
+            </p>
+          </SectionCard>
+        </>
+      ) : null}
+
       
       {maxInvestment === null ? (
         <SectionCard compact className="surface-primary" title={t("results.investment.title")} titleClassName={RESULT_CARD_TITLE_CLASS}>
           <p className="text-[11px] leading-relaxed">{t("payback.investment.none")}</p>
+          {ancillaryScenario ? (
+            <p className="mt-2 text-[11px] leading-relaxed text-foreground/70">
+              {t("results.ancillaryScenario.investmentNote")}
+            </p>
+          ) : null}
         </SectionCard>
       ) : (
         <section className="ui-card ui-card-compact surface-primary text-center">
