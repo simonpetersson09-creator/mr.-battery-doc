@@ -51,6 +51,13 @@ const CASES: Record<string, { label: string; input: BatteryEngineInput }> = {
  *     also capped by the grid headroom in the paid direction, which clips ~0,000012 kW in
  *     a couple of hours (held 1,79999 kW instead of 1,8 kW). No other golden master moves,
  *     no physical dispatch value moves, and no energy balance changes.
+ * FCR-D UP ENDURANCE FIX (paid up-power clipped by the hourly energy capability against
+ * the ACTIVE service floor, mirroring the down side):
+ *   - GM05.fcrHeldKw 1,5 -> 0,9235 and fcrGrossSek 901,72 -> 576,43;
+ *   - GM06.fcrHeldKw 1,8 -> 1,4053 and fcrGrossSek 1082,06 -> 855,30;
+ *   - the two totalOperatingBenefitSek values follow. INTENDED: no physical dispatch
+ *     value, energy balance, sizing, price or customer share changes — only the power the
+ *     model is allowed to be PAID for.
  * Regenerated again after the Swedish demand-charge schablon changed from 55 to
  * 30 SEK/kW/month. ONLY `demandCostSavingSek` (scaled by 30/55) and the
  * `totalOperatingBenefitSek` that contains it moved; every physical field, the sizing,
