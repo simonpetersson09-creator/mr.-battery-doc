@@ -71,14 +71,16 @@ describe("reserve product per market", () => {
     expect(result.summary.fcr.grossSek).not.toBe(caseFor("DE").result.summary.fcr.grossSek);
   });
 
-  // eslint-disable-next-line vitest/no-disabled-tests
-  it("never lets symmetric hold more than upward with the same battery and grid", () => {
+  /**
+   * The symmetric product is checked AGAINST ITSELF. A cross-market comparison with the
+   * Nordic product is no longer physically meaningful: Nordic FCR-D now carries a 20 %
+   * NEM power reservation and a 20 min endurance, while the continental product keeps
+   * its own (still unverified) legacy profile and no NEM rule.
+   */
+  it("never lets symmetric hold more than its own weakest direction", () => {
     const sym = caseFor("DE").reserve;
-    const up = caseFor("DK", "DK2").reserve;
-    expect(sym.physicalHeldPowerAvgKw).toBeLessThanOrEqual(up.physicalHeldPowerAvgKw + 1e-9);
-    expect(Math.min(sym.reservableUpAvgKw, sym.reservableDownAvgKw)).toBeLessThanOrEqual(
-      sym.reservableUpAvgKw + 1e-9,
-    );
+    const weakest = Math.min(sym.reservableUpAvgKw, sym.reservableDownAvgKw);
+    expect(sym.physicalHeldPowerAvgKw).toBeLessThanOrEqual(weakest + 1e-9);
   });
 
   it("keeps Sweden and Finland producing real revenue on their own datasets", () => {

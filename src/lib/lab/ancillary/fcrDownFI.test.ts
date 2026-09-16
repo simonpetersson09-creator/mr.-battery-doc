@@ -111,7 +111,8 @@ describe("finska marknadsregler", () => {
   it("nedprodukten använder finska SOC-/uthållighetskrav", () => {
     const down = FI_MARKET.services.find((s) => s.key === "FCR-D-down")!;
     expect(down.direction).toBe("down");
-    expect(down.requirements.enduranceHours).toBe(0.35);
+    // Nordic FCR-D endurance: exactly 20 minutes.
+    expect(down.requirements.enduranceHours).toBe(20 / 60);
     expect(down.requirements.serviceMinSocPct).toBe(5);
     expect(down.requirements.serviceMaxSocPct).toBe(80);
     expect(down.requirements.socHeadroomPct).toBe(5);
