@@ -250,7 +250,7 @@ describe("ancillary: revenue and reservation", () => {
   it("reservation is a single shared window, never doubled per service", () => {
     const res = ancillaryReservation(cfg({ serviceKeys: ["FCR-D-up", "FCR-N"] }))!;
     expect(res.reservedPowerKw).toBe(5);
-    expect(res.enduranceHours).toBe(0.35);
+    expect(res.enduranceHours).toBe(20 / 60);
     expect(res.serviceMinSocPct).toBe(20);
     expect(res.serviceMaxSocPct).toBe(95);
     expect(res.paymentKrPerKwYear).toBe(0);

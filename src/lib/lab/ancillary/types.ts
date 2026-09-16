@@ -51,6 +51,13 @@ export interface ServiceRequirements {
   requiresAggregator: boolean;
   /** True when prequalification testing by the TSO is required. */
   requiresPrequalification: boolean;
+  /**
+   * NEM (Normal Energy Management) power that must be kept available in the OPPOSITE
+   * direction, as a share of the sold FCR capacity, %. Nordic FCR-D with LER = 20.
+   * Omitted / 0 = the market declares no NEM power reservation in this model.
+   * It is a PHYSICAL POWER requirement only — see ../nem.ts for the formula.
+   */
+  nemPowerSharePct?: number;
 }
 
 export interface ServiceDefinition {
@@ -186,6 +193,11 @@ export interface AncillaryPlan {
   socHeadroomPct: number;
   serviceMinSocPct: number;
   serviceMaxSocPct: number;
+  /**
+   * NEM power reservation, % of the sold FCR capacity, held in the OPPOSITE direction.
+   * 0 = no NEM requirement for this product/market. Physical power only.
+   */
+  nemPowerSharePct: number;
   hoursOfDay: number[];
   months: number[];
   /** True when the reservation covers every hour of the year (a simplification). */

@@ -1,5 +1,6 @@
 import { HOURS_PER_YEAR, MONTH_DAYS } from "./defaults";
 import { expandPriceSeries, quantile } from "./profiles";
+import { applyNemPowerReservation } from "./ancillary/nem";
 import type { AncillaryPlan } from "./ancillary/types";
 import type {
   BatteryParams,
@@ -268,6 +269,11 @@ export interface DispatchTallies {
   fcrEnergyDownLimitedHours: number;
   fcrUpBindingHours: number;
   fcrDownBindingHours: number;
+  /** NEM power held on the charge/discharge side, summed over the scheduled hours, kW. */
+  fcrNemChargeSumKw: number;
+  fcrNemDischargeSumKw: number;
+  /** Hours where the NEM power requirement reduced the reservable FCR power. */
+  fcrNemLimitedHours: number;
 }
 
 export interface DispatchOutput {
@@ -330,6 +336,13 @@ export interface DispatchOutput {
     energyDownLimitedHours: number;
     symmetricHeldPowerAvgKw: number;
     limitingDirection: "up" | "down" | "both" | "none";
+    /** NEM share actually applied, % of the FCR capacity (0 for markets without NEM). */
+    nemPowerSharePct: number;
+    /** Mean NEM power held on the charge / discharge side over the scheduled hours. */
+    nemChargeAvgKw: number;
+    nemDischargeAvgKw: number;
+    /** Hours where NEM was the reducing constraint. */
+    nemLimitedHours: number;
   };
   notes: string[];
 }
@@ -536,6 +549,9 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
     fcrEnergyDownLimitedHours: 0,
     fcrUpBindingHours: 0,
     fcrDownBindingHours: 0,
+    fcrNemChargeSumKw: 0,
+    fcrNemDischargeSumKw: 0,
+    fcrNemLimitedHours: 0,
   };
 
   let arbCost = 0;
@@ -1158,14 +1174,39 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
       const gridDownHeadroomKw =
         (exp[h] ?? 0) + Math.max(0, limits.maxImportKw - (imp[h] ?? 0));
 
-      const upReservableKw = Math.max(
+      const upCapabilityKw = Math.max(
         0,
         Math.min(upPowerCapabilityKw, energyUpCapabilityKw, gridUpHeadroomKw),
       );
-      const downReservableKw = Math.max(
+      const downCapabilityKw = Math.max(
         0,
         Math.min(downPowerCapabilityKw, energyDownCapabilityKw, gridDownHeadroomKw),
       );
+
+      /**
+       * ---------- NEM POWER RESERVATION (Nordic FCR-D with LER) ----------
+       * THREE SEPARATE LIMITS, never mixed:
+       *   ENERGY    -> energyUp/DownCapabilityKw (SOC vs active service floor/ceiling
+       *                over the product endurance);
+       *   FCR POWER -> upPowerCapabilityKw / downPowerCapabilityKw (charge/discharge);
+       *   NEM POWER -> the share of the FCR capacity that must stay available in the
+       *                OPPOSITE direction for normal energy management.
+       * Constraint (see ancillary/nem.ts): U + s*D <= Pdischarge and D + s*U <= Pcharge.
+       * Applied to the hourly CAPABILITY pair, so the paid power (clipped by the offered
+       * bid further down) can only ever become smaller. Symmetric continental FCR has no
+       * verified Nordic NEM rule, so s = 0 there and DE/DK1 are numerically untouched.
+       */
+      const nemShare = symmetric ? 0 : Math.max(0, plan?.nemPowerSharePct ?? 0) / 100;
+      const nem = applyNemPowerReservation({
+        upKw: upCapabilityKw,
+        downKw: upAndDown ? downCapabilityKw : 0,
+        dischargeKw: upPowerCapabilityKw,
+        chargeKw: downPowerCapabilityKw,
+        nemShare,
+      });
+      const upReservableKw = nem.upKw;
+      const downReservableKw = upAndDown ? nem.downKw : downCapabilityKw;
+      if (nem.limiting) t.fcrNemLimitedHours++;
       /**
        * UPWARD product: only the up side is sold, so the reservable power is the up side
        * (identical to the previous gate — Sweden/Finland/DK2 are unchanged).
@@ -1247,6 +1288,8 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
             : Math.min(offeredKw, upReservableKw),
         );
         t.fcrGridClippedSumKw += Math.max(0, offeredKw - heldKw);
+        // NEM power actually held for the paid capacity, in the opposite direction.
+        t.fcrNemChargeSumKw += nemShare * heldKw;
         if (heldKw > 1e-9) {
           t.ancillaryReadyHours++;
           ancillaryReservedPowerKwByHour[h] = heldKw;
@@ -1258,6 +1301,7 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
          */
         if (upAndDown) {
           const heldDownKw = Math.max(0, Math.min(offeredDownKw, downReservableKw));
+          t.fcrNemDischargeSumKw += nemShare * heldDownKw;
           if (heldDownKw > 1e-9) {
             ancillaryReservedDownPowerKwByHour[h] = heldDownKw;
             fcrDownHeldSumKw += heldDownKw;
@@ -1321,6 +1365,11 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
         symmetricHeldPowerAvgKw:
           plan?.reserveMode === "symmetric" && n > 0 ? heldSum / n : 0,
         downHeldPowerAvgKw: n > 0 ? fcrDownHeldSumKw / n : 0,
+        nemPowerSharePct:
+          plan?.reserveMode === "symmetric" ? 0 : (plan?.nemPowerSharePct ?? 0),
+        nemChargeAvgKw: n > 0 ? t.fcrNemChargeSumKw / n : 0,
+        nemDischargeAvgKw: n > 0 ? t.fcrNemDischargeSumKw / n : 0,
+        nemLimitedHours: t.fcrNemLimitedHours,
         limitingDirection,
         avgReservablePowerKw: n > 0 ? t.fcrReservableSumKw / n : 0,
         maxReservablePowerKw: t.fcrReservableMaxKw,

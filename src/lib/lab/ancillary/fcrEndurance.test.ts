@@ -121,9 +121,14 @@ describe("FCR-D endurance invariant (up and down)", () => {
     // Active service floor is 20 % (FCR-D up) combined with FCR-D down's 80 % ceiling.
     expect(plan.serviceMinSocPct).toBe(20);
     expect(plan.serviceMaxSocPct).toBe(80);
+    /**
+     * After the 20 min endurance + NEM correction the energy capability rises slightly
+     * (shorter endurance) and is then scaled down by the NEM power reservation
+     * (U + 0,2*D <= discharge power, D + 0,2*U <= charge power).
+     */
     const paid = out.ancillaryReservedPowerKwByHour[100] ?? 0;
-    expect(paid).toBeGreaterThan(8.0);
-    expect(paid).toBeLessThan(8.2);
+    expect(paid).toBeGreaterThan(7.5);
+    expect(paid).toBeLessThan(7.7);
   });
 });
 

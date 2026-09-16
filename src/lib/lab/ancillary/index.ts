@@ -1,4 +1,5 @@
 import { DEFAULT_EUR_SEK_RATE } from "./fcrEconomics";
+import { CONTINENTAL_LEGACY_MARKET } from "./markets/continentalLegacy";
 import { FI_MARKET } from "./markets/fi";
 import { MARKETS, SE_MARKET } from "./markets/se";
 import type { FcrMarketArea } from "./prices";
@@ -87,7 +88,15 @@ export function marketProfile(id: MarketId): MarketProfile {
  * behaviour for saved cases created before the country was tracked).
  */
 export function marketProfileForPriceArea(area: FcrMarketArea | undefined): MarketProfile {
-  return area === "FI" ? FI_MARKET : SE_MARKET;
+  if (area === "FI") return FI_MARKET;
+  /**
+   * DE and DK1 are CONTINENTAL symmetric FCR, not Nordic FCR-D. They keep the frozen
+   * legacy profile so Nordic corrections (20 min endurance, NEM) cannot leak into a
+   * market where they were never verified. Both still need own verified profiles.
+   * DK2 is part of the Nordic FCR-D market and keeps the Swedish rule set.
+   */
+  if (area === "DE" || area === "DK1") return CONTINENTAL_LEGACY_MARKET;
+  return SE_MARKET;
 }
 
 /** Default config: market rules only, NO prices and NO assumed revenue. */
@@ -195,6 +204,14 @@ export function ancillaryPlan(cfg: AncillaryConfig): AncillaryPlan | null {
     socHeadroomPct: Math.max(...selected.map((s) => s.requirements.socHeadroomPct)),
     serviceMinSocPct: Math.max(...selected.map((s) => s.requirements.serviceMinSocPct)),
     serviceMaxSocPct: Math.min(...selected.map((s) => s.requirements.serviceMaxSocPct)),
+    /**
+     * NEM POWER RESERVATION. Taken from the selected services of the ACTIVE market
+     * profile (Nordic FCR-D: 20 %). The symmetric continental product has no verified
+     * Nordic NEM rule, so it is never applied there (DE/DK1 unchanged).
+     */
+    nemPowerSharePct: symmetric
+      ? 0
+      : Math.max(0, ...selected.map((s) => s.requirements.nemPowerSharePct ?? 0)),
     hoursOfDay,
     months,
     wholeYear,

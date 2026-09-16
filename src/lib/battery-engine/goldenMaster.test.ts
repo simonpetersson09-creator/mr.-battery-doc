@@ -63,6 +63,18 @@ const CASES: Record<string, { label: string; input: BatteryEngineInput }> = {
  * `totalOperatingBenefitSek` that contains it moved; every physical field, the sizing,
  * the FCR reservation and the FCR revenue are unchanged.
  *
+ * NORDIC FCR-D 20 MIN ENDURANCE + NEM POWER RESERVATION (SE/FI/DK2 only):
+ *   - endurance 0,35 h (21 min) -> 20/60 h (20 min), so slightly more kW fits inside the
+ *     same stored energy, and a NEM power reservation of 20 % of the FCR capacity must be
+ *     available in the OPPOSITE direction (physical power constraint, see ancillary/nem.ts).
+ *   - GM05.fcrHeldKw 0,9235 -> 0,9245, fcrGrossSek 576,43 -> 577,0934,
+ *     totalOperatingBenefitSek 2467,87 -> 2468,54;
+ *   - GM06.fcrHeldKw 1,4053 -> 1,4105, fcrGrossSek 855,30 -> 858,4302,
+ *     totalOperatingBenefitSek 2748,22 -> 2751,35.
+ *   NEM does not bind in these two cases (1,5 / 1,8 kW offered on a 3 kW battery), so the
+ *   only driver is the corrected 20 minute endurance. No physical dispatch value, energy
+ *   balance, sizing, price or customer share changes.
+ *
  * Regenerated again after the MODEL CONSISTENCY FIX (cyclic year SOC + one single
  * demand-charge definition). The year now starts where it ends, so the battery can no
  * longer deliver stored energy it never charged during the simulated year:
@@ -213,11 +225,11 @@ const EXPECTED = {
     "demandCostSavingSek": 290.35,
     "fcrEnabled": true,
     "fcrOfferedKw": 1.5,
-    "fcrHeldKw": 0.9235,
-    "fcrGrossSek": 576.43,
+    "fcrHeldKw": 0.9245,
+    "fcrGrossSek": 577.0934,
     "fcrOptimisedKw": null,
     "energyBenefitSek": 1601.09,
-    "totalOperatingBenefitSek": 2467.87,
+    "totalOperatingBenefitSek": 2468.54,
     "balanceOk": true,
     "residualKWh": 0
   },
@@ -241,11 +253,11 @@ const EXPECTED = {
     "demandCostSavingSek": 371.49,
     "fcrEnabled": true,
     "fcrOfferedKw": 1.8,
-    "fcrHeldKw": 1.4053,
-    "fcrGrossSek": 855.3,
+    "fcrHeldKw": 1.4105,
+    "fcrGrossSek": 858.4302,
     "fcrOptimisedKw": 1.8,
     "energyBenefitSek": 1521.43,
-    "totalOperatingBenefitSek": 2748.22,
+    "totalOperatingBenefitSek": 2751.35,
     "balanceOk": true,
     "residualKWh": 0
   },
