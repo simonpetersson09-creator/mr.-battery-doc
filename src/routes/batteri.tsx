@@ -26,7 +26,25 @@ function BatteryStep() {
   const set = (key: keyof typeof s) => (v: boolean) =>
     update((prev) => ({ ...prev, strategies: { ...prev.strategies, [key]: v } }));
 
+  /**
+   * Without a PV system the three solar/load-driven uses have nothing to work with,
+   * so they are switched off and locked. Ancillary services stay available: the
+   * battery can still be compensated for standing by on the reserve market.
+   */
   const noSolar = state.production.mode === "none";
+  useEffect(() => {
+    if (!noSolar) return;
+    if (!s.solarSelfConsumption && !s.reducedGridImport && !s.peakShaving) return;
+    update((prev) => ({
+      ...prev,
+      strategies: {
+        ...prev.strategies,
+        solarSelfConsumption: false,
+        reducedGridImport: false,
+        peakShaving: false,
+      },
+    }));
+  }, [noSolar, s.solarSelfConsumption, s.reducedGridImport, s.peakShaving, update]);
 
   return (
     <WizardShell compact stepIndex={3} title={t("strategies.title")} intro={t("strategies.intro")}>
@@ -34,19 +52,22 @@ function BatteryStep() {
         <ToggleRow
           title={t("strategies.solar.title")}
           description={t("strategies.solar.description")}
-          checked={s.solarSelfConsumption}
+          checked={noSolar ? false : s.solarSelfConsumption}
+          disabled={noSolar}
           onChange={set("solarSelfConsumption")}
         />
         <ToggleRow
           title={t("strategies.gridImport.title")}
           description={t("strategies.gridImport.description")}
-          checked={s.reducedGridImport}
+          checked={noSolar ? false : s.reducedGridImport}
+          disabled={noSolar}
           onChange={set("reducedGridImport")}
         />
         <ToggleRow
           title={t("strategies.peak.title")}
           description={t("strategies.peak.description")}
-          checked={s.peakShaving}
+          checked={noSolar ? false : s.peakShaving}
+          disabled={noSolar}
           onChange={set("peakShaving")}
         />
       </div>
@@ -58,9 +79,7 @@ function BatteryStep() {
         onChange={set("fcrDUp")}
       />
 
-      {noSolar && s.solarSelfConsumption ? (
-        <SectionCard compact description={t("strategies.noSolarNote")} />
-      ) : null}
+      {noSolar ? <SectionCard compact description={t("strategies.noSolarNote")} /> : null}
     </WizardShell>
   );
 }
