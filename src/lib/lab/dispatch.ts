@@ -1302,6 +1302,9 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
         t.fcrGridClippedSumKw += Math.max(0, offeredKw - heldKw);
         // NEM power actually held for the paid capacity, in the opposite direction.
         t.fcrNemChargeSumKw += nemShare * heldKw;
+        // Symmetric product: the one paid capacity loads BOTH sides, so the energy
+        // management reservation is held on the discharge side as well.
+        if (symmetric) t.fcrNemDischargeSumKw += nemShare * heldKw;
         if (heldKw > 1e-9) {
           t.ancillaryReadyHours++;
           ancillaryReservedPowerKwByHour[h] = heldKw;
@@ -1377,8 +1380,7 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
         symmetricHeldPowerAvgKw:
           plan?.reserveMode === "symmetric" && n > 0 ? heldSum / n : 0,
         downHeldPowerAvgKw: n > 0 ? fcrDownHeldSumKw / n : 0,
-        nemPowerSharePct:
-          plan?.reserveMode === "symmetric" ? 0 : (plan?.nemPowerSharePct ?? 0),
+        nemPowerSharePct: plan?.nemPowerSharePct ?? 0,
         nemChargeAvgKw: n > 0 ? t.fcrNemChargeSumKw / n : 0,
         nemDischargeAvgKw: n > 0 ? t.fcrNemDischargeSumKw / n : 0,
         nemLimitedHours: t.fcrNemLimitedHours,
