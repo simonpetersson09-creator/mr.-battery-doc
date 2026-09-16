@@ -4,7 +4,7 @@ import {
   computeFcrRevenue,
   fcrPriceSeriesForCountry,
   fcrDownPriceSeriesForCountry,
-  marketProfile,
+  marketProfileForPriceArea,
   MISSING_PRICE_TEXT,
 } from "./ancillary";
 import { baseline, computeGridLimits, dispatch } from "./dispatch";
@@ -226,7 +226,7 @@ export function simulate(
    */
   const ancillaryOutcome = cfg.strategies.ancillaryServices
     ? computeAncillary(
-        marketProfile(cfg.ancillary.marketId),
+        marketProfileForPriceArea(cfg.ancillary.priceCountry),
         cfg.ancillary,
         {
           capacityKWh,

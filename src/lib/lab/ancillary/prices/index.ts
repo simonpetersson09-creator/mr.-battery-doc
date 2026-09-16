@@ -10,6 +10,7 @@
  * into 0 kr revenue — the ancillary economics is reported as unavailable instead.
  */
 
+import { FCR_D_DOWN_FI_2025 } from "./fcrDDownFI2025";
 import { FCR_D_UP_FI_2025 } from "./fcrDUpFI2025";
 import { FCR_SYMMETRIC_DE_2025 } from "./fcrSymmetricDE2025";
 import { FCR_SYMMETRIC_DK1_2025 } from "./fcrSymmetricDK1_2025";
@@ -19,6 +20,7 @@ import { FCR_D_DOWN_SE_2025 } from "./fcrDDownSE2025";
 import type { FcrPriceSeries } from "./fcrDUpSE2025";
 
 export {
+  FCR_D_DOWN_FI_2025,
   FCR_D_DOWN_SE_2025,
   FCR_D_UP_FI_2025,
   FCR_D_UP_SE_2025,
@@ -77,6 +79,9 @@ export const VERIFIED_FCR_MARKET_AREAS = Object.keys(SERIES_BY_AREA) as FcrMarke
  */
 const DOWN_SERIES_BY_AREA: Partial<Record<FcrMarketArea, FcrPriceSeries>> = {
   SE: FCR_D_DOWN_SE_2025,
+  // Finland: verified Fingrid dataset 283 (8 759 observed hours + 1 documented estimated
+  // final hour). Never used for any other market, and no Swedish series is ever used here.
+  FI: FCR_D_DOWN_FI_2025,
 };
 
 export function fcrDownPriceSeriesForCountry(

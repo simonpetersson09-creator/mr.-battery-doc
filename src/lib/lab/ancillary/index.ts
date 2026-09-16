@@ -1,4 +1,5 @@
 import { DEFAULT_EUR_SEK_RATE } from "./fcrEconomics";
+import { FI_MARKET } from "./markets/fi";
 import { MARKETS, SE_MARKET } from "./markets/se";
 import type { FcrMarketArea } from "./prices";
 import type {
@@ -15,7 +16,7 @@ export * from "./ingest";
 export * from "./revenue";
 export * from "./fcrEconomics";
 export * from "./prices";
-export { MARKETS, SE_MARKET };
+export { MARKETS, SE_MARKET, FI_MARKET };
 
 /**
  * The ONLY ancillary service in the active product model. Everything else in the
@@ -40,12 +41,13 @@ export function reserveModeForMarket(
   if (country === "DE") return "symmetric";
   if (country === "DK") return marketArea === "DK1" ? "symmetric" : "upward";
   /**
-   * SWEDEN runs FCR-D upp AND FCR-D ned as two separate products on the same battery.
-   * Finland and DK2 keep the pure upward product until a verified national FCR-D ned
-   * price series and product definition exists for them — Swedish rules are never
-   * applied to another market.
+   * SWEDEN and FINLAND run two separate Nordic products on the same battery, each with its
+   * verified national FCR-D ned price series (SvK 2025 / Fingrid dataset 283) and their
+   * own market definitions. DK2 keeps the pure upward
+   * product until a verified national FCR-D ned series and definition exists for it —
+   * Swedish or Finnish data is never applied to another market.
    */
-  if (country === "SE") return "up-and-down";
+  if (country === "SE" || country === "FI") return "up-and-down";
   return "upward";
 }
 
@@ -72,6 +74,15 @@ export const ALL_MONTHS_OF_YEAR = Array.from({ length: 12 }, (_, i) => i + 1);
 
 export function marketProfile(id: MarketId): MarketProfile {
   return MARKETS[id] ?? SE_MARKET;
+}
+
+/**
+ * Market RULES for a price area. Each market answers for its own requirements; only
+ * areas without an own profile fall back to the Nordic Swedish rule set (the legacy
+ * behaviour for saved cases created before the country was tracked).
+ */
+export function marketProfileForPriceArea(area: FcrMarketArea | undefined): MarketProfile {
+  return area === "FI" ? FI_MARKET : SE_MARKET;
 }
 
 /** Default config: market rules only, NO prices and NO assumed revenue. */
@@ -114,7 +125,9 @@ export function prequalificationGranted(cfg: AncillaryConfig): boolean {
  */
 export function ancillaryPlan(cfg: AncillaryConfig): AncillaryPlan | null {
   if (!cfg.enabled || cfg.offeredPowerKw <= 0) return null;
-  const market = marketProfile(cfg.marketId);
+  // Market RULES follow the price area (Finland answers for Finnish requirements), never
+  // the legacy `marketId`, which is "SE" in every saved configuration.
+  const market = marketProfileForPriceArea(cfg.priceCountry);
   const mode: ReserveMode = cfg.reserveMode ?? "upward";
   const selected = activeServices(market, mode);
   if (selected.length === 0) return null;
@@ -191,7 +204,7 @@ export function ancillaryPlan(cfg: AncillaryConfig): AncillaryPlan | null {
  */
 export function ancillaryReservation(cfg: AncillaryConfig): FlexLikeReservation | null {
   if (!cfg.enabled || cfg.offeredPowerKw <= 0) return null;
-  const market = marketProfile(cfg.marketId);
+  const market = marketProfileForPriceArea(cfg.priceCountry);
   const selected = activeServices(market);
   if (selected.length === 0) return null;
   const enduranceHours = Math.max(...selected.map((s) => s.requirements.enduranceHours));
