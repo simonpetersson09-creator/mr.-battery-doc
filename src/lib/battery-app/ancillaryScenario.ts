@@ -145,20 +145,31 @@ export function computeAncillaryScenario(
 }
 
 /**
- * The scenario candidate with the highest modelled customer benefit, or null when no
- * candidate is economically positive (then the ordinary "no battery" answer stands).
+ * Share of the best modelled benefit a smaller battery must still reach to be chosen
+ * instead. Prevents proposing capacity that the grid connection can never monetise.
+ */
+const BENEFIT_PARITY_SHARE = 0.98;
+
+/**
+ * The SMALLEST candidate that still captures essentially the full modelled customer
+ * benefit. When the main fuse (or any other limit) caps the paid power, larger packs
+ * stop adding value, and proposing them would be capacity the site cannot use.
+ * Null when no candidate is economically positive.
  */
 export function bestAncillaryCandidate(
   scenario: AncillaryScenario | null,
 ): AncillaryScenarioCandidate | null {
   if (!scenario) return null;
-  let best: AncillaryScenarioCandidate | null = null;
-  for (const c of scenario.candidates) {
-    if (c.customerBenefitSek === null || !(c.customerBenefitSek > 0)) continue;
-    if (!best || c.customerBenefitSek > (best.customerBenefitSek ?? 0)) best = c;
-  }
-  return best;
+  const positive = scenario.candidates.filter(
+    (c) => c.customerBenefitSek !== null && c.customerBenefitSek > 0,
+  );
+  if (positive.length === 0) return null;
+  const peak = Math.max(...positive.map((c) => c.customerBenefitSek ?? 0));
+  const threshold = peak * BENEFIT_PARITY_SHARE;
+  const ordered = [...positive].sort((a, b) => a.capacityKWh - b.capacityKWh);
+  return ordered.find((c) => (c.customerBenefitSek ?? 0) >= threshold) ?? ordered[ordered.length - 1];
 }
+
 
 /**
  * The best candidate plus its nearest simulated neighbours, mapped onto the ordinary
