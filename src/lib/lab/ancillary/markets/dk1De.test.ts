@@ -211,13 +211,16 @@ describe("engine level: DK1 and DE physics", () => {
   }
 
   /**
-   * Endurance monotonicity is tested WITHIN one market (same country, same prices,
-   * same load): a longer energy requirement may only ever lower the paid capacity.
-   * DE and DK1 are not compared against each other — they are different countries with
-   * different prices, loads and tariffs, so their levels are not comparable.
+   * A much longer energy requirement must lower the paid capacity, tested WITHIN one
+   * market (same country, prices and load). DE and DK1 are never compared against each
+   * other — different countries, prices and tariffs, so their levels are not comparable.
+   * Note: neighbouring endurance values are NOT strictly monotone at ANNUAL level,
+   * because a smaller reservation changes the SOC trajectory and can raise capability in
+   * later hours. The per-hour gate itself is monotone (see the solver tests above).
    */
-  it("a longer endurance requirement can never raise the paid capacity", () => {
+  it("a much longer endurance requirement lowers the paid capacity", () => {
     expect(DE_ENDURANCE).toBeGreaterThan(DK1_ENDURANCE);
+    const avgs: number[] = [];
     const input: BatteryEngineInput = {
       site: { country: "DE", mainFuseA: 25 },
       consumption: { annualKWh: 20000 },
