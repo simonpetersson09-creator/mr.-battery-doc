@@ -73,7 +73,7 @@ export const VERIFIED_FCR_MARKET_AREAS = Object.keys(SERIES_BY_AREA) as FcrMarke
 
 /**
  * VERIFIED DOWN-REGULATION SERIES (FCR-D ned). Sweden only: the Svenska kraftnät 2025
- * file is the single verified source. Finland, DK1, DK2 and Germany get null — a Swedish
+ * file is the single verified source. Finland has its own series; DK1 and Germany get null — a Swedish
  * down series is never used as a stand-in for another market, and a missing series means
  * "no down revenue is calculated", never 0 kr.
  */
