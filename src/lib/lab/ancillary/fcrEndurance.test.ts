@@ -126,3 +126,81 @@ describe("FCR-D endurance invariant (up and down)", () => {
     expect(paid).toBeLessThan(8.2);
   });
 });
+
+/**
+ * DIRECTION-SPECIFIC ENDURANCE. The up and down energy capabilities must be limited by
+ * their OWN product endurance. With today's markets both directions declare 0.35 h, so
+ * this is verified with a synthetic plan whose down endurance is much longer.
+ */
+describe("directional endurance limits each direction separately", () => {
+  function run(upEnduranceH: number, downEnduranceH: number) {
+    const capacityKWh = 10;
+    const powerKw = 10;
+    const input: BatteryEngineInput = {
+      site: { country: "SE", mainFuseA: 25 },
+      consumption: { annualKWh: 20000 },
+      production: { enabled: true, kWp: 14 },
+      battery: { fixedCapacityKWh: capacityKWh, fixedPowerKw: powerKw },
+      strategies: { fcrDUp: true },
+    };
+    const cfg = toLabConfig(input);
+    const series = toTimeSeries(cfg, input);
+    const base = ancillaryPlan({ ...cfg.ancillary, enabled: true, offeredPowerKw: powerKw })!;
+    const plan = {
+      ...base,
+      upEnergyKWh: base.upPowerKw * upEnduranceH,
+      downEnergyKWh: base.downPowerKw * downEnduranceH,
+    };
+    const out = dispatch({
+      series,
+      battery: cfg.battery,
+      strategies: cfg.strategies,
+      peak: cfg.peakShaving,
+      spot: cfg.spot,
+      flex: cfg.flex,
+      grid: cfg.grid,
+      ancillary: plan,
+      capacityKWh,
+      powerKw,
+    });
+    const win = resolveWindow(cfg.battery, cfg.strategies, cfg.flex, capacityKWh, powerKw);
+    const serviceFloor = Math.max(win.socFloorKWh, (plan.serviceMinSocPct / 100) * capacityKWh);
+    const serviceCeil = Math.min(win.socCeilKWh, (plan.serviceMaxSocPct / 100) * capacityKWh);
+    let worstUp = 0;
+    let worstDown = 0;
+    let sumUp = 0;
+    let sumDown = 0;
+    for (let h = 0; h < 8760; h++) {
+      const up = out.ancillaryReservedPowerKwByHour[h] ?? 0;
+      const down = out.ancillaryReservedDownPowerKwByHour[h] ?? 0;
+      sumUp += up;
+      sumDown += down;
+      const s0 = h === 0 ? out.tallies.socStart : (out.socSeries[h - 1] ?? 0);
+      const s1 = out.socSeries[h] ?? 0;
+      const deliverable = Math.max(0, Math.min(s0, s1) - serviceFloor) * win.dischargeEff;
+      const absorbable = Math.max(0, serviceCeil - Math.max(s0, s1)) / Math.max(win.chargeEff, 1e-9);
+      worstUp = Math.max(worstUp, up * upEnduranceH - deliverable);
+      worstDown = Math.max(worstDown, down * downEnduranceH - absorbable);
+    }
+    return { worstUp, worstDown, sumUp, sumDown };
+  }
+
+  it("a longer DOWN endurance constrains only the down direction", () => {
+    const equal = run(0.35, 0.35);
+    const longDown = run(0.35, 2);
+    expect(equal.worstUp).toBeLessThan(1e-6);
+    expect(equal.worstDown).toBeLessThan(1e-3);
+    expect(longDown.worstUp).toBeLessThan(1e-6);
+    expect(longDown.worstDown).toBeLessThan(1e-3);
+    // The up side is untouched, the down side must shrink.
+    expect(longDown.sumUp).toBeCloseTo(equal.sumUp, 6);
+    expect(longDown.sumDown).toBeLessThan(equal.sumDown);
+  });
+
+  it("a longer UP endurance constrains only the up direction", () => {
+    const equal = run(0.35, 0.35);
+    const longUp = run(2, 0.35);
+    expect(longUp.worstUp).toBeLessThan(1e-6);
+    expect(longUp.sumUp).toBeLessThan(equal.sumUp);
+  });
+});
