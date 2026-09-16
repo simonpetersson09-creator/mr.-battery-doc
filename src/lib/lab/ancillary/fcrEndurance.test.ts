@@ -13,7 +13,9 @@ import { ancillaryPlan } from "./index";
  * Both are checked hour by hour, for every active market.
  */
 
-const MARKETS: { label: string; site: BatteryEngineInput["site"] }[] = [
+type Site = NonNullable<BatteryEngineInput["site"]>;
+
+const MARKETS: { label: string; site: Site }[] = [
   { label: "SE", site: { country: "SE", mainFuseA: 25 } },
   { label: "DK2", site: { country: "DK", marketArea: "DK2", mainFuseA: 25 } },
   { label: "FI", site: { country: "FI", mainFuseA: 25 } },
@@ -28,7 +30,7 @@ const CASES: { name: string; capacityKWh: number; powerKw: number; initialSocPct
   { name: "high capacity / low power", capacityKWh: 60, powerKw: 5, initialSocPct: 50 },
 ];
 
-function check(site: BatteryEngineInput["site"], capacityKWh: number, powerKw: number, initialSocPct: number) {
+function check(site: Site, capacityKWh: number, powerKw: number, initialSocPct: number) {
   const input: BatteryEngineInput = {
     site,
     consumption: { annualKWh: 20000 },
