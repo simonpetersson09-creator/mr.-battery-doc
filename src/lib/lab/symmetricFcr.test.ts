@@ -75,9 +75,9 @@ const held = (o: ReturnType<typeof dispatch>) =>
   o.ancillaryReservedPowerKwByHour.reduce((a, b) => a + b, 0) / HOURS_PER_YEAR;
 
 describe("reserve mode routing", () => {
-  it("keeps Finland and DK2 on the upward product, Sweden on upp + ned", () => {
+  it("keeps DK2 on the upward product, Sweden and Finland on upp + ned", () => {
     expect(reserveModeForMarket("SE")).toBe("up-and-down");
-    expect(reserveModeForMarket("FI")).toBe("upward");
+    expect(reserveModeForMarket("FI")).toBe("up-and-down");
     expect(reserveModeForMarket("DK", "DK2")).toBe("upward");
   });
 
