@@ -210,10 +210,47 @@ describe("engine level: DK1 and DE physics", () => {
     });
   }
 
-  it("DE endurance is longer than DK1, so DE can never be paid more on the same battery", () => {
+  /**
+   * Endurance monotonicity is tested WITHIN one market (same country, same prices,
+   * same load): a longer energy requirement may only ever lower the paid capacity.
+   * DE and DK1 are not compared against each other — they are different countries with
+   * different prices, loads and tariffs, so their levels are not comparable.
+   */
+  it("a longer endurance requirement can never raise the paid capacity", () => {
     expect(DE_ENDURANCE).toBeGreaterThan(DK1_ENDURANCE);
-    const dk1 = runCase("DK1", 10, 10);
-    const de = runCase("DE", 10, 10);
-    expect(de.avg).toBeLessThanOrEqual(dk1.avg + 1e-9);
+    const input: BatteryEngineInput = {
+      site: { country: "DE", mainFuseA: 25 },
+      consumption: { annualKWh: 20000 },
+      production: { enabled: true, kWp: 14 },
+      battery: { fixedCapacityKWh: 10, fixedPowerKw: 10 },
+      strategies: { fcrDUp: true },
+    };
+    const cfg = toLabConfig(input);
+    const series = toTimeSeries(cfg, input);
+    let prev = Infinity;
+    for (const endurance of [0.1, 20 / 60, DK1_ENDURANCE, DE_ENDURANCE, 1, 2]) {
+      const p = ancillaryPlan({ ...cfg.ancillary, enabled: true, offeredPowerKw: 10 })!;
+      const plan = {
+        ...p,
+        upEnergyKWh: 10 * endurance,
+        downEnergyKWh: 10 * endurance,
+      };
+      const out = dispatch({
+        series,
+        battery: cfg.battery,
+        strategies: cfg.strategies,
+        peak: cfg.peakShaving,
+        spot: cfg.spot,
+        flex: cfg.flex,
+        grid: cfg.grid,
+        ancillary: plan,
+        capacityKWh: 10,
+        powerKw: 10,
+      });
+      const avg =
+        out.ancillaryReservedPowerKwByHour.reduce((a, b) => a + b, 0) / 8760;
+      expect(avg).toBeLessThanOrEqual(prev + 1e-9);
+      prev = avg;
+    }
   });
 });
