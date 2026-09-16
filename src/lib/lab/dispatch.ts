@@ -1,5 +1,6 @@
 import { HOURS_PER_YEAR, MONTH_DAYS } from "./defaults";
 import { expandPriceSeries, quantile } from "./profiles";
+import { applyNemPowerReservation } from "./ancillary/nem";
 import type { AncillaryPlan } from "./ancillary/types";
 import type {
   BatteryParams,
