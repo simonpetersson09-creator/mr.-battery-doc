@@ -1124,6 +1124,14 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
       const upPowerCapabilityKw = win.dischargeKw;
       const downPowerCapabilityKw = win.chargeKw;
 
+      /**
+       * ACTIVE SERVICE WINDOW. The energy a direction may sell is measured against the
+       * window the ACTIVE PRODUCT COMBINATION declares, never against the battery's raw
+       * technical limits. `planServiceFloor` / `planServiceCeil` come from the market
+       * profile (max of the selected services' min-SOC, min of their max-SOC), so an
+       * up+down combination with 20–95 % and 5–80 % gives 20–80 % here. Nothing is
+       * hardcoded per market.
+       */
       const serviceFloorKWh = Math.max(win.socFloorKWh, planServiceFloor);
       const serviceCeilKWh = Math.min(win.socCeilKWh, planServiceCeil);
       const deliverableKWh = Math.max(0, socLow - serviceFloorKWh) * win.dischargeEff;
