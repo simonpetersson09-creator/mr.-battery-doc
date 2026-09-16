@@ -1196,16 +1196,28 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
        * bid further down) can only ever become smaller. Symmetric continental FCR has no
        * verified Nordic NEM rule, so s = 0 there and DE/DK1 are numerically untouched.
        */
-      const nemShare = symmetric ? 0 : Math.max(0, plan?.nemPowerSharePct ?? 0) / 100;
+      const nemShare = Math.max(0, plan?.nemPowerSharePct ?? 0) / 100;
+      /**
+       * SYMMETRIC product (DE, DK1): ONE capacity C is sold in both directions, so the
+       * same C loads the discharge side (C + share*C) and the charge side (C + share*C).
+       * Feeding the SAME candidate into both slots of the shared NEM solver therefore
+       * yields exactly (1 + share) * C <= min(P_discharge, P_charge) — 8 kW on a
+       * 10 kW / 10 kW battery at share = 25 %. No separate physics, no bid cap.
+       */
+      const symmetricCandidateKw = Math.min(upCapabilityKw, downCapabilityKw);
       const nem = applyNemPowerReservation({
-        upKw: upCapabilityKw,
-        downKw: upAndDown ? downCapabilityKw : 0,
+        upKw: symmetric ? symmetricCandidateKw : upCapabilityKw,
+        downKw: symmetric ? symmetricCandidateKw : upAndDown ? downCapabilityKw : 0,
         dischargeKw: upPowerCapabilityKw,
         chargeKw: downPowerCapabilityKw,
         nemShare,
       });
       const upReservableKw = nem.upKw;
-      const downReservableKw = upAndDown ? nem.downKw : downCapabilityKw;
+      const downReservableKw = symmetric
+        ? nem.downKw
+        : upAndDown
+          ? nem.downKw
+          : downCapabilityKw;
       if (nem.limiting) t.fcrNemLimitedHours++;
       /**
        * UPWARD product: only the up side is sold, so the reservable power is the up side
