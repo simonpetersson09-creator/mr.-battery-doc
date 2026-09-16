@@ -41,14 +41,9 @@ export function reserveModeForMarket(
   if (country === "DE") return "symmetric";
   if (country === "DK") return marketArea === "DK1" ? "symmetric" : "upward";
   /**
-   * SWEDEN runs FCR-D upp AND FCR-D ned as two separate products on the same battery.
-   * Finland and DK2 keep the pure upward product until a verified national FCR-D ned
-   * price series and product definition exists for them — Swedish rules are never
-   * applied to another market.
-   */
-  /**
-   * FINLAND runs the same two separate Nordic products on the Fingrid market, with the
-   * verified Finnish FCR-D ned price series (dataset 283). DK2 keeps the pure upward
+   * SWEDEN and FINLAND run the same two separate Nordic products on the Fingrid market, with the
+   * verified national FCR-D ned price series (SvK 2025 / Fingrid dataset 283) and their
+   * own market definitions. DK2 keeps the pure upward
    * product until a verified national FCR-D ned series and definition exists for it —
    * Swedish or Finnish data is never applied to another market.
    */
@@ -130,7 +125,9 @@ export function prequalificationGranted(cfg: AncillaryConfig): boolean {
  */
 export function ancillaryPlan(cfg: AncillaryConfig): AncillaryPlan | null {
   if (!cfg.enabled || cfg.offeredPowerKw <= 0) return null;
-  const market = marketProfile(cfg.marketId);
+  // Market RULES follow the price area (Finland answers for Finnish requirements), never
+  // the legacy `marketId`, which is "SE" in every saved configuration.
+  const market = marketProfileForPriceArea(cfg.priceCountry);
   const mode: ReserveMode = cfg.reserveMode ?? "upward";
   const selected = activeServices(market, mode);
   if (selected.length === 0) return null;
@@ -207,7 +204,7 @@ export function ancillaryPlan(cfg: AncillaryConfig): AncillaryPlan | null {
  */
 export function ancillaryReservation(cfg: AncillaryConfig): FlexLikeReservation | null {
   if (!cfg.enabled || cfg.offeredPowerKw <= 0) return null;
-  const market = marketProfile(cfg.marketId);
+  const market = marketProfileForPriceArea(cfg.priceCountry);
   const selected = activeServices(market);
   if (selected.length === 0) return null;
   const enduranceHours = Math.max(...selected.map((s) => s.requirements.enduranceHours));
