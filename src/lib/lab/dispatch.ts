@@ -1301,6 +1301,7 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
          */
         if (upAndDown) {
           const heldDownKw = Math.max(0, Math.min(offeredDownKw, downReservableKw));
+          t.fcrNemDischargeSumKw += nemShare * heldDownKw;
           if (heldDownKw > 1e-9) {
             ancillaryReservedDownPowerKwByHour[h] = heldDownKw;
             fcrDownHeldSumKw += heldDownKw;
