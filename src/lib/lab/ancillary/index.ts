@@ -208,13 +208,16 @@ export function ancillaryPlan(cfg: AncillaryConfig): AncillaryPlan | null {
     serviceMinSocPct: Math.max(...selected.map((s) => s.requirements.serviceMinSocPct)),
     serviceMaxSocPct: Math.min(...selected.map((s) => s.requirements.serviceMaxSocPct)),
     /**
-     * NEM POWER RESERVATION. Taken from the selected services of the ACTIVE market
-     * profile (Nordic FCR-D: 20 %). The symmetric continental product has no verified
-     * Nordic NEM rule, so it is never applied there (DE/DK1 unchanged).
+     * ENERGY-MANAGEMENT POWER RESERVATION. Always read from the selected services of the
+     * ACTIVE market profile — nothing is hardcoded and no market inherits another:
+     * Nordic FCR-D 20 %, DK1 25 %, DE 25 % (Pmax >= 1.25 * P_VL). For the symmetric
+     * product the same capacity C loads both directions, so the constraint becomes
+     * (1 + share) * C <= min(P_discharge, P_charge); see ./nem.ts.
      */
-    nemPowerSharePct: symmetric
-      ? 0
-      : Math.max(0, ...selected.map((s) => s.requirements.nemPowerSharePct ?? 0)),
+    nemPowerSharePct: Math.max(
+      0,
+      ...selected.map((s) => s.requirements.nemPowerSharePct ?? 0),
+    ),
     hoursOfDay,
     months,
     wholeYear,
