@@ -29,7 +29,7 @@ export type RegulationDirection = "up" | "down" | "symmetric";
  * only decides whether the reserved power has to be physically available in one
  * direction (upward) or in both directions at the same time (symmetric).
  */
-export type ReserveMode = "upward" | "symmetric";
+export type ReserveMode = "upward" | "symmetric" | "up-and-down";
 
 /** Resolution of the supplied price data — decides how detailed we may compute. */
 export type PriceResolution = "hourly" | "daily" | "weekly" | "monthly" | "annual" | "unknown";

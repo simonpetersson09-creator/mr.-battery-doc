@@ -292,6 +292,15 @@ export interface DispatchOutput {
    */
   ancillaryReservedPowerKwByHour: number[];
   /**
+   * DOWN-regulation power actually held reserved, per hour, kW (8 760 values). Only the
+   * "up-and-down" product (Sweden: FCR-D upp + FCR-D ned) can be non-zero here; the pure
+   * upward and the symmetric products leave it at 0 so their economics is unchanged.
+   * The same physical battery serves both series — the up series is limited by discharge
+   * power / stored energy and the down series by charge power / free SOC room, so no kW
+   * and no kWh is counted twice.
+   */
+  ancillaryReservedDownPowerKwByHour: number[];
+  /**
    * FCR-D up physical gate, aggregated over the scheduled reservation hours.
    * These are DIAGNOSTICS: the binding numbers themselves are applied hour by hour.
    */
@@ -310,7 +319,9 @@ export interface DispatchOutput {
     /** Which factor bound most of the scheduled hours. */
     bindingFactor: "power" | "energy" | "grid" | "none";
     /** Symmetric-FCR diagnostics (0 / "none" in upward mode). */
-    reserveMode: "upward" | "symmetric";
+    reserveMode: "upward" | "symmetric" | "up-and-down";
+    /** Mean held DOWN-regulation power over the scheduled hours (up-and-down only). */
+    downHeldPowerAvgKw: number;
     reservableUpAvgKw: number;
     reservableDownAvgKw: number;
     gridUpLimitedHours: number;
@@ -461,6 +472,9 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
   const socSeries: number[] = new Array(HOURS_PER_YEAR).fill(0);
   /** Reporting only: the up-power actually held reserved each hour, kW. */
   const ancillaryReservedPowerKwByHour: number[] = new Array(HOURS_PER_YEAR).fill(0);
+  /** Reporting only: the down-power actually held reserved each hour, kW. */
+  const ancillaryReservedDownPowerKwByHour: number[] = new Array(HOURS_PER_YEAR).fill(0);
+  let fcrDownHeldSumKw = 0;
 
   let soc = Math.min(
     win.socCeilKWh,
@@ -1086,6 +1100,16 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
        */
       const offeredKw = plan?.upPowerKw ?? 0;
       const symmetric = plan?.reserveMode === "symmetric";
+      /**
+       * UP-AND-DOWN product (Sweden: FCR-D upp + FCR-D ned sold as two separate
+       * products on the same battery). Unlike the symmetric product the two directions
+       * are NOT collapsed into one min(): each direction is held and paid on its own
+       * physical capability. No double counting: up uses discharge power and stored
+       * energy, down uses charge power and free SOC room, and both were already
+       * withheld from the other strategies through the reduced hourly kW limits.
+       */
+      const upAndDown = plan?.reserveMode === "up-and-down";
+      const offeredDownKw = plan?.downPowerKw ?? 0;
       const enduranceHours =
         offeredKw > 0 ? (plan?.upEnergyKWh ?? 0) / offeredKw : 0;
 
@@ -1202,6 +1226,18 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
           t.ancillaryReadyHours++;
           ancillaryReservedPowerKwByHour[h] = heldKw;
         }
+        /**
+         * DOWN side of the up-and-down product. Held separately on its own capability:
+         * min(offered down power, charge power, absorbable energy, grid down headroom).
+         * It never borrows from the up side and never raises the up series.
+         */
+        if (upAndDown) {
+          const heldDownKw = Math.max(0, Math.min(offeredDownKw, downReservableKw));
+          if (heldDownKw > 1e-9) {
+            ancillaryReservedDownPowerKwByHour[h] = heldDownKw;
+            fcrDownHeldSumKw += heldDownKw;
+          }
+        }
       }
     }
     socSeries[h] = soc;
@@ -1224,6 +1260,7 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
     arbitrageDischargeRevenueKr: arbRevenue,
     flexAvailableHours,
     ancillaryReservedPowerKwByHour,
+    ancillaryReservedDownPowerKwByHour,
     fcrGate: (() => {
       const n = t.ancillaryReservedHours;
       const counts = {
@@ -1244,7 +1281,8 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
         if (bothHours >= Math.max(t.fcrUpBindingHours, t.fcrDownBindingHours) - 1e-9)
           limitingDirection = "both";
         else limitingDirection = t.fcrDownBindingHours > t.fcrUpBindingHours ? "down" : "up";
-      } else if (n > 0) limitingDirection = "up";
+      } else if (n > 0 && plan?.reserveMode === "up-and-down") limitingDirection = "both";
+      else if (n > 0) limitingDirection = "up";
       const heldSum = ancillaryReservedPowerKwByHour.reduce((a, b) => a + b, 0);
       return {
         scheduledHours: n,
@@ -1257,6 +1295,7 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
         energyDownLimitedHours: t.fcrEnergyDownLimitedHours,
         symmetricHeldPowerAvgKw:
           plan?.reserveMode === "symmetric" && n > 0 ? heldSum / n : 0,
+        downHeldPowerAvgKw: n > 0 ? fcrDownHeldSumKw / n : 0,
         limitingDirection,
         avgReservablePowerKw: n > 0 ? t.fcrReservableSumKw / n : 0,
         maxReservablePowerKw: t.fcrReservableMaxKw,

@@ -3,6 +3,7 @@ import {
   computeAncillary,
   computeFcrRevenue,
   fcrPriceSeriesForCountry,
+  fcrDownPriceSeriesForCountry,
   marketProfile,
   MISSING_PRICE_TEXT,
 } from "./ancillary";
@@ -260,6 +261,27 @@ export function simulate(
         })
       : null;
 
+  /**
+   * FCR-D NED economics (up-and-down product, Sweden). Separate held series, separate
+   * verified price series, separate revenue. Null when the market has no verified down
+   * dataset — no fallback to the up price and no invented 0 kr.
+   */
+  const fcrDownSeries = fcrDownPriceSeriesForCountry(cfg.ancillary.priceCountry);
+  const heldDownReservation = d.ancillaryReservedDownPowerKwByHour;
+  const fcrDown =
+    cfg.strategies.ancillaryServices &&
+    plan !== null &&
+    plan.reserveMode === "up-and-down" &&
+    fcrDownSeries !== null
+      ? computeFcrRevenue({
+          reservedPowerKwByHour: heldDownReservation,
+          series: fcrDownSeries,
+          eurSekRate: cfg.ancillary.eurSekRate,
+          aggregatorSharePct: cfg.ancillary.aggregatorSharePct,
+          aggregatorFixedFeeSek: null,
+        })
+      : null;
+
 
   const notes = [...d.notes];
   if (plan) notes.push(...plan.notes);
@@ -412,6 +434,8 @@ export function simulate(
       energyUpLimitedHours: d.fcrGate.energyUpLimitedHours,
       energyDownLimitedHours: d.fcrGate.energyDownLimitedHours,
       symmetricHeldPowerKw: d.fcrGate.symmetricHeldPowerAvgKw,
+      fcrDown,
+      downHeldPowerAvgKw: fcrDown?.avgReservedPowerKw ?? 0,
       physicalHeldPowerAvgKw:
         t.ancillaryReservedHours > 0
           ? heldReservation.reduce((a, b) => a + b, 0) / t.ancillaryReservedHours

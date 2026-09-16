@@ -197,6 +197,11 @@ export interface FcrEconomy {
   grossSek: number | null;
   monthlyGrossSek: number[] | null;
   eurSekRate: number | null;
+  /** Split of the gross: FCR-D upp and (Sweden) FCR-D ned. Null when not calculated. */
+  grossUpSek: number | null;
+  grossDownSek: number | null;
+  /** Mean held down-regulation power the down revenue was paid on, kW. */
+  avgHeldDownPowerKw: number;
   /** Other battery benefit lost because FCR reserves power/energy. Diagnostic. */
   opportunityCostSek: number | null;
   /** gross - opportunity cost. Diagnostic, never added to the total. */
@@ -340,7 +345,18 @@ export function fcrEconomy(
   const withFcr = input.otherBenefitWithFcrSek;
   const opportunityCostSek =
     enabled && without !== null && withFcr !== null ? without - withFcr : null;
-  const grossSek = enabled ? (f?.annualGrossSek ?? null) : null;
+  const grossUpSek = enabled ? (f?.annualGrossSek ?? null) : null;
+  /**
+   * FCR-D ned is a SEPARATE product on the same reservation hours. Its revenue is added
+   * to the gross; the physics already prevents the same kW/kWh from being sold twice, so
+   * this is an addition of two independent capacity payments, not a double count.
+   */
+  const down = a.fcrDown;
+  const grossDownSek = enabled ? (down?.annualGrossSek ?? null) : null;
+  const grossSek =
+    grossUpSek === null && grossDownSek === null
+      ? null
+      : (grossUpSek ?? 0) + (grossDownSek ?? 0);
   return {
     enabled,
     offeredPowerKw: a.reservedPowerUpKw,
@@ -349,9 +365,22 @@ export function fcrEconomy(
     reservedHours: a.reservedHours,
     availabilityPct: a.availabilityPct,
     referenceYear: enabled ? (f?.referenceYear ?? null) : null,
-    grossEur: enabled ? (f?.annualGrossEur ?? null) : null,
+    grossEur:
+      enabled && (f !== null || down !== null)
+        ? (f?.annualGrossEur ?? 0) + (down?.annualGrossEur ?? 0)
+        : null,
     grossSek,
-    monthlyGrossSek: enabled ? (f?.monthlyGrossSek ?? null) : null,
+    grossUpSek,
+    grossDownSek,
+    avgHeldDownPowerKw: enabled ? a.downHeldPowerAvgKw : 0,
+    // Month by month, up + down added per month (never one product's months alone).
+    monthlyGrossSek:
+      f === null && down === null
+        ? null
+        : Array.from(
+            { length: 12 },
+            (_, m) => (f?.monthlyGrossSek[m] ?? 0) + (down?.monthlyGrossSek[m] ?? 0),
+          ),
     eurSekRate: enabled ? (f?.eurSekRate ?? null) : null,
     opportunityCostSek,
     incrementalNetSek:

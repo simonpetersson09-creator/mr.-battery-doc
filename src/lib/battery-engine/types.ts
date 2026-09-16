@@ -338,6 +338,16 @@ export interface EngineFcrSummary {
   reservedHours: number;
   availabilityPct: number;
   grossSek: number | null;
+  /**
+   * Split of the gross: FCR-D upp and (Sverige) FCR-D ned. Two separate products on the
+   * same battery — never the same kW sold twice.
+   */
+  grossUpSek: number | null;
+  grossDownSek: number | null;
+  /** Mean held DOWN-regulation power the down revenue was paid on, kW. */
+  avgHeldDownPowerKw: number;
+  /** Monthly gross (up + ned), 12 values, or null when nothing is calculated. */
+  monthlyGrossSek: number[] | null;
   opportunityCostSek: number | null;
   incrementalNetSek: number | null;
   historicalReferenceYear: number | null;

@@ -23,6 +23,8 @@ export { MARKETS, SE_MARKET };
  * a user choice any more: turning ancillary services on means FCR-D up.
  */
 export const ACTIVE_SERVICE_KEY = "FCR-D-up";
+/** Swedish down-regulation product, active only in the "up-and-down" reserve mode. */
+export const ACTIVE_DOWN_SERVICE_KEY = "FCR-D-down";
 
 /**
  * WHICH RESERVE PRODUCT A MARKET USES. One table, no per-country engine:
@@ -37,6 +39,13 @@ export function reserveModeForMarket(
 ): ReserveMode {
   if (country === "DE") return "symmetric";
   if (country === "DK") return marketArea === "DK1" ? "symmetric" : "upward";
+  /**
+   * SWEDEN runs FCR-D upp AND FCR-D ned as two separate products on the same battery.
+   * Finland and DK2 keep the pure upward product until a verified national FCR-D ned
+   * price series and product definition exists for them — Swedish rules are never
+   * applied to another market.
+   */
+  if (country === "SE") return "up-and-down";
   return "upward";
 }
 
@@ -50,8 +59,12 @@ export function priceAreaForMarket(
 }
 
 /** Services actually offered by the product, regardless of legacy saved config. */
-export function activeServices(market: MarketProfile) {
-  return market.services.filter((s) => s.key === ACTIVE_SERVICE_KEY);
+export function activeServices(market: MarketProfile, mode: ReserveMode = "upward") {
+  const keys =
+    mode === "up-and-down"
+      ? [ACTIVE_SERVICE_KEY, ACTIVE_DOWN_SERVICE_KEY]
+      : [ACTIVE_SERVICE_KEY];
+  return market.services.filter((s) => keys.includes(s.key));
 }
 
 export const ALL_HOURS_OF_DAY = Array.from({ length: 24 }, (_, i) => i);
@@ -102,7 +115,8 @@ export function prequalificationGranted(cfg: AncillaryConfig): boolean {
 export function ancillaryPlan(cfg: AncillaryConfig): AncillaryPlan | null {
   if (!cfg.enabled || cfg.offeredPowerKw <= 0) return null;
   const market = marketProfile(cfg.marketId);
-  const selected = activeServices(market);
+  const mode: ReserveMode = cfg.reserveMode ?? "upward";
+  const selected = activeServices(market, mode);
   if (selected.length === 0) return null;
 
   const up = selected.filter((s) => s.direction === "up" || s.direction === "symmetric");
@@ -133,7 +147,12 @@ export function ancillaryPlan(cfg: AncillaryConfig): AncillaryPlan | null {
    * the up side (power and endurance energy) even though the underlying service
    * definition is an up-service. In "upward" mode nothing changes.
    */
-  const symmetric = (cfg.reserveMode ?? "upward") === "symmetric";
+  const symmetric = mode === "symmetric";
+  const upAndDown = mode === "up-and-down";
+  if (upAndDown)
+    notes.push(
+      "FCR-D UPP + FCR-D NED: två separata produkter på samma batteri. Uppsidan kräver lagrad energi och urladdningseffekt, nedsidan kräver laddningsutrymme och laddeffekt — samma kW eller kWh räknas aldrig två gånger.",
+    );
   const endurance = maxEndurance(selected);
   if (symmetric)
     notes.push(
@@ -142,7 +161,7 @@ export function ancillaryPlan(cfg: AncillaryConfig): AncillaryPlan | null {
 
   return {
     active: hoursOfDay.length > 0 && months.length > 0,
-    reserveMode: symmetric ? "symmetric" : "upward",
+    reserveMode: mode,
     upPowerKw: symmetric ? cfg.offeredPowerKw : up.length > 0 ? cfg.offeredPowerKw : 0,
     downPowerKw: symmetric ? cfg.offeredPowerKw : down.length > 0 ? cfg.offeredPowerKw : 0,
     upEnergyKWh: symmetric

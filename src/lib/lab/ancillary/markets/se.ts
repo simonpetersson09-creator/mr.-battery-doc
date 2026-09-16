@@ -43,20 +43,6 @@ export const SE_MARKET: MarketProfile = {
       },
       notes: ["Uthållighetskravet är kort — energibehovet är litet, effektbehovet styr."],
     },
-  ],
-  columnAliases: {
-    "fcr-d upp": "FCR-D-up",
-    "fcr-d up": "FCR-D-up",
-    "fcrd upp": "FCR-D-up",
-  },
-};
-
-/**
- * PARKED services — not part of the active product model. Kept verbatim so they can
- * be re-activated in a later version without re-deriving the market requirements.
- * Nothing in the engine reads this array.
- */
-export const SE_PARKED_SERVICES: ServiceDefinition[] = [
     {
       key: "FCR-D-down",
       label: "FCR-D ned (störningsreserv, nedreglering)",
@@ -75,6 +61,23 @@ export const SE_PARKED_SERVICES: ServiceDefinition[] = [
       },
       notes: ["Nedreglering kräver LADDNINGSutrymme (SOC-tak) och importmarginal i nätet."],
     },
+  ],
+  columnAliases: {
+    "fcr-d ned": "FCR-D-down",
+    "fcr-d down": "FCR-D-down",
+    "fcrd ned": "FCR-D-down",
+    "fcr-d upp": "FCR-D-up",
+    "fcr-d up": "FCR-D-up",
+    "fcrd upp": "FCR-D-up",
+  },
+};
+
+/**
+ * PARKED services — not part of the active product model. Kept verbatim so they can
+ * be re-activated in a later version without re-deriving the market requirements.
+ * Nothing in the engine reads this array.
+ */
+export const SE_PARKED_SERVICES: ServiceDefinition[] = [
     {
       key: "FCR-N",
       label: "FCR-N (normaldriftreserv, symmetrisk)",
@@ -136,9 +139,6 @@ export const SE_PARKED_SERVICES: ServiceDefinition[] = [
 
 /** Column aliases for the parked services, likewise unused by the engine. */
 export const SE_PARKED_COLUMN_ALIASES: Record<string, string> = {
-  "fcr-d ned": "FCR-D-down",
-  "fcr-d down": "FCR-D-down",
-  "fcrd ned": "FCR-D-down",
   "fcr-n": "FCR-N",
   fcrn: "FCR-N",
   ffr: "FFR",
