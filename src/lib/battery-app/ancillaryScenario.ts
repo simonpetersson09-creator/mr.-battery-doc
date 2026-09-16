@@ -167,7 +167,7 @@ export function bestAncillaryCandidate(
   const peak = Math.max(...positive.map((c) => c.customerBenefitSek ?? 0));
   const threshold = peak * BENEFIT_PARITY_SHARE;
   const ordered = [...positive].sort((a, b) => a.capacityKWh - b.capacityKWh);
-  return ordered.find((c) => (c.customerBenefitSek ?? 0) >= threshold) ?? ordered[ordered.length - 1];
+  return ordered.find((c) => (c.customerBenefitSek ?? 0) >= threshold) ?? ordered[ordered.length - 1] ?? null;
 }
 
 
