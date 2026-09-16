@@ -1,3 +1,4 @@
+import { FI_MARKET } from "./fi";
 import type { MarketProfile, ServiceDefinition } from "../types";
 
 /**
@@ -147,4 +148,4 @@ export const SE_PARKED_COLUMN_ALIASES: Record<string, string> = {
   mfrr: "mFRR-up",
 };
 
-export const MARKETS = { SE: SE_MARKET } as const;
+export const MARKETS = { SE: SE_MARKET, FI: FI_MARKET } as const;
