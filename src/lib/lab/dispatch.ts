@@ -1204,13 +1204,19 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
        * yields exactly (1 + share) * C <= min(P_discharge, P_charge) — 8 kW on a
        * 10 kW / 10 kW battery at share = 25 %. No separate physics, no bid cap.
        */
-      const symmetricCandidateKw = Math.min(upCapabilityKw, downCapabilityKw);
+      const symmetricNemCeilingKw = symmetric
+        ? Math.min(upPowerCapabilityKw, downPowerCapabilityKw) / (1 + nemShare)
+        : Infinity;
       const nem = applyNemPowerReservation({
-        upKw: symmetric ? symmetricCandidateKw : upCapabilityKw,
-        downKw: symmetric ? symmetricCandidateKw : upAndDown ? downCapabilityKw : 0,
+        upKw: symmetric ? Math.min(upCapabilityKw, symmetricNemCeilingKw) : upCapabilityKw,
+        downKw: symmetric
+          ? Math.min(downCapabilityKw, symmetricNemCeilingKw)
+          : upAndDown
+            ? downCapabilityKw
+            : 0,
         dischargeKw: upPowerCapabilityKw,
         chargeKw: downPowerCapabilityKw,
-        nemShare,
+        nemShare: symmetric ? 0 : nemShare,
       });
       const upReservableKw = nem.upKw;
       const downReservableKw = symmetric
