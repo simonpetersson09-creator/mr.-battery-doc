@@ -25,6 +25,6 @@ for (const [cap, pw] of [[5, 3], [10, 10]] as const) {
     energyBenefit: e.energyBenefitSek,
     peak: e.demandCostSavingSek,
     totalCustomer: e.annualCustomerBenefitSek,
-    cycles: s.cycles?.equivalentFullCycles ?? s.cycles ?? null,
+    cycles: s.throughput?.equivalentFullCycles ?? (s as any).equivalentFullCycles ?? null,
   }));
 }
