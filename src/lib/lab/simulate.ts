@@ -4,7 +4,7 @@ import {
   computeFcrRevenue,
   fcrPriceSeriesForCountry,
   fcrDownPriceSeriesForCountry,
-  marketProfile,
+  marketProfileForPriceArea,
   MISSING_PRICE_TEXT,
 } from "./ancillary";
 import { baseline, computeGridLimits, dispatch } from "./dispatch";
