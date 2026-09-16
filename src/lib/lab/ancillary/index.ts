@@ -1,4 +1,5 @@
 import { DEFAULT_EUR_SEK_RATE } from "./fcrEconomics";
+import { CONTINENTAL_LEGACY_MARKET } from "./markets/continentalLegacy";
 import { FI_MARKET } from "./markets/fi";
 import { MARKETS, SE_MARKET } from "./markets/se";
 import type { FcrMarketArea } from "./prices";
