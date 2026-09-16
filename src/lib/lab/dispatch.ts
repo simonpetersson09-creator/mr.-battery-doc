@@ -1288,6 +1288,8 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
             : Math.min(offeredKw, upReservableKw),
         );
         t.fcrGridClippedSumKw += Math.max(0, offeredKw - heldKw);
+        // NEM power actually held for the paid capacity, in the opposite direction.
+        t.fcrNemChargeSumKw += nemShare * heldKw;
         if (heldKw > 1e-9) {
           t.ancillaryReadyHours++;
           ancillaryReservedPowerKwByHour[h] = heldKw;
