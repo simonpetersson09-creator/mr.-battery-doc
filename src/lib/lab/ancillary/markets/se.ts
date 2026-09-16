@@ -108,8 +108,6 @@ export const SE_PARKED_SERVICES: ServiceDefinition[] = [
         availabilityPct: 95,
         requiresAggregator: true,
         requiresPrequalification: true,
-        /** Nordic LER: 20 % of the FCR-D capacity kept as NEM power in the opposite direction. */
-        nemPowerSharePct: 20,
       },
       notes: [
         "Symmetriskt krav: både upp och ned samtidigt, vilket kräver ett SOC-fönster mitt i batteriet.",
@@ -131,8 +129,6 @@ export const SE_PARKED_SERVICES: ServiceDefinition[] = [
         availabilityPct: 95,
         requiresAggregator: true,
         requiresPrequalification: true,
-        /** Nordic LER: 20 % of the FCR-D capacity kept as NEM power in the opposite direction. */
-        nemPowerSharePct: 20,
       },
       notes: ["Upphandlas bara under vissa timmar/perioder — antal betalda timmar är lägre."],
     },
@@ -151,8 +147,6 @@ export const SE_PARKED_SERVICES: ServiceDefinition[] = [
         availabilityPct: 90,
         requiresAggregator: true,
         requiresPrequalification: true,
-        /** Nordic LER: 20 % of the FCR-D capacity kept as NEM power in the opposite direction. */
-        nemPowerSharePct: 20,
       },
       notes: ["Kräver en full timmes uthållighet — energikravet är här dimensionerande."],
     },
