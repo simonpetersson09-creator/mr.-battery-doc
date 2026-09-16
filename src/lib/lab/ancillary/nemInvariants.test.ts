@@ -42,12 +42,19 @@ describe("A. Nordic FCR-D endurance is exactly 20 minutes", () => {
     expect(parked).toHaveLength(0);
   });
 
-  it("DE and DK1 keep their own (unverified) continental profile, not the Nordic one", () => {
+  /**
+   * DE and DK1 now have their own VERIFIED continental profiles (see markets/dk1De.test.ts):
+   * DK1 = 24 min + 25 %, DE = 25 min + 25 % (Pmax >= 1.25 * P_VL). Neither may use the
+   * Nordic 20 min / 20 % values.
+   */
+  it("DE and DK1 use their own verified continental profiles, not the Nordic one", () => {
+    const expected = { DK1: 24 / 60, DE: 0.25 + 0.125 + 1 / 24 } as const;
     for (const area of ["DE", "DK1"] as const) {
       const m = marketProfileForPriceArea(area);
       const up = m.services.find((s) => s.key === "FCR-D-up")!;
-      expect(up.requirements.enduranceHours).toBe(0.35);
-      expect(up.requirements.nemPowerSharePct).toBe(0);
+      expect(up.requirements.enduranceHours).toBe(expected[area]);
+      expect(up.requirements.enduranceHours).not.toBe(20 / 60);
+      expect(up.requirements.nemPowerSharePct).toBe(25);
     }
   });
 });
