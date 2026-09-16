@@ -1173,14 +1173,39 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
       const gridDownHeadroomKw =
         (exp[h] ?? 0) + Math.max(0, limits.maxImportKw - (imp[h] ?? 0));
 
-      const upReservableKw = Math.max(
+      const upCapabilityKw = Math.max(
         0,
         Math.min(upPowerCapabilityKw, energyUpCapabilityKw, gridUpHeadroomKw),
       );
-      const downReservableKw = Math.max(
+      const downCapabilityKw = Math.max(
         0,
         Math.min(downPowerCapabilityKw, energyDownCapabilityKw, gridDownHeadroomKw),
       );
+
+      /**
+       * ---------- NEM POWER RESERVATION (Nordic FCR-D with LER) ----------
+       * THREE SEPARATE LIMITS, never mixed:
+       *   ENERGY    -> energyUp/DownCapabilityKw (SOC vs active service floor/ceiling
+       *                over the product endurance);
+       *   FCR POWER -> upPowerCapabilityKw / downPowerCapabilityKw (charge/discharge);
+       *   NEM POWER -> the share of the FCR capacity that must stay available in the
+       *                OPPOSITE direction for normal energy management.
+       * Constraint (see ancillary/nem.ts): U + s*D <= Pdischarge and D + s*U <= Pcharge.
+       * Applied to the hourly CAPABILITY pair, so the paid power (clipped by the offered
+       * bid further down) can only ever become smaller. Symmetric continental FCR has no
+       * verified Nordic NEM rule, so s = 0 there and DE/DK1 are numerically untouched.
+       */
+      const nemShare = symmetric ? 0 : Math.max(0, plan?.nemPowerSharePct ?? 0) / 100;
+      const nem = applyNemPowerReservation({
+        upKw: upCapabilityKw,
+        downKw: upAndDown ? downCapabilityKw : 0,
+        dischargeKw: upPowerCapabilityKw,
+        chargeKw: downPowerCapabilityKw,
+        nemShare,
+      });
+      const upReservableKw = nem.upKw;
+      const downReservableKw = upAndDown ? nem.downKw : downCapabilityKw;
+      if (nem.limiting) t.fcrNemLimitedHours++;
       /**
        * UPWARD product: only the up side is sold, so the reservable power is the up side
        * (identical to the previous gate — Sweden/Finland/DK2 are unchanged).
