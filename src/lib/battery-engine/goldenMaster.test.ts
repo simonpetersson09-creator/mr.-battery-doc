@@ -51,6 +51,13 @@ const CASES: Record<string, { label: string; input: BatteryEngineInput }> = {
  *     also capped by the grid headroom in the paid direction, which clips ~0,000012 kW in
  *     a couple of hours (held 1,79999 kW instead of 1,8 kW). No other golden master moves,
  *     no physical dispatch value moves, and no energy balance changes.
+ * FCR-D UP ENDURANCE FIX (paid up-power clipped by the hourly energy capability against
+ * the ACTIVE service floor, mirroring the down side):
+ *   - GM05.fcrHeldKw 1,5 -> 0,9235 and fcrGrossSek 901,72 -> 576,43;
+ *   - GM06.fcrHeldKw 1,8 -> 1,4053 and fcrGrossSek 1082,06 -> 855,30;
+ *   - the two totalOperatingBenefitSek values follow. INTENDED: no physical dispatch
+ *     value, energy balance, sizing, price or customer share changes — only the power the
+ *     model is allowed to be PAID for.
  * Regenerated again after the Swedish demand-charge schablon changed from 55 to
  * 30 SEK/kW/month. ONLY `demandCostSavingSek` (scaled by 30/55) and the
  * `totalOperatingBenefitSek` that contains it moved; every physical field, the sizing,
@@ -206,11 +213,11 @@ const EXPECTED = {
     "demandCostSavingSek": 290.35,
     "fcrEnabled": true,
     "fcrOfferedKw": 1.5,
-    "fcrHeldKw": 1.5,
-    "fcrGrossSek": 901.72,
+    "fcrHeldKw": 0.9235,
+    "fcrGrossSek": 576.43,
     "fcrOptimisedKw": null,
     "energyBenefitSek": 1601.09,
-    "totalOperatingBenefitSek": 2793.17,
+    "totalOperatingBenefitSek": 2467.87,
     "balanceOk": true,
     "residualKWh": 0
   },
@@ -234,11 +241,11 @@ const EXPECTED = {
     "demandCostSavingSek": 371.49,
     "fcrEnabled": true,
     "fcrOfferedKw": 1.8,
-    "fcrHeldKw": 1.8,
-    "fcrGrossSek": 1082.06,
+    "fcrHeldKw": 1.4053,
+    "fcrGrossSek": 855.3,
     "fcrOptimisedKw": 1.8,
     "energyBenefitSek": 1521.43,
-    "totalOperatingBenefitSek": 2974.98,
+    "totalOperatingBenefitSek": 2748.22,
     "balanceOk": true,
     "residualKWh": 0
   },

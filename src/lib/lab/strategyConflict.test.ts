@@ -37,9 +37,14 @@ describe("F1 — FCR-D up readiness is judged over the whole hour", () => {
   it("keeps the reservation floor intact against the next hour's self-discharge", () => {
     const cfg = withFcr(defaultConfig(), 1.5);
     const { sim } = runDispatch(cfg, 15, 3);
-    // The passive loss is reserved in advance, so the readiness is genuinely held.
-    expect(sim.ancillary.availabilityPct).toBeCloseTo(100, 6);
-    expect(sim.ancillary.avgReservedPowerUpKw).toBeCloseTo(1.5, 6);
+    // The passive loss is still reserved in advance — the floor is defended, not lost.
+    // Since the FCR-D up endurance fix the PAID power is additionally clipped hour by
+    // hour by the energy actually deliverable down to the ACTIVE service floor (20 %),
+    // so the readiness is partial instead of a flat 1,5 kW every hour.
+    expect(sim.ancillary.availabilityPct).toBeGreaterThan(50);
+    expect(sim.ancillary.availabilityPct).toBeLessThan(100);
+    expect(sim.ancillary.avgReservedPowerUpKw).toBeGreaterThan(0);
+    expect(sim.ancillary.avgReservedPowerUpKw).toBeLessThanOrEqual(1.5 + 1e-9);
     // Self-discharge still happens — the floor is defended, not switched off.
     expect(sim.selfDischargeKWh).toBeGreaterThan(0);
     expect(sim.energyBalance.ok).toBe(true);

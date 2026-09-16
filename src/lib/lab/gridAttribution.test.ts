@@ -163,9 +163,11 @@ describe("FCR reservation search resolution", () => {
   it("G: on a practical tie the LOWER reservation still wins", () => {
     const cfg = toLabConfig(REFERENCE);
     const o = optimizeFcrReservation(cfg, 25, 5);
-    const bestTotal = Math.max(...o.candidates.map((c) => c.totalOperatingBenefitSek));
+    // The optimiser maximises TOTAL CUSTOMER BENEFIT (model rule), so the tie-break is
+    // evaluated on the same quantity.
+    const bestTotal = Math.max(...o.candidates.map((c) => c.annualCustomerBenefitSek));
     const firstWithinTolerance = o.candidates.find(
-      (c) => c.totalOperatingBenefitSek >= bestTotal - o.tieToleranceSek,
+      (c) => c.annualCustomerBenefitSek >= bestTotal - o.tieToleranceSek,
     );
     expect(o.best.offeredPowerKw).toBe(firstWithinTolerance!.offeredPowerKw);
   });
