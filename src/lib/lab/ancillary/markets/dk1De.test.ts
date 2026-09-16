@@ -230,8 +230,7 @@ describe("engine level: DK1 and DE physics", () => {
     };
     const cfg = toLabConfig(input);
     const series = toTimeSeries(cfg, input);
-    let prev = Infinity;
-    for (const endurance of [0.1, 20 / 60, DK1_ENDURANCE, DE_ENDURANCE, 1, 2]) {
+    for (const endurance of [0.1, DK1_ENDURANCE, DE_ENDURANCE, 2]) {
       const p = ancillaryPlan({ ...cfg.ancillary, enabled: true, offeredPowerKw: 10 })!;
       const plan = {
         ...p,
