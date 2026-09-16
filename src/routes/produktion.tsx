@@ -188,30 +188,24 @@ function ProductionStep() {
       {choice === "monthly" ? (
         <>
           <SectionCard compact icon={<Zap />} title={t("production.plant.title")}>
-            <div className="grid grid-cols-2 gap-2">
-              <NumberField
-                label={t("production.plant.dcKwpShort")}
-                unit="kWp"
-                value={p.dcKwp}
-                placeholder="14"
-                compact
-                error={fieldError.dcKwp}
-                onChange={(v) =>
-                  update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))
-                }
-              />
-              <NumberField
-                label={t("production.plant.acKw")}
-                unit="kW"
-                value={p.acKw}
-                placeholder="12"
-                compact
-                error={fieldError.acKw}
-                onChange={(v) =>
-                  update((s) => ({ ...s, production: { ...s.production, acKw: v } }))
-                }
-              />
-            </div>
+            <NumberField
+              label={t("production.plant.dcKwp")}
+              unit="kWp"
+              value={p.dcKwp}
+              placeholder={t("errors.egValue", { value: "14" })}
+              compact
+              error={fieldError.dcKwp}
+              onChange={(v) => update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))}
+            />
+            <NumberField
+              label={t("production.plant.acKw")}
+              unit="kW"
+              value={p.acKw}
+              placeholder={t("errors.egValue", { value: "12" })}
+              compact
+              error={fieldError.acKw}
+              onChange={(v) => update((s) => ({ ...s, production: { ...s.production, acKw: v } }))}
+            />
           </SectionCard>
 
           <SectionCard compact icon={<CalendarRange />} title={t("production.monthly.title")}>
