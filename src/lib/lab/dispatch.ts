@@ -1365,6 +1365,11 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
         symmetricHeldPowerAvgKw:
           plan?.reserveMode === "symmetric" && n > 0 ? heldSum / n : 0,
         downHeldPowerAvgKw: n > 0 ? fcrDownHeldSumKw / n : 0,
+        nemPowerSharePct:
+          plan?.reserveMode === "symmetric" ? 0 : (plan?.nemPowerSharePct ?? 0),
+        nemChargeAvgKw: n > 0 ? t.fcrNemChargeSumKw / n : 0,
+        nemDischargeAvgKw: n > 0 ? t.fcrNemDischargeSumKw / n : 0,
+        nemLimitedHours: t.fcrNemLimitedHours,
         limitingDirection,
         avgReservablePowerKw: n > 0 ? t.fcrReservableSumKw / n : 0,
         maxReservablePowerKw: t.fcrReservableMaxKw,
