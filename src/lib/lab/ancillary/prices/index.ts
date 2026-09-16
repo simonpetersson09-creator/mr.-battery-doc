@@ -82,6 +82,12 @@ const DOWN_SERIES_BY_AREA: Partial<Record<FcrMarketArea, FcrPriceSeries>> = {
   // Finland: verified Fingrid dataset 283 (8 759 observed hours + 1 documented estimated
   // final hour). Never used for any other market, and no Swedish series is ever used here.
   FI: FCR_D_DOWN_FI_2025,
+  /**
+   * DK2 sits in the SAME Nordic FCR market as Sweden, and the Svenska kraftnät 2025 file
+   * is the market price for that common area — it is therefore the correct DK2 series,
+   * not a Swedish stand-in. DK1 (continental) and Germany are unaffected.
+   */
+  DK2: FCR_D_DOWN_SE_2025,
 };
 
 export function fcrDownPriceSeriesForCountry(
