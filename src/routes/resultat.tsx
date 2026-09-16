@@ -364,6 +364,7 @@ function ResultStep() {
           customerEconomy: ce,
           targetPaybackYears: targetYears,
           alternatives: shownAlternatives,
+          ancillaryScenario,
         }).finally(() => setPdfBusy(false));
       }}
     >
