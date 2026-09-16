@@ -1207,12 +1207,25 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
       const symmetricNemCeilingKw = symmetric
         ? Math.min(upPowerCapabilityKw, downPowerCapabilityKw) / (1 + nemShare)
         : Infinity;
+      /**
+       * BID-AWARE NEM CANDIDATES (Nordic FCR-D: SE, FI, DK2).
+       * The NEM requirement follows the capacity that is actually a CANDIDATE for
+       * reservation, i.e. the physical capability clipped by the OFFERED bid, never
+       * unused technical capability. Order: physics/energy/grid -> clip to offered ->
+       * NEM on the candidate pair -> held/paid. A bid of U=10 / D=2 therefore requires
+       * 10 + 0.20*2 on the discharge side, not 10 + 0.20*10. It is not circular: the
+       * offered bid is an input, not the NEM result.
+       */
+      const candidateUpKw = Math.min(upCapabilityKw, Math.max(0, offeredKw));
+      const candidateDownKw = Math.min(downCapabilityKw, Math.max(0, offeredDownKw));
       const nem = applyNemPowerReservation({
-        upKw: symmetric ? Math.min(upCapabilityKw, symmetricNemCeilingKw) : upCapabilityKw,
+        upKw: symmetric
+          ? Math.min(upCapabilityKw, symmetricNemCeilingKw)
+          : candidateUpKw,
         downKw: symmetric
           ? Math.min(downCapabilityKw, symmetricNemCeilingKw)
           : upAndDown
-            ? downCapabilityKw
+            ? candidateDownKw
             : 0,
         dischargeKw: upPowerCapabilityKw,
         chargeKw: downPowerCapabilityKw,
