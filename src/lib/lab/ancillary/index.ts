@@ -1,5 +1,6 @@
 import { DEFAULT_EUR_SEK_RATE } from "./fcrEconomics";
-import { CONTINENTAL_LEGACY_MARKET } from "./markets/continentalLegacy";
+import { DE_MARKET } from "./markets/de";
+import { DK1_MARKET } from "./markets/dk1";
 import { FI_MARKET } from "./markets/fi";
 import { MARKETS, SE_MARKET } from "./markets/se";
 import type { FcrMarketArea } from "./prices";
@@ -90,12 +91,14 @@ export function marketProfile(id: MarketId): MarketProfile {
 export function marketProfileForPriceArea(area: FcrMarketArea | undefined): MarketProfile {
   if (area === "FI") return FI_MARKET;
   /**
-   * DE and DK1 are CONTINENTAL symmetric FCR, not Nordic FCR-D. They keep the frozen
-   * legacy profile so Nordic corrections (20 min endurance, NEM) cannot leak into a
-   * market where they were never verified. Both still need own verified profiles.
-   * DK2 is part of the Nordic FCR-D market and keeps the Swedish rule set.
+   * DE and DK1 are CONTINENTAL symmetric FCR, not Nordic FCR-D, and each answers for its
+   * OWN verified rule set: DK1 = 24 min endurance + 25 % energy-management power,
+   * DE = 25 min endurance (15 min alert + max{previous activation; management lag} +
+   * 5 min reserve operation) + Pmax >= 1.25 * P_VL. Neither may ever inherit the Nordic
+   * (or each other's) parameters. DK2 is Nordic FCR-D and keeps the Swedish rule set.
    */
-  if (area === "DE" || area === "DK1") return CONTINENTAL_LEGACY_MARKET;
+  if (area === "DE") return DE_MARKET;
+  if (area === "DK1") return DK1_MARKET;
   return SE_MARKET;
 }
 
