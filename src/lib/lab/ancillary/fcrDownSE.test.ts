@@ -76,10 +76,12 @@ describe("FCR-D ned: dataset", () => {
 
   it("nedserien finns bara för Sverige", () => {
     expect(fcrDownPriceSeriesForCountry("SE")).toBe(FCR_D_DOWN_SE_2025);
-    for (const a of ["DE", "DK1", "DK2", undefined] as const)
+    for (const a of ["DE", "DK1", undefined] as const)
       expect(fcrDownPriceSeriesForCountry(a)).toBeNull();
     // Finland har en EGEN verifierad nedserie — aldrig den svenska.
     expect(fcrDownPriceSeriesForCountry("FI")).not.toBe(FCR_D_DOWN_SE_2025);
+    // DK2 ligger i SAMMA nordiska FCR-marknad som Sverige och delar prisserien.
+    expect(fcrDownPriceSeriesForCountry("DK2")).toBe(FCR_D_DOWN_SE_2025);
     expect(fcrPriceSeriesForCountry("SE")).toBe(FCR_D_UP_SE_2025);
   });
 });
@@ -97,7 +99,7 @@ describe("marknadskoppling", () => {
   it("Sverige och Finland = upp + ned, övriga marknader oförändrade", () => {
     expect(reserveModeForMarket("SE")).toBe("up-and-down");
     expect(reserveModeForMarket("FI")).toBe("up-and-down");
-    expect(reserveModeForMarket("DK", "DK2")).toBe("upward");
+    expect(reserveModeForMarket("DK", "DK2")).toBe("up-and-down");
     expect(reserveModeForMarket("DK", "DK1")).toBe("symmetric");
     expect(reserveModeForMarket("DE")).toBe("symmetric");
   });
@@ -105,7 +107,6 @@ describe("marknadskoppling", () => {
   it("bara marknader med verifierad nedserie får nedintäkt", () => {
     expect(caseFor("SE").sim.ancillary.fcrDown).not.toBeNull();
     for (const [c, a] of [
-      ["DK", "DK2"],
       ["DK", "DK1"],
       ["DE", null],
     ] as const) {

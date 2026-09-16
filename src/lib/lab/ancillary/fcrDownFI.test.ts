@@ -88,8 +88,10 @@ describe("FCR-D ned Finland: dataset", () => {
   it("används bara för Finland", () => {
     expect(fcrDownPriceSeriesForCountry("FI")).toBe(FCR_D_DOWN_FI_2025);
     expect(fcrDownPriceSeriesForCountry("SE")).toBe(FCR_D_DOWN_SE_2025);
-    for (const a of ["DE", "DK1", "DK2", undefined] as const)
+    for (const a of ["DE", "DK1", undefined] as const)
       expect(fcrDownPriceSeriesForCountry(a)).toBeNull();
+    // DK2 delar den svenska/nordiska nedserien — aldrig den finska.
+    expect(fcrDownPriceSeriesForCountry("DK2")).toBe(FCR_D_DOWN_SE_2025);
     expect(fcrPriceSeriesForCountry("FI")).toBe(FCR_D_UP_FI_2025);
   });
 });
@@ -118,7 +120,7 @@ describe("finska marknadsregler", () => {
   it("Finland routas till upp + ned, övriga marknader oförändrade", () => {
     expect(reserveModeForMarket("FI")).toBe("up-and-down");
     expect(reserveModeForMarket("SE")).toBe("up-and-down");
-    expect(reserveModeForMarket("DK", "DK2")).toBe("upward");
+    expect(reserveModeForMarket("DK", "DK2")).toBe("up-and-down");
     expect(reserveModeForMarket("DK", "DK1")).toBe("symmetric");
     expect(reserveModeForMarket("DE")).toBe("symmetric");
   });
@@ -163,9 +165,8 @@ describe("finsk fysik och ekonomi", () => {
 });
 
 describe("Finland påverkar inte andra marknader", () => {
-  it("DK2, DK1 och DE har fortfarande ingen nedintäkt", () => {
+  it("DK1 och DE har fortfarande ingen nedintäkt", () => {
     for (const [c, area] of [
-      ["DK", "DK2"],
       ["DK", "DK1"],
       ["DE", null],
     ] as const) {

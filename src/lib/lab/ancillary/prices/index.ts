@@ -72,8 +72,8 @@ export function hasVerifiedFcrPrices(country: FcrMarketArea | undefined): boolea
 export const VERIFIED_FCR_MARKET_AREAS = Object.keys(SERIES_BY_AREA) as FcrMarketArea[];
 
 /**
- * VERIFIED DOWN-REGULATION SERIES (FCR-D ned). Sweden only: the Svenska kraftnät 2025
- * file is the single verified source. Finland, DK1, DK2 and Germany get null — a Swedish
+ * VERIFIED DOWN-REGULATION SERIES (FCR-D ned). Sweden/DK2 share the Svenska kraftnät 2025
+ * file (one common Nordic market). Finland has its own Fingrid series; DK1 and Germany get null — a
  * down series is never used as a stand-in for another market, and a missing series means
  * "no down revenue is calculated", never 0 kr.
  */
@@ -82,6 +82,12 @@ const DOWN_SERIES_BY_AREA: Partial<Record<FcrMarketArea, FcrPriceSeries>> = {
   // Finland: verified Fingrid dataset 283 (8 759 observed hours + 1 documented estimated
   // final hour). Never used for any other market, and no Swedish series is ever used here.
   FI: FCR_D_DOWN_FI_2025,
+  /**
+   * DK2 sits in the SAME Nordic FCR market as Sweden, and the Svenska kraftnät 2025 file
+   * is the market price for that common area — it is therefore the correct DK2 series,
+   * not a Swedish stand-in. DK1 (continental) and Germany are unaffected.
+   */
+  DK2: FCR_D_DOWN_SE_2025,
 };
 
 export function fcrDownPriceSeriesForCountry(
