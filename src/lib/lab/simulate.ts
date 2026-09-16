@@ -226,7 +226,7 @@ export function simulate(
    */
   const ancillaryOutcome = cfg.strategies.ancillaryServices
     ? computeAncillary(
-        marketProfile(cfg.ancillary.marketId),
+        marketProfileForPriceArea(cfg.ancillary.priceCountry),
         cfg.ancillary,
         {
           capacityKWh,

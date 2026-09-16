@@ -20,6 +20,7 @@ import { FCR_D_DOWN_SE_2025 } from "./fcrDDownSE2025";
 import type { FcrPriceSeries } from "./fcrDUpSE2025";
 
 export {
+  FCR_D_DOWN_FI_2025,
   FCR_D_DOWN_SE_2025,
   FCR_D_UP_FI_2025,
   FCR_D_UP_SE_2025,
