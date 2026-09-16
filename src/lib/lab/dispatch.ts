@@ -1110,8 +1110,17 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
        */
       const upAndDown = plan?.reserveMode === "up-and-down";
       const offeredDownKw = plan?.downPowerKw ?? 0;
-      const enduranceHours =
+      /**
+       * DIRECTION-SPECIFIC ENDURANCE. Each direction's endurance is read back from the
+       * plan's own energy/power pair, which the market profile produced from the
+       * requirements of the services selected in that direction. Nothing is hardcoded:
+       * where a market declares the same endurance up and down (SE/FI/DK2 today: 0.35 h)
+       * the two values are identical and the result is numerically unchanged.
+       */
+      const upEnduranceHours =
         offeredKw > 0 ? (plan?.upEnergyKWh ?? 0) / offeredKw : 0;
+      const downEnduranceHours =
+        offeredDownKw > 0 ? (plan?.downEnergyKWh ?? 0) / offeredDownKw : 0;
 
       /**
        * ---------- DIRECTIONAL CAPABILITY (one shared formula) ----------
