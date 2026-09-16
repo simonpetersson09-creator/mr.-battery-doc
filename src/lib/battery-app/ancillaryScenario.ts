@@ -99,6 +99,7 @@ function runCandidate(
       powerKw: rec.recommendedPowerKw ?? rec.productPowerKw,
       ancillaryMarketValueSek: market,
       ancillaryCustomerValueSek: market * share,
+      annualBenefitSek: total,
       customerBenefitSek: customerBenefit,
       maxInvestmentSek: maxInvestmentSek(customerBenefit, years),
     };
