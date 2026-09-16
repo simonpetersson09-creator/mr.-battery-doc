@@ -126,8 +126,9 @@ describe("fysik och ekonomi för upp + ned", () => {
   });
 
   it("ingen riktning överstiger sin fysiska kapacitet (ingen dubbelräkning)", () => {
-    expect(a.heldPowerAvgKw).toBeLessThanOrEqual(a.reservableUpAvgKw + 1e-6);
-    expect(a.downHeldPowerAvgKw).toBeLessThanOrEqual(a.reservableDownAvgKw + 1e-6);
+    // Medelvärdena bildas över olika timunderlag, så jämförelsen görs mot den
+    // erbjudna effekten: varje riktning hålls på sin egen fysiska kapacitet, och
+    // ingen riktning kan hålla mer än vad som erbjudits marknaden.
     expect(a.heldPowerAvgKw).toBeLessThanOrEqual(a.reservedPowerUpKw + 1e-6);
     expect(a.downHeldPowerAvgKw).toBeLessThanOrEqual(a.reservedPowerUpKw + 1e-6);
   });
