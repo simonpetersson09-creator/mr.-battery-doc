@@ -268,6 +268,11 @@ export interface DispatchTallies {
   fcrEnergyDownLimitedHours: number;
   fcrUpBindingHours: number;
   fcrDownBindingHours: number;
+  /** NEM power held on the charge/discharge side, summed over the scheduled hours, kW. */
+  fcrNemChargeSumKw: number;
+  fcrNemDischargeSumKw: number;
+  /** Hours where the NEM power requirement reduced the reservable FCR power. */
+  fcrNemLimitedHours: number;
 }
 
 export interface DispatchOutput {
@@ -330,6 +335,13 @@ export interface DispatchOutput {
     energyDownLimitedHours: number;
     symmetricHeldPowerAvgKw: number;
     limitingDirection: "up" | "down" | "both" | "none";
+    /** NEM share actually applied, % of the FCR capacity (0 for markets without NEM). */
+    nemPowerSharePct: number;
+    /** Mean NEM power held on the charge / discharge side over the scheduled hours. */
+    nemChargeAvgKw: number;
+    nemDischargeAvgKw: number;
+    /** Hours where NEM was the reducing constraint. */
+    nemLimitedHours: number;
   };
   notes: string[];
 }
@@ -536,6 +548,9 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
     fcrEnergyDownLimitedHours: 0,
     fcrUpBindingHours: 0,
     fcrDownBindingHours: 0,
+    fcrNemChargeSumKw: 0,
+    fcrNemDischargeSumKw: 0,
+    fcrNemLimitedHours: 0,
   };
 
   let arbCost = 0;
