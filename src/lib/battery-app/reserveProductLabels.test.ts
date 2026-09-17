@@ -14,16 +14,16 @@ describe("reserve product labels come from the market config", () => {
     expect(reserveProductLabel("DK", "DK1")).toBe("FCR");
   });
 
-  it("F: SE, FI and DK2 are FCR-D upp", () => {
-    expect(reserveProductLabel("SE")).toBe("FCR-D upp");
-    expect(reserveProductLabel("FI")).toBe("FCR-D upp");
-    expect(reserveProductLabel("DK", "DK2")).toBe("FCR-D upp");
+  it("F: SE, FI and DK2 are FCR-D upp och ned", () => {
+    expect(reserveProductLabel("SE")).toBe("FCR-D upp och ned");
+    expect(reserveProductLabel("FI")).toBe("FCR-D upp och ned");
+    expect(reserveProductLabel("DK", "DK2")).toBe("FCR-D upp och ned");
   });
 
   it("G: the label always matches the reserve physics of that market", () => {
     for (const [c, a] of [["SE", null], ["FI", null], ["DE", null], ["DK", "DK1"], ["DK", "DK2"]] as const) {
       const cfg = reserveMarketConfig(c, a)!;
-      expect(cfg.productLabel).toBe(cfg.physics === "symmetric" ? "FCR" : "FCR-D upp");
+      expect(cfg.productLabel).toBe(cfg.physics === "symmetric" ? "FCR" : "FCR-D upp och ned");
     }
     // Denmark without an area picked never shows a Nordic product name.
     expect(reserveProductLabel("DK")).toBe("stödtjänster");

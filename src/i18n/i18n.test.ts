@@ -117,7 +117,7 @@ describe("language never changes country, market, currency or engine data", () =
 
   it("only the visible spelling of labels changes", () => {
     // Canonical Swedish label stays the engine/config-facing value.
-    expect(reserveProductLabel("SE")).toBe("FCR-D upp");
+    expect(reserveProductLabel("SE")).toBe("FCR-D upp och ned");
     const english = withLanguage("en", () => ({
       country: countryName("DK"),
       area: marketAreaName("DK1"),

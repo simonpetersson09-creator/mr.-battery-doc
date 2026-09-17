@@ -102,9 +102,9 @@ describe("FCR-driven power explanation", () => {
     expect(p.fcrPowerCardText).toContain(`${rec} kW`);
     // B: the FCR-off level only appears as its own sentence when it differs from the physical need.
     if (p.showPhysicalNeedRow) {
-      expect(p.fcrPowerCardText).toContain(`Utan FCR-D upp ger ${without} kW`);
+      expect(p.fcrPowerCardText).toContain(`Utan FCR-D upp och ned ger ${without} kW`);
     } else {
-      expect(p.fcrPowerCardText).not.toContain("Utan FCR-D upp ger");
+      expect(p.fcrPowerCardText).not.toContain("Utan FCR-D upp och ned ger");
     }
     expect(p.powerWhy).toBe(p.fcrPowerCardText);
     // Repetition removed.

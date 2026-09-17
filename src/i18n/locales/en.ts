@@ -27,7 +27,7 @@ export const en = {
   },
   reserveProduct: {
     FCR: "FCR",
-    FCR_D_UP: "FCR-D up",
+    FCR_D_UP: "FCR-D up and down",
     generic: "grid services",
   },
   units: {
