@@ -291,4 +291,47 @@ describe("adjustment credits", () => {
     expect(e.adjustmentCredits).toBe(0);
     expect(destinationAfterStep5({ calculationStatus: "ok", entitlements: e, calculationId: "calc-2" })).toBe("/betalvagg");
   });
+
+  it("sets a 24 h expiry on the adjustment credits", () => {
+    const bought = new Date("2026-01-01T12:00:00.000Z");
+    const e = applyPurchase(EMPTY_ENTITLEMENTS, { status: "purchased", key: "singleReport" }, "calc-1", bought);
+    expect(e.adjustmentCredits).toBe(3);
+    expect(e.adjustmentCreditsExpiresISO).toBe(
+      new Date(bought.getTime() + ADJUSTMENT_CREDITS_TTL_MS).toISOString(),
+    );
+    // Within the window the credits are usable.
+    expect(adjustmentCreditsRemaining(e, new Date(bought.getTime() + 60_000))).toBe(3);
+    expect(hasAdjustmentCredit(e, "calc-2", new Date(bought.getTime() + 60_000))).toBe(true);
+  });
+
+  it("expires the adjustment credits after 24 h", () => {
+    const bought = new Date("2026-01-01T12:00:00.000Z");
+    const e = applyPurchase(EMPTY_ENTITLEMENTS, { status: "purchased", key: "singleReport" }, "calc-1", bought);
+    const after = new Date(bought.getTime() + ADJUSTMENT_CREDITS_TTL_MS + 1);
+    // Expired: no usable credits, no routing through the paywall.
+    expect(adjustmentCreditsRemaining(e, after)).toBe(0);
+    expect(hasAdjustmentCredit(e, "calc-2", after)).toBe(false);
+    expect(consumeAdjustmentCredit(e, "calc-2", after)).toBe(e);
+    expect(destinationAfterStep5({ calculationStatus: "ok", entitlements: e, calculationId: "calc-2", now: after })).toBe("/betalvagg");
+  });
+
+  it("persists the expiry through parseEntitlements", () => {
+    const bought = new Date("2026-01-01T12:00:00.000Z");
+    const e = applyPurchase(EMPTY_ENTITLEMENTS, { status: "purchased", key: "singleReport" }, "calc-1", bought);
+    const restored = parseEntitlements(JSON.parse(JSON.stringify(e)));
+    expect(restored.adjustmentCredits).toBe(3);
+    expect(restored.adjustmentCreditsExpiresISO).toBe(e.adjustmentCreditsExpiresISO);
+    expect(adjustmentCreditsRemaining(restored, bought)).toBe(3);
+  });
+
+  it("a fresh purchase resets the expiry window", () => {
+    const first = new Date("2026-01-01T12:00:00.000Z");
+    const expired = new Date(first.getTime() + ADJUSTMENT_CREDITS_TTL_MS + 1);
+    let e = applyPurchase(EMPTY_ENTITLEMENTS, { status: "purchased", key: "singleReport" }, "calc-1", first);
+    expect(adjustmentCreditsRemaining(e, expired)).toBe(0);
+    // A new purchase grants a fresh 24 h window from the new purchase time.
+    e = applyPurchase(e, { status: "purchased", key: "singleReport" }, "calc-2", expired);
+    expect(adjustmentCreditsRemaining(e, expired)).toBe(3);
+    expect(hasAdjustmentCredit(e, "calc-3", expired)).toBe(true);
+  });
 });
