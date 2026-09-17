@@ -41,6 +41,7 @@ export function recoverTransactions(
   current: Entitlements,
   transactions: UnfinishedTransaction[],
   intent: PurchaseIntent | null,
+  now: Date = new Date(),
 ): RecoveryOutcome {
   let entitlements = current;
   const finish: string[] = [];
@@ -69,7 +70,7 @@ export function recoverTransactions(
       keep.push(tx.transactionId);
       continue;
     }
-    entitlements = withPurchasedCalculation(entitlements, calculationId);
+    entitlements = withPurchasedCalculation(entitlements, calculationId, now);
     intentConsumed = true;
     finish.push(tx.transactionId);
   }
