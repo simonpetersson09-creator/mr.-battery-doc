@@ -536,7 +536,9 @@ function ResultStep() {
         />
       ) : null}
 
-      {p.showEnergySection || p.showPeakSection ? (
+      {/* Pure ancillary flow (no PV): nothing in the property changes, so the
+          before/after card would only repeat unchanged values — hide it. */}
+      {(p.showEnergySection || p.showPeakSection) && !(ancillaryBest && !p.peakChanged) ? (
         <SectionCard compact centerTitle className="surface-primary" title={t("results.improvements.title")} titleClassName={RESULT_CARD_TITLE_CLASS}>
           <div className="surface-secondary rounded-[1rem] p-3">
             <div className="space-y-1.5">
