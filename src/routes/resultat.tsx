@@ -640,21 +640,24 @@ function ResultStep() {
                 toggleLabel={t("results.benefit.showCalculation")}
               />
             </div>
-            {/* PV=0 flow: the size is a TECHNICAL proposal, never "the most profitable". */}
-            <p className="mt-2 text-[11px] font-semibold leading-relaxed">
-              {t("results.ancillaryScenario.technicalTitle")}
-            </p>
-            <p className="text-[11px] leading-relaxed text-foreground/70">
-              {t("results.ancillaryScenario.technicalHint")}
-            </p>
-            {ancillaryScenario?.ancillaryDriven ? (
-              <p className="mt-2 text-[11px] leading-relaxed text-foreground/70">
-                {t("results.ancillaryScenario.driven")}
+            {/* PV=0 flow: the size is a TECHNICAL proposal, never "the most profitable".
+                The background text stays collapsed by default. */}
+            <details className="ui-expandable mt-2 rounded-[1rem] border border-foreground/10 p-2">
+              <summary className="text-[11px] font-semibold leading-relaxed">
+                {t("results.ancillaryScenario.technicalTitle")}
+              </summary>
+              <p className="mt-1 text-[11px] leading-relaxed text-foreground/70">
+                {t("results.ancillaryScenario.technicalHint")}
               </p>
-            ) : null}
-            <p className="mt-2 text-[11px] leading-relaxed text-foreground/70">
-              {t("results.ancillaryScenario.note")}
-            </p>
+              {ancillaryScenario?.ancillaryDriven ? (
+                <p className="mt-2 text-[11px] leading-relaxed text-foreground/70">
+                  {t("results.ancillaryScenario.driven")}
+                </p>
+              ) : null}
+              <p className="mt-2 text-[11px] leading-relaxed text-foreground/70">
+                {t("results.ancillaryScenario.note")}
+              </p>
+            </details>
           </>
         ) : p.noEconomy ? (
           <>
