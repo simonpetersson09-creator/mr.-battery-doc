@@ -602,8 +602,12 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
   energyRows.push(
     { label: copy.energy.gridCharged, value: kwh(e.gridChargedKWh), source: "calculated" },
     { label: copy.energy.losses, value: kwh(e.batteryLossesKWh), source: "calculated" },
-    { label: copy.energy.cycles, value: num(e.equivalentFullCycles, 1), source: "calculated" },
   );
+  /* Ancillary-only: cycling is reserve-holding noise, same as the result page which
+     hides battery usage/cycles in this mode. */
+  if (!ancillaryOnly) {
+    energyRows.push({ label: copy.energy.cycles, value: num(e.equivalentFullCycles, 1), source: "calculated" });
+  }
 
   sections.push({
     id: "energy",
