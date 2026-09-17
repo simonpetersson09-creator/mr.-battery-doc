@@ -648,12 +648,16 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     energyRows.push({ label: copy.energy.cycles, value: num(e.equivalentFullCycles, 1), source: "calculated" });
   }
 
-  sections.push({
-    id: "energy",
-    title: copy.energy.title,
-    pageBreak: true,
-    blocks: [{ kind: "rows", rows: energyRows }],
-  });
+  /* Ancillary-only: the energy page would only list the yearly load plus standby
+     losses, which the assumptions page already covers — omitted. */
+  if (!ancillaryOnly) {
+    sections.push({
+      id: "energy",
+      title: copy.energy.title,
+      pageBreak: true,
+      blocks: [{ kind: "rows", rows: energyRows }],
+    });
+  }
 
   /* ============================ 6. GRID ============================ */
   const fuseA = input.site?.mainFuseA ?? cfg.grid.mainFuseA;
