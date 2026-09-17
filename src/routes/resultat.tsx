@@ -842,8 +842,8 @@ function ResultStep() {
             />
             {(() => {
               const batteryCfg = ancillaryBest
-                ? ancillaryScenario?.selectedResult?.config.battery
-                : outcome.result.config.battery;
+                ? ancillaryScenario?.selectedResult?.diagnostics.config.battery
+                : outcome.result.diagnostics.config.battery;
               return batteryCfg ? (
                 <>
                   <Row
