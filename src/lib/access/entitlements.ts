@@ -80,11 +80,20 @@ export function withUnlockedCalculation(e: Entitlements, calculationId: string):
 
 /**
  * A one-off report purchase: unlocks the purchased calculation AND grants a
- * fresh batch of adjustment credits (capped at ADJUSTMENT_CREDITS_PER_PURCHASE).
- * Premium purchases never touch adjustment credits.
+ * fresh batch of adjustment credits (capped at ADJUSTMENT_CREDITS_PER_PURCHASE)
+ * that expire ADJUSTMENT_CREDITS_TTL_MS after the purchase. Premium purchases
+ * never touch adjustment credits.
  */
-export function withPurchasedCalculation(e: Entitlements, calculationId: string): Entitlements {
-  return { ...withUnlockedCalculation(e, calculationId), adjustmentCredits: ADJUSTMENT_CREDITS_PER_PURCHASE };
+export function withPurchasedCalculation(
+  e: Entitlements,
+  calculationId: string,
+  now: Date = new Date(),
+): Entitlements {
+  return {
+    ...withUnlockedCalculation(e, calculationId),
+    adjustmentCredits: ADJUSTMENT_CREDITS_PER_PURCHASE,
+    adjustmentCreditsExpiresISO: new Date(now.getTime() + ADJUSTMENT_CREDITS_TTL_MS).toISOString(),
+  };
 }
 
 /** True when the calculation is not otherwise open and the user has spare adjustment credits. */
@@ -93,7 +102,11 @@ export function hasAdjustmentCredit(
   calculationId: string,
   now: Date = new Date(),
 ): boolean {
-  return !isPremiumActive(e, now) && !isCalculationUnlocked(e, calculationId) && e.adjustmentCredits > 0;
+  return (
+    !isPremiumActive(e, now) &&
+    !isCalculationUnlocked(e, calculationId) &&
+    adjustmentCreditsRemaining(e, now) > 0
+  );
 }
 
 /** Consumes one adjustment credit and unlocks the calculation. No-op when not eligible. */
