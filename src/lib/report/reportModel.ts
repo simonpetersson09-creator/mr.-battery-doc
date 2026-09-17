@@ -394,33 +394,39 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     const candidateBlocks: ReportBlock[] = [];
     for (const [power, group] of byPower) {
       candidateBlocks.push({ kind: "subheading", text: kw(power, 1) });
-      const rows: ReportRow[] = [];
+      /* One separate three-row block per capacity, so the sizes are visually divided
+         instead of running together in one long table. */
       for (const c of group) {
         const label = `${kwh(c.capacityKWh)}${
           c.capacityKWh === ancSelected.capacityKWh && c.powerKw === ancSelected.powerKw
             ? ` (${copy.ancillaryScenario.technicalTitle})`
             : ""
         }`;
-        rows.push({
-          label: `${label} — ${copy.ancillaryScenario.compensation}`,
-          value: perYear(c.ancillaryCustomerValueSek),
-          source: "calculated",
-        });
-        rows.push({
-          label: `${label} — ${copy.ancillaryScenario.totalBenefit}`,
-          value: perYear(c.customerBenefitSek),
-          source: "calculated",
-        });
-        rows.push({
-          label: `${label} — ${copy.ancillaryScenario.maxInvestment}`,
-          value:
-            c.maxInvestmentSek === null
-              ? copy.ancillaryScenario.maxInvestmentNone
-              : money(c.maxInvestmentSek),
-          source: "calculated",
+        candidateBlocks.push({ kind: "subheading", text: label });
+        candidateBlocks.push({
+          kind: "rows",
+          rows: [
+            {
+              label: copy.ancillaryScenario.compensation,
+              value: perYear(c.ancillaryCustomerValueSek),
+              source: "calculated",
+            },
+            {
+              label: copy.ancillaryScenario.totalBenefit,
+              value: perYear(c.customerBenefitSek),
+              source: "calculated",
+            },
+            {
+              label: copy.ancillaryScenario.maxInvestment,
+              value:
+                c.maxInvestmentSek === null
+                  ? copy.ancillaryScenario.maxInvestmentNone
+                  : money(c.maxInvestmentSek),
+              source: "calculated",
+            },
+          ],
         });
       }
-      candidateBlocks.push({ kind: "rows", rows });
     }
     sections.push({
       id: "ancillary-scenario",
