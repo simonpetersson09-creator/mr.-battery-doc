@@ -689,7 +689,7 @@ function ResultStep() {
                 {t("results.benefit.nonPositive")}
               </p>
             ) : null}
-            <div className="surface-secondary mt-2 space-y-2 rounded-[1rem] p-3">
+            <div className="surface-secondary mt-1.5 space-y-1.5 rounded-[1rem] p-2.5">
               {s.economy.energyBenefitSek !== 0 ? (
                 <BenefitRow
                   label={
@@ -761,15 +761,15 @@ function ResultStep() {
         </SectionCard>
       ) : (
         <section className="ui-card ui-card-compact surface-primary text-center">
-          <p className="font-display text-[14px] font-semibold leading-snug">
+          <p className="font-display text-[13px] font-semibold leading-snug">
             {t("results.investment.title")}
           </p>
-          <p className="mt-1 text-[30px] font-extrabold tracking-tight tabular-nums">
+          <p className="mt-0.5 text-[24px] font-extrabold tracking-tight tabular-nums">
             {t("results.investment.approx")} {money(maxInvestment)}
           </p>
-          <div className="surface-secondary mt-2 rounded-[1rem] p-3 text-left">
+          <div className="surface-secondary mt-1.5 rounded-[1rem] p-2.5 text-left">
             <p className="text-center text-[12px] font-semibold">{t("results.investment.otherTitle")}</p>
-            <div className="mt-2 space-y-1">
+            <div className="mt-1.5 space-y-1">
               {[targetYears - 2, targetYears, targetYears + 2]
                 .map((y) => Math.min(20, Math.max(5, y)))
                 .filter((y, i, arr) => arr.indexOf(y) === i)
@@ -798,7 +798,7 @@ function ResultStep() {
                   );
                 })}
             </div>
-            <p className="mt-2 text-center text-[11px] leading-relaxed">
+            <p className="mt-1.5 text-center text-[11px] leading-relaxed">
               {t("results.investment.explain")}
             </p>
           </div>
@@ -862,6 +862,12 @@ function ResultStep() {
                   </>
                 ) : null}
                 <Row label={t("technical.selectedServices")} value={productLabel} />
+                {fcrLimitingFactor ? (
+                  <Row
+                    label={t("technical.limitingFactor")}
+                    value={t(`technical.limiting.${fcrLimitingFactor}`)}
+                  />
+                ) : null}
               </>
             ) : null}
           </TechGroup>
