@@ -57,30 +57,28 @@ export const da = {
     },
   },
   intro: {
+    title: "Find det rette batteri til din ejendom",
+    subtitle: "Dimensionering og økonomisk analyse for batteri med solceller – eller selvstændigt batteri til systemtjenester.",
     lead: "Svar på nogle enkle spørgsmål om din ejendom, så hjælper vi dig med at finde en passende batteristørrelse.",
     points: {
       capacity: {
-        title: "Anbefalet batteristorrelse og effekt",
-        desc: "Hvor mange kWh og kW der passer til din ejendom.",
-      },
-      usage: {
-        title: "Hvordan batteriet kan bruges",
-        desc: "Egenforbrug, mindsket netimport, spidslastafskæring og systemtjenester.",
+        title: "Anbefalet batteristorrelse",
+        desc: "Se hvilken kapacitet og effekt der passer til din ejendom.",
       },
       economy: {
         title: "Anslået økonomisk nytte",
-        desc: "Hvad batteriet kan give i årlig kundenytte.",
+        desc: "Se nyttten fra egenforbrug, effekttoppe og systemtjenester.",
       },
       investment: {
-        title: "Fornuftig investeringsomkostning",
-        desc: "Hvad batteriet må koste ud fra din ønskede tilbagebetalingstid.",
+        title: "Anslået maksimumsinvestering",
+        desc: "Se hvad batteriet må koste ud fra din ønskede tilbagebetalingstid.",
       },
     },
     stats: {
       powerLabel: "Op til 200 kW / 500 kWh",
-      powerSub: "batteri",
-      simsLabel: "3,5 millioner",
-      simsSub: "simuleringer pr. analyse",
+      powerSub: "batteristorrelse",
+      simsLabel: "≈ 800.000",
+      simsSub: "timberegninger pr. analyse",
     },
     cta: "Kom i gang",
     footnote: "Tager cirka tre minutter. Dine svar gemmes undervejs.",

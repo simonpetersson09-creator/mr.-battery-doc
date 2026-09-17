@@ -56,30 +56,28 @@ export const fi = {
     },
   },
   intro: {
+    title: "Löydä oikea akku kiinteistöösi",
+    subtitle: "Mitoitus ja taloudellinen analyysi aurinkopaneeleiden akulle – tai itsenäinen akku järjestelmäpalveluihin.",
     lead: "Vastaa muutamaan yksinkertaiseen kysymykseen kiinteistöstäsi, niin autamme löytämään sopivan akkukoon.",
     points: {
       capacity: {
-        title: "Suositeltu akun koko ja teho",
-        desc: "Kuinka monta kWh ja kW sopivat kiinteistöösi.",
-      },
-      usage: {
-        title: "Miten akkua voidaan käyttää",
-        desc: "Oma kulutus, vähentynyt verkkotuonti, huippukuormituksen tasaus ja järjestelmäpalvelut.",
+        title: "Suositeltu akun koko",
+        desc: "Katso, mikä kapasiteetti ja teho sopivat kiinteistöösi.",
       },
       economy: {
         title: "Arvioitu taloudellinen hyöty",
-        desc: "Mitä akku voi tuottaa vuotuisena asiakashyötynä.",
+        desc: "Katso hyöty omasta kulutuksesta, tehualueen piikeistä ja järjestelmäpalveluista.",
       },
       investment: {
-        title: "Kohtuulliset investointikustannukset",
-        desc: "Mitä akku saa maksaa halutun takaisinmaksuajan perusteella.",
+        title: "Arvioitu enimmäisinvestointi",
+        desc: "Katso mitä akku saa maksaa halutun takaisinmaksuajan perusteella.",
       },
     },
     stats: {
       powerLabel: "Enintään 200 kW / 500 kWh",
-      powerSub: "akku",
-      simsLabel: "3,5 miljoonaa",
-      simsSub: "simulaatiota per analyysi",
+      powerSub: "akun koko",
+      simsLabel: "≈ 800 000",
+      simsSub: "tuntikohtaista laskentaa per analyysi",
     },
     cta: "Aloita",
     footnote: "Kestää noin kolme minuuttia. Vastauksesi tallentuvat matkan varrella.",
