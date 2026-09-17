@@ -292,22 +292,39 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     summaryParts.push(`${pct(peakPct, 1)} ${copy.summary.peakLower}`);
   }
 
+  /* Ancillary-only: the separate benefit page repeated these same figures, so the
+     headline total moves up here and the front page carries the whole summary. */
+  const summaryBlocks: ReportBlock[] = ancillaryOnly
+    ? [
+        {
+          kind: "hero",
+          label: copy.benefit.total,
+          value: totalBenefitSek === null ? copy.cannotBeCalculated : perYear(totalBenefitSek),
+        },
+        {
+          kind: "cards",
+          items: summaryCards.filter((c) => c.label !== copy.summary.benefit),
+        },
+        { kind: "note", text: copy.benefit.note },
+      ]
+    : [
+        { kind: "cards", items: summaryCards },
+        ...(improvementRows.length
+          ? [
+              { kind: "subheading" as const, text: copy.summary.improvements },
+              { kind: "beforeAfter" as const, rows: improvementRows },
+            ]
+          : []),
+        ...(summaryParts.length
+          ? [{ kind: "note" as const, text: summaryParts.join(" · ") }]
+          : []),
+      ];
+
   sections.push({
     id: "summary",
     title: copy.summary.title,
     pageBreak: false,
-    blocks: [
-      { kind: "cards", items: summaryCards },
-      ...(improvementRows.length
-        ? [
-            { kind: "subheading" as const, text: copy.summary.improvements },
-            { kind: "beforeAfter" as const, rows: improvementRows },
-          ]
-        : []),
-      ...(summaryParts.length
-        ? [{ kind: "note" as const, text: summaryParts.join(" · ") }]
-        : []),
-    ],
+    blocks: summaryBlocks,
   });
 
   /* ============================ 2. BENEFIT ============================ */
