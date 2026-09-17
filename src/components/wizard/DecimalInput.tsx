@@ -17,6 +17,7 @@ export function DecimalInput({
   className,
   step,
   ariaLabel,
+  disabled,
 }: {
   value: number | null;
   onChange: (v: number | null) => void;
@@ -25,6 +26,8 @@ export function DecimalInput({
   /** Kept for API compatibility with the previous number input. */
   step?: string | undefined;
   ariaLabel?: string | undefined;
+  /** Read-only presentation state (e.g. a field that does not apply to the chosen setup). */
+  disabled?: boolean | undefined;
 }) {
   const [text, setText] = useState(value === null || value === undefined ? "" : String(value));
   const focused = useRef(false);
