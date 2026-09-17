@@ -317,8 +317,16 @@ describe("PV=0 technical sizing", () => {
       const sc = scenarioFor({ fuseA: 16 })!;
       const t = sc.technical!;
       expect(t.coverageThreshold).toBe(ANCILLARY_TECHNICAL_COVERAGE);
-      if (t.maxUpCapacityKwh > 0) expect(t.upCoverage).toBeGreaterThanOrEqual(0.95 - 1e-9);
-      if (t.maxDownCapacityKwh > 0) expect(t.downCoverage).toBeGreaterThanOrEqual(0.95 - 1e-9);
+      /**
+       * 95 % stays the requirement. When the two directions cannot both reach it at the
+       * same time inside the fuse ceiling, the best JOINTLY achievable coverage applies
+       * (appliedCoverage) — it is never a new, lower hardcoded percentage.
+       */
+      expect(t.appliedCoverage).toBeLessThanOrEqual(ANCILLARY_TECHNICAL_COVERAGE + 1e-9);
+      if (t.maxUpCapacityKwh > 0)
+        expect(t.upCoverage).toBeGreaterThanOrEqual(t.appliedCoverage - 1e-9);
+      if (t.maxDownCapacityKwh > 0)
+        expect(t.downCoverage).toBeGreaterThanOrEqual(t.appliedCoverage - 1e-9);
     },
     T,
   );
@@ -439,8 +447,11 @@ describe("PV=0 technical sizing", () => {
       const t = sc.technical!;
       const sel = sc.selected!;
       expect(sel.powerKw).toBeGreaterThan(0);
-      if (t.maxUpCapacityKwh > 0) expect(t.upCoverage).toBeGreaterThanOrEqual(0.95 - 1e-9);
-      if (t.maxDownCapacityKwh > 0) expect(t.downCoverage).toBeGreaterThanOrEqual(0.95 - 1e-9);
+      expect(t.appliedCoverage).toBeLessThanOrEqual(ANCILLARY_TECHNICAL_COVERAGE + 1e-9);
+      if (t.maxUpCapacityKwh > 0)
+        expect(t.upCoverage).toBeGreaterThanOrEqual(t.appliedCoverage - 1e-9);
+      if (t.maxDownCapacityKwh > 0)
+        expect(t.downCoverage).toBeGreaterThanOrEqual(t.appliedCoverage - 1e-9);
       // Symmetric markets (DK1, DE) pay one capacity, so no separate down leg is held.
       if (country === "DE" || marketArea === "DK1") expect(t.maxDownCapacityKwh).toBe(0);
       else expect(t.maxDownCapacityKwh).toBeGreaterThan(0);
