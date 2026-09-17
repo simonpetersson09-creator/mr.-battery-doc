@@ -102,6 +102,25 @@ export interface ReportCopy {
     note: string;
   };
 
+  ancillaryOnly: {
+    summaryProposal: string;
+    summaryBenefit: string;
+    summaryMaxInvestment: string;
+    summaryExplanation: string;
+    comparisonIntro: string;
+    comparisonExplanation: string;
+    sizingProposal: string;
+    sizingExplanation: string;
+    serviceCompensation: string;
+    servicePriceBasis: string;
+    servicePowerExplanation: string;
+    investmentExplanation: string;
+    investmentNotAQuote: string;
+    risks: string[];
+    installer: string[];
+    faq: { q: string; a: string }[];
+  };
+
   sizing: {
     title: string;
     capacity: string;
@@ -173,6 +192,8 @@ export interface ReportCopy {
     efficiency: string;
     socWindow: string;
     reserveSoc: string;
+    serviceSocUp: string;
+    serviceSocDown: string;
     maxCycles: string;
     importPrice: string;
     exportPrice: string;
@@ -291,6 +312,100 @@ const sv: ReportCopy = {
     note: "Beräkningen bygger på historiska ersättningsnivåer. Faktisk ersättning, tillgänglighet och möjlighet att delta i stödtjänster beror bland annat på marknad, aggregator och tekniska krav.",
   },
 
+  ancillaryOnly: {
+    summaryProposal: "Tekniskt dimensioneringsförslag",
+    summaryBenefit: "Beräknad total nytta",
+    summaryMaxInvestment: "Maxinvestering vid vald återbetalningstid",
+    summaryExplanation:
+      "Beräkningen avser ett fristående batteri utan solcellsanläggning. Batteriets tekniska dimensioneringsförslag baseras på nätanslutningen och stödtjänstens tekniska krav. Din förbrukning används därefter för att beräkna hur mycket reserv som kan hållas tillgänglig och den beräknade ersättningen.",
+    comparisonIntro:
+      "Jämförelsen visar hur batteriets energikapacitet påverkar den beräknade stödtjänstnyttan. Det tekniska förslaget baseras på stödtjänstens tekniska krav och nätanslutningens begränsningar.",
+    comparisonExplanation:
+      "Stödtjänster ersätts främst utifrån den effekt som kan hållas tillgänglig. När batteriet redan har tillräcklig energikapacitet för att upprätthålla denna effekt ger ytterligare kWh inte automatiskt högre ersättning.",
+    sizingProposal: "Tekniskt dimensioneringsförslag",
+    sizingExplanation:
+      "kW anger hur stor effekt batteriet kan leverera. kWh anger hur mycket energi batteriet kan lagra. För stödtjänster behövs tillräcklig energikapacitet för att den reserverade effekten ska kunna hållas inom tjänstens tekniska krav. När batteriet har tillräcklig energikapacitet för detta ger fler kWh inte automatiskt högre stödtjänstersättning.",
+    serviceCompensation: "Beräknad ersättning till dig",
+    servicePriceBasis: "Prisunderlag",
+    servicePowerExplanation:
+      "Batteriets nominella effekt är inte automatiskt samma som den effekt som kan hållas tillgänglig och ligga till grund för ersättningen. Beräkningen tar hänsyn till batteriets, stödtjänstens och nätanslutningens tekniska begränsningar.",
+    investmentExplanation:
+      "Maxinvesteringen visar vilken total investering som motsvarar den valda återbetalningstiden om den beräknade nyttan för år 1 skulle bestå.",
+    investmentNotAQuote:
+      "Beloppet är inte ett uppskattat marknadspris, en offert eller en garanti för framtida lönsamhet.",
+    risks: [
+      "faktisk elanvändning och lastprofil",
+      "batteriets verkningsgrad",
+      "batteriets degradering",
+      "batteriets tillgänglighet",
+      "priser på stödtjänstmarknaden",
+      "aggregatorns villkor och eventuella avgifter",
+      "marknadstillträde och förkvalificering",
+      "förändrade marknadsregler",
+      "nätbegränsningar",
+    ],
+    installer: [
+      "Bekräfta föreslagen batterikapacitet.",
+      "Bekräfta föreslagen batteri- och växelriktareffekt.",
+      "Kontrollera huvudsäkring och nätanslutning.",
+      "Kontrollera tillåten laddnings- och urladdningseffekt.",
+      "Kontrollera eventuella krav från nätföretaget.",
+      "Kontrollera installation och elcentral.",
+      "Kontrollera installationsplats och brandskydd.",
+      "Kontrollera garantier och batterilivslängd.",
+      "Kontrollera att batteriet stöder aktuell stödtjänst.",
+      "Kontrollera aggregator och förkvalificering.",
+      "Kontrollera aggregatorns avgifter och intäktsdelning.",
+      "Jämför faktisk offert med rapportens maxinvestering.",
+    ],
+    faq: [
+      {
+        q: "Vad betyder kW och kWh?",
+        a: "kW anger hur stor effekt batteriet kan leverera. kWh anger hur mycket energi batteriet kan lagra.",
+      },
+      {
+        q: "Varför rekommenderas just den här batteristorleken?",
+        a: "Storleken är ett tekniskt dimensioneringsförslag baserat på nätanslutningen och stödtjänstens tekniska krav. Din förbrukning används därefter för att beräkna hur mycket reserv som kan hållas tillgänglig och den beräknade ersättningen.",
+      },
+      {
+        q: "Hur beräknas ersättningen från stödtjänster?",
+        a: "Den beräknas från den effekt som kan hållas tillgänglig, historiska marknadspriser och den kundandel som används i kalkylen.",
+      },
+      {
+        q: "Varför är batterieffekten högre än den ersättningsgrundande effekten?",
+        a: "Batteriets nominella effekt begränsas i praktiken av bland annat energikapacitet, SOC, tjänstens uthållighetskrav och nätanslutningens tillgängliga utrymme.",
+      },
+      {
+        q: "Varför ger ett större batteri inte alltid högre stödtjänstersättning?",
+        a: "När batteriet redan kan hålla den ersättningsgrundande effekten under tjänstens tekniska krav ger ytterligare energikapacitet inte automatiskt högre ersättning.",
+      },
+      {
+        q: "Är ersättningen från stödtjänster garanterad?",
+        a: "Nej. Den bygger på historiska priser och antaganden om tillgänglighet, marknadstillträde och avtalsvillkor.",
+      },
+      {
+        q: "Behöver jag en aggregator?",
+        a: "Ett villabatteri deltar normalt via en aggregator. Aggregatorn hanterar vanligen marknadstillträde, förkvalificering och avräkning.",
+      },
+      {
+        q: "Vad betyder maxinvestering?",
+        a: "Det är den totalinvestering som motsvarar vald återbetalningstid om den beräknade nyttan för år 1 skulle bestå.",
+      },
+      {
+        q: "Är maxinvesteringen samma sak som batteriets marknadspris?",
+        a: "Nej. Maxinvesteringen är varken ett uppskattat marknadspris eller en offert.",
+      },
+      {
+        q: "Varför kan installatörens eller aggregatorns kalkyl skilja sig?",
+        a: "Andra antaganden om tekniska begränsningar, priser, tillgänglighet, avgifter, kundandel och marknadsvillkor kan ge ett annat resultat.",
+      },
+      {
+        q: "Är rapporten en offert?",
+        a: "Nej. Rapporten är ett beslutsunderlag och ska kompletteras med offert, teknisk kontroll och aggregatorns villkor.",
+      },
+    ],
+  },
+
   sizing: {
     title: "Varför detta batteri?",
     capacity: "Kapacitet",
@@ -367,6 +482,8 @@ const sv: ReportCopy = {
     efficiency: "Verkningsgrad (round trip)",
     socWindow: "SOC-gränser",
     reserveSoc: "Reserverad SOC",
+    serviceSocUp: "Service-SOC, uppreglering",
+    serviceSocDown: "Service-SOC, nedreglering",
     maxCycles: "Maximalt antal cykler per år",
     importPrice: "Köpt el",
     exportPrice: "Såld solel",
@@ -564,6 +681,100 @@ const en: ReportCopy = {
     note: "The calculation is based on historical compensation levels. Actual compensation, availability and the ability to take part in ancillary services depend on the market, the aggregator and technical requirements, among other things.",
   },
 
+  ancillaryOnly: {
+    summaryProposal: "Technical sizing proposal",
+    summaryBenefit: "Total estimated benefit",
+    summaryMaxInvestment: "Maximum investment at the chosen payback time",
+    summaryExplanation:
+      "The calculation concerns a standalone battery without a solar installation. The technical sizing proposal is based on the grid connection and the technical requirements of the ancillary service. Your consumption is then used to calculate how much reserve can remain available and the estimated compensation.",
+    comparisonIntro:
+      "The comparison shows how battery energy capacity affects the estimated ancillary-service benefit. The technical proposal is based on the service requirements and the limits of the grid connection.",
+    comparisonExplanation:
+      "Ancillary services are compensated mainly according to the power that can remain available. Once the battery has enough energy capacity to sustain that power, additional kWh do not automatically increase compensation.",
+    sizingProposal: "Technical sizing proposal",
+    sizingExplanation:
+      "kW indicates how much power the battery can deliver. kWh indicates how much energy it can store. Ancillary services require enough energy capacity to sustain the reserved power within the service's technical requirements. Once that requirement is met, additional kWh do not automatically increase compensation.",
+    serviceCompensation: "Estimated compensation to you",
+    servicePriceBasis: "Price basis",
+    servicePowerExplanation:
+      "The battery's nominal power is not automatically the same as the power that can remain available and qualify for compensation. The calculation accounts for the technical limits of the battery, the ancillary service and the grid connection.",
+    investmentExplanation:
+      "The maximum investment shows the total investment corresponding to the chosen payback time if the estimated year-1 benefit were to persist.",
+    investmentNotAQuote:
+      "The amount is not an estimated market price, a quote or a guarantee of future profitability.",
+    risks: [
+      "actual electricity use and load profile",
+      "battery efficiency",
+      "battery degradation",
+      "battery availability",
+      "ancillary-service market prices",
+      "aggregator terms and possible fees",
+      "market access and prequalification",
+      "changes to market rules",
+      "grid constraints",
+    ],
+    installer: [
+      "Confirm the proposed battery capacity.",
+      "Confirm the proposed battery and inverter power.",
+      "Check the main fuse and grid connection.",
+      "Check the permitted charge and discharge power.",
+      "Check any requirements from the grid operator.",
+      "Check the installation and distribution board.",
+      "Check the installation location and fire safety.",
+      "Check warranties and expected battery lifetime.",
+      "Check that the battery supports the selected ancillary service.",
+      "Check the aggregator and prequalification requirements.",
+      "Check aggregator fees and revenue sharing.",
+      "Compare the actual quote with the report's maximum investment.",
+    ],
+    faq: [
+      {
+        q: "What do kW and kWh mean?",
+        a: "kW indicates how much power the battery can deliver. kWh indicates how much energy it can store.",
+      },
+      {
+        q: "Why is this battery size recommended?",
+        a: "The size is a technical sizing proposal based on the grid connection and the ancillary service's technical requirements. Your consumption is then used to calculate how much reserve can remain available and the estimated compensation.",
+      },
+      {
+        q: "How is ancillary-service compensation calculated?",
+        a: "It is calculated from the power that can remain available, historical market prices and the customer share used by the calculation.",
+      },
+      {
+        q: "Why is battery power higher than compensable power?",
+        a: "Nominal battery power is constrained in practice by energy capacity, SOC, service endurance requirements and available grid headroom.",
+      },
+      {
+        q: "Why does a larger battery not always increase compensation?",
+        a: "Once the battery can sustain the compensable power for the service's technical requirements, additional energy capacity does not automatically increase compensation.",
+      },
+      {
+        q: "Is ancillary-service compensation guaranteed?",
+        a: "No. It is based on historical prices and assumptions about availability, market access and contract terms.",
+      },
+      {
+        q: "Do I need an aggregator?",
+        a: "A residential battery normally participates through an aggregator, which usually handles market access, prequalification and settlement.",
+      },
+      {
+        q: "What does maximum investment mean?",
+        a: "It is the total investment corresponding to the chosen payback time if the estimated year-1 benefit were to persist.",
+      },
+      {
+        q: "Is maximum investment the same as the battery's market price?",
+        a: "No. Maximum investment is neither an estimated market price nor a quote.",
+      },
+      {
+        q: "Why can the installer's or aggregator's calculation differ?",
+        a: "Different assumptions about technical constraints, prices, availability, fees, customer share and market terms can produce a different result.",
+      },
+      {
+        q: "Is the report a quote?",
+        a: "No. The report is decision support and should be complemented by a quote, a technical inspection and the aggregator's terms.",
+      },
+    ],
+  },
+
   sizing: {
     title: "Why this battery?",
     capacity: "Capacity",
@@ -640,6 +851,8 @@ const en: ReportCopy = {
     efficiency: "Round-trip efficiency",
     socWindow: "SOC limits",
     reserveSoc: "Reserved SOC",
+    serviceSocUp: "Service SOC, upward regulation",
+    serviceSocDown: "Service SOC, downward regulation",
     maxCycles: "Maximum cycles per year",
     importPrice: "Purchased electricity",
     exportPrice: "Sold solar",

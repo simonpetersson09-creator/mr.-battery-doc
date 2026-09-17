@@ -33,6 +33,7 @@ import {
   type CountryCode,
 } from "@/lib/country-config";
 import { getReportCopy, type ReportCopy } from "./copy";
+import { ancillaryPlan } from "@/lib/lab/ancillary";
 
 export type SourceTag = "user" | "calculated" | "default" | "external";
 
@@ -59,6 +60,11 @@ export interface ReportAlternativeItem {
 
 export type ReportBlock =
   | { kind: "cards"; items: { label: string; value: string }[] }
+  | {
+      kind: "keyFigures";
+      primary: { label: string; value: string };
+      secondary: { label: string; value: string }[];
+    }
   | { kind: "rows"; rows: ReportRow[] }
   | { kind: "beforeAfter"; rows: ReportBeforeAfterRow[] }
   | { kind: "alternatives"; items: ReportAlternativeItem[] }
@@ -182,6 +188,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       )
     : req.customerEconomy;
   const cfg = result.diagnostics.config;
+  const servicePlan = ancillaryPlan(cfg.ancillary);
 
   const country = (input.site?.country ?? "SE") as CountryCode;
   const locale = numberLocale((req.language === "sv" ? "sv" : "en") as Language);
@@ -275,21 +282,10 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       after: kwh(e.importAfterKWh),
     });
   }
-  if (!ancillaryOnly && (s.peak.peakReductionKw !== 0 || g.importPeakBeforeKw > 0)) {
-    improvementRows.push({
-      label: copy.summary.peak,
-      before: kw(g.importPeakBeforeKw),
-      after: kw(g.importPeakAfterKw),
-    });
-  }
 
   const summaryParts: string[] = [];
   if (hasSolar && e.shiftedSolarKWh > 0) {
     summaryParts.push(`${kwh(e.shiftedSolarKWh)}${copy.perYear} ${copy.summary.shifted}`);
-  }
-  if (!ancillaryOnly && g.importPeakBeforeKw > 0 && s.peak.peakReductionKw !== 0) {
-    const peakPct = (s.peak.peakReductionKw / g.importPeakBeforeKw) * 100;
-    summaryParts.push(`${pct(peakPct, 1)} ${copy.summary.peakLower}`);
   }
 
   /* Ancillary-only: the separate benefit page repeated these same figures, so the
@@ -297,14 +293,23 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
   const summaryBlocks: ReportBlock[] = ancillaryOnly
     ? [
         {
-          kind: "hero",
-          label: copy.benefit.total,
-          value: totalBenefitSek === null ? copy.cannotBeCalculated : perYear(totalBenefitSek),
+          kind: "keyFigures",
+          primary: {
+            label: copy.ancillaryOnly.summaryProposal,
+            value: `${kwh(capacityKWh)} / ${kw(powerKw, 1)}`,
+          },
+          secondary: [
+            {
+              label: copy.ancillaryOnly.summaryBenefit,
+              value: totalBenefitSek === null ? copy.cannotBeCalculated : perYear(totalBenefitSek),
+            },
+            {
+              label: copy.ancillaryOnly.summaryMaxInvestment,
+              value: maxInvestment === null ? copy.cannotBeCalculated : money(maxInvestment),
+            },
+          ],
         },
-        {
-          kind: "cards",
-          items: summaryCards.filter((c) => c.label !== copy.summary.benefit),
-        },
+        { kind: "text", text: copy.ancillaryOnly.summaryExplanation },
         { kind: "note", text: copy.benefit.note },
       ]
     : [
@@ -334,14 +339,6 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       label: copy.benefit.energy,
       value: perYear(ce.energyBenefitSek),
       hint: hasSolar ? copy.benefit.energyHint : copy.benefit.energyNoSolarHint,
-      source: "calculated",
-    });
-  }
-  if (!ancillaryOnly && ce.peakBenefitSek !== 0) {
-    benefitRows.push({
-      label: copy.benefit.peak,
-      value: perYear(ce.peakBenefitSek),
-      hint: copy.benefit.peakHint,
       source: "calculated",
     });
   }
@@ -383,60 +380,27 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
    * The result page shows these capacities inside the ordinary comparison cards, so the
    * report lists exactly the same simulated candidates — no separate scenario section. */
   if (ancSelected && ancScenario && ancScenario.candidates.length > 1) {
-    /* Group the candidates by power size so the list reads as one block per kW level
-       instead of a single long pile. */
-    const byPower = new Map<number, typeof ancScenario.candidates>();
-    for (const c of ancScenario.candidates) {
-      const group = byPower.get(c.powerKw) ?? [];
-      group.push(c);
-      byPower.set(c.powerKw, group);
-    }
-    const candidateBlocks: ReportBlock[] = [];
-    for (const [power, group] of byPower) {
-      candidateBlocks.push({ kind: "subheading", text: kw(power, 1) });
-      /* One separate three-row block per capacity, so the sizes are visually divided
-         instead of running together in one long table. */
-      for (const c of group) {
-        const label = `${kwh(c.capacityKWh)}${
-          c.capacityKWh === ancSelected.capacityKWh && c.powerKw === ancSelected.powerKw
-            ? ` (${copy.ancillaryScenario.technicalTitle})`
-            : ""
-        }`;
-        candidateBlocks.push({ kind: "subheading", text: label });
-        candidateBlocks.push({
-          kind: "rows",
-          rows: [
-            {
-              label: copy.ancillaryScenario.compensation,
-              value: perYear(c.ancillaryCustomerValueSek),
-              source: "calculated",
-            },
-            {
-              label: copy.ancillaryScenario.totalBenefit,
-              value: perYear(c.customerBenefitSek),
-              source: "calculated",
-            },
-            {
-              label: copy.ancillaryScenario.maxInvestment,
-              value:
-                c.maxInvestmentSek === null
-                  ? copy.ancillaryScenario.maxInvestmentNone
-                  : money(c.maxInvestmentSek),
-              source: "calculated",
-            },
-          ],
-        });
-      }
-    }
+    const selectedIndex = ancScenario.candidates.indexOf(ancSelected);
+    const candidateItems: ReportAlternativeItem[] = ancScenario.candidates.map((c, index) => ({
+      label:
+        index < selectedIndex
+          ? copy.sizing.lower
+          : index > selectedIndex
+            ? copy.sizing.higher
+            : copy.ancillaryScenario.technicalTitle,
+      capacity: kwh(c.capacityKWh),
+      power: kw(c.powerKw, 1),
+      benefit: perYear(c.customerBenefitSek),
+      highlight: index === selectedIndex,
+    }));
     sections.push({
       id: "ancillary-scenario",
       title: copy.ancillaryScenario.title,
       pageBreak: true,
       blocks: [
-        { kind: "text", text: copy.ancillaryScenario.intro },
-        { kind: "note", text: copy.ancillaryScenario.technicalHint },
-        ...candidateBlocks,
-        { kind: "note", text: copy.ancillaryScenario.note },
+        { kind: "text", text: copy.ancillaryOnly.comparisonIntro },
+        { kind: "alternatives", items: candidateItems },
+        { kind: "note", text: copy.ancillaryOnly.comparisonExplanation },
       ],
     });
   }
@@ -453,15 +417,9 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
             ? copy.ancillary.limitingGrid
             : copy.ancillary.limitingNone;
 
-    // Primary customer view: one single power measure — the compensable power.
+    // Primary customer view: the four values a homeowner needs first.
     const rows: ReportRow[] = [
       { label: copy.ancillary.product, value: productLabel, source: "user" },
-      {
-        label: copy.ancillary.monetized,
-        value: kw(fcr.monetizedPowerKw, 1),
-        source: "calculated",
-      },
-      { label: copy.ancillary.availability, value: pct(fcr.availabilityPct), source: "calculated" },
       { label: copy.ancillary.limiting, value: limitingLabel, source: "calculated" },
       {
         label: copy.ancillary.reservedEnergy,
@@ -477,6 +435,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
 
     // Transparency only: separate technical power measures.
     const technicalRows: ReportRow[] = [
+      { label: copy.summary.power, value: kw(powerKw, 1), source: "calculated" },
       { label: copy.ancillary.offered, value: kw(fcr.offeredPowerKw, 1), source: "calculated" },
       {
         label: copy.ancillary.reservable,
@@ -516,13 +475,52 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       title: copy.ancillary.title,
       pageBreak: true,
       blocks: [
+        ...(ancillaryOnly
+          ? [
+              {
+                kind: "cards" as const,
+                items: [
+                  {
+                    label: copy.ancillaryOnly.serviceCompensation,
+                    value: ancillaryPriced
+                      ? perYear(ce.ancillaryCustomerValueSek)
+                      : copy.cannotBeCalculated,
+                  },
+                  {
+                    label: copy.ancillary.monetized,
+                    value: kw(fcr.monetizedPowerKw, 1),
+                  },
+                ],
+              },
+              {
+                kind: "cards" as const,
+                items: [
+                  {
+                    label: copy.ancillary.availability,
+                    value: pct(fcr.availabilityPct),
+                  },
+                  {
+                    label: copy.ancillaryOnly.servicePriceBasis,
+                    value: fcr.historicalReferenceYear
+                      ? `${copy.ancillary.priceBasisValue} ${fcr.historicalReferenceYear}`
+                      : copy.ancillary.priceBasisValue,
+                  },
+                ],
+              },
+            ]
+          : []),
         { kind: "rows", rows },
         ...(ancillaryPriced
           ? []
           : [{ kind: "text" as const, text: copy.ancillary.noPriceData }]),
         { kind: "text" as const, text: copy.ancillary.technicalTitle },
         { kind: "rows" as const, rows: technicalRows },
-        { kind: "note", text: copy.ancillary.technicalNote },
+        {
+          kind: "note",
+          text: ancillaryOnly
+            ? copy.ancillaryOnly.servicePowerExplanation
+            : copy.ancillary.technicalNote,
+        },
         { kind: "note", text: copy.ancillary.note },
       ],
     });
@@ -542,41 +540,45 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     highlight: a.level === "recommended",
   }));
 
+  const sizingRows: ReportRow[] = [
+    {
+      label: copy.sizing.capacity,
+      value: capacityAtSearchLimit
+        ? atLeast(copy.searchLimit.atLeastCapacity, kwh(capacityKWh))
+        : kwh(capacityKWh),
+      source: "calculated",
+    },
+    {
+      label: copy.sizing.power,
+      value: powerAtSearchLimit
+        ? atLeast(copy.searchLimit.atLeastPower, kw(powerKw, 1))
+        : kw(powerKw, 1),
+      source: "calculated",
+    },
+    {
+      label: copy.sizing.cRate,
+      value: capacityKWh > 0 ? num(powerKw / capacityKWh, 2) : copy.notAvailable,
+      source: "calculated",
+    },
+  ];
+  if (!ancillaryOnly) {
+    sizingRows.push({
+      label: copy.sizing.physicalNeed,
+      value: kw(r.physicalPowerNeedKw, 1),
+      source: "calculated",
+    });
+  }
+
   sections.push({
     id: "sizing",
     title: copy.sizing.title,
     pageBreak: true,
     blocks: [
-      {
-        kind: "rows",
-        rows: [
-          {
-            label: copy.sizing.capacity,
-            value: capacityAtSearchLimit
-              ? atLeast(copy.searchLimit.atLeastCapacity, kwh(capacityKWh))
-              : kwh(capacityKWh),
-            source: "calculated",
-          },
-          {
-            label: copy.sizing.power,
-            value: powerAtSearchLimit
-              ? atLeast(copy.searchLimit.atLeastPower, kw(powerKw, 1))
-              : kw(powerKw, 1),
-            source: "calculated",
-          },
-          {
-            label: copy.sizing.cRate,
-            value: capacityKWh > 0 ? num(powerKw / capacityKWh, 2) : copy.notAvailable,
-            source: "calculated",
-          },
-          {
-            label: copy.sizing.physicalNeed,
-            value: kw(r.physicalPowerNeedKw, 1),
-            source: "calculated",
-          },
-        ],
-      },
-      ...(alternativeItems.length
+      ...(ancillaryOnly
+        ? [{ kind: "subheading" as const, text: copy.ancillaryOnly.sizingProposal }]
+        : []),
+      { kind: "rows", rows: sizingRows },
+      ...(!ancillaryOnly && alternativeItems.length
         ? [
             { kind: "subheading" as const, text: copy.sizing.alternatives },
             { kind: "alternatives" as const, items: alternativeItems },
@@ -594,7 +596,10 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       ...(capacityAtSearchLimit && powerAtSearchLimit
         ? [{ kind: "note" as const, text: copy.searchLimit.bothNote }]
         : []),
-      { kind: "note", text: copy.sizing.balance },
+      {
+        kind: "note",
+        text: ancillaryOnly ? copy.ancillaryOnly.sizingExplanation : copy.sizing.balance,
+      },
     ],
   });
 
@@ -673,9 +678,6 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       value: isFiniteNumber(fuseA) ? kw(theoreticalGridPowerKw(fuseA, country), 1) : copy.notAvailable,
       source: "calculated",
     },
-    { label: copy.grid.peakBefore, value: kw(g.importPeakBeforeKw), source: "calculated" },
-    { label: copy.grid.peakAfter, value: kw(g.importPeakAfterKw), source: "calculated" },
-    { label: copy.grid.reduction, value: kw(s.peak.peakReductionKw), source: "calculated" },
   ];
   if (g.exportCurtailedKWh > 0) {
     gridRows.push({
@@ -730,9 +732,17 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
         value: money(maxInvestmentSek(totalBenefitSek, y)),
       })),
     });
-    investmentBlocks.push({ kind: "text", text: copy.investment.explanation });
+    investmentBlocks.push({
+      kind: "text",
+      text: ancillaryOnly
+        ? copy.ancillaryOnly.investmentExplanation
+        : copy.investment.explanation,
+    });
   }
-  investmentBlocks.push({ kind: "note", text: copy.investment.notAQuote });
+  investmentBlocks.push({
+    kind: "note",
+    text: ancillaryOnly ? copy.ancillaryOnly.investmentNotAQuote : copy.investment.notAQuote,
+  });
 
   sections.push({
     id: "investment",
@@ -791,29 +801,52 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
           value: `${num(battery.minSocPct)} – ${num(battery.maxSocPct)} %`,
           source: "default",
         },
-        {
-          label: copy.assumptions.reserveSoc,
-          value: pct(battery.reserveSocPct),
-          source: "default",
-        },
-        {
-          label: copy.assumptions.maxCycles,
-          value: battery.maxCyclesPerYear > 0 ? num(battery.maxCyclesPerYear) : copy.notAvailable,
-          source: "default",
-        },
+        ...(ancillaryOnly && servicePlan
+          ? [
+              {
+                label: copy.assumptions.serviceSocUp,
+                value: `${num(servicePlan.serviceMinSocPct)} – ${num(battery.maxSocPct)} %`,
+                source: "default" as const,
+              },
+              {
+                label: copy.assumptions.serviceSocDown,
+                value: `${num(battery.minSocPct)} – ${num(servicePlan.serviceMaxSocPct)} %`,
+                source: "default" as const,
+              },
+            ]
+          : [
+              {
+                label: copy.assumptions.reserveSoc,
+                value: pct(battery.reserveSocPct),
+                source: "default" as const,
+              },
+            ]),
+        ...(!ancillaryOnly && battery.maxCyclesPerYear > 0
+          ? [
+              {
+                label: copy.assumptions.maxCycles,
+                value: num(battery.maxCyclesPerYear),
+                source: "default" as const,
+              },
+            ]
+          : []),
       ],
     },
     { kind: "subheading", text: copy.assumptions.economy },
     {
       kind: "rows",
       rows: [
-        {
-          label: copy.assumptions.importPrice,
-          value: isFiniteNumber(economyIn.importEnergyPriceSekPerKWh)
-            ? `${money(economyIn.importEnergyPriceSekPerKWh, 2)}/kWh`
-            : copy.notAvailable,
-          source: "user",
-        },
+        ...(!ancillaryOnly
+          ? [
+              {
+                label: copy.assumptions.importPrice,
+                value: isFiniteNumber(economyIn.importEnergyPriceSekPerKWh)
+                  ? `${money(economyIn.importEnergyPriceSekPerKWh, 2)}/kWh`
+                  : copy.notAvailable,
+                source: "user" as const,
+              },
+            ]
+          : []),
         ...(hasSolar
           ? [
               {
@@ -887,7 +920,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     pageBreak: true,
     blocks: [
       { kind: "text", text: copy.risks.text },
-      { kind: "list", items: copy.risks.items },
+      { kind: "list", items: ancillaryOnly ? copy.ancillaryOnly.risks : copy.risks.items },
     ],
   });
 
@@ -895,7 +928,12 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     id: "installer",
     title: copy.installer.title,
     pageBreak: false,
-    blocks: [{ kind: "checklist", items: copy.installer.items }],
+    blocks: [
+      {
+        kind: "checklist",
+        items: ancillaryOnly ? copy.ancillaryOnly.installer : copy.installer.items,
+      },
+    ],
   });
 
   /* ============================ 10. FAQ ============================ */
@@ -904,7 +942,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     title: copy.faq.title,
     pageBreak: true,
     blocks: [
-      { kind: "faq", items: copy.faq.items },
+      { kind: "faq", items: ancillaryOnly ? copy.ancillaryOnly.faq : copy.faq.items },
       {
         kind: "note",
         text: `${copy.reportIdLabel}: ${reportId} · ${copy.created}: ${createdISO} · ${copy.engineVersionLabel}: ${BATTERY_ENGINE_VERSION}`,
@@ -948,6 +986,10 @@ export function collectReportText(model: ReportModel): string[] {
       switch (block.kind) {
         case "cards":
           for (const c of block.items) out.push(c.label, c.value);
+          break;
+        case "keyFigures":
+          out.push(block.primary.label, block.primary.value);
+          for (const c of block.secondary) out.push(c.label, c.value);
           break;
         case "rows":
           for (const row of block.rows) {
