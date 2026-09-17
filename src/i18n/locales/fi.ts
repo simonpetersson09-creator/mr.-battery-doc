@@ -552,7 +552,7 @@ export const fi = {
       cta: "Osta raportti hintaan {{price}}",
       ctaPending: "Osta raportti",
       loadingPrice: "Haetaan hintaa…",
-      adjustmentsIncluded: "Sisältää 3 muokkausta tuleviin laskelmiin.",
+      adjustmentsIncluded: "Sisältää 3 muokkausta 24 h sisällä oston jälkeen.",
     },
     priceUnavailable: "Hinta haetaan App Storesta.",
     restore: "Palauta ostot",
