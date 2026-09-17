@@ -356,25 +356,28 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     });
   }
 
-  sections.push({
-    id: "benefit",
-    title: copy.benefit.title,
-    pageBreak: true,
-    blocks: [
-      {
-        kind: "hero",
-        label: copy.benefit.total,
-        value:
-          totalBenefitSek === null
-            ? copy.cannotBeCalculated
-            : perYear(totalBenefitSek),
-      },
-      ...(benefitRows.length
-        ? [{ kind: "rows" as const, rows: benefitRows }]
-        : [{ kind: "text" as const, text: copy.benefit.none }]),
-      { kind: "note", text: copy.benefit.note },
-    ],
-  });
+  /* Ancillary-only: this page only repeated the summary figures, so it is omitted. */
+  if (!ancillaryOnly) {
+    sections.push({
+      id: "benefit",
+      title: copy.benefit.title,
+      pageBreak: true,
+      blocks: [
+        {
+          kind: "hero",
+          label: copy.benefit.total,
+          value:
+            totalBenefitSek === null
+              ? copy.cannotBeCalculated
+              : perYear(totalBenefitSek),
+        },
+        ...(benefitRows.length
+          ? [{ kind: "rows" as const, rows: benefitRows }]
+          : [{ kind: "text" as const, text: copy.benefit.none }]),
+        { kind: "note", text: copy.benefit.note },
+      ],
+    });
+  }
 
   /* ================= 2b. ANCILLARY-ONLY SIZES (same three cards as the app) =================
    * The result page shows these capacities inside the ordinary comparison cards, so the
