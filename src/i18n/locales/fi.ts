@@ -76,7 +76,7 @@ export const fi = {
       },
     },
     stats: {
-      powerLabel: "Enintään 200 kW",
+      powerLabel: "Enintään 200 kW / 500 kWh",
       powerSub: "akku",
       simsLabel: "3,5 miljoonaa",
       simsSub: "simulaatiota per analyysi",
