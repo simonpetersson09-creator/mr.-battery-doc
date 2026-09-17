@@ -73,7 +73,7 @@ export const sv = {
       },
       economy: {
         title: "Beräknad ekonomisk nytta",
-        desc: "Vad batteriet kan ge i årlig kundnytta.",
+        desc: "Se vad batteriet kan ge i årlig nytta, med solceller eller som fristående batteri för stödtjänster.",
       },
       investment: {
         title: "Rimlig investeringskostnad",
