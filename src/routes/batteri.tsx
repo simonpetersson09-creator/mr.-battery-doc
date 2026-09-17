@@ -80,7 +80,7 @@ function BatteryStep() {
         onChange={set("fcrDUp")}
       />
 
-      {noSolar ? <SectionCard compact description={t("strategies.noSolarNote")} /> : null}
+      
     </WizardShell>
   );
 }
