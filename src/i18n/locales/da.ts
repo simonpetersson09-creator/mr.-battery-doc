@@ -417,6 +417,8 @@ export const da = {
     physicalNeed: "Fysisk effektbehov",
     heldPower: "Effekt reserveret til systemydelser",
     cRate: "C-rate",
+    socWindow: "SOC-vindue",
+    roundTrip: "Round-trip-virkningsgrad",
     ancillaryGroup: "Systemydelser",
     reservedPower: "Reserveret effekt",
     reservablePower: "Fysisk reserverbar effekt (gennemsnit)",

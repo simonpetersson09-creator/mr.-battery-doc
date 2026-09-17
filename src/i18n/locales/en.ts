@@ -417,6 +417,8 @@ export const en = {
     physicalNeed: "Physical power need",
     heldPower: "Grid services reserved power",
     cRate: "C-rate",
+    socWindow: "SOC window",
+    roundTrip: "Round-trip efficiency",
     ancillaryGroup: "Ancillary services",
     reservedPower: "Reserved power",
     reservablePower: "Physically reservable power (average)",
