@@ -229,6 +229,7 @@ export const fi = {
       notRecommendation: "Tämä on vertailuskenaario, ei suositeltu akkukoko.",
       technicalTitle: "Tekninen ehdotus",
       technicalHint: "Koko on valittu niin, että vähintään 95 % liittymäsi ja kulutusprofiilisi laskennallisesta reservikapasiteetista voidaan hyödyntää. Tämä on tekninen ehdotus, ei väite kannattavimmasta akusta.",
+      driven: "Koko määräytyy mahdollisuudesta tarjota reservipalveluita liittymäsi kautta, eikä sitä ole mitoitettu kotitalouden energiantarpeen mukaan.",
       lead: "Tukipalvelut voivat silti tuoda korvausta akulle. Vertaa alla muutamaa kokoa.",
       battery: "Akku",
       compensation: "Tukipalvelukorvaus",

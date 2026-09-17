@@ -28,24 +28,24 @@ function BatteryStep() {
     update((prev) => ({ ...prev, strategies: { ...prev.strategies, [key]: v } }));
 
   /**
-   * Without a PV system the three solar/load-driven uses have nothing to work with,
-   * so they are switched off and locked. Ancillary services stay available: the
-   * battery can still be compensated for standing by on the reserve market.
+   * Without a PV system the two SOLAR-driven uses have nothing to work with, so they are
+   * switched off and locked. Peak shaving is NOT solar dependent: the customer's own load
+   * peaks are a real battery need with or without PV, so it stays available. Ancillary
+   * services stay available too: the battery can be compensated for standing by.
    */
   const noSolar = state.production.mode === "none";
   useEffect(() => {
     if (!noSolar) return;
-    if (!s.solarSelfConsumption && !s.reducedGridImport && !s.peakShaving) return;
+    if (!s.solarSelfConsumption && !s.reducedGridImport) return;
     update((prev) => ({
       ...prev,
       strategies: {
         ...prev.strategies,
         solarSelfConsumption: false,
         reducedGridImport: false,
-        peakShaving: false,
       },
     }));
-  }, [noSolar, s.solarSelfConsumption, s.reducedGridImport, s.peakShaving, update]);
+  }, [noSolar, s.solarSelfConsumption, s.reducedGridImport, update]);
 
   return (
     <WizardShell compact stepIndex={3} title={t("strategies.title")} intro={t("strategies.intro")}>
@@ -67,8 +67,7 @@ function BatteryStep() {
         <ToggleRow
           title={t("strategies.peak.title")}
           description={t("strategies.peak.description")}
-          checked={noSolar ? false : s.peakShaving}
-          disabled={noSolar}
+          checked={s.peakShaving}
           onChange={set("peakShaving")}
         />
       </div>

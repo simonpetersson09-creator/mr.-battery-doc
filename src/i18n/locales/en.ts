@@ -232,6 +232,7 @@ export const en = {
       notRecommendation: "This is a comparison scenario, not a recommended battery size.",
       technicalTitle: "Technical proposal",
       technicalHint: "The size is chosen so that at least 95 % of the calculated ancillary service capacity for your connection and consumption profile can be used. It is a technical proposal, not a claim about the most profitable battery.",
+      driven: "The size is driven by the ability to deliver ancillary services through your grid connection and is not dimensioned for the household's energy needs.",
       lead: "Ancillary services can still pay for a battery. Compare a few sizes below.",
       battery: "Battery",
       compensation: "Ancillary compensation",

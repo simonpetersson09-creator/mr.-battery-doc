@@ -647,6 +647,11 @@ function ResultStep() {
             <p className="text-[11px] leading-relaxed text-foreground/70">
               {t("results.ancillaryScenario.technicalHint")}
             </p>
+            {ancillaryScenario?.ancillaryDriven ? (
+              <p className="mt-2 text-[11px] leading-relaxed text-foreground/70">
+                {t("results.ancillaryScenario.driven")}
+              </p>
+            ) : null}
             <p className="mt-2 text-[11px] leading-relaxed text-foreground/70">
               {t("results.ancillaryScenario.note")}
             </p>

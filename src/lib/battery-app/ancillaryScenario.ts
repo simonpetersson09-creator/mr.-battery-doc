@@ -23,7 +23,7 @@
  * revenue is not the same thing as the best battery.
  */
 
-import { runBatteryEngine } from "@/lib/battery-engine";
+import { runBatteryEngine, DEFAULT_MAX_PRODUCT_C_RATE } from "@/lib/battery-engine";
 import type { BatteryEngineInput, BatteryEngineResult } from "@/lib/battery-engine";
 import { capacityLadder } from "./capacityAlternatives";
 import type { BatteryAlternative } from "./capacityAlternatives";
@@ -57,6 +57,15 @@ export interface AncillaryScenarioCandidate {
   capacityKWh: number;
   /** Real product power step the candidate was simulated with — never a C-rate product. */
   powerKw: number;
+  /** Installed (nameplate) battery power of the candidate, kW. */
+  installedPowerKw: number;
+  /** C-rate of the pair = powerKw / capacityKWh. */
+  cRate: number;
+  /**
+   * True when the pair stays inside the engine's already verified hardware envelope
+   * (the central maxProductCRate). No new C-rate is invented here.
+   */
+  hardwareVerified: boolean;
   /** Yearly sum of hourly PAID up-regulation power, kW*h. Price independent. */
   upCapacityKwh: number;
   /** Yearly sum of hourly PAID down-regulation power, kW*h. Price independent. */
@@ -64,6 +73,24 @@ export interface AncillaryScenarioCandidate {
   /** Mean paid up / down power over the scheduled hours, kW. */
   paidUpKw: number;
   paidDownKw: number;
+  /** Max physically reservable power over the scheduled hours, kW. */
+  paidUpMaxKw: number;
+  paidDownMaxKw: number;
+  /** Share of the installed power the model can actually use, per direction. */
+  utilizedPowerRatioUp: number;
+  utilizedPowerRatioDown: number;
+  /** Which physical factor bound the reserve, hour counts from the engine. */
+  powerLimitedHours: number;
+  gridLimitedHours: number;
+  energyLimitedHours: number;
+  /** Ordinary energy work of the battery in this candidate. */
+  equivalentFullCycles: number;
+  throughputKWh: number;
+  /**
+   * True when the battery does no modelled energy work (no cycles, no throughput):
+   * the size is then driven by reserve capability, not by the household's energy need.
+   */
+  ancillaryDriven: boolean;
   /** Historical market value of the reserve product for that candidate. */
   ancillaryMarketValueSek: number;
   /** The customer's share of that market value. */
@@ -76,6 +103,23 @@ export interface AncillaryScenarioCandidate {
   maxInvestmentSek: number | null;
 }
 
+export interface AncillaryPowerScanStep {
+  powerKw: number;
+  capacityKWh: number;
+  upCapacityKwh: number;
+  downCapacityKwh: number;
+  /** Technical gain vs the previous (smaller) power step, kW*h and relative. */
+  marginalGainKwh: number;
+  marginalGainShare: number;
+  /** Extra installed kW this step added. */
+  addedPowerKw: number;
+  utilizedPowerRatioUp: number;
+  utilizedPowerRatioDown: number;
+  gridLimitedHours: number;
+  powerLimitedHours: number;
+  energyLimitedHours: number;
+}
+
 export interface AncillaryTechnicalSelection {
   /** Technical maximum found by the saturation search, kW*h per direction. */
   maxUpCapacityKwh: number;
@@ -85,6 +129,8 @@ export interface AncillaryTechnicalSelection {
   downCoverage: number;
   /** Coverage threshold actually applied. */
   coverageThreshold: number;
+  /** The verified hardware envelope the selection respected (existing central value). */
+  maxProductCRate: number;
 }
 
 export interface AncillaryScenario {
@@ -93,6 +139,10 @@ export interface AncillaryScenario {
   /** The technically dimensioned pair. Never chosen on SEK/year. */
   selected: AncillaryScenarioCandidate | null;
   technical: AncillaryTechnicalSelection | null;
+  /** Measured marginal technical gain per real product power step. */
+  powerScan: AncillaryPowerScanStep[];
+  /** True when the selected pair does no modelled energy work for the household. */
+  ancillaryDriven: boolean;
   customerAncillaryShare: number;
   targetPaybackYears: number;
 }
@@ -114,6 +164,12 @@ function productSteps(input: BatteryEngineInput): number[] {
   return [...list].filter((s) => s > 0).sort((a, b) => a - b);
 }
 
+/** The verified hardware envelope already used by the ordinary engine. Never a new value. */
+export function maxProductCRateOf(input: BatteryEngineInput): number {
+  const v = input.battery?.maxProductCRateForCandidates;
+  return typeof v === "number" && v > 0 ? v : DEFAULT_MAX_PRODUCT_C_RATE;
+}
+
 function runCandidate(
   input: BatteryEngineInput,
   capacityKWh: number,
@@ -129,19 +185,38 @@ function runCandidate(
     });
     const rec = res.summary.recommendation;
     const f = res.summary.fcr;
+    const energy = res.summary.energy;
     const total = res.summary.economy.totalOperatingBenefitSek;
     const market = marketValue(res);
     const customerBenefit = customerBenefitFromTotals(total, market, share);
     const hours = num(f.reservedHours);
     const paidUpKw = num(f.monetizedPowerKw);
     const paidDownKw = num(f.avgHeldDownPowerKw);
+    const installedPowerKw = rec.recommendedPowerKw ?? rec.productPowerKw;
+    const cap = rec.capacityKWh;
+    const cRate = cap > 0 ? installedPowerKw / cap : 0;
+    const cycles = num(energy.equivalentFullCycles);
+    const throughputKWh = num(energy.totalUsefulKWh);
     return {
-      capacityKWh: rec.capacityKWh,
-      powerKw: rec.recommendedPowerKw ?? rec.productPowerKw,
+      capacityKWh: cap,
+      powerKw: installedPowerKw,
+      installedPowerKw,
+      cRate,
+      hardwareVerified: cRate <= maxProductCRateOf(input) + 1e-9,
       upCapacityKwh: paidUpKw * hours,
       downCapacityKwh: paidDownKw * hours,
       paidUpKw,
       paidDownKw,
+      paidUpMaxKw: num(f.reservablePowerMaxKw),
+      paidDownMaxKw: paidDownKw,
+      utilizedPowerRatioUp: installedPowerKw > 0 ? paidUpKw / installedPowerKw : 0,
+      utilizedPowerRatioDown: installedPowerKw > 0 ? paidDownKw / installedPowerKw : 0,
+      powerLimitedHours: num(f.powerLimitedHours),
+      gridLimitedHours: num(f.gridLimitedHours),
+      energyLimitedHours: num(f.energyLimitedHours),
+      equivalentFullCycles: cycles,
+      throughputKWh,
+      ancillaryDriven: cycles <= 1e-6 && throughputKWh <= 1e-6,
       ancillaryMarketValueSek: market,
       ancillaryCustomerValueSek: market * share,
       annualBenefitSek: total,
@@ -210,16 +285,26 @@ export function computeAncillaryScenario(
   const evaluated = (): AncillaryScenarioCandidate[] =>
     [...cache.values()].filter((c): c is AncillaryScenarioCandidate => c !== null);
 
+  /* --------- 0. verified hardware envelope -------------------------------------
+   * The ordinary engine already has ONE verified physical battery/inverter limit:
+   * maxProductCRate. This flow respects exactly that value — no new C-rate is
+   * invented here — so a pair like 15 kWh / 20 kW (1.33 C) can never be selected. */
+  const cRateLimit = maxProductCRateOf(input);
+  const powersFor = (cap: number) => steps.filter((kw) => kw <= cap * cRateLimit + 1e-9);
+  const capsFor = (kw: number) => caps.filter((cap) => kw <= cap * cRateLimit + 1e-9);
+  const usableSteps = steps.filter((kw) => capsFor(kw).length > 0);
+  if (usableSteps.length === 0 || powersFor(caps[caps.length - 1]!).length === 0) return null;
+
   /* --------- 1. power scan: walk the real steps upwards until saturation ---------
-   * The scan seeds each step with the smallest capacity able to host it (falling back
-   * to the largest candidate). That is a SEARCH SEED only: the capacity is re-optimised
-   * across the whole ladder at the selected power in step 3, and the 95 % rule is
-   * always measured against the maximum found over every simulated pair. */
+   * Each step is seeded with the smallest capacity that can host it inside the verified
+   * hardware envelope. That is a SEARCH SEED only: the capacity is re-optimised across
+   * the ladder at the selected power in step 3, and the 95 % rule is always measured
+   * against the maximum found over every simulated pair. */
   const scan: AncillaryScenarioCandidate[] = [];
   let best = 0;
   let flat = 0;
-  for (const kw of steps) {
-    const seed = caps.find((c) => c >= kw) ?? caps[caps.length - 1]!;
+  for (const kw of usableSteps) {
+    const seed = capsFor(kw)[0]!;
     const c = evaluate(seed, kw);
     if (!c) continue;
     scan.push(c);
@@ -236,6 +321,28 @@ export function computeAncillaryScenario(
   }
   if (scan.length === 0) return null;
 
+  /* Measured marginal technical gain per real power step. Reported, never a price and
+   * never a new hardcoded cut-off percentage. */
+  const powerScan: AncillaryPowerScanStep[] = scan.map((c, i) => {
+    const prev = i > 0 ? scan[i - 1]! : null;
+    const cur = score(c);
+    const before = prev ? score(prev) : 0;
+    return {
+      powerKw: c.powerKw,
+      capacityKWh: c.capacityKWh,
+      upCapacityKwh: c.upCapacityKwh,
+      downCapacityKwh: c.downCapacityKwh,
+      marginalGainKwh: cur - before,
+      marginalGainShare: before > 0 ? (cur - before) / before : 1,
+      addedPowerKw: prev ? c.powerKw - prev.powerKw : c.powerKw,
+      utilizedPowerRatioUp: c.utilizedPowerRatioUp,
+      utilizedPowerRatioDown: c.utilizedPowerRatioDown,
+      gridLimitedHours: c.gridLimitedHours,
+      powerLimitedHours: c.powerLimitedHours,
+      energyLimitedHours: c.energyLimitedHours,
+    };
+  });
+
   const maxOf = (list: AncillaryScenarioCandidate[]) => ({
     up: Math.max(0, ...list.map((c) => c.upCapacityKwh)),
     down: Math.max(0, ...list.map((c) => c.downCapacityKwh)),
@@ -249,7 +356,7 @@ export function computeAncillaryScenario(
 
   /* --------- 3. smallest kWh that still holds that power ------------------------- */
   const sweepAt = (kw: number): AncillaryScenarioCandidate[] =>
-    caps
+    capsFor(kw)
       .map((cap) => evaluate(cap, kw))
       .filter((c): c is AncillaryScenarioCandidate => c !== null)
       .sort((a, b) => a.capacityKWh - b.capacityKWh);
@@ -277,6 +384,7 @@ export function computeAncillaryScenario(
   const dominating = evaluated()
     .filter(
       (c) =>
+        c.hardwareVerified &&
         c.capacityKWh <= selected.capacityKWh &&
         c.powerKw <= selected.powerKw &&
         (c.capacityKWh < selected.capacityKWh || c.powerKw < selected.powerKw) &&
@@ -301,7 +409,10 @@ export function computeAncillaryScenario(
       upCoverage: limits.up > 0 ? selected.upCapacityKwh / limits.up : 1,
       downCoverage: limits.down > 0 ? selected.downCapacityKwh / limits.down : 1,
       coverageThreshold: ANCILLARY_TECHNICAL_COVERAGE,
+      maxProductCRate: cRateLimit,
     },
+    powerScan,
+    ancillaryDriven: selected.ancillaryDriven,
     customerAncillaryShare: share,
     targetPaybackYears: years,
   };
