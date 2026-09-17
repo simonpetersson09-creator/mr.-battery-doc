@@ -58,7 +58,7 @@ export const en = {
   },
   intro: {
     title: "Find the right battery for your property",
-    subtitle: "Sizing and financial analysis for a battery with solar – or a standalone battery for ancillary services.",
+    subtitle: "Sizing and financial analysis for a battery with solar or a standalone battery for ancillary services.",
     lead: "Answer a few simple questions about your property and we will help you find a suitable battery size.",
     points: {
       capacity: {
@@ -75,8 +75,8 @@ export const en = {
       },
     },
     stats: {
-      powerLabel: "Up to 200 kW / 500 kWh",
-      powerSub: "battery size",
+      powerLabel: "200 kW / 500 kWh",
+      powerSub: "max battery size",
       simsLabel: "≈ 800,000",
       simsSub: "hourly calculations per analysis",
     },

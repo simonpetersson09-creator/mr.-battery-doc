@@ -62,7 +62,7 @@ export const sv = {
   },
   intro: {
     title: "Hitta rätt batteri för din fastighet",
-    subtitle: "Dimensionering och ekonomisk analys för batteri med solceller – eller fristående batteri för stödtjänster.",
+    subtitle: "Dimensionering och ekonomisk analys för batteri med solceller eller fristående batteri för stödtjänster.",
     lead: "Svara på några enkla frågor om din fastighet, så hjälper vi dig att hitta en lämplig batteristorlek.",
     points: {
       capacity: {
@@ -79,8 +79,8 @@ export const sv = {
       },
     },
     stats: {
-      powerLabel: "Upp till 200 kW / 500 kWh",
-      powerSub: "batteristorlek",
+      powerLabel: "200 kW / 500 kWh",
+      powerSub: "max batteristorlek",
       simsLabel: "≈ 800 000",
       simsSub: "timberäkningar per analys",
     },

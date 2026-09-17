@@ -58,7 +58,7 @@ export const da = {
   },
   intro: {
     title: "Find det rette batteri til din ejendom",
-    subtitle: "Dimensionering og økonomisk analyse for batteri med solceller – eller selvstændigt batteri til systemtjenester.",
+    subtitle: "Dimensionering og økonomisk analyse for batteri med solceller eller selvstændigt batteri til systemtjenester.",
     lead: "Svar på nogle enkle spørgsmål om din ejendom, så hjælper vi dig med at finde en passende batteristørrelse.",
     points: {
       capacity: {
@@ -75,8 +75,8 @@ export const da = {
       },
     },
     stats: {
-      powerLabel: "Op til 200 kW / 500 kWh",
-      powerSub: "batteristorrelse",
+      powerLabel: "200 kW / 500 kWh",
+      powerSub: "max batteristørrelse",
       simsLabel: "≈ 800.000",
       simsSub: "timberegninger pr. analyse",
     },
