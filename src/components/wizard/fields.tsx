@@ -103,6 +103,8 @@ export function NumberField({
   compact?: boolean;
   /** Localized message from the step's validation — shown once the field is used. */
   error?: string | null;
+  /** Read-only field: shown but not editable (e.g. not applicable to the chosen setup). */
+  disabled?: boolean;
 }) {
   // An untouched, still-empty field stays quiet; a value the user entered (or an
   // invalid stored value) shows the message immediately.
