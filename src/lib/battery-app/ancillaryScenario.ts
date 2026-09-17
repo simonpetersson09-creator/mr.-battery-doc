@@ -176,6 +176,11 @@ export interface AncillaryScenario {
   paretoFront: AncillaryScenarioCandidate[];
   /** False when several Pareto-minimal pairs qualify and physics gives no winner. */
   uniqueTechnicalOptimum: boolean;
+  /**
+   * The complete engine result behind `selected`, simulated on the customer's real load.
+   * Presentation only (the PDF report reads it); no number is recomputed from it.
+   */
+  selectedResult: BatteryEngineResult | null;
   /** True when the selected pair does no modelled energy work for the household. */
   ancillaryDriven: boolean;
   customerAncillaryShare: number;
@@ -231,6 +236,20 @@ export function fuseDerivedPowerCeiling(
 
 
 
+/**
+ * The full engine result behind the last candidate produced by `runCandidate`.
+ * Presentation only: the PDF report needs the complete simulated result of the selected
+ * pair, and nothing here recomputes or changes any number.
+ */
+const LAST_RESULT = new WeakMap<AncillaryScenarioCandidate, BatteryEngineResult>();
+
+/** The complete engine result for a candidate, when it is still available. */
+export function candidateResult(
+  c: AncillaryScenarioCandidate | null | undefined,
+): BatteryEngineResult | null {
+  return c ? (LAST_RESULT.get(c) ?? null) : null;
+}
+
 function runCandidate(
   input: BatteryEngineInput,
   capacityKWh: number,
@@ -258,7 +277,7 @@ function runCandidate(
     const cRate = cap > 0 ? installedPowerKw / cap : 0;
     const cycles = num(energy.equivalentFullCycles);
     const throughputKWh = num(energy.totalUsefulKWh);
-    return {
+    const candidate: AncillaryScenarioCandidate = {
       capacityKWh: cap,
       powerKw: installedPowerKw,
       installedPowerKw,
@@ -284,6 +303,8 @@ function runCandidate(
       customerBenefitSek: customerBenefit,
       maxInvestmentSek: maxInvestmentSek(customerBenefit, years),
     };
+    LAST_RESULT.set(candidate, res);
+    return candidate;
   } catch {
     return null;
   }
@@ -557,6 +578,7 @@ function computeAncillaryScenarioUncached(
   return {
     candidates,
     selected,
+    selectedResult: candidateResult(selected),
     technical: {
       maxUpCapacityKwh: limits.up,
       maxDownCapacityKwh: limits.down,

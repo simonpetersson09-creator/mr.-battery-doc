@@ -8,6 +8,7 @@
 import { describe, expect, it } from "vitest";
 
 import { runBatteryApp } from "@/lib/battery-app";
+import { computeAncillaryScenario } from "@/lib/battery-app/ancillaryScenario";
 import { computeBatteryAlternatives } from "@/lib/battery-app/capacityAlternatives";
 import { customerEconomyFromResult, maxInvestmentSek } from "@/lib/battery-app/customerEconomy";
 import { buildDocDefinition } from "./docDefinition";
@@ -126,6 +127,46 @@ describe("report model", () => {
     expect(model.raw.hasSolar).toBe(false);
     const text = collectReportText(model).join("\n");
     expect(text).not.toContain(model.copy.energy.selfConsumptionBefore);
+  });
+
+  it("fills the report from the selected ancillary pair when there is no solar", () => {
+    const state = stateWith((s) => {
+      s.consumption.annualKwh = 10000;
+      s.production.mode = "none";
+      s.strategies.fcrDUp = true;
+      s.strategies.peakShaving = false;
+    });
+    const outcome = runBatteryApp(state);
+    if (outcome.status !== "ok") throw new Error("engine not ok");
+    const scenario = computeAncillaryScenario(
+      outcome.input,
+      outcome.result,
+      state.preferences.customerAncillaryShare,
+      11,
+    );
+    expect(scenario?.selected).toBeTruthy();
+    const model = buildReportModel({
+      outcome,
+      language: "sv",
+      customerEconomy: customerEconomyFromResult(
+        outcome.result,
+        state.preferences.customerAncillaryShare,
+      ),
+      targetPaybackYears: 11,
+      alternatives: [],
+      ancillaryScenario: scenario,
+      now: new Date(2026, 8, 10),
+      reportId: "MBD-20260910-TEST2",
+    });
+    // The ordinary run recommends no battery; the report must show the selected pair.
+    expect(outcome.result.summary.recommendation.capacityKWh).toBe(0);
+    expect(model.raw.capacityKWh).toBe(scenario?.selected?.capacityKWh);
+    expect(model.raw.powerKw).toBeGreaterThan(0);
+    expect(model.raw.ancillaryCustomerValueSek).toBeGreaterThan(0);
+    expect(model.raw.maxInvestmentSek).toBe(scenario?.selected?.maxInvestmentSek);
+    for (const value of collectReportText(model)) {
+      expect(value).not.toMatch(/undefined|NaN|\bnull\b/);
+    }
   });
 
   it("uses Swedish number and unit formatting", () => {
