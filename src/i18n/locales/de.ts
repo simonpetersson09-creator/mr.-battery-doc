@@ -77,7 +77,7 @@ export const de = {
       },
     },
     stats: {
-      powerLabel: "Bis zu 200 kW",
+      powerLabel: "Bis zu 200 kW / 500 kWh",
       powerSub: "Batterie",
       simsLabel: "3,5 Millionen",
       simsSub: "Simulationen pro Analyse",

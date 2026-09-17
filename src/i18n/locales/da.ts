@@ -77,7 +77,7 @@ export const da = {
       },
     },
     stats: {
-      powerLabel: "Op til 200 kW",
+      powerLabel: "Op til 200 kW / 500 kWh",
       powerSub: "batteri",
       simsLabel: "3,5 millioner",
       simsSub: "simuleringer pr. analyse",
