@@ -15,6 +15,12 @@ import {
   computeAncillaryScenario,
 } from "./ancillaryScenario";
 import { createInitialState, type WizardState } from "@/state/wizard";
+import { defaultConfig } from "@/lib/lab/defaults";
+import { runBatteryEngine } from "@/lib/battery-engine";
+import {
+  ANCILLARY_TECHNICAL_COVERAGE,
+  bestAncillaryCandidate,
+} from "./ancillaryScenario";
 import type { CountryCode } from "@/lib/country-config";
 
 const T = 300_000;
@@ -156,7 +162,8 @@ describe("ancillary scenario (Model C)", () => {
       for (const c of scenario!.candidates) {
         expect(Number.isFinite(c.powerKw)).toBe(true);
         expect(c.powerKw).toBeGreaterThan(0);
-        expect(c.powerKw).toBeLessThanOrEqual(Math.max(3, c.capacityKWh * 0.5) + 1e-9);
+        // Power is a REAL central product step; no C-rate pairing rule applies here.
+        expect(defaultConfig().powerSizing.productStepsKw).toContain(c.powerKw);
         expect(Number.isFinite(c.ancillaryMarketValueSek)).toBe(true);
         expect(c.ancillaryCustomerValueSek).toBeCloseTo(c.ancillaryMarketValueSek * 0.75, 6);
       }
@@ -223,8 +230,160 @@ describe("ancillary scenario (Model C)", () => {
             "customerBenefitSek",
             "maxInvestmentSek",
             "powerKw",
+            "upCapacityKwh",
+            "downCapacityKwh",
+            "paidUpKw",
+            "paidDownKw",
           ].sort(),
         );
+      }
+    },
+    T,
+  );
+});
+
+/**
+ * PV = 0 TECHNICAL SIZING REGRESSIONS.
+ *
+ * Guards that the special flow sizes on the engine's modelled reserve capability —
+ * never on a 0.5 C product pairing and never on SEK/year.
+ */
+describe("PV=0 technical sizing", () => {
+  const scenarioFor = (o: CaseOpts, share = 0.75) => {
+    const { outcome } = run({ fcr: true, ...o });
+    return computeAncillaryScenario(outcome.input, outcome.result, share, 10);
+  };
+
+  it(
+    "A: the selected pair is not produced by the old 0.5 C pairing rule",
+    () => {
+      const sc = scenarioFor({ fuseA: 16 });
+      const sel = bestAncillaryCandidate(sc)!;
+      expect(sel).toBeTruthy();
+      // The 0.5 C rule would have returned the largest step <= capacity * 0.5.
+      const steps = defaultConfig().powerSizing.productStepsKw;
+      const oldRule = Math.max(...steps.filter((s) => s <= sel.capacityKWh * 0.5));
+      expect(sel.powerKw).toBeGreaterThan(oldRule);
+    },
+    T,
+  );
+
+  it(
+    "B: SEK/year is not the selection metric — the customer share cannot move the pair",
+    () => {
+      const low = bestAncillaryCandidate(scenarioFor({ fuseA: 16 }, 0.25))!;
+      const high = bestAncillaryCandidate(scenarioFor({ fuseA: 16 }, 0.75))!;
+      expect(low.capacityKWh).toBe(high.capacityKWh);
+      expect(low.powerKw).toBe(high.powerKw);
+      // ...while the economics they carry does differ.
+      expect(low.ancillaryCustomerValueSek).toBeLessThan(high.ancillaryCustomerValueSek);
+    },
+    T,
+  );
+
+  it(
+    "C+E: the selected pair reaches the coverage threshold in every active direction",
+    () => {
+      const sc = scenarioFor({ fuseA: 16 })!;
+      const t = sc.technical!;
+      expect(t.coverageThreshold).toBe(ANCILLARY_TECHNICAL_COVERAGE);
+      if (t.maxUpCapacityKwh > 0) expect(t.upCoverage).toBeGreaterThanOrEqual(0.95 - 1e-9);
+      if (t.maxDownCapacityKwh > 0) expect(t.downCoverage).toBeGreaterThanOrEqual(0.95 - 1e-9);
+    },
+    T,
+  );
+
+  it(
+    "D: the next smaller product power step stays below the threshold",
+    () => {
+      const { outcome } = run({ fcr: true, fuseA: 16 });
+      const sc = computeAncillaryScenario(outcome.input, outcome.result, 0.75, 10)!;
+      const sel = sc.selected!;
+      const steps = defaultConfig().powerSizing.productStepsKw.filter((s) => s < sel.powerKw);
+      const smaller = Math.max(...steps);
+      const res = runBatteryEngine({
+        ...outcome.input,
+        battery: {
+          ...(outcome.input.battery ?? {}),
+          fixedCapacityKWh: sel.capacityKWh,
+          fixedPowerKw: smaller,
+        },
+      });
+      const f = res.summary.fcr;
+      const up = f.monetizedPowerKw * f.reservedHours;
+      expect(up).toBeLessThan(sc.technical!.maxUpCapacityKwh * 0.95);
+    },
+    T,
+  );
+
+  it(
+    "F+G: no smaller capacity at the same power meets the threshold (Pareto)",
+    () => {
+      const sc = scenarioFor({ fuseA: 16 })!;
+      const sel = sc.selected!;
+      const t = sc.technical!;
+      for (const c of sc.candidates) {
+        if (c.capacityKWh >= sel.capacityKWh) continue;
+        const meets =
+          (t.maxUpCapacityKwh <= 0 || c.upCapacityKwh >= t.maxUpCapacityKwh * 0.95) &&
+          (t.maxDownCapacityKwh <= 0 || c.downCapacityKwh >= t.maxDownCapacityKwh * 0.95);
+        expect(meets).toBe(false);
+      }
+    },
+    T,
+  );
+
+  it(
+    "H: the hourly grid model may pay more than the nominal fuse power at 16 A",
+    () => {
+      const sc = scenarioFor({ fuseA: 16 })!;
+      const nominalKw = Math.sqrt(3) * 400 * 16 / 1000;
+      const design = nominalKw * 0.95;
+      // Baseline import + export headroom, so paid up legitimately exceeds the design
+      // limit while every hour stays inside it. No fuse-based kW cap is hardcoded.
+      expect(sc.selected!.paidUpKw).toBeGreaterThan(design);
+      expect(sc.selected!.paidUpKw).toBeLessThan(nominalKw * 1.5);
+    },
+    T,
+  );
+
+  it.each([
+    ["SE", undefined],
+    ["FI", undefined],
+    ["DK", "DK2"],
+    ["DK", "DK1"],
+    ["DE", undefined],
+  ] as const)(
+    "I+J: %s %s sizes technically through its own market physics",
+    (country, marketArea) => {
+      const sc = scenarioFor({
+        country: country as CountryCode,
+        marketArea: marketArea as MarketArea | undefined,
+        fuseA: 16,
+      });
+      if (sc === null) return;
+      const t = sc.technical!;
+      const sel = sc.selected!;
+      expect(sel.powerKw).toBeGreaterThan(0);
+      if (t.maxUpCapacityKwh > 0) expect(t.upCoverage).toBeGreaterThanOrEqual(0.95 - 1e-9);
+      if (t.maxDownCapacityKwh > 0) expect(t.downCoverage).toBeGreaterThanOrEqual(0.95 - 1e-9);
+      // Symmetric markets (DK1, DE) pay one capacity, so no separate down leg is held.
+      if (country === "DE" || marketArea === "DK1") expect(t.maxDownCapacityKwh).toBe(0);
+      else expect(t.maxDownCapacityKwh).toBeGreaterThan(0);
+    },
+    T,
+  );
+
+  it(
+    "K: a PV>0 case never reaches the technical special sizing",
+    () => {
+      for (const solar of [
+        { kwp: 14, acKw: 12, annualKwh: 14000 },
+        { kwp: 10, acKw: 8, annualKwh: 9500 },
+      ]) {
+        const { outcome } = run({ fcr: true, fuseA: 25, annualKwh: 20000, solar });
+        expect(outcome.result.summary.recommendation.capacityKWh).toBeGreaterThan(0);
+        expect(computeAncillaryScenario(outcome.input, outcome.result, 0.75, 10)).toBeNull();
       }
     },
     T,

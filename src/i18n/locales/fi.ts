@@ -227,6 +227,8 @@ export const fi = {
       intro:
         "Vaikka aurinkosähkö tai tehohuiput eivät loisi akkutarvetta, akkua voi käyttää tukipalveluihin. Täällä voit verrata, miten eri akkukoot vaikuttavat laskettuun korvaukseen.",
       notRecommendation: "Tämä on vertailuskenaario, ei suositeltu akkukoko.",
+      technicalTitle: "Tekninen ehdotus",
+      technicalHint: "Koko on valittu niin, että vähintään 95 % liittymäsi ja kulutusprofiilisi laskennallisesta reservikapasiteetista voidaan hyödyntää. Tämä on tekninen ehdotus, ei väite kannattavimmasta akusta.",
       lead: "Tukipalvelut voivat silti tuoda korvausta akulle. Vertaa alla muutamaa kokoa.",
       battery: "Akku",
       compensation: "Tukipalvelukorvaus",

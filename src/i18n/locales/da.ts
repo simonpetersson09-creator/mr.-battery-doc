@@ -230,6 +230,8 @@ export const da = {
       intro:
         "Selv uden et batteribehov fra solceller eller effekttoppe kan et batteri bruges til systemydelser. Her kan du sammenligne, hvordan forskellige batteristørrelser påvirker den beregnede betaling.",
       notRecommendation: "Dette er et sammenligningsscenarie, ikke en anbefalet batteristørrelse.",
+      technicalTitle: "Teknisk forslag",
+      technicalHint: "Størrelsen er valgt, så mindst 95 % af den beregnede kapacitet til støttetjenester for din tilslutning og forbrugsprofil kan udnyttes. Det er et teknisk forslag, ikke en påstand om det mest rentable batteri.",
       lead: "Systemydelser kan alligevel give betaling for et batteri. Sammenlign nogle størrelser nedenfor.",
       battery: "Batteri",
       compensation: "Betaling for systemydelser",

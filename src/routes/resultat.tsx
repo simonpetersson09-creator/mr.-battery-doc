@@ -640,6 +640,13 @@ function ResultStep() {
                 toggleLabel={t("results.benefit.showCalculation")}
               />
             </div>
+            {/* PV=0 flow: the size is a TECHNICAL proposal, never "the most profitable". */}
+            <p className="mt-2 text-[11px] font-semibold leading-relaxed">
+              {t("results.ancillaryScenario.technicalTitle")}
+            </p>
+            <p className="text-[11px] leading-relaxed text-foreground/70">
+              {t("results.ancillaryScenario.technicalHint")}
+            </p>
             <p className="mt-2 text-[11px] leading-relaxed text-foreground/70">
               {t("results.ancillaryScenario.note")}
             </p>

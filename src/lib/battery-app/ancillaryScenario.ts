@@ -1,16 +1,26 @@
 /**
- * ANCILLARY SCENARIO (MODEL C) — comparison layer only.
+ * ANCILLARY SCENARIO (MODEL C) — PV = 0 SPECIAL FLOW ONLY.
  *
- * WHAT IT IS NOT: a recommendation. The engine's physical dimensioning decides the
- * recommended battery, and this module can never change it. When the physical
- * recommendation is 0 kWh (no solar, no peak shaving) and the owner has selected
- * ancillary services, the app may still show how DIFFERENT battery sizes would be
- * compensated on the reserve market. No candidate is ever labelled best/optimal.
+ * WHEN IT APPLIES: the frozen physical dimensioning finds no battery need (no solar,
+ * no peak shaving) and the owner has selected ancillary services. Nothing in this file
+ * can change the ordinary recommendation, and PV > 0 cases never reach it.
  *
- * Every candidate is produced by the SAME frozen engine, with only the capacity locked
- * to an existing ladder step. Power, FCR physics, endurance, NEM, grid limits, market
- * routing, price series and reservation optimisation all come from the engine exactly as
- * they do for a normal run — nothing here is simplified, extrapolated or hardcoded.
+ * HOW THE SIZE IS CHOSEN (technical, price independent):
+ *   1. Every candidate is a full 8760 h run of the SAME frozen engine, with capacity and
+ *      power both pinned to REAL steps from the central config. There is no automatic
+ *      C-rate pairing: kWh and kW are two independent dimensions here.
+ *   2. The technical metric is the yearly sum of the hourly PAID reserve power per
+ *      direction (kW*h). It comes from the engine's own grid/SOC/endurance/NEM physics
+ *      and never from a price, a fuse formula or an average headroom shortcut.
+ *   3. Power steps are walked upwards until the metric saturates -> that is 100 %.
+ *   4. The smallest real product kW reaching >= 95 % of the technical maximum in EVERY
+ *      active direction is selected, then the smallest capacity that still reaches 95 %
+ *      of what is achievable at that kW.
+ *   5. A Pareto check guarantees no smaller kWh/kW pair meets the same thresholds.
+ *
+ * SEK/year is calculated and presented AFTER the technical pair is chosen. It is never
+ * an input to the sizing: without verified battery and installation prices the highest
+ * revenue is not the same thing as the best battery.
  */
 
 import { runBatteryEngine } from "@/lib/battery-engine";
@@ -18,7 +28,6 @@ import type { BatteryEngineInput, BatteryEngineResult } from "@/lib/battery-engi
 import { capacityLadder } from "./capacityAlternatives";
 import type { BatteryAlternative } from "./capacityAlternatives";
 import { defaultConfig } from "@/lib/lab/defaults";
-import { DEFAULT_MAX_PRODUCT_C_RATE } from "@/lib/lab/economicPowerSizing";
 import {
   clampCustomerAncillaryShare,
   clampTargetPaybackYears,
@@ -32,12 +41,29 @@ import {
  * Representative capacities for the comparison. Every value is an existing step on the
  * engine's own capacity ladder; steps the engine does not simulate are dropped.
  */
-export const ANCILLARY_SCENARIO_CAPACITIES_KWH = [5, 10, 15, 20, 30, 40];
+export const ANCILLARY_SCENARIO_CAPACITIES_KWH = [5, 10, 15, 20, 25, 30, 40];
+
+/**
+ * Share of the technically achievable reserve performance a candidate must reach.
+ * 95 % was the most robust threshold in the sensitivity audit: below it the selection
+ * gives away real capability, above it single marginal hours start to decide the size.
+ */
+export const ANCILLARY_TECHNICAL_COVERAGE = 0.95;
+
+/** A step counts as saturated when it adds less than this share of technical performance. */
+const SATURATION_GAIN = 0.01;
 
 export interface AncillaryScenarioCandidate {
   capacityKWh: number;
-  /** Power sized by the engine for that capacity — never a hardcoded C-rate. */
+  /** Real product power step the candidate was simulated with — never a C-rate product. */
   powerKw: number;
+  /** Yearly sum of hourly PAID up-regulation power, kW*h. Price independent. */
+  upCapacityKwh: number;
+  /** Yearly sum of hourly PAID down-regulation power, kW*h. Price independent. */
+  downCapacityKwh: number;
+  /** Mean paid up / down power over the scheduled hours, kW. */
+  paidUpKw: number;
+  paidDownKw: number;
   /** Historical market value of the reserve product for that candidate. */
   ancillaryMarketValueSek: number;
   /** The customer's share of that market value. */
@@ -50,8 +76,23 @@ export interface AncillaryScenarioCandidate {
   maxInvestmentSek: number | null;
 }
 
+export interface AncillaryTechnicalSelection {
+  /** Technical maximum found by the saturation search, kW*h per direction. */
+  maxUpCapacityKwh: number;
+  maxDownCapacityKwh: number;
+  /** Coverage of the selected pair, 0..1 per active direction. */
+  upCoverage: number;
+  downCoverage: number;
+  /** Coverage threshold actually applied. */
+  coverageThreshold: number;
+}
+
 export interface AncillaryScenario {
+  /** Presentation set: the capacity sweep at the selected power, ascending. */
   candidates: AncillaryScenarioCandidate[];
+  /** The technically dimensioned pair. Never chosen on SEK/year. */
+  selected: AncillaryScenarioCandidate | null;
+  technical: AncillaryTechnicalSelection | null;
   customerAncillaryShare: number;
   targetPaybackYears: number;
 }
@@ -63,41 +104,44 @@ function marketValue(res: BatteryEngineResult): number {
   return Number.isFinite(v) ? v : 0;
 }
 
-/** Largest configured product power step within the engine's C-rate ceiling. */
-function productPowerForCapacity(capacityKWh: number, steps?: number[]): number {
-  const list = (steps ?? defaultConfig().powerSizing.productStepsKw).filter((s) => s > 0);
-  const ceiling = capacityKWh * DEFAULT_MAX_PRODUCT_C_RATE;
-  const within = list.filter((s) => s <= ceiling + 1e-9);
-  return within.length > 0 ? Math.max(...within) : 0;
+function num(v: number | null | undefined): number {
+  return typeof v === "number" && Number.isFinite(v) ? v : 0;
+}
+
+/** Real product power steps, read from the central config. Never duplicated here. */
+function productSteps(input: BatteryEngineInput): number[] {
+  const list = input.battery?.powerStepsKw ?? defaultConfig().powerSizing.productStepsKw;
+  return [...list].filter((s) => s > 0).sort((a, b) => a - b);
 }
 
 function runCandidate(
   input: BatteryEngineInput,
   capacityKWh: number,
+  powerKw: number,
   share: number,
   years: number,
 ): AncillaryScenarioCandidate | null {
   try {
     const { fixedPowerKw: _ignored, ...battery } = input.battery ?? {};
-    /**
-     * Without solar or peak shaving the physical need is 0 kW, so the engine would size
-     * the pack at 0 kW and no reserve could be offered. The comparison therefore locks
-     * each candidate to the largest REAL product step the pack can sustain at the
-     * engine's own C-rate ceiling — a product level, never an invented rating.
-     */
-    const powerKw = productPowerForCapacity(capacityKWh, battery.powerStepsKw);
-    if (!(powerKw > 0)) return null;
     const res = runBatteryEngine({
       ...input,
       battery: { ...battery, fixedCapacityKWh: capacityKWh, fixedPowerKw: powerKw },
     });
     const rec = res.summary.recommendation;
+    const f = res.summary.fcr;
     const total = res.summary.economy.totalOperatingBenefitSek;
     const market = marketValue(res);
     const customerBenefit = customerBenefitFromTotals(total, market, share);
+    const hours = num(f.reservedHours);
+    const paidUpKw = num(f.monetizedPowerKw);
+    const paidDownKw = num(f.avgHeldDownPowerKw);
     return {
       capacityKWh: rec.capacityKWh,
       powerKw: rec.recommendedPowerKw ?? rec.productPowerKw,
+      upCapacityKwh: paidUpKw * hours,
+      downCapacityKwh: paidDownKw * hours,
+      paidUpKw,
+      paidDownKw,
       ancillaryMarketValueSek: market,
       ancillaryCustomerValueSek: market * share,
       annualBenefitSek: total,
@@ -107,6 +151,22 @@ function runCandidate(
   } catch {
     return null;
   }
+}
+
+/** Sum of the technical performance in the directions that are actually paid. */
+function score(c: AncillaryScenarioCandidate): number {
+  return c.upCapacityKwh + c.downCapacityKwh;
+}
+
+function meetsCoverage(
+  c: AncillaryScenarioCandidate,
+  maxUp: number,
+  maxDown: number,
+  threshold: number,
+): boolean {
+  const upOk = maxUp <= 0 || c.upCapacityKwh >= maxUp * threshold - 1e-9;
+  const downOk = maxDown <= 0 || c.downCapacityKwh >= maxDown * threshold - 1e-9;
+  return upOk && downOk;
 }
 
 /**
@@ -130,50 +190,136 @@ export function computeAncillaryScenario(
   const share = clampCustomerAncillaryShare(customerAncillaryShare);
   const years = clampTargetPaybackYears(targetPaybackYears);
   const ladder = new Set(capacityLadder(result));
-  const caps = ANCILLARY_SCENARIO_CAPACITIES_KWH.filter((c) => ladder.has(c));
+  const caps = ANCILLARY_SCENARIO_CAPACITIES_KWH.filter((c) => ladder.has(c)).sort(
+    (a, b) => a - b,
+  );
+  if (caps.length === 0) return null;
+  const steps = productSteps(input);
+  if (steps.length === 0) return null;
 
-  const candidates: AncillaryScenarioCandidate[] = [];
-  for (const cap of caps) {
-    const candidate = runCandidate(input, cap, share, years);
-    if (candidate) candidates.push(candidate);
+  /* --------- memoised engine runs: every pair is simulated at most once --------- */
+  const cache = new Map<string, AncillaryScenarioCandidate | null>();
+  const evaluate = (cap: number, kw: number): AncillaryScenarioCandidate | null => {
+    const key = `${cap}|${kw}`;
+    const hit = cache.get(key);
+    if (hit !== undefined) return hit;
+    const c = runCandidate(input, cap, kw, share, years);
+    cache.set(key, c);
+    return c;
+  };
+  const evaluated = (): AncillaryScenarioCandidate[] =>
+    [...cache.values()].filter((c): c is AncillaryScenarioCandidate => c !== null);
+
+  /* --------- 1. power scan: walk the real steps upwards until saturation ---------
+   * The scan seeds each step with the smallest capacity able to host it (falling back
+   * to the largest candidate). That is a SEARCH SEED only: the capacity is re-optimised
+   * across the whole ladder at the selected power in step 3, and the 95 % rule is
+   * always measured against the maximum found over every simulated pair. */
+  const scan: AncillaryScenarioCandidate[] = [];
+  let best = 0;
+  let flat = 0;
+  for (const kw of steps) {
+    const seed = caps.find((c) => c >= kw) ?? caps[caps.length - 1]!;
+    const c = evaluate(seed, kw);
+    if (!c) continue;
+    scan.push(c);
+    const s = score(c);
+    if (s > best * (1 + SATURATION_GAIN)) {
+      best = Math.max(best, s);
+      flat = 0;
+    } else {
+      best = Math.max(best, s);
+      flat += 1;
+      // Two consecutive steps without material technical gain = saturated.
+      if (flat >= 2) break;
+    }
   }
+  if (scan.length === 0) return null;
+
+  const maxOf = (list: AncillaryScenarioCandidate[]) => ({
+    up: Math.max(0, ...list.map((c) => c.upCapacityKwh)),
+    down: Math.max(0, ...list.map((c) => c.downCapacityKwh)),
+  });
+
+  /* --------- 2. smallest kW reaching the threshold in every active direction ------ */
+  let limits = maxOf(evaluated());
+  let power =
+    scan.find((c) => meetsCoverage(c, limits.up, limits.down, ANCILLARY_TECHNICAL_COVERAGE))
+      ?.powerKw ?? scan.reduce((a, b) => (score(b) > score(a) ? b : a)).powerKw;
+
+  /* --------- 3. smallest kWh that still holds that power ------------------------- */
+  const sweepAt = (kw: number): AncillaryScenarioCandidate[] =>
+    caps
+      .map((cap) => evaluate(cap, kw))
+      .filter((c): c is AncillaryScenarioCandidate => c !== null)
+      .sort((a, b) => a.capacityKWh - b.capacityKWh);
+
+  let sweep = sweepAt(power);
+  // The sweep can raise the technical maximum; re-derive the power once against it.
+  limits = maxOf(evaluated());
+  const rescan = scan.find((c) =>
+    meetsCoverage(c, limits.up, limits.down, ANCILLARY_TECHNICAL_COVERAGE),
+  );
+  if (rescan && rescan.powerKw !== power) {
+    power = rescan.powerKw;
+    sweep = sweepAt(power);
+    limits = maxOf(evaluated());
+  }
+  if (sweep.length === 0) return null;
+
+  const atPower = maxOf(sweep);
+  let selected =
+    sweep.find((c) =>
+      meetsCoverage(c, atPower.up, atPower.down, ANCILLARY_TECHNICAL_COVERAGE),
+    ) ?? sweep[sweep.length - 1]!;
+
+  /* --------- 4. Pareto check: no smaller pair may meet the same thresholds -------- */
+  const dominating = evaluated()
+    .filter(
+      (c) =>
+        c.capacityKWh <= selected.capacityKWh &&
+        c.powerKw <= selected.powerKw &&
+        (c.capacityKWh < selected.capacityKWh || c.powerKw < selected.powerKw) &&
+        meetsCoverage(c, limits.up, limits.down, ANCILLARY_TECHNICAL_COVERAGE),
+    )
+    .sort((a, b) => a.capacityKWh - b.capacityKWh || a.powerKw - b.powerKw);
+  if (dominating.length > 0) selected = dominating[0]!;
+
+  const candidates = sweep.some((c) => c.capacityKWh === selected.capacityKWh)
+    ? sweep
+    : [...sweep, selected].sort((a, b) => a.capacityKWh - b.capacityKWh);
+
   // No priced reserve data for this market -> no scenario, never a 0 kr claim.
   if (!candidates.some((c) => c.ancillaryMarketValueSek > 0)) return null;
 
-  candidates.sort((a, b) => a.capacityKWh - b.capacityKWh);
-  return { candidates, customerAncillaryShare: share, targetPaybackYears: years };
+  return {
+    candidates,
+    selected,
+    technical: {
+      maxUpCapacityKwh: limits.up,
+      maxDownCapacityKwh: limits.down,
+      upCoverage: limits.up > 0 ? selected.upCapacityKwh / limits.up : 1,
+      downCoverage: limits.down > 0 ? selected.downCapacityKwh / limits.down : 1,
+      coverageThreshold: ANCILLARY_TECHNICAL_COVERAGE,
+    },
+    customerAncillaryShare: share,
+    targetPaybackYears: years,
+  };
 }
 
 /**
- * Share of the best modelled benefit a smaller battery must still reach to be chosen
- * instead. Prevents proposing capacity that the grid connection can never monetise.
- */
-const BENEFIT_PARITY_SHARE = 0.98;
-
-/**
- * The SMALLEST candidate that still captures essentially the full modelled customer
- * benefit. When the main fuse (or any other limit) caps the paid power, larger packs
- * stop adding value, and proposing them would be capacity the site cannot use.
- * Null when no candidate is economically positive.
+ * The technically dimensioned pair. It is NOT "the most profitable battery": no price
+ * enters the selection, only the engine's own modelled reserve capability.
  */
 export function bestAncillaryCandidate(
   scenario: AncillaryScenario | null,
 ): AncillaryScenarioCandidate | null {
-  if (!scenario) return null;
-  const positive = scenario.candidates.filter(
-    (c) => c.customerBenefitSek !== null && c.customerBenefitSek > 0,
-  );
-  if (positive.length === 0) return null;
-  const peak = Math.max(...positive.map((c) => c.customerBenefitSek ?? 0));
-  const threshold = peak * BENEFIT_PARITY_SHARE;
-  const ordered = [...positive].sort((a, b) => a.capacityKWh - b.capacityKWh);
-  return ordered.find((c) => (c.customerBenefitSek ?? 0) >= threshold) ?? ordered[ordered.length - 1] ?? null;
+  return scenario?.selected ?? null;
 }
 
-
 /**
- * The best candidate plus its nearest simulated neighbours, mapped onto the ordinary
- * three-battery comparison card. Same shape, same card, no extra section.
+ * The technical pick plus its nearest simulated capacity neighbours, mapped onto the
+ * ordinary three-battery comparison card. Same shape, same card, no extra section.
  */
 export function ancillaryAlternatives(
   scenario: AncillaryScenario | null,

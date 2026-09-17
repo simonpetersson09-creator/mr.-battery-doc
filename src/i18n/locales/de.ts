@@ -233,6 +233,8 @@ export const de = {
       intro:
         "Auch ohne Batteriebedarf aus Photovoltaik oder Lastspitzen kann eine Batterie für Systemdienstleistungen genutzt werden. Hier können Sie vergleichen, wie sich verschiedene Batteriegrößen auf die berechnete Vergütung auswirken.",
       notRecommendation: "Dies ist ein Vergleichsszenario, keine empfohlene Batteriegröße.",
+      technicalTitle: "Technischer Vorschlag",
+      technicalHint: "Die Größe ist so gewählt, dass mindestens 95 % der berechneten Regelleistungskapazität für Ihren Anschluss und Ihr Verbrauchsprofil genutzt werden können. Das ist ein technischer Vorschlag, keine Aussage über die wirtschaftlichste Batterie.",
       lead: "Systemdienstleistungen können trotzdem eine Vergütung bringen. Vergleichen Sie unten einige Größen.",
       battery: "Batterie",
       compensation: "Vergütung für Systemdienstleistungen",
