@@ -67,7 +67,8 @@ function BatteryStep() {
         <ToggleRow
           title={t("strategies.peak.title")}
           description={t("strategies.peak.description")}
-          checked={s.peakShaving}
+          checked={noSolar ? false : s.peakShaving}
+          disabled={noSolar}
           onChange={set("peakShaving")}
         />
       </div>
