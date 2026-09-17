@@ -17,6 +17,7 @@ import { listSnapshots } from "@/lib/history/store";
 import { useAccess } from "@/state/access";
 import { useWizard } from "@/state/wizard";
 import { clearCalculationCache } from "@/lib/access/calculationCache";
+import { adjustmentCreditsRemaining } from "@/lib/access/entitlements";
 
 export const Route = createFileRoute("/historik")({
   head: () => ({
