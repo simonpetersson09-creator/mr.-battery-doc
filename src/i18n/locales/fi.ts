@@ -4,6 +4,7 @@ export const fi = {
     appName: "Mr. Battery Doc",
     back: "Takaisin",
     next: "Seuraava",
+    showResult: "Näytä tulos",
     done: "Valmis",
     cancel: "Peruuta",
     restart: "Aloita alusta",

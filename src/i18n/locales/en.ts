@@ -4,6 +4,7 @@ export const en = {
     appName: "Mr. Battery Doc",
     back: "Back",
     next: "Next",
+    showResult: "Show result",
     done: "Done",
     cancel: "Cancel",
     restart: "Start over",
