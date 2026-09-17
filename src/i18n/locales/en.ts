@@ -198,6 +198,9 @@ export const en = {
     title: "Economy",
     intro: "Standard values for {{country}}. Change them if you want.",
     prices: {
+      lockedNote:
+        "Prices do not affect the calculation when you have chosen no solar system — the fields are locked.",
+      showFields: "Show fields anyway",
       title: "Electricity prices",
       description:
         "Standard values used to compare different battery solutions. Check your actual electricity bill for purchased power, and use your own view of future prices for exported solar power.",
@@ -336,6 +339,7 @@ export const en = {
       ancillaryHint:
         "Calculated market value of the reserved battery power. Historical 2025 prices.",
       ancillaryNote: "Calculated market value based on historical 2025 prices.",
+      priceBasis: "Based on ancillary service prices from 2025.",
     },
     limited: {
       title: "Limited financial benefit",
@@ -419,6 +423,13 @@ export const en = {
     reservableNote:
       "A separate average reservability measure – not the power the compensation is calculated from.",
     selectedServices: "Selected services",
+    limitingFactor: "Primary limiting factor",
+    limiting: {
+      power: "Battery power",
+      energy: "Battery capacity",
+      grid: "Grid connection",
+      none: "None",
+    },
   },
   importantInformation: {
     title: "Important to know",

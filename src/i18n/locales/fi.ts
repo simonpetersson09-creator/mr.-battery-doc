@@ -196,6 +196,9 @@ export const fi = {
     title: "Talous",
     intro: "Oletusarvot maalle {{country}}. Muuta halutessasi.",
     prices: {
+      lockedNote:
+        "Hinnat eivät vaikuta laskentaan, kun aurinkovoimalaa ei ole valittu – kentät on lukittu.",
+      showFields: "Näytä kentät silti",
       title: "Sähkön hinnat",
       description:
         "Vakioarvot eri akkuratkaisujen vertailuun. Tarkista ostosähkön hinta sähkölaskustasi ja käytä omaa näkemystäsi myydyn aurinkosähkön tulevista hinnoista.",
@@ -331,6 +334,7 @@ export const fi = {
       ancillary: "Reservipalvelut – {{product}}",
       ancillaryHint: "Varatun akkutehon laskettu markkina-arvo. Historialliset hinnat 2025.",
       ancillaryNote: "Laskettu markkina-arvo perustuu vuoden 2025 historiallisiin hintoihin.",
+      priceBasis: "Perustuu vuoden 2025 reservipalveluiden hintoihin.",
     },
     limited: {
       title: "Rajallinen taloudellinen hyöty",
@@ -414,6 +418,13 @@ export const fi = {
     reservableNote:
       "Erillinen varattavuuden keskiarvo – ei se teho, jonka perusteella korvaus lasketaan.",
     selectedServices: "Valitut reservipalvelut",
+    limitingFactor: "Ensisijainen rajoittava tekijä",
+    limiting: {
+      power: "Akun teho",
+      energy: "Akun kapasiteetti",
+      grid: "Verkkoliittymä",
+      none: "Ei mikään",
+    },
   },
   importantInformation: {
     title: "Tärkeää tietää",

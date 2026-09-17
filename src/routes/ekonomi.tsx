@@ -105,49 +105,74 @@ function EconomyStep() {
         compact
         icon={<Coins className="size-4" />}
         title={t("economics.prices.title")}
-        description={t("economics.prices.description")}
+        action={
+          noSolar ? (
+            <span className="rounded-full bg-secondary px-2 py-0.5 ui-control-text-sm font-semibold text-muted-foreground">
+              {lockedBadge}
+            </span>
+          ) : undefined
+        }
+        description={
+          noSolar
+            ? t("economics.prices.lockedNote")
+            : t("economics.prices.description")
+        }
       >
-        <div className="grid grid-cols-2 gap-2">
-          <NumberField
-            dense
-            compact
-            disabled={noSolar}
-            {...(noSolar ? { badge: lockedBadge } : {})}
-            label={t("economics.importPrice.label")}
-            unit={t("units.perKwh", { currency: unit })}
-            step="0.01"
-            value={state.economy.importPrice}
-            hint={t("economics.importPrice.hint")}
-            error={fieldError.importPrice}
-            onChange={(v) => setEconomy({ importPrice: v ?? 0 })}
-          />
-          <NumberField
-            dense
-            compact
-            disabled={noSolar}
-            {...(noSolar ? { badge: lockedBadge } : {})}
-            label={t("economics.exportPrice.label")}
-            unit={t("units.perKwh", { currency: unit })}
-            step="0.01"
-            value={state.economy.exportPrice}
-            hint={t("economics.exportPrice.hint")}
-            error={fieldError.exportPrice}
-            onChange={(v) => setEconomy({ exportPrice: v ?? 0 })}
-          />
-        </div>
-        <NumberField
-          dense
-          compact
-          disabled={noSolar}
-          {...(noSolar ? { badge: lockedBadge } : {})}
-          label={t("economics.demandCharge.label")}
-          unit={t("units.perKwMonth", { currency: unit })}
-          step="1"
-          value={state.economy.demandCharge}
-          hint={demandChargeHint(state.economy.demandCharge)}
-          error={fieldError.demandCharge}
-          onChange={(v) => setEconomy({ demandCharge: v ?? 0, demandChargeTouched: true })}
-        />
+        {(() => {
+          const priceFields = (
+            <>
+              <div className="grid grid-cols-2 gap-2">
+                <NumberField
+                  dense
+                  compact
+                  disabled={noSolar}
+                  label={t("economics.importPrice.label")}
+                  unit={t("units.perKwh", { currency: unit })}
+                  step="0.01"
+                  value={state.economy.importPrice}
+                  hint={t("economics.importPrice.hint")}
+                  error={fieldError.importPrice}
+                  onChange={(v) => setEconomy({ importPrice: v ?? 0 })}
+                />
+                <NumberField
+                  dense
+                  compact
+                  disabled={noSolar}
+                  label={t("economics.exportPrice.label")}
+                  unit={t("units.perKwh", { currency: unit })}
+                  step="0.01"
+                  value={state.economy.exportPrice}
+                  hint={t("economics.exportPrice.hint")}
+                  error={fieldError.exportPrice}
+                  onChange={(v) => setEconomy({ exportPrice: v ?? 0 })}
+                />
+              </div>
+              <NumberField
+                dense
+                compact
+                disabled={noSolar}
+                label={t("economics.demandCharge.label")}
+                unit={t("units.perKwMonth", { currency: unit })}
+                step="1"
+                value={state.economy.demandCharge}
+                hint={demandChargeHint(state.economy.demandCharge)}
+                error={fieldError.demandCharge}
+                onChange={(v) => setEconomy({ demandCharge: v ?? 0, demandChargeTouched: true })}
+              />
+            </>
+          );
+          /* Locked (no solar): the card stays minimized — fields behind a closed toggle. */
+          return noSolar ? (
+            <details className="ui-expandable rounded-[0.75rem] border border-foreground/10 p-2">
+              <summary className="text-[12px] font-semibold">
+                {t("economics.prices.showFields")}
+              </summary>
+              <div className="mt-2 space-y-2">{priceFields}</div>
+            </details>
+          ) : (
+            priceFields
+          );
+        })()}
       </SectionCard>
 
       {/*

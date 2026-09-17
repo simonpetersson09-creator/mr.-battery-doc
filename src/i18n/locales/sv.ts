@@ -201,6 +201,9 @@ export const sv = {
     title: "Ekonomi",
     intro: "Standardvärden för {{country}}. Ändra om du vill.",
     prices: {
+      lockedNote:
+        "Priserna påverkar inte beräkningen när du valt ingen solcellsanläggning – fälten är därför låsta.",
+      showFields: "Visa fälten ändå",
       title: "Elpriser",
       description:
         "Schablonvärden för att jämföra olika batterilösningar. Se din faktiska elräkning för köpt el, och utgå från vad du tror om framtida priser för såld solel.",
@@ -337,6 +340,7 @@ export const sv = {
       ancillary: "Stödtjänster – {{product}}",
       ancillaryHint: "Beräknat marknadsvärde för reserverad batterieffekt. Historiska priser 2025.",
       ancillaryNote: "Beräknat marknadsvärde baserat på historiska priser 2025.",
+      priceBasis: "Baserat på stödtjänstpriser från 2025.",
     },
     limited: {
       title: "Begränsad ekonomisk nytta",
@@ -420,6 +424,13 @@ export const sv = {
     reservableNote:
       "Separat tekniskt medelvärde för reserverbarhet – inte den effekt som ersättningen beräknas på.",
     selectedServices: "Valda stödtjänster",
+    limitingFactor: "Primär begränsningsfaktor",
+    limiting: {
+      power: "Batterieffekten",
+      energy: "Batterikapaciteten",
+      grid: "Nätanslutningen",
+      none: "Ingen",
+    },
   },
   importantInformation: {
     title: "Viktigt att känna till",

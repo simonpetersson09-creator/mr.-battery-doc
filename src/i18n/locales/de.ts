@@ -198,6 +198,9 @@ export const de = {
     title: "Wirtschaftlichkeit",
     intro: "Standardwerte für {{country}}. Bei Bedarf anpassen.",
     prices: {
+      lockedNote:
+        "Ohne PV-Anlage beeinflussen die Preise die Berechnung nicht – die Felder sind gesperrt.",
+      showFields: "Felder trotzdem anzeigen",
       title: "Strompreise",
       description:
         "Pauschalwerte, um Batterielösungen zu vergleichen. Für bezogenen Strom Ihre Stromrechnung heranziehen und für eingespeisten Solarstrom Ihre eigene Erwartung künftiger Preise.",
@@ -340,6 +343,7 @@ export const de = {
       ancillaryHint:
         "Berechneter Marktwert der reservierten Batterieleistung. Historische Preise 2025.",
       ancillaryNote: "Berechneter Marktwert auf Basis historischer Preise 2025.",
+      priceBasis: "Basierend auf Systemdienstleistungspreisen aus 2025.",
     },
     limited: {
       title: "Begrenzter wirtschaftlicher Nutzen",
@@ -423,6 +427,13 @@ export const de = {
     reservableNote:
       "Ein separater durchschnittlicher Reservierbarkeitswert – nicht die Leistung, auf der die Vergütung basiert.",
     selectedServices: "Gewählte Systemdienstleistungen",
+    limitingFactor: "Primärer begrenzender Faktor",
+    limiting: {
+      power: "Batterieleistung",
+      energy: "Batteriekapazität",
+      grid: "Netzanschluss",
+      none: "Keiner",
+    },
   },
   importantInformation: {
     title: "Wichtig zu wissen",
