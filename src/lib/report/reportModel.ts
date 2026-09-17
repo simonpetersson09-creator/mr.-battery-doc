@@ -246,6 +246,11 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     },
   ];
 
+  /* Pure ancillary case (no PV, no peak shaving): the property is unchanged, so the
+     before/after rows and the energy/peak benefit lines would only show standby noise.
+     Presentation only — the totals still come straight from the simulated result. */
+  const ancillaryOnly = ancResult !== null;
+
   const improvementRows: ReportBeforeAfterRow[] = [];
   if (hasSolar) {
     improvementRows.push({
