@@ -670,7 +670,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
         label: `${num(y)} ${yearsLabel}${
           y === targetYears ? ` · ${copy.investment.yourChoice}` : ""
         }`,
-        value: money(maxInvestmentSek(ce.totalCustomerBenefitSek, y)),
+        value: money(maxInvestmentSek(totalBenefitSek, y)),
       })),
     });
     investmentBlocks.push({ kind: "text", text: copy.investment.explanation });
