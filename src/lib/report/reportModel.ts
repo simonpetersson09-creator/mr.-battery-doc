@@ -543,7 +543,9 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
             { kind: "alternatives" as const, items: alternativeItems },
           ]
         : []),
-      { kind: "text", text: r.explanation },
+      /* Ancillary-only: the ordinary capacity-ladder explanation references solar
+         production and energy-arbitrage thresholds that do not apply, so it is omitted. */
+      ...(ancillaryOnly ? [] : [{ kind: "text" as const, text: r.explanation }]),
       ...(capacityAtSearchLimit
         ? [{ kind: "note" as const, text: copy.searchLimit.capacityNote }]
         : []),
@@ -562,10 +564,14 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     { label: copy.energy.load, value: kwh(e.annualLoadKWh), source: "user" },
   ];
   if (hasSolar) energyRows.push({ label: copy.energy.pv, value: kwh(e.annualPvKWh), source: "user" });
-  energyRows.push(
-    { label: copy.energy.importBefore, value: kwh(e.importBeforeKWh), source: "calculated" },
-    { label: copy.energy.importAfter, value: kwh(e.importAfterKWh), source: "calculated" },
-  );
+  /* Ancillary-only: before/after import differs only by standby losses, which the
+     benefit presentation deliberately excludes — showing them would add noise. */
+  if (!ancillaryOnly) {
+    energyRows.push(
+      { label: copy.energy.importBefore, value: kwh(e.importBeforeKWh), source: "calculated" },
+      { label: copy.energy.importAfter, value: kwh(e.importAfterKWh), source: "calculated" },
+    );
+  }
   if (hasSolar) {
     energyRows.push(
       { label: copy.energy.exportBefore, value: kwh(e.exportBeforeKWh), source: "calculated" },
@@ -596,8 +602,12 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
   energyRows.push(
     { label: copy.energy.gridCharged, value: kwh(e.gridChargedKWh), source: "calculated" },
     { label: copy.energy.losses, value: kwh(e.batteryLossesKWh), source: "calculated" },
-    { label: copy.energy.cycles, value: num(e.equivalentFullCycles, 1), source: "calculated" },
   );
+  /* Ancillary-only: cycling is reserve-holding noise, same as the result page which
+     hides battery usage/cycles in this mode. */
+  if (!ancillaryOnly) {
+    energyRows.push({ label: copy.energy.cycles, value: num(e.equivalentFullCycles, 1), source: "calculated" });
+  }
 
   sections.push({
     id: "energy",
@@ -633,15 +643,19 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
   }
   gridRows.push({ label: copy.grid.status, value: g.headline, source: "calculated" });
 
-  sections.push({
-    id: "grid",
-    title: copy.grid.title,
-    pageBreak: true,
-    blocks: [
-      { kind: "rows", rows: gridRows },
-      { kind: "note", text: copy.grid.kwKwh },
-    ],
-  });
+  /* Ancillary-only: the peak-shaving/grid-assessment page is not relevant — the
+     battery does not reduce peaks, so the whole "Effekt och nät" page is omitted. */
+  if (!ancillaryOnly) {
+    sections.push({
+      id: "grid",
+      title: copy.grid.title,
+      pageBreak: true,
+      blocks: [
+        { kind: "rows", rows: gridRows },
+        { kind: "note", text: copy.grid.kwKwh },
+      ],
+    });
+  }
 
   /* ============================ 7. INVESTMENT ============================ */
   const scenarioYears = [targetYears - 2, targetYears, targetYears + 2]
@@ -768,13 +782,19 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
               },
             ]
           : []),
-        {
-          label: copy.assumptions.demandCharge,
-          value: isFiniteNumber(s.peak.tariffSekPerKwMonth)
-            ? `${money(s.peak.tariffSekPerKwMonth, 2)}/kW`
-            : copy.cannotBeCalculated,
-          source: s.peak.tariffSource === "user-provided" ? "user" : "default",
-        },
+        ...(ancillaryOnly
+          ? []
+          : [
+              {
+                label: copy.assumptions.demandCharge,
+                value: isFiniteNumber(s.peak.tariffSekPerKwMonth)
+                  ? `${money(s.peak.tariffSekPerKwMonth, 2)}/kW`
+                  : copy.cannotBeCalculated,
+                source: (s.peak.tariffSource === "user-provided" ? "user" : "default") as
+                  | "user"
+                  | "default",
+              },
+            ]),
         {
           label: copy.assumptions.payback,
           value: `${num(targetYears)} ${yearsLabel}`,
