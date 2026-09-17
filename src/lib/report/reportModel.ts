@@ -581,6 +581,18 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       value: kw(r.physicalPowerNeedKw, 1),
       source: "calculated",
     });
+  } else {
+    /* Ancillary-only: two more core battery values from the same simulated run. */
+    sizingRows.push({
+      label: copy.assumptions.socWindow,
+      value: `${num(cfg.battery.minSocPct)}–${num(cfg.battery.maxSocPct)} %`,
+      source: "default",
+    });
+    sizingRows.push({
+      label: copy.assumptions.efficiency,
+      value: pct(cfg.battery.roundTripEfficiency * 100, 0),
+      source: "default",
+    });
   }
 
   sections.push({
