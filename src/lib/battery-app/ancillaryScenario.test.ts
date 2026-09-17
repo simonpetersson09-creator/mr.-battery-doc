@@ -356,17 +356,19 @@ describe("PV=0 technical sizing", () => {
             fixedPowerKw: 20,
           },
         });
-        return res.summary.fcr.reservablePowerMaxKw;
+        const f = res.summary.fcr;
+        return { up: f.reservablePowerMaxKw, down: f.avgHeldDownPowerKw };
       };
       const small = usableAt(16);
       const large = usableAt(35);
-      // A bigger main fuse makes more of the same installed power usable...
-      expect(large).toBeGreaterThan(small);
-      // ...and the installed battery power itself is never clamped to the fuse kW:
-      // both runs keep the full 20 kW product while the grid model limits the hour.
+      // A bigger main fuse opens more grid headroom, so more of the SAME installed
+      // 20 kW becomes usable in the grid-bound direction.
+      expect(large.down).toBeGreaterThan(small.down);
+      // The installed battery power is never clamped to the fuse kW: at 20 A the
+      // usable down power (12.0 kW) already exceeds the 16 A nominal fuse power.
       const nominal16 = (Math.sqrt(3) * 400 * 16) / 1000;
-      expect(small).toBeLessThan(nominal16);
-      expect(small).toBeGreaterThan(0);
+      expect(usableAt(20).down).toBeGreaterThan(nominal16);
+      expect(small.up).toBeGreaterThan(0);
     },
     T,
   );
