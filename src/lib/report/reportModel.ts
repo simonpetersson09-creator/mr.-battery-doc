@@ -420,7 +420,17 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     // Primary customer view: the four values a homeowner needs first.
     const rows: ReportRow[] = [
       { label: copy.ancillary.product, value: productLabel, source: "user" },
-      { label: copy.ancillary.limiting, value: limitingLabel, source: "calculated" },
+      /* Ancillary-only: the limiting factor describes the reservable power, not why the
+         kWh size was chosen, so it is omitted to avoid a misleading reading. */
+      ...(ancillaryOnly
+        ? []
+        : [
+            {
+              label: copy.ancillary.limiting,
+              value: limitingLabel,
+              source: "calculated" as const,
+            },
+          ]),
       {
         label: copy.ancillary.reservedEnergy,
         value: kwh(fcr.reservedEnergyKWh),
@@ -456,18 +466,22 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
         value: pct(ce.customerAncillaryShare * 100),
         source: "default",
       });
-      rows.push({
-        label: copy.ancillary.customerValue,
-        value: perYear(ce.ancillaryCustomerValueSek),
-        source: "calculated",
-      });
-      rows.push({
-        label: copy.ancillary.priceBasis,
-        value: fcr.historicalReferenceYear
-          ? `${copy.ancillary.priceBasisValue} ${fcr.historicalReferenceYear}`
-          : copy.ancillary.priceBasisValue,
-        source: "external",
-      });
+      /* Ancillary-only: compensation and price basis are already the headline cards at the
+         top of this page, so the duplicate rows are omitted. */
+      if (!ancillaryOnly) {
+        rows.push({
+          label: copy.ancillary.customerValue,
+          value: perYear(ce.ancillaryCustomerValueSek),
+          source: "calculated",
+        });
+        rows.push({
+          label: copy.ancillary.priceBasis,
+          value: fcr.historicalReferenceYear
+            ? `${copy.ancillary.priceBasisValue} ${fcr.historicalReferenceYear}`
+            : copy.ancillary.priceBasisValue,
+          source: "external",
+        });
+      }
     }
 
     sections.push({
@@ -566,6 +580,18 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       label: copy.sizing.physicalNeed,
       value: kw(r.physicalPowerNeedKw, 1),
       source: "calculated",
+    });
+  } else {
+    /* Ancillary-only: two more core battery values from the same simulated run. */
+    sizingRows.push({
+      label: copy.assumptions.socWindow,
+      value: `${num(cfg.battery.minSocPct)}–${num(cfg.battery.maxSocPct)} %`,
+      source: "default",
+    });
+    sizingRows.push({
+      label: copy.assumptions.efficiency,
+      value: pct(cfg.battery.roundTripEfficiency * 100, 0),
+      source: "default",
     });
   }
 
