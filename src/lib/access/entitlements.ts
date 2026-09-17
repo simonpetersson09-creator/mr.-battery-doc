@@ -17,12 +17,15 @@ export interface Entitlements {
   unlockedCalculations: string[];
   /** Free re-runs granted by a one-off report purchase. Premium ignores these. */
   adjustmentCredits: number;
+  /** ISO time the adjustment credits expire. null = no credits / no expiry. */
+  adjustmentCreditsExpiresISO: string | null;
 }
 
 export const EMPTY_ENTITLEMENTS: Entitlements = {
   premium: { active: false, expiresISO: null },
   unlockedCalculations: [],
   adjustmentCredits: 0,
+  adjustmentCreditsExpiresISO: null,
 };
 
 /** Keeps the stored list bounded — old calculations are no longer reachable anyway. */
