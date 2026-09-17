@@ -275,21 +275,10 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       after: kwh(e.importAfterKWh),
     });
   }
-  if (!ancillaryOnly && (s.peak.peakReductionKw !== 0 || g.importPeakBeforeKw > 0)) {
-    improvementRows.push({
-      label: copy.summary.peak,
-      before: kw(g.importPeakBeforeKw),
-      after: kw(g.importPeakAfterKw),
-    });
-  }
 
   const summaryParts: string[] = [];
   if (hasSolar && e.shiftedSolarKWh > 0) {
     summaryParts.push(`${kwh(e.shiftedSolarKWh)}${copy.perYear} ${copy.summary.shifted}`);
-  }
-  if (!ancillaryOnly && g.importPeakBeforeKw > 0 && s.peak.peakReductionKw !== 0) {
-    const peakPct = (s.peak.peakReductionKw / g.importPeakBeforeKw) * 100;
-    summaryParts.push(`${pct(peakPct, 1)} ${copy.summary.peakLower}`);
   }
 
   /* Ancillary-only: the separate benefit page repeated these same figures, so the
@@ -346,14 +335,6 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       source: "calculated",
     });
   }
-  if (!ancillaryOnly && ce.peakBenefitSek !== 0) {
-    benefitRows.push({
-      label: copy.benefit.peak,
-      value: perYear(ce.peakBenefitSek),
-      hint: copy.benefit.peakHint,
-      source: "calculated",
-    });
-  }
   if (ancillaryEnabled) {
     benefitRows.push({
       label: copy.benefit.ancillary,
@@ -392,58 +373,26 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
    * The result page shows these capacities inside the ordinary comparison cards, so the
    * report lists exactly the same simulated candidates — no separate scenario section. */
   if (ancSelected && ancScenario && ancScenario.candidates.length > 1) {
-    /* Group the candidates by power size so the list reads as one block per kW level
-       instead of a single long pile. */
-    const byPower = new Map<number, typeof ancScenario.candidates>();
-    for (const c of ancScenario.candidates) {
-      const group = byPower.get(c.powerKw) ?? [];
-      group.push(c);
-      byPower.set(c.powerKw, group);
-    }
-    const candidateBlocks: ReportBlock[] = [];
-    for (const [power, group] of byPower) {
-      candidateBlocks.push({ kind: "subheading", text: kw(power, 1) });
-      /* One separate three-row block per capacity, so the sizes are visually divided
-         instead of running together in one long table. */
-      for (const c of group) {
-        const label = `${kwh(c.capacityKWh)}${
-          c.capacityKWh === ancSelected.capacityKWh && c.powerKw === ancSelected.powerKw
-            ? ` (${copy.ancillaryScenario.technicalTitle})`
-            : ""
-        }`;
-        candidateBlocks.push({ kind: "subheading", text: label });
-        candidateBlocks.push({
-          kind: "rows",
-          rows: [
-            {
-              label: copy.ancillaryScenario.compensation,
-              value: perYear(c.ancillaryCustomerValueSek),
-              source: "calculated",
-            },
-            {
-              label: copy.ancillaryScenario.totalBenefit,
-              value: perYear(c.customerBenefitSek),
-              source: "calculated",
-            },
-            {
-              label: copy.ancillaryScenario.maxInvestment,
-              value:
-                c.maxInvestmentSek === null
-                  ? copy.ancillaryScenario.maxInvestmentNone
-                  : money(c.maxInvestmentSek),
-              source: "calculated",
-            },
-          ],
-        });
-      }
-    }
+    const selectedIndex = ancScenario.candidates.indexOf(ancSelected);
+    const candidateItems: ReportAlternativeItem[] = ancScenario.candidates.map((c, index) => ({
+      label:
+        index < selectedIndex
+          ? copy.sizing.lower
+          : index > selectedIndex
+            ? copy.sizing.higher
+            : copy.ancillaryScenario.technicalTitle,
+      capacity: kwh(c.capacityKWh),
+      power: kw(c.powerKw, 1),
+      benefit: perYear(c.customerBenefitSek),
+      highlight: index === selectedIndex,
+    }));
     sections.push({
       id: "ancillary-scenario",
       title: copy.ancillaryScenario.title,
       pageBreak: true,
       blocks: [
         { kind: "text", text: copy.ancillaryOnly.comparisonIntro },
-        ...candidateBlocks,
+        { kind: "alternatives", items: candidateItems },
         { kind: "note", text: copy.ancillaryOnly.comparisonExplanation },
       ],
     });
@@ -534,6 +483,11 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
                     label: copy.ancillary.monetized,
                     value: kw(fcr.monetizedPowerKw, 1),
                   },
+                ],
+              },
+              {
+                kind: "cards" as const,
+                items: [
                   {
                     label: copy.ancillary.availability,
                     value: pct(fcr.availabilityPct),
@@ -617,7 +571,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
         ? [{ kind: "subheading" as const, text: copy.ancillaryOnly.sizingProposal }]
         : []),
       { kind: "rows", rows: sizingRows },
-      ...(alternativeItems.length
+      ...(!ancillaryOnly && alternativeItems.length
         ? [
             { kind: "subheading" as const, text: copy.sizing.alternatives },
             { kind: "alternatives" as const, items: alternativeItems },
@@ -717,9 +671,6 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       value: isFiniteNumber(fuseA) ? kw(theoreticalGridPowerKw(fuseA, country), 1) : copy.notAvailable,
       source: "calculated",
     },
-    { label: copy.grid.peakBefore, value: kw(g.importPeakBeforeKw), source: "calculated" },
-    { label: copy.grid.peakAfter, value: kw(g.importPeakAfterKw), source: "calculated" },
-    { label: copy.grid.reduction, value: kw(s.peak.peakReductionKw), source: "calculated" },
   ];
   if (g.exportCurtailedKWh > 0) {
     gridRows.push({
