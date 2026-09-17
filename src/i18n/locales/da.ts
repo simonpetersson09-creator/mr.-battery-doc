@@ -623,6 +623,7 @@ export const da = {
   history: {
     title: "Historik",
     subtitle: "Dine tidligere købte batteriberegninger.",
+    adjustmentsLeft: "Du har {{count}} justeringer tilbage fra dit seneste køb.",
     itemTitle: "Batteriberegning",
     benefit: "Beregnet gevinst {{value}}",
     open: "Åbn resultat",

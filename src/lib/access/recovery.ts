@@ -15,7 +15,7 @@
  *
  * Pure functions — no StoreKit, no storage, no React.
  */
-import { withPremium, withUnlockedCalculation, type Entitlements } from "./entitlements";
+import { withPremium, withPurchasedCalculation, type Entitlements } from "./entitlements";
 import { productKeyForId } from "./products";
 import type { PurchaseIntent } from "./purchaseIntent";
 
@@ -69,7 +69,7 @@ export function recoverTransactions(
       keep.push(tx.transactionId);
       continue;
     }
-    entitlements = withUnlockedCalculation(entitlements, calculationId);
+    entitlements = withPurchasedCalculation(entitlements, calculationId);
     intentConsumed = true;
     finish.push(tx.transactionId);
   }

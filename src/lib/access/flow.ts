@@ -6,7 +6,7 @@
  * other case sees it.
  */
 import type { Entitlements } from "./entitlements";
-import { hasResultAccess } from "./entitlements";
+import { hasAdjustmentCredit, hasResultAccess } from "./entitlements";
 
 export type NextDestination = "/resultat" | "/betalvagg";
 
@@ -22,5 +22,7 @@ export function destinationAfterStep5(args: {
   if (args.calculationStatus !== "ok") return "/resultat";
   return hasResultAccess(args.entitlements, args.calculationId, args.now)
     ? "/resultat"
-    : "/betalvagg";
+    : hasAdjustmentCredit(args.entitlements, args.calculationId, args.now)
+      ? "/resultat"
+      : "/betalvagg";
 }

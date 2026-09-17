@@ -624,6 +624,7 @@ export const sv = {
   history: {
     title: "Historik",
     subtitle: "Dina tidigare köpta batteriberäkningar.",
+    adjustmentsLeft: "Du har {{count}} justeringar kvar från ditt senaste köp.",
     itemTitle: "Batteriberäkning",
     benefit: "Beräknad nytta {{value}}",
     open: "Öppna resultat",
