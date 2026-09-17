@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { useWizard } from "@/state/wizard";
 import { useT } from "@/i18n";
 
@@ -78,19 +79,73 @@ function ProductionStep() {
     [update],
   );
 
-  const selfConsumptionField = (
-    <SectionCard compact icon={<SunMedium />} title={t("production.self.title")}>
-      <NumberField
-        label={t("production.self.label")}
-        unit="%"
-        value={p.selfConsumptionPct}
-        placeholder={t("production.self.placeholder")}
-        compact
-        onChange={(v) =>
-          update((s) => ({ ...s, production: { ...s.production, selfConsumptionPct: v } }))
+  const selfPct = typeof p.selfConsumptionPct === "number" ? p.selfConsumptionPct : 0;
+
+  const selfConsumptionSlider = (
+    <>
+      <p className="mt-2 text-sm font-medium">{t("production.self.label")}</p>
+      <p className="text-[1.125rem] font-extrabold leading-none tracking-[-0.03em] tabular-nums">
+        {selfPct} %
+      </p>
+      <Slider
+        className="mt-2"
+        value={[selfPct]}
+        min={0}
+        max={100}
+        step={1}
+        aria-label={t("production.self.label")}
+        onValueChange={(v) =>
+          update((s) => ({
+            ...s,
+            production: { ...s.production, selfConsumptionPct: v[0] ?? selfPct },
+          }))
         }
       />
-      <p className="ui-help">{t("production.self.hint")}</p>
+      <div className="ui-help mt-1 flex justify-between tabular-nums">
+        <span>0 %</span>
+        <span>100 %</span>
+      </div>
+      <p className="ui-help mt-1">{t("production.self.hint")}</p>
+    </>
+  );
+
+  const annualCard = (
+    <SectionCard compact icon={<SunMedium />} title={t("production.plant.annual")}>
+      {choice === "annual" ? (
+        <NumberField
+          label={t("production.plant.annual")}
+          unit={t("units.kwhPerYear")}
+          value={p.annualKwh}
+          placeholder={t("errors.egValue", { value: "14000" })}
+          compact
+          error={fieldError.annualKwh}
+          onChange={(v) => update((s) => ({ ...s, production: { ...s.production, annualKwh: v } }))}
+        />
+      ) : null}
+      {selfConsumptionSlider}
+    </SectionCard>
+  );
+
+  const plantCard = (
+    <SectionCard compact icon={<Zap />} title={t("production.plant.title")}>
+      <NumberField
+        label={t("production.plant.dcKwp")}
+        unit="kWp"
+        value={p.dcKwp}
+        placeholder={t("errors.egValue", { value: "14" })}
+        compact
+        error={fieldError.dcKwp}
+        onChange={(v) => update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))}
+      />
+      <NumberField
+        label={t("production.plant.acKw")}
+        unit="kW"
+        value={p.acKw}
+        placeholder={t("errors.egValue", { value: "12" })}
+        compact
+        error={fieldError.acKw}
+        onChange={(v) => update((s) => ({ ...s, production: { ...s.production, acKw: v } }))}
+      />
     </SectionCard>
   );
 
@@ -151,63 +206,11 @@ function ProductionStep() {
         </Select>
       </SectionCard>
 
-      {choice === "annual" ? (
-        <SectionCard compact icon={<Zap />} title={t("production.plant.title")}>
-          <NumberField
-            label={t("production.plant.dcKwp")}
-            unit="kWp"
-            value={p.dcKwp}
-            placeholder={t("errors.egValue", { value: "14" })}
-            compact
-            error={fieldError.dcKwp}
-            onChange={(v) => update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))}
-          />
-          <NumberField
-            label={t("production.plant.acKw")}
-            unit="kW"
-            value={p.acKw}
-            placeholder={t("errors.egValue", { value: "12" })}
-            compact
-            error={fieldError.acKw}
-            onChange={(v) => update((s) => ({ ...s, production: { ...s.production, acKw: v } }))}
-          />
-          <NumberField
-            label={t("production.plant.annual")}
-            unit={t("units.kwhPerYear")}
-            value={p.annualKwh}
-            placeholder={t("errors.egValue", { value: "14000" })}
-            compact
-            error={fieldError.annualKwh}
-            onChange={(v) =>
-              update((s) => ({ ...s, production: { ...s.production, annualKwh: v } }))
-            }
-          />
-        </SectionCard>
-      ) : null}
+      {choice !== "none" ? annualCard : null}
+      {choice !== "none" ? plantCard : null}
 
       {choice === "monthly" ? (
         <>
-          <SectionCard compact icon={<Zap />} title={t("production.plant.title")}>
-            <NumberField
-              label={t("production.plant.dcKwp")}
-              unit="kWp"
-              value={p.dcKwp}
-              placeholder={t("errors.egValue", { value: "14" })}
-              compact
-              error={fieldError.dcKwp}
-              onChange={(v) => update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))}
-            />
-            <NumberField
-              label={t("production.plant.acKw")}
-              unit="kW"
-              value={p.acKw}
-              placeholder={t("errors.egValue", { value: "12" })}
-              compact
-              error={fieldError.acKw}
-              onChange={(v) => update((s) => ({ ...s, production: { ...s.production, acKw: v } }))}
-            />
-          </SectionCard>
-
           <SectionCard compact icon={<CalendarRange />} title={t("production.monthly.title")}>
             <MonthlyImport
               kind="production"
@@ -239,7 +242,7 @@ function ProductionStep() {
         </>
       ) : null}
 
-      {choice !== "none" ? selfConsumptionField : null}
+      
     </WizardShell>
   );
 }
