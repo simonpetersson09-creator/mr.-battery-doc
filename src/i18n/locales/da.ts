@@ -232,6 +232,7 @@ export const da = {
       notRecommendation: "Dette er et sammenligningsscenarie, ikke en anbefalet batteristørrelse.",
       technicalTitle: "Teknisk forslag",
       technicalHint: "Størrelsen er valgt, så mindst 95 % af den beregnede kapacitet til støttetjenester for din tilslutning og forbrugsprofil kan udnyttes. Det er et teknisk forslag, ikke en påstand om det mest rentable batteri.",
+      driven: "Størrelsen er drevet af muligheden for at levere støttetjenester via din nettilslutning og er ikke dimensioneret efter husstandens energibehov.",
       lead: "Systemydelser kan alligevel give betaling for et batteri. Sammenlign nogle størrelser nedenfor.",
       battery: "Batteri",
       compensation: "Betaling for systemydelser",

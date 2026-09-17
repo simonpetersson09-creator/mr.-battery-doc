@@ -221,21 +221,26 @@ describe("ancillary scenario (Model C)", () => {
       const scenario = computeAncillaryScenario(outcome.input, outcome.result, 0.75, 10);
       expect(scenario).not.toBeNull();
       for (const c of scenario!.candidates) {
-        expect(Object.keys(c).sort()).toEqual(
-          [
-            "ancillaryCustomerValueSek",
-            "annualBenefitSek",
-            "ancillaryMarketValueSek",
-            "capacityKWh",
-            "customerBenefitSek",
-            "maxInvestmentSek",
-            "powerKw",
-            "upCapacityKwh",
-            "downCapacityKwh",
-            "paidUpKw",
-            "paidDownKw",
-          ].sort(),
-        );
+        for (const k of Object.keys(c)) {
+          expect(/recommend|optimal|best|winner|cheapest/i.test(k)).toBe(false);
+        }
+        for (const k of [
+          "installedPowerKw",
+          "cRate",
+          "hardwareVerified",
+          "paidUpMaxKw",
+          "paidDownMaxKw",
+          "utilizedPowerRatioUp",
+          "utilizedPowerRatioDown",
+          "gridLimitedHours",
+          "powerLimitedHours",
+          "energyLimitedHours",
+          "equivalentFullCycles",
+          "throughputKWh",
+          "ancillaryDriven",
+        ]) {
+          expect(Object.keys(c)).toContain(k);
+        }
       }
     },
     T,
@@ -255,15 +260,20 @@ describe("PV=0 technical sizing", () => {
   };
 
   it(
-    "A: the selected pair is not produced by the old 0.5 C pairing rule",
+    "A: every candidate stays inside the verified hardware envelope (max C-rate)",
     () => {
-      const sc = scenarioFor({ fuseA: 16 });
+      const sc = scenarioFor({ fuseA: 16 })!;
       const sel = bestAncillaryCandidate(sc)!;
       expect(sel).toBeTruthy();
-      // The 0.5 C rule would have returned the largest step <= capacity * 0.5.
-      const steps = defaultConfig().powerSizing.productStepsKw;
-      const oldRule = Math.max(...steps.filter((s) => s <= sel.capacityKWh * 0.5));
-      expect(sel.powerKw).toBeGreaterThan(oldRule);
+      const limit = sc.technical!.maxProductCRate;
+      expect(limit).toBeGreaterThan(0);
+      expect(sel.cRate).toBeLessThanOrEqual(limit + 1e-9);
+      expect(sel.hardwareVerified).toBe(true);
+      for (const c of sc.candidates) {
+        expect(c.powerKw).toBeLessThanOrEqual(c.capacityKWh * limit + 1e-9);
+      }
+      // kW is still a real product step chosen by the engine.
+      expect(defaultConfig().powerSizing.productStepsKw).toContain(sel.powerKw);
     },
     T,
   );
@@ -334,15 +344,57 @@ describe("PV=0 technical sizing", () => {
   );
 
   it(
-    "H: the hourly grid model may pay more than the nominal fuse power at 16 A",
+    "H: the fuse acts through the hourly grid model, never as a battery kW cap",
+    () => {
+      const usableAt = (fuseA: number) => {
+        const { outcome } = run({ fcr: true, fuseA });
+        const res = runBatteryEngine({
+          ...outcome.input,
+          battery: {
+            ...(outcome.input.battery ?? {}),
+            fixedCapacityKWh: 40,
+            fixedPowerKw: 20,
+          },
+        });
+        return res.summary.fcr.reservablePowerMaxKw;
+      };
+      const small = usableAt(16);
+      const large = usableAt(35);
+      // A bigger main fuse makes more of the same installed power usable...
+      expect(large).toBeGreaterThan(small);
+      // ...and the installed battery power itself is never clamped to the fuse kW:
+      // both runs keep the full 20 kW product while the grid model limits the hour.
+      const nominal16 = (Math.sqrt(3) * 400 * 16) / 1000;
+      expect(small).toBeLessThan(nominal16);
+      expect(small).toBeGreaterThan(0);
+    },
+    T,
+  );
+
+  it(
+    "I: the power scan reports marginal technical gain per real product step",
     () => {
       const sc = scenarioFor({ fuseA: 16 })!;
-      const nominalKw = Math.sqrt(3) * 400 * 16 / 1000;
-      const design = nominalKw * 0.95;
-      // Baseline import + export headroom, so paid up legitimately exceeds the design
-      // limit while every hour stays inside it. No fuse-based kW cap is hardcoded.
-      expect(sc.selected!.paidUpKw).toBeGreaterThan(design);
-      expect(sc.selected!.paidUpKw).toBeLessThan(nominalKw * 1.5);
+      expect(sc.powerScan.length).toBeGreaterThan(1);
+      for (const st of sc.powerScan) {
+        expect(Number.isFinite(st.marginalGainKwh)).toBe(true);
+        expect(Number.isFinite(st.utilizedPowerRatioUp)).toBe(true);
+        expect(st.gridLimitedHours).toBeGreaterThanOrEqual(0);
+      }
+      const powers = sc.powerScan.map((st) => st.powerKw);
+      expect([...powers].sort((a, b) => a - b)).toEqual(powers);
+    },
+    T,
+  );
+
+  it(
+    "J: a pure FCR battery is classified as ancillary driven",
+    () => {
+      const sc = scenarioFor({ fuseA: 16 })!;
+      const sel = sc.selected!;
+      const pure = sel.equivalentFullCycles <= 1e-6 && sel.throughputKWh <= 1e-6;
+      expect(sel.ancillaryDriven).toBe(pure);
+      expect(sc.ancillaryDriven).toBe(pure);
     },
     T,
   );

@@ -235,6 +235,7 @@ export const de = {
       notRecommendation: "Dies ist ein Vergleichsszenario, keine empfohlene Batteriegröße.",
       technicalTitle: "Technischer Vorschlag",
       technicalHint: "Die Größe ist so gewählt, dass mindestens 95 % der berechneten Regelleistungskapazität für Ihren Anschluss und Ihr Verbrauchsprofil genutzt werden können. Das ist ein technischer Vorschlag, keine Aussage über die wirtschaftlichste Batterie.",
+      driven: "Die Größe ergibt sich aus der Möglichkeit, über Ihren Netzanschluss Regelleistung zu liefern, und ist nicht auf den Energiebedarf des Haushalts ausgelegt.",
       lead: "Systemdienstleistungen können trotzdem eine Vergütung bringen. Vergleichen Sie unten einige Größen.",
       battery: "Batterie",
       compensation: "Vergütung für Systemdienstleistungen",

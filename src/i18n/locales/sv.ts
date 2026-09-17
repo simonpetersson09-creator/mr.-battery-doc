@@ -234,6 +234,7 @@ export const sv = {
       notRecommendation: "Detta är ett jämförelsescenario, inte en rekommenderad batteristorlek.",
       technicalTitle: "Tekniskt förslag",
       technicalHint: "Storleken är vald för att kunna utnyttja minst 95 % av den beräknade stödtjänstkapaciteten för din anslutning och förbrukningsprofil. Det är ett tekniskt förslag, inte ett påstående om det mest lönsamma batteriet.",
+      driven: "Storleken drivs av möjligheten att leverera stödtjänster via din elanslutning och är inte dimensionerad efter hushållets energibehov.",
       lead: "Stödtjänster kan ändå ge ersättning för ett batteri. Jämför några olika storlekar nedan.",
       battery: "Batteri",
       compensation: "Stödtjänstersättning",
