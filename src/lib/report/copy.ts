@@ -92,6 +92,8 @@ export interface ReportCopy {
     title: string;
     intro: string;
     notRecommendation: string;
+    technicalTitle: string;
+    technicalHint: string;
     battery: string;
     compensation: string;
     totalBenefit: string;
@@ -278,6 +280,9 @@ const sv: ReportCopy = {
     intro:
       "Den vanliga dimensioneringen ger inget batteribehov. Nedan jämförs hur olika batteristorlekar skulle ersättas för stödtjänster.",
     notRecommendation: "Detta är ett jämförelsescenario, inte en rekommenderad batteristorlek.",
+    technicalTitle: "Tekniskt förslag",
+    technicalHint:
+      "Storleken är vald för att kunna utnyttja minst 95 % av den beräknade stödtjänstkapaciteten för din anslutning och förbrukningsprofil. Det är ett tekniskt förslag, inte ett påstående om det mest lönsamma batteriet.",
     battery: "Batteri",
     compensation: "Stödtjänstersättning",
     totalBenefit: "Beräknad total nytta",
@@ -548,6 +553,9 @@ const en: ReportCopy = {
     intro:
       "The standard sizing finds no battery need. Below is a comparison of how different battery sizes would be compensated for ancillary services.",
     notRecommendation: "This is a comparison scenario, not a recommended battery size.",
+    technicalTitle: "Technical proposal",
+    technicalHint:
+      "The size is chosen so that at least 95 % of the calculated ancillary service capacity for your connection and consumption profile can be used. It is a technical proposal, not a claim about the most profitable battery.",
     battery: "Battery",
     compensation: "Ancillary compensation",
     totalBenefit: "Calculated total benefit",

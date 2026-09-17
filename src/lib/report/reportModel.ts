@@ -324,8 +324,16 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
   /* ================= 2b. ANCILLARY SCENARIO (MODEL C, comparison only) ================= */
   if (req.ancillaryScenario && req.ancillaryScenario.candidates.length > 0) {
     const rows: ReportRow[] = [];
+    const sel = req.ancillaryScenario.selected;
     for (const c of req.ancillaryScenario.candidates) {
-      const label = `${kwh(c.capacityKWh)} / ${kw(c.powerKw, 1)}`;
+      const isSelected =
+        sel !== null &&
+        sel !== undefined &&
+        c.capacityKWh === sel.capacityKWh &&
+        c.powerKw === sel.powerKw;
+      const label = `${kwh(c.capacityKWh)} / ${kw(c.powerKw, 1)}${
+        isSelected ? ` (${copy.ancillaryScenario.technicalTitle})` : ""
+      }`;
       rows.push({
         label: `${label} — ${copy.ancillaryScenario.compensation}`,
         value: perYear(c.ancillaryCustomerValueSek),
@@ -352,6 +360,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       blocks: [
         { kind: "text", text: copy.ancillaryScenario.intro },
         { kind: "note", text: copy.ancillaryScenario.notRecommendation },
+        { kind: "note", text: copy.ancillaryScenario.technicalHint },
         { kind: "rows", rows },
         { kind: "note", text: copy.ancillaryScenario.note },
       ],
