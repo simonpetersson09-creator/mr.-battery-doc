@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { WizardShell } from "@/components/wizard/WizardShell";
-import { SectionCard, ToggleRow } from "@/components/wizard/fields";
+import { ToggleRow } from "@/components/wizard/fields";
 import { useWizard } from "@/state/wizard";
 import { useT } from "@/i18n";
 
