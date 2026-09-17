@@ -246,6 +246,11 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     },
   ];
 
+  /* Pure ancillary case (no PV, no peak shaving): the property is unchanged, so the
+     before/after rows and the energy/peak benefit lines would only show standby noise.
+     Presentation only — the totals still come straight from the simulated result. */
+  const ancillaryOnly = ancResult !== null;
+
   const improvementRows: ReportBeforeAfterRow[] = [];
   if (hasSolar) {
     improvementRows.push({
@@ -259,12 +264,14 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       after: pct(e.selfSufficiencyAfterPct),
     });
   }
-  improvementRows.push({
-    label: copy.summary.gridImport,
-    before: kwh(e.importBeforeKWh),
-    after: kwh(e.importAfterKWh),
-  });
-  if (s.peak.peakReductionKw !== 0 || g.importPeakBeforeKw > 0) {
+  if (!ancillaryOnly) {
+    improvementRows.push({
+      label: copy.summary.gridImport,
+      before: kwh(e.importBeforeKWh),
+      after: kwh(e.importAfterKWh),
+    });
+  }
+  if (!ancillaryOnly && (s.peak.peakReductionKw !== 0 || g.importPeakBeforeKw > 0)) {
     improvementRows.push({
       label: copy.summary.peak,
       before: kw(g.importPeakBeforeKw),
@@ -287,8 +294,12 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     pageBreak: false,
     blocks: [
       { kind: "cards", items: summaryCards },
-      { kind: "subheading", text: copy.summary.improvements },
-      { kind: "beforeAfter", rows: improvementRows },
+      ...(improvementRows.length
+        ? [
+            { kind: "subheading" as const, text: copy.summary.improvements },
+            { kind: "beforeAfter" as const, rows: improvementRows },
+          ]
+        : []),
       ...(summaryParts.length
         ? [{ kind: "note" as const, text: summaryParts.join(" · ") }]
         : []),
@@ -297,7 +308,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
 
   /* ============================ 2. BENEFIT ============================ */
   const benefitRows: ReportRow[] = [];
-  if (ce.energyBenefitSek !== 0) {
+  if (!ancillaryOnly && ce.energyBenefitSek !== 0) {
     benefitRows.push({
       label: copy.benefit.energy,
       value: perYear(ce.energyBenefitSek),
@@ -305,7 +316,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       source: "calculated",
     });
   }
-  if (ce.peakBenefitSek !== 0) {
+  if (!ancillaryOnly && ce.peakBenefitSek !== 0) {
     benefitRows.push({
       label: copy.benefit.peak,
       value: perYear(ce.peakBenefitSek),
