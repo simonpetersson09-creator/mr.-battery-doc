@@ -20,6 +20,7 @@ import { runBatteryEngine } from "@/lib/battery-engine";
 import {
   ANCILLARY_TECHNICAL_COVERAGE,
   bestAncillaryCandidate,
+  fuseDerivedPowerCeiling,
 } from "./ancillaryScenario";
 import type { CountryCode } from "@/lib/country-config";
 
@@ -260,20 +261,39 @@ describe("PV=0 technical sizing", () => {
   };
 
   it(
-    "A: every candidate stays inside the verified hardware envelope (max C-rate)",
+    "A: the main fuse caps recommended kW and the C-rate is an output, not a filter",
     () => {
       const sc = scenarioFor({ fuseA: 16 })!;
       const sel = bestAncillaryCandidate(sc)!;
       expect(sel).toBeTruthy();
-      const limit = sc.technical!.maxProductCRate;
-      expect(limit).toBeGreaterThan(0);
-      expect(sel.cRate).toBeLessThanOrEqual(limit + 1e-9);
-      expect(sel.hardwareVerified).toBe(true);
-      for (const c of sc.candidates) {
-        expect(c.powerKw).toBeLessThanOrEqual(c.capacityKWh * limit + 1e-9);
+      const t = sc.technical!;
+      // The ceiling comes from the engine's own grid model, not a duplicated formula.
+      const nominalKw = (Math.sqrt(3) * 400 * 16) / 1000;
+      expect(t.gridPowerLimitKw).toBeLessThan(nominalKw);
+      expect(t.maxRecommendedPowerKw).toBeLessThanOrEqual(t.gridPowerLimitKw + 1e-9);
+      for (const c of sc.matrix) {
+        expect(c.powerKw).toBeLessThanOrEqual(t.maxRecommendedPowerKw + 1e-9);
       }
-      // kW is still a real product step chosen by the engine.
+      expect(sel.powerKw).toBeLessThanOrEqual(t.maxRecommendedPowerKw + 1e-9);
+      // 0.5 C no longer filters this flow: the search may return a higher C-rate.
+      expect(sel.cRate).toBeGreaterThan(t.maxProductCRate);
+      // kW is still a real product step.
       expect(defaultConfig().powerSizing.productStepsKw).toContain(sel.powerKw);
+    },
+    T,
+  );
+
+  it(
+    "A2: the fuse ceiling scales with the main fuse",
+    () => {
+      const at = (fuseA: number) => {
+        const { outcome } = run({ fcr: true, fuseA });
+        return fuseDerivedPowerCeiling(outcome.input, outcome.result).maxRecommendedPowerKw;
+      };
+      expect(at(16)).toBe(10);
+      expect(at(20)).toBe(10);
+      expect(at(25)).toBe(15);
+      expect(at(35)).toBe(20);
     },
     T,
   );
