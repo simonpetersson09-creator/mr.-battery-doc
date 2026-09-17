@@ -243,7 +243,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
         ? atLeast(copy.searchLimit.atLeastPower, kw(powerKw, 1))
         : kw(powerKw, 1),
     },
-    { label: copy.summary.benefit, value: perYear(ce.totalCustomerBenefitSek) },
+    { label: copy.summary.benefit, value: perYear(totalBenefitSek) },
     {
       label: copy.summary.maxInvestment,
       value: maxInvestment === null ? copy.cannotBeCalculated : money(maxInvestment),
@@ -348,9 +348,9 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
         kind: "hero",
         label: copy.benefit.total,
         value:
-          ce.totalCustomerBenefitSek === null
+          totalBenefitSek === null
             ? copy.cannotBeCalculated
-            : perYear(ce.totalCustomerBenefitSek),
+            : perYear(totalBenefitSek),
       },
       ...(benefitRows.length
         ? [{ kind: "rows" as const, rows: benefitRows }]
