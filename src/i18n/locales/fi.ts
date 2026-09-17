@@ -412,6 +412,8 @@ export const fi = {
     physicalNeed: "Fyysinen tehontarve",
     heldPower: "Reservipalveluihin varattu teho",
     cRate: "C-arvo",
+    socWindow: "SOC-ikkuna",
+    roundTrip: "Round-trip-hyötysuhde",
     ancillaryGroup: "Reservipalvelut",
     reservedPower: "Varattu teho",
     reservablePower: "Fyysisesti varattavissa oleva teho (keskiarvo)",

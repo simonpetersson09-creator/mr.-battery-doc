@@ -421,6 +421,8 @@ export const de = {
     physicalNeed: "Physischer Leistungsbedarf",
     heldPower: "Für Systemdienstleistungen reservierte Leistung",
     cRate: "C-Rate",
+    socWindow: "SOC-Fenster",
+    roundTrip: "Round-trip-Wirkungsgrad",
     ancillaryGroup: "Systemdienstleistungen",
     reservedPower: "Reservierte Leistung",
     reservablePower: "Physikalisch reservierbare Leistung (Durchschnitt)",

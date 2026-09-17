@@ -418,6 +418,8 @@ export const sv = {
     physicalNeed: "Fysiskt effektbehov",
     heldPower: "Stödtjänster hållen effekt",
     cRate: "C-rate",
+    socWindow: "SOC-fönster",
+    roundTrip: "Round-trip-verkningsgrad",
     ancillaryGroup: "Stödtjänster",
     reservedPower: "Reserverad effekt",
     reservablePower: "Fysiskt reserverbar effekt (medel)",
