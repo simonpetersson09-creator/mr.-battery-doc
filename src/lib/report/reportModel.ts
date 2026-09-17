@@ -420,7 +420,17 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     // Primary customer view: the four values a homeowner needs first.
     const rows: ReportRow[] = [
       { label: copy.ancillary.product, value: productLabel, source: "user" },
-      { label: copy.ancillary.limiting, value: limitingLabel, source: "calculated" },
+      /* Ancillary-only: the limiting factor describes the reservable power, not why the
+         kWh size was chosen, so it is omitted to avoid a misleading reading. */
+      ...(ancillaryOnly
+        ? []
+        : [
+            {
+              label: copy.ancillary.limiting,
+              value: limitingLabel,
+              source: "calculated" as const,
+            },
+          ]),
       {
         label: copy.ancillary.reservedEnergy,
         value: kwh(fcr.reservedEnergyKWh),
