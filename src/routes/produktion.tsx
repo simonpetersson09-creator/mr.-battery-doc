@@ -59,6 +59,17 @@ function ProductionStep() {
         mode: next === "none" ? "none" : "manual",
         useMonthly: next === "monthly",
       },
+      /* Choosing "no PV system" turns the solar-dependent uses off immediately,
+         matching the locked-off toggles on the battery step. */
+      strategies:
+        next === "none"
+          ? {
+              ...s.strategies,
+              solarSelfConsumption: false,
+              reducedGridImport: false,
+              peakShaving: false,
+            }
+          : s.strategies,
     }));
 
   const applyImported = useCallback(
