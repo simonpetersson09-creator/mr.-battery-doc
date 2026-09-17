@@ -418,7 +418,7 @@ export const fi = {
     reservableNote:
       "Erillinen varattavuuden keskiarvo – ei se teho, jonka perusteella korvaus lasketaan.",
     selectedServices: "Valitut reservipalvelut",
-    limitingFactor: "Ensisijainen rajoittava tekijä",
+    limitingFactor: "Mikä rajoittaa akun kokoa",
     limiting: {
       power: "Akun teho",
       energy: "Akun kapasiteetti",

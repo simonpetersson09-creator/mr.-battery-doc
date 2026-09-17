@@ -424,7 +424,7 @@ export const sv = {
     reservableNote:
       "Separat tekniskt medelvärde för reserverbarhet – inte den effekt som ersättningen beräknas på.",
     selectedServices: "Valda stödtjänster",
-    limitingFactor: "Primär begränsningsfaktor",
+    limitingFactor: "Vad begränsar batteristorleken",
     limiting: {
       power: "Batterieffekten",
       energy: "Batterikapaciteten",
