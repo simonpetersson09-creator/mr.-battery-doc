@@ -879,12 +879,6 @@ function ResultStep() {
                   </>
                 ) : null}
                 <Row label={t("technical.selectedServices")} value={productLabel} />
-                {fcrLimitingFactor ? (
-                  <Row
-                    label={t("technical.limitingFactor")}
-                    value={t(`technical.limiting.${fcrLimitingFactor}`)}
-                  />
-                ) : null}
               </>
             ) : null}
           </TechGroup>

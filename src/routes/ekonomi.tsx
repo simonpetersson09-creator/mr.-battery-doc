@@ -96,7 +96,7 @@ function EconomyStep() {
             });
           }}
         >
-          {t("common.next")}
+          {t("common.showResult")}
           <ArrowRight className="size-4" />
         </Button>
       }
