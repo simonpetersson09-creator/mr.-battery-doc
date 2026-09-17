@@ -264,12 +264,14 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       after: pct(e.selfSufficiencyAfterPct),
     });
   }
-  improvementRows.push({
-    label: copy.summary.gridImport,
-    before: kwh(e.importBeforeKWh),
-    after: kwh(e.importAfterKWh),
-  });
-  if (s.peak.peakReductionKw !== 0 || g.importPeakBeforeKw > 0) {
+  if (!ancillaryOnly) {
+    improvementRows.push({
+      label: copy.summary.gridImport,
+      before: kwh(e.importBeforeKWh),
+      after: kwh(e.importAfterKWh),
+    });
+  }
+  if (!ancillaryOnly && (s.peak.peakReductionKw !== 0 || g.importPeakBeforeKw > 0)) {
     improvementRows.push({
       label: copy.summary.peak,
       before: kw(g.importPeakBeforeKw),
