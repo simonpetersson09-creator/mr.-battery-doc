@@ -618,6 +618,7 @@ export const fi = {
   history: {
     title: "Historia",
     subtitle: "Aiemmin ostamasi akkulaskelmat.",
+    adjustmentsLeft: "Sinulla on {{count}} muokkausta jäljellä viimeisimmästä ostosta.",
     itemTitle: "Akkulaskelma",
     benefit: "Laskettu hyöty {{value}}",
     open: "Avaa tulos",

@@ -15,15 +15,21 @@ export interface Entitlements {
   };
   /** Calculation ids unlocked by consumable purchases. */
   unlockedCalculations: string[];
+  /** Free re-runs granted by a one-off report purchase. Premium ignores these. */
+  adjustmentCredits: number;
 }
 
 export const EMPTY_ENTITLEMENTS: Entitlements = {
   premium: { active: false, expiresISO: null },
   unlockedCalculations: [],
+  adjustmentCredits: 0,
 };
 
 /** Keeps the stored list bounded — old calculations are no longer reachable anyway. */
 const MAX_UNLOCKED = 50;
+
+/** Number of free re-runs adjustments a one-off report purchase grants. Premium ignores these. */
+export const ADJUSTMENT_CREDITS_PER_PURCHASE = 3;
 
 export function isPremiumActive(e: Entitlements, now: Date = new Date()): boolean {
   if (!e.premium.active) return false;
@@ -57,6 +63,38 @@ export function withUnlockedCalculation(e: Entitlements, calculationId: string):
   };
 }
 
+/**
+ * A one-off report purchase: unlocks the purchased calculation AND grants a
+ * fresh batch of adjustment credits (capped at ADJUSTMENT_CREDITS_PER_PURCHASE).
+ * Premium purchases never touch adjustment credits.
+ */
+export function withPurchasedCalculation(e: Entitlements, calculationId: string): Entitlements {
+  return { ...withUnlockedCalculation(e, calculationId), adjustmentCredits: ADJUSTMENT_CREDITS_PER_PURCHASE };
+}
+
+/** True when the calculation is not otherwise open and the user has spare adjustment credits. */
+export function hasAdjustmentCredit(
+  e: Entitlements,
+  calculationId: string,
+  now: Date = new Date(),
+): boolean {
+  return !isPremiumActive(e, now) && !isCalculationUnlocked(e, calculationId) && e.adjustmentCredits > 0;
+}
+
+/** Consumes one adjustment credit and unlocks the calculation. No-op when not eligible. */
+export function consumeAdjustmentCredit(
+  e: Entitlements,
+  calculationId: string,
+  now: Date = new Date(),
+): Entitlements {
+  if (!hasAdjustmentCredit(e, calculationId, now)) return e;
+  return {
+    ...e,
+    adjustmentCredits: e.adjustmentCredits - 1,
+    unlockedCalculations: [...e.unlockedCalculations, calculationId].slice(-MAX_UNLOCKED),
+  };
+}
+
 export function withPremium(e: Entitlements, expiresISO: string | null): Entitlements {
   return { ...e, premium: { active: true, expiresISO } };
 }
@@ -73,11 +111,16 @@ export function parseEntitlements(raw: unknown): Entitlements {
   const unlocked = Array.isArray(o["unlockedCalculations"])
     ? (o["unlockedCalculations"] as unknown[]).filter((v): v is string => typeof v === "string")
     : [];
+  const adjustmentCredits =
+    typeof o["adjustmentCredits"] === "number" && Number.isFinite(o["adjustmentCredits"])
+      ? Math.max(0, Math.floor(o["adjustmentCredits"]))
+      : 0;
   return {
     premium: {
       active: premium["active"] === true,
       expiresISO: typeof premium["expiresISO"] === "string" ? (premium["expiresISO"] as string) : null,
     },
     unlockedCalculations: unlocked.slice(-MAX_UNLOCKED),
+    adjustmentCredits,
   };
 }

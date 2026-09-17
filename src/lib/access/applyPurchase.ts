@@ -6,7 +6,7 @@
  */
 import {
   withPremium,
-  withUnlockedCalculation,
+  withPurchasedCalculation,
   type Entitlements,
 } from "./entitlements";
 import type { PurchaseResult, RestoreResult } from "./purchaseGateway";
@@ -19,8 +19,9 @@ export function applyPurchase(
   if (result.status !== "purchased") return current;
   if (result.key === "premiumYear")
     return withPremium(current, result.premiumExpiresISO ?? null);
-  // Consumable: bound to THIS calculation, never to future ones.
-  return withUnlockedCalculation(current, calculationId);
+  // Consumable: bound to THIS calculation, never to future ones. Grants a
+  // fresh batch of adjustment credits for re-running after editing inputs.
+  return withPurchasedCalculation(current, calculationId);
 }
 
 export function applyRestore(current: Entitlements, result: RestoreResult): Entitlements {

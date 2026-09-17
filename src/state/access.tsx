@@ -17,6 +17,7 @@ import {
 } from "react";
 import {
   EMPTY_ENTITLEMENTS,
+  consumeAdjustmentCredit,
   hasResultAccess,
   isPremiumActive,
   parseEntitlements,
@@ -60,6 +61,8 @@ interface AccessContextValue {
   premiumActive: boolean;
   gateway: PurchaseGateway;
   canOpenResult: (calculationId: string) => boolean;
+  /** Spend one adjustment credit to unlock a new calculation. No-op when not eligible. */
+  consumeAdjustment: (calculationId: string) => void;
   loadProducts: () => Promise<LoadProductsResult>;
   purchase: (key: ProductKey, calculationId: string) => Promise<PurchaseResult>;
   restore: () => Promise<RestoreResult>;
@@ -239,6 +242,15 @@ export function AccessProvider({
     }
   }, [resolved]);
 
+  const consumeAdjustment = useCallback((calculationId: string) => {
+    setEntitlements((e) => {
+      const next = consumeAdjustmentCredit(e, calculationId);
+      if (next === e) return e;
+      persistEntitlements(next);
+      return next;
+    });
+  }, []);
+
   const value = useMemo<AccessContextValue>(
     () => ({
       entitlements,
@@ -246,12 +258,13 @@ export function AccessProvider({
       gateway: resolved,
       premiumActive: isPremiumActive(entitlements),
       canOpenResult: (calculationId: string) => hasResultAccess(entitlements, calculationId),
+      consumeAdjustment,
       loadProducts: () => resolved.loadProducts(),
       purchase,
       restore,
       purchaseInFlight,
     }),
-    [entitlements, hydrated, resolved, purchase, restore, purchaseInFlight],
+    [entitlements, hydrated, resolved, consumeAdjustment, purchase, restore, purchaseInFlight],
   );
 
   return <AccessContext.Provider value={value}>{children}</AccessContext.Provider>;

@@ -630,6 +630,7 @@ export const de = {
   history: {
     title: "Verlauf",
     subtitle: "Ihre bereits gekauften Batterieberechnungen.",
+    adjustmentsLeft: "Sie haben noch {{count}} Anpassungen aus Ihrem letzten Kauf.",
     itemTitle: "Batterieberechnung",
     benefit: "Berechneter Nutzen {{value}}",
     open: "Ergebnis öffnen",

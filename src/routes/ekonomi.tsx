@@ -87,13 +87,22 @@ function EconomyStep() {
           onClick={() => {
             if (!validity.ok) return;
             const calc = getCalculation(state);
-            void navigate({
-              to: destinationAfterStep5({
-                calculationStatus: calc.outcome.status,
-                entitlements: access.entitlements,
-                calculationId: calc.id,
-              }),
+            const dest = destinationAfterStep5({
+              calculationStatus: calc.outcome.status,
+              entitlements: access.entitlements,
+              calculationId: calc.id,
             });
+            // Adjustment-credit path: an otherwise locked "ok" calculation that
+            // the flow rule let through because credits remain. Spend exactly
+            // one credit and unlock this calculation before navigating.
+            if (
+              dest === "/resultat" &&
+              calc.outcome.status === "ok" &&
+              !access.canOpenResult(calc.id)
+            ) {
+              access.consumeAdjustment(calc.id);
+            }
+            void navigate({ to: dest });
           }}
         >
           {t("common.showResult")}
