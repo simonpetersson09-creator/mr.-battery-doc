@@ -15,13 +15,14 @@ export function applyPurchase(
   current: Entitlements,
   result: PurchaseResult,
   calculationId: string,
+  now: Date = new Date(),
 ): Entitlements {
   if (result.status !== "purchased") return current;
   if (result.key === "premiumYear")
     return withPremium(current, result.premiumExpiresISO ?? null);
   // Consumable: bound to THIS calculation, never to future ones. Grants a
   // fresh batch of adjustment credits for re-running after editing inputs.
-  return withPurchasedCalculation(current, calculationId);
+  return withPurchasedCalculation(current, calculationId, now);
 }
 
 export function applyRestore(current: Entitlements, result: RestoreResult): Entitlements {

@@ -17,6 +17,7 @@ import { listSnapshots } from "@/lib/history/store";
 import { useAccess } from "@/state/access";
 import { useWizard } from "@/state/wizard";
 import { clearCalculationCache } from "@/lib/access/calculationCache";
+import { adjustmentCreditsRemaining } from "@/lib/access/entitlements";
 
 export const Route = createFileRoute("/historik")({
   head: () => ({
@@ -74,11 +75,14 @@ function HistoryPage() {
         <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">
           {t("history.subtitle")}
         </p>
-        {access.entitlements.adjustmentCredits > 0 && !access.premiumActive ? (
-          <p className="mt-1 text-[12px] font-medium text-foreground/80">
-            {t("history.adjustmentsLeft", { count: access.entitlements.adjustmentCredits })}
-          </p>
-        ) : null}
+        {(() => {
+          const credits = adjustmentCreditsRemaining(access.entitlements);
+          return credits > 0 && !access.premiumActive ? (
+            <p className="mt-1 text-[12px] font-medium text-foreground/80">
+              {t("history.adjustmentsLeft", { count: credits })}
+            </p>
+          ) : null;
+        })()}
 
         {entries.length === 0 ? (
           <section className="mt-4 rounded-[1.25rem] border border-border bg-card px-4 py-6 text-center">
