@@ -536,7 +536,9 @@ function ResultStep() {
         />
       ) : null}
 
-      {p.showEnergySection || p.showPeakSection ? (
+      {/* Pure ancillary flow (no PV): nothing in the property changes, so the
+          before/after card would only repeat unchanged values — hide it. */}
+      {(p.showEnergySection || p.showPeakSection) && !(ancillaryBest && !p.peakChanged) ? (
         <SectionCard compact centerTitle className="surface-primary" title={t("results.improvements.title")} titleClassName={RESULT_CARD_TITLE_CLASS}>
           <div className="surface-secondary rounded-[1rem] p-3">
             <div className="space-y-1.5">
@@ -800,12 +802,12 @@ function ResultStep() {
 
         <div className="mt-2 space-y-2">
           {/* All key figures below come from the FINAL simulation of the recommended system. */}
-          <TechGroup title={t("technical.usageGroup")}>
-            <Row
-              label={t("technical.cycles")}
-              value={nf(ancillaryBest ? ancillaryBest.equivalentFullCycles : e.equivalentFullCycles, 1)}
-            />
-          </TechGroup>
+          {/* Pure ancillary flow: the battery stands by, so a cycle count says nothing. */}
+          {ancillaryBest ? null : (
+            <TechGroup title={t("technical.usageGroup")}>
+              <Row label={t("technical.cycles")} value={nf(e.equivalentFullCycles, 1)} />
+            </TechGroup>
+          )}
 
           <TechGroup title={t("technical.powerGroup")}>
             {/* PV=0 flow: the technical pair comes from the ancillary scenario, whose
