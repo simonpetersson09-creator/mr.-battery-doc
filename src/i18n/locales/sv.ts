@@ -558,6 +558,7 @@ export const sv = {
       cta: "Köp rapport för {{price}}",
       ctaPending: "Köp rapport",
       loadingPrice: "Hämtar pris…",
+      adjustmentsIncluded: "Inkluderar 3 justeringar av framtida beräkningar.",
     },
     priceUnavailable: "Pris hämtas från App Store.",
     restore: "Återställ köp",
