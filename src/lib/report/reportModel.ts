@@ -287,7 +287,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
   if (hasSolar && e.shiftedSolarKWh > 0) {
     summaryParts.push(`${kwh(e.shiftedSolarKWh)}${copy.perYear} ${copy.summary.shifted}`);
   }
-  if (g.importPeakBeforeKw > 0 && s.peak.peakReductionKw !== 0) {
+  if (!ancillaryOnly && g.importPeakBeforeKw > 0 && s.peak.peakReductionKw !== 0) {
     const peakPct = (s.peak.peakReductionKw / g.importPeakBeforeKw) * 100;
     summaryParts.push(`${pct(peakPct, 1)} ${copy.summary.peakLower}`);
   }
@@ -363,31 +363,44 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
    * The result page shows these capacities inside the ordinary comparison cards, so the
    * report lists exactly the same simulated candidates — no separate scenario section. */
   if (ancSelected && ancScenario && ancScenario.candidates.length > 1) {
-    const rows: ReportRow[] = [];
+    /* Group the candidates by power size so the list reads as one block per kW level
+       instead of a single long pile. */
+    const byPower = new Map<number, typeof ancScenario.candidates>();
     for (const c of ancScenario.candidates) {
-      const label = `${kwh(c.capacityKWh)} / ${kw(c.powerKw, 1)}${
-        c.capacityKWh === ancSelected.capacityKWh && c.powerKw === ancSelected.powerKw
-          ? ` (${copy.ancillaryScenario.technicalTitle})`
-          : ""
-      }`;
-      rows.push({
-        label: `${label} — ${copy.ancillaryScenario.compensation}`,
-        value: perYear(c.ancillaryCustomerValueSek),
-        source: "calculated",
-      });
-      rows.push({
-        label: `${label} — ${copy.ancillaryScenario.totalBenefit}`,
-        value: perYear(c.customerBenefitSek),
-        source: "calculated",
-      });
-      rows.push({
-        label: `${label} — ${copy.ancillaryScenario.maxInvestment}`,
-        value:
-          c.maxInvestmentSek === null
-            ? copy.ancillaryScenario.maxInvestmentNone
-            : money(c.maxInvestmentSek),
-        source: "calculated",
-      });
+      const group = byPower.get(c.powerKw) ?? [];
+      group.push(c);
+      byPower.set(c.powerKw, group);
+    }
+    const candidateBlocks: ReportBlock[] = [];
+    for (const [power, group] of byPower) {
+      candidateBlocks.push({ kind: "subheading", text: kw(power, 1) });
+      const rows: ReportRow[] = [];
+      for (const c of group) {
+        const label = `${kwh(c.capacityKWh)}${
+          c.capacityKWh === ancSelected.capacityKWh && c.powerKw === ancSelected.powerKw
+            ? ` (${copy.ancillaryScenario.technicalTitle})`
+            : ""
+        }`;
+        rows.push({
+          label: `${label} — ${copy.ancillaryScenario.compensation}`,
+          value: perYear(c.ancillaryCustomerValueSek),
+          source: "calculated",
+        });
+        rows.push({
+          label: `${label} — ${copy.ancillaryScenario.totalBenefit}`,
+          value: perYear(c.customerBenefitSek),
+          source: "calculated",
+        });
+        rows.push({
+          label: `${label} — ${copy.ancillaryScenario.maxInvestment}`,
+          value:
+            c.maxInvestmentSek === null
+              ? copy.ancillaryScenario.maxInvestmentNone
+              : money(c.maxInvestmentSek),
+          source: "calculated",
+        });
+      }
+      candidateBlocks.push({ kind: "rows", rows });
     }
     sections.push({
       id: "ancillary-scenario",
@@ -396,7 +409,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       blocks: [
         { kind: "text", text: copy.ancillaryScenario.intro },
         { kind: "note", text: copy.ancillaryScenario.technicalHint },
-        { kind: "rows", rows },
+        ...candidateBlocks,
         { kind: "note", text: copy.ancillaryScenario.note },
       ],
     });
