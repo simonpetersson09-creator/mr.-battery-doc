@@ -54,6 +54,9 @@ function EconomyStep() {
   const years = state.preferences.targetPaybackYears;
   /* Slider range is 60–100 %; clamp older stored values into the range for display. */
   const sharePct = Math.min(100, Math.max(60, Math.round(state.preferences.customerAncillaryShare * 100)));
+  /* Without PV the energy/peak uses are off, so the price fields do not apply — shown but locked. */
+  const noSolar = state.production.mode === "none";
+  const lockedBadge = t("common.locked");
 
   const setEconomy = (patch: Partial<typeof state.economy>) =>
     update((s) => ({ ...s, economy: { ...s.economy, ...patch, touched: true } }));
@@ -108,6 +111,8 @@ function EconomyStep() {
           <NumberField
             dense
             compact
+            disabled={noSolar}
+            {...(noSolar ? { badge: lockedBadge } : {})}
             label={t("economics.importPrice.label")}
             unit={t("units.perKwh", { currency: unit })}
             step="0.01"
@@ -119,6 +124,8 @@ function EconomyStep() {
           <NumberField
             dense
             compact
+            disabled={noSolar}
+            {...(noSolar ? { badge: lockedBadge } : {})}
             label={t("economics.exportPrice.label")}
             unit={t("units.perKwh", { currency: unit })}
             step="0.01"
@@ -131,6 +138,8 @@ function EconomyStep() {
         <NumberField
           dense
           compact
+          disabled={noSolar}
+          {...(noSolar ? { badge: lockedBadge } : {})}
           label={t("economics.demandCharge.label")}
           unit={t("units.perKwMonth", { currency: unit })}
           step="1"

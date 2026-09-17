@@ -28,16 +28,17 @@ export function MonthGrid({
             <DecimalInput
               ariaLabel={m}
               placeholder="kWh"
-              value={values[i] ?? null}
+              /* Months are whole kWh for the customer — decimals only add noise. */
+              value={values[i] == null ? null : Math.round(values[i] as number)}
               onChange={(v) => onChange(i, v)}
-              className="ui-control ui-control-sm h-9 min-w-0 flex-1 tabular-nums"
+              className="ui-control ui-control-sm h-9 min-w-0 flex-1 text-center tabular-nums"
             />
           </label>
         ))}
       </div>
-      <p className="ui-help">
+      <p className="ui-help text-center">
         {t("monthlyImport.sum")}{" "}
-        <span className="tabular-nums text-foreground">{formatNumber(sum)}</span> kWh
+        <span className="tabular-nums text-foreground">{formatNumber(Math.round(sum))}</span> kWh
       </p>
     </div>
   );

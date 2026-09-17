@@ -12,6 +12,7 @@ export const sv = {
     done: "Klar",
     cancel: "Avbryt",
     restart: "Börja om",
+    locked: "Låst",
     step: "Steg {{current}} av {{total}}",
   },
   language: {

@@ -7,6 +7,7 @@ export const da = {
     done: "Færdig",
     cancel: "Annuller",
     restart: "Start forfra",
+    locked: "Låst",
     step: "Trin {{current}} af {{total}}",
   },
   language: {

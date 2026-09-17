@@ -7,6 +7,7 @@ export const de = {
     done: "Fertig",
     cancel: "Abbrechen",
     restart: "Neu beginnen",
+    locked: "Gesperrt",
     step: "Schritt {{current}} von {{total}}",
   },
   language: {

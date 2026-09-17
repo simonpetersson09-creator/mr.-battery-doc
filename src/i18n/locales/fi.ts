@@ -7,6 +7,7 @@ export const fi = {
     done: "Valmis",
     cancel: "Peruuta",
     restart: "Aloita alusta",
+    locked: "Lukittu",
     step: "Vaihe {{current}} / {{total}}",
   },
   language: {

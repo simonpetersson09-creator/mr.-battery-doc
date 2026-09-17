@@ -86,6 +86,7 @@ export function NumberField({
   dense,
   compact,
   error,
+  disabled,
 }: {
   label: string;
   unit?: string;
@@ -102,6 +103,8 @@ export function NumberField({
   compact?: boolean;
   /** Localized message from the step's validation — shown once the field is used. */
   error?: string | null;
+  /** Read-only field: shown but not editable (e.g. not applicable to the chosen setup). */
+  disabled?: boolean;
 }) {
   // An untouched, still-empty field stays quiet; a value the user entered (or an
   // invalid stored value) shows the message immediately.
@@ -123,6 +126,7 @@ export function NumberField({
       }}
       placeholder={placeholder}
       step={step}
+      disabled={disabled ?? false}
       className={`ui-control tabular-nums ${compact ? "h-9 ui-control-text-sm" : ""} ${unit ? "pr-[4.5rem]" : ""}${showError ? " border-destructive" : ""}`}
     />
   );
