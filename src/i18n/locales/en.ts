@@ -557,6 +557,7 @@ export const en = {
       cta: "Buy report for {{price}}",
       ctaPending: "Buy report",
       loadingPrice: "Fetching price…",
+      adjustmentsIncluded: "Includes 3 adjustments of future calculations.",
     },
     priceUnavailable: "Price comes from the App Store.",
     restore: "Restore purchases",

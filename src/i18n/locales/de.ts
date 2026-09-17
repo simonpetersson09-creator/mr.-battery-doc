@@ -564,6 +564,7 @@ export const de = {
       cta: "Bericht für {{price}} kaufen",
       ctaPending: "Bericht kaufen",
       loadingPrice: "Preis wird geladen…",
+      adjustmentsIncluded: "Enthält 3 Anpassungen künftiger Berechnungen.",
     },
     priceUnavailable: "Der Preis kommt aus dem App Store.",
     restore: "Käufe wiederherstellen",

@@ -557,6 +557,7 @@ export const da = {
       cta: "Køb rapport for {{price}}",
       ctaPending: "Køb rapport",
       loadingPrice: "Henter pris…",
+      adjustmentsIncluded: "Inkluderer 3 justeringer af fremtidige beregninger.",
     },
     priceUnavailable: "Prisen hentes fra App Store.",
     restore: "Gendan køb",
