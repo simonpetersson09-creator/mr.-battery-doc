@@ -43,10 +43,10 @@ function Welcome() {
           width={480}
           height={320}
         />
-        <h2 className="mt-4 text-[1.375rem] font-bold leading-tight tracking-tight">
+        <h2 className="mt-4 text-[1.25rem] font-bold leading-tight tracking-tight">
           {t("intro.title")}
         </h2>
-        <p className="mt-1.5 max-w-[20rem] text-[0.8125rem] leading-snug text-muted-foreground">
+        <p className="mt-1.5 max-w-[20rem] text-[0.75rem] leading-snug text-muted-foreground">
           {t("intro.subtitle")}
         </p>
 
