@@ -86,6 +86,7 @@ export function NumberField({
   dense,
   compact,
   error,
+  disabled,
 }: {
   label: string;
   unit?: string;
