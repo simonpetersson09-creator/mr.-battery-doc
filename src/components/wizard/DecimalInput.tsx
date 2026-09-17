@@ -48,7 +48,8 @@ export function DecimalInput({
       enterKeyHint="done"
       data-step={step}
       aria-label={ariaLabel}
-      className={className}
+      disabled={disabled ?? false}
+      className={(className ?? "") + (disabled ? " cursor-not-allowed opacity-60" : "")}
       value={text}
       placeholder={placeholder}
       onFocus={() => {
