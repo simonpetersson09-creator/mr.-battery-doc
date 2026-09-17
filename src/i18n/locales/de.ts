@@ -27,7 +27,7 @@ export const de = {
   },
   reserveProduct: {
     FCR: "FCR",
-    FCR_D_UP: "FCR-D up",
+    FCR_D_UP: "FCR-D auf und ab",
     generic: "Systemdienstleistungen",
   },
   units: {

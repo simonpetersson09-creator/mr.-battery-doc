@@ -26,7 +26,7 @@ export const fi = {
   },
   reserveProduct: {
     FCR: "FCR",
-    FCR_D_UP: "FCR-D ylös",
+    FCR_D_UP: "FCR-D ylös ja alas",
     generic: "reservipalvelut",
   },
   units: {

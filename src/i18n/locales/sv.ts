@@ -31,7 +31,7 @@ export const sv = {
   },
   reserveProduct: {
     FCR: "FCR",
-    FCR_D_UP: "FCR-D upp",
+    FCR_D_UP: "FCR-D upp och ned",
     generic: "stödtjänster",
   },
   units: {

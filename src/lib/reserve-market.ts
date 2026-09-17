@@ -65,8 +65,8 @@ const DK2: ReserveMarketConfig = {
   physics: "upward",
   datasetId: "DK2_FCR_D_UP_2025",
   priceArea: "DK2",
-  productLabel: "FCR-D upp",
-  marketLabel: "Energinet DK2 (FCR-D upp)",
+  productLabel: "FCR-D upp och ned",
+  marketLabel: "Energinet DK2 (FCR-D upp och ned)",
 };
 
 const SE: ReserveMarketConfig = {
@@ -77,8 +77,8 @@ const SE: ReserveMarketConfig = {
   physics: "upward",
   datasetId: "SE_FCR_D_UP_2025",
   priceArea: "SE",
-  productLabel: "FCR-D upp",
-  marketLabel: "Svenska kraftnät (FCR-D upp)",
+  productLabel: "FCR-D upp och ned",
+  marketLabel: "Svenska kraftnät (FCR-D upp och ned)",
 };
 
 const FI: ReserveMarketConfig = {
@@ -89,8 +89,8 @@ const FI: ReserveMarketConfig = {
   physics: "upward",
   datasetId: "FI_FCR_D_UP_2025",
   priceArea: "FI",
-  productLabel: "FCR-D upp",
-  marketLabel: "Fingrid (FCR-D upp)",
+  productLabel: "FCR-D upp och ned",
+  marketLabel: "Fingrid (FCR-D upp och ned)",
 };
 
 const DE: ReserveMarketConfig = {

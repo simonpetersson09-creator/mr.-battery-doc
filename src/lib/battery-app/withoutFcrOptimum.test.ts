@@ -145,7 +145,7 @@ describe("true without-FCR counterfactual", () => {
       withoutFcr: { ...wo, withoutFcrOptimalPowerKw: 5 },
     });
     expect(p.showPhysicalNeedRow).toBe(true);
-    expect(p.fcrPowerCardText).toContain("Utan FCR-D upp ger 5,0 kW");
+    expect(p.fcrPowerCardText).toContain("Utan FCR-D upp och ned ger 5,0 kW");
   });
 
   it("no counterfactual supplied -> no reconstructed level at all", () => {
@@ -174,7 +174,7 @@ describe("compact power explanation card", () => {
     expect(p.fcrPowerLevels).toHaveLength(3);
     expect(p.fcrPowerLevels[0]!.label).toBe("Fysiskt effektbehov");
     expect(p.fcrPowerLevels[0]!.kw).toBeCloseTo(3.5, 6);
-    expect(p.fcrPowerLevels[1]!.label).toBe("Utan FCR-D upp");
+    expect(p.fcrPowerLevels[1]!.label).toBe("Utan FCR-D upp och ned");
     expect(p.fcrPowerLevels[1]!.kw).toBe(5);
     expect(p.fcrPowerLevels[2]!.label).toBe("Med stödtjänst");
     expect(p.fcrPowerLevels[2]!.kw).toBeCloseTo(12.5, 6);
@@ -193,7 +193,7 @@ describe("compact power explanation card", () => {
     expect(p.showPhysicalNeedRow).toBe(true);
     expect(p.fcrPowerLevels).toHaveLength(3);
     expect(p.fcrPowerLevels[0]!.label).toBe("Fysiskt effektbehov");
-    expect(p.fcrPowerLevels[1]!.label).toBe("Utan FCR-D upp");
+    expect(p.fcrPowerLevels[1]!.label).toBe("Utan FCR-D upp och ned");
     expect(p.fcrPowerLevels[2]!.label).toBe("Med stödtjänst");
   });
 
