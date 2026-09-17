@@ -198,6 +198,9 @@ export const da = {
     title: "Økonomi",
     intro: "Standardværdier for {{country}}. Ret dem, hvis du vil.",
     prices: {
+      lockedNote:
+        "Priserne påvirker ikke beregningen, når du har valgt ingen solcelleanlæg – felterne er derfor låste.",
+      showFields: "Vis felterne alligevel",
       title: "Elpriser",
       description:
         "Standardværdier til at sammenligne forskellige batteriløsninger. Se din faktiske elregning for købt el, og tag udgangspunkt i din forventning til fremtidige priser for solgt solstrøm.",
@@ -336,6 +339,7 @@ export const da = {
       ancillaryHint:
         "Beregnet markedsværdi af den reserverede batterieffekt. Historiske priser 2025.",
       ancillaryNote: "Beregnet markedsværdi baseret på historiske priser fra 2025.",
+      priceBasis: "Baseret på systemydelsespriser fra 2025.",
     },
     limited: {
       title: "Begrænset økonomisk nytte",
@@ -419,6 +423,13 @@ export const da = {
     reservableNote:
       "Et separat gennemsnitligt mål for reserverbarhed – ikke den effekt, som betalingen beregnes ud fra.",
     selectedServices: "Valgte systemydelser",
+    limitingFactor: "Primær begrænsende faktor",
+    limiting: {
+      power: "Batterieffekten",
+      energy: "Batterikapaciteten",
+      grid: "Nettilslutningen",
+      none: "Ingen",
+    },
   },
   importantInformation: {
     title: "Vigtigt at vide",
