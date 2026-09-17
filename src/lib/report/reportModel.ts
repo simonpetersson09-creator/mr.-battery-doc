@@ -292,22 +292,39 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     summaryParts.push(`${pct(peakPct, 1)} ${copy.summary.peakLower}`);
   }
 
+  /* Ancillary-only: the separate benefit page repeated these same figures, so the
+     headline total moves up here and the front page carries the whole summary. */
+  const summaryBlocks: ReportBlock[] = ancillaryOnly
+    ? [
+        {
+          kind: "hero",
+          label: copy.benefit.total,
+          value: totalBenefitSek === null ? copy.cannotBeCalculated : perYear(totalBenefitSek),
+        },
+        {
+          kind: "cards",
+          items: summaryCards.filter((c) => c.label !== copy.summary.benefit),
+        },
+        { kind: "note", text: copy.benefit.note },
+      ]
+    : [
+        { kind: "cards", items: summaryCards },
+        ...(improvementRows.length
+          ? [
+              { kind: "subheading" as const, text: copy.summary.improvements },
+              { kind: "beforeAfter" as const, rows: improvementRows },
+            ]
+          : []),
+        ...(summaryParts.length
+          ? [{ kind: "note" as const, text: summaryParts.join(" · ") }]
+          : []),
+      ];
+
   sections.push({
     id: "summary",
     title: copy.summary.title,
     pageBreak: false,
-    blocks: [
-      { kind: "cards", items: summaryCards },
-      ...(improvementRows.length
-        ? [
-            { kind: "subheading" as const, text: copy.summary.improvements },
-            { kind: "beforeAfter" as const, rows: improvementRows },
-          ]
-        : []),
-      ...(summaryParts.length
-        ? [{ kind: "note" as const, text: summaryParts.join(" · ") }]
-        : []),
-    ],
+    blocks: summaryBlocks,
   });
 
   /* ============================ 2. BENEFIT ============================ */
@@ -339,25 +356,28 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     });
   }
 
-  sections.push({
-    id: "benefit",
-    title: copy.benefit.title,
-    pageBreak: true,
-    blocks: [
-      {
-        kind: "hero",
-        label: copy.benefit.total,
-        value:
-          totalBenefitSek === null
-            ? copy.cannotBeCalculated
-            : perYear(totalBenefitSek),
-      },
-      ...(benefitRows.length
-        ? [{ kind: "rows" as const, rows: benefitRows }]
-        : [{ kind: "text" as const, text: copy.benefit.none }]),
-      { kind: "note", text: copy.benefit.note },
-    ],
-  });
+  /* Ancillary-only: this page only repeated the summary figures, so it is omitted. */
+  if (!ancillaryOnly) {
+    sections.push({
+      id: "benefit",
+      title: copy.benefit.title,
+      pageBreak: true,
+      blocks: [
+        {
+          kind: "hero",
+          label: copy.benefit.total,
+          value:
+            totalBenefitSek === null
+              ? copy.cannotBeCalculated
+              : perYear(totalBenefitSek),
+        },
+        ...(benefitRows.length
+          ? [{ kind: "rows" as const, rows: benefitRows }]
+          : [{ kind: "text" as const, text: copy.benefit.none }]),
+        { kind: "note", text: copy.benefit.note },
+      ],
+    });
+  }
 
   /* ================= 2b. ANCILLARY-ONLY SIZES (same three cards as the app) =================
    * The result page shows these capacities inside the ordinary comparison cards, so the
@@ -374,33 +394,39 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     const candidateBlocks: ReportBlock[] = [];
     for (const [power, group] of byPower) {
       candidateBlocks.push({ kind: "subheading", text: kw(power, 1) });
-      const rows: ReportRow[] = [];
+      /* One separate three-row block per capacity, so the sizes are visually divided
+         instead of running together in one long table. */
       for (const c of group) {
         const label = `${kwh(c.capacityKWh)}${
           c.capacityKWh === ancSelected.capacityKWh && c.powerKw === ancSelected.powerKw
             ? ` (${copy.ancillaryScenario.technicalTitle})`
             : ""
         }`;
-        rows.push({
-          label: `${label} — ${copy.ancillaryScenario.compensation}`,
-          value: perYear(c.ancillaryCustomerValueSek),
-          source: "calculated",
-        });
-        rows.push({
-          label: `${label} — ${copy.ancillaryScenario.totalBenefit}`,
-          value: perYear(c.customerBenefitSek),
-          source: "calculated",
-        });
-        rows.push({
-          label: `${label} — ${copy.ancillaryScenario.maxInvestment}`,
-          value:
-            c.maxInvestmentSek === null
-              ? copy.ancillaryScenario.maxInvestmentNone
-              : money(c.maxInvestmentSek),
-          source: "calculated",
+        candidateBlocks.push({ kind: "subheading", text: label });
+        candidateBlocks.push({
+          kind: "rows",
+          rows: [
+            {
+              label: copy.ancillaryScenario.compensation,
+              value: perYear(c.ancillaryCustomerValueSek),
+              source: "calculated",
+            },
+            {
+              label: copy.ancillaryScenario.totalBenefit,
+              value: perYear(c.customerBenefitSek),
+              source: "calculated",
+            },
+            {
+              label: copy.ancillaryScenario.maxInvestment,
+              value:
+                c.maxInvestmentSek === null
+                  ? copy.ancillaryScenario.maxInvestmentNone
+                  : money(c.maxInvestmentSek),
+              source: "calculated",
+            },
+          ],
         });
       }
-      candidateBlocks.push({ kind: "rows", rows });
     }
     sections.push({
       id: "ancillary-scenario",
@@ -622,12 +648,16 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     energyRows.push({ label: copy.energy.cycles, value: num(e.equivalentFullCycles, 1), source: "calculated" });
   }
 
-  sections.push({
-    id: "energy",
-    title: copy.energy.title,
-    pageBreak: true,
-    blocks: [{ kind: "rows", rows: energyRows }],
-  });
+  /* Ancillary-only: the energy page would only list the yearly load plus standby
+     losses, which the assumptions page already covers — omitted. */
+  if (!ancillaryOnly) {
+    sections.push({
+      id: "energy",
+      title: copy.energy.title,
+      pageBreak: true,
+      blocks: [{ kind: "rows", rows: energyRows }],
+    });
+  }
 
   /* ============================ 6. GRID ============================ */
   const fuseA = input.site?.mainFuseA ?? cfg.grid.mainFuseA;
