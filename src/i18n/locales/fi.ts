@@ -57,7 +57,7 @@ export const fi = {
   },
   intro: {
     title: "Löydä oikea akku kiinteistöösi",
-    subtitle: "Mitoitus ja taloudellinen analyysi aurinkopaneeleiden akulle – tai itsenäinen akku järjestelmäpalveluihin.",
+    subtitle: "Mitoitus ja taloudellinen analyysi aurinkopaneeleiden akulle tai itsenäinen akku järjestelmäpalveluihin.",
     lead: "Vastaa muutamaan yksinkertaiseen kysymykseen kiinteistöstäsi, niin autamme löytämään sopivan akkukoon.",
     points: {
       capacity: {
@@ -74,8 +74,8 @@ export const fi = {
       },
     },
     stats: {
-      powerLabel: "Enintään 200 kW / 500 kWh",
-      powerSub: "akun koko",
+      powerLabel: "200 kW / 500 kWh",
+      powerSub: "max akun koko",
       simsLabel: "≈ 800 000",
       simsSub: "tuntikohtaista laskentaa per analyysi",
     },

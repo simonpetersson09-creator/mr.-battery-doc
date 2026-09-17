@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BatteryFull, Settings, TrendingUp, Wallet, Zap, Activity } from "lucide-react";
+import { ArrowRight, BatteryFull, LineChart, PiggyBank, Settings, Zap, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LanguageSelect } from "@/components/LanguageSelect";
 import logo from "@/assets/mr-battery-doc-logo.png";
@@ -26,8 +26,8 @@ export const Route = createFileRoute("/")({
 
 const POINTS = [
   { icon: BatteryFull, key: "intro.points.capacity" },
-  { icon: TrendingUp, key: "intro.points.economy" },
-  { icon: Wallet, key: "intro.points.investment" },
+  { icon: LineChart, key: "intro.points.economy" },
+  { icon: PiggyBank, key: "intro.points.investment" },
 ];
 
 function Welcome() {
@@ -69,18 +69,18 @@ function Welcome() {
         </ul>
 
         <div className="mt-5 flex w-full items-stretch justify-center gap-3">
-          <div className="flex flex-1 flex-col items-center gap-1 rounded-xl border border-border bg-card px-2.5 py-2.5 text-center">
-            <Zap className="size-4 text-accent" strokeWidth={2.5} />
-            <span className="text-[0.875rem] font-bold leading-tight">
+          <div className="flex flex-1 flex-col items-center gap-0.5 rounded-xl border border-border bg-card px-2.5 py-2 text-center">
+            <Zap className="size-3.5 text-accent" strokeWidth={2.5} />
+            <span className="text-[0.75rem] font-bold leading-tight">
               {t("intro.stats.powerLabel")}
             </span>
             <span className="text-[0.6875rem] leading-tight text-muted-foreground">
               {t("intro.stats.powerSub")}
             </span>
           </div>
-          <div className="flex flex-1 flex-col items-center gap-1 rounded-xl border border-border bg-card px-2.5 py-2.5 text-center">
-            <Activity className="size-4 text-accent" strokeWidth={2.5} />
-            <span className="text-[0.875rem] font-bold leading-tight">
+          <div className="flex flex-1 flex-col items-center gap-0.5 rounded-xl border border-border bg-card px-2.5 py-2 text-center">
+            <Activity className="size-3.5 text-accent" strokeWidth={2.5} />
+            <span className="text-[0.75rem] font-bold leading-tight">
               {t("intro.stats.simsLabel")}
             </span>
             <span className="text-[0.6875rem] leading-tight text-muted-foreground">
@@ -92,9 +92,9 @@ function Welcome() {
         <div className="mt-6 flex w-full items-stretch gap-2">
           <Button
             asChild
-            variant="cta"
+            variant="secondary"
             aria-label={t("settings.title")}
-            className="h-12 w-12 shrink-0 rounded-[0.875rem] shadow-cta"
+            className="h-12 w-12 shrink-0 rounded-[0.875rem] shadow-sm"
           >
             <Link to="/installningar">
               <Settings className="size-5" strokeWidth={2.5} />

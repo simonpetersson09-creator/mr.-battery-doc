@@ -58,7 +58,7 @@ export const de = {
   },
   intro: {
     title: "Finden Sie die richtige Batterie für Ihre Immobilie",
-    subtitle: "Dimensionierung und Wirtschaftlichkeitsanalyse für Batterie mit Solar – oder eigenständige Batterie für Systemdienstleistungen.",
+    subtitle: "Dimensionierung und Wirtschaftlichkeitsanalyse für Batterie mit Solar oder eigenständige Batterie für Systemdienstleistungen.",
     lead: "Beantworten Sie ein paar einfache Fragen zu Ihrer Immobilie, und wir helfen Ihnen, eine passende Batteriegröße zu finden.",
     points: {
       capacity: {
@@ -75,8 +75,8 @@ export const de = {
       },
     },
     stats: {
-      powerLabel: "Bis zu 200 kW / 500 kWh",
-      powerSub: "Batteriegröße",
+      powerLabel: "200 kW / 500 kWh",
+      powerSub: "max Batteriegröße",
       simsLabel: "≈ 800.000",
       simsSub: "Stundenberechnungen pro Analyse",
     },
