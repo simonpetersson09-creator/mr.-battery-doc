@@ -87,6 +87,6 @@ describe("country ancillary market config", () => {
   it("handles Denmark only through DK1/DK2, never a generic DK market", () => {
     expect(reserveMarketConfig("DK")).toBeNull();
     expect(reserveMarketConfig("DK", "DK1")!.productLabel).toBe("FCR");
-    expect(reserveMarketConfig("DK", "DK2")!.productLabel).toBe("FCR-D upp");
+    expect(reserveMarketConfig("DK", "DK2")!.productLabel).toBe("FCR-D upp och ned");
   });
 });
