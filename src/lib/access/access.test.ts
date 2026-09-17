@@ -12,10 +12,13 @@ import { calculationId } from "./calculationId";
 import { clearCalculationCache, getCalculation } from "./calculationCache";
 import {
   EMPTY_ENTITLEMENTS,
+  consumeAdjustmentCredit,
+  hasAdjustmentCredit,
   hasResultAccess,
   isPremiumActive,
   parseEntitlements,
   withPremium,
+  withPurchasedCalculation,
   withUnlockedCalculation,
 } from "./entitlements";
 import { applyPurchase, applyRestore } from "./applyPurchase";
