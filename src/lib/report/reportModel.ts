@@ -988,7 +988,9 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     raw: {
       capacityKWh,
       powerKw,
-      totalCustomerBenefitSek: ce.totalCustomerBenefitSek,
+      /* Same number the customer sees: in the ancillary-only case the selected pair's
+         customer benefit, otherwise the engine total with the share applied. */
+      totalCustomerBenefitSek: totalBenefitSek,
       energyBenefitSek: ce.energyBenefitSek,
       peakBenefitSek: ce.peakBenefitSek,
       ancillaryMarketValueSek: ce.ancillaryMarketValueSek,
