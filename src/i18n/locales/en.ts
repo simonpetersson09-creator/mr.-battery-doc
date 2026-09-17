@@ -423,7 +423,7 @@ export const en = {
     reservableNote:
       "A separate average reservability measure – not the power the compensation is calculated from.",
     selectedServices: "Selected services",
-    limitingFactor: "Primary limiting factor",
+    limitingFactor: "What limits the battery size",
     limiting: {
       power: "Battery power",
       energy: "Battery capacity",

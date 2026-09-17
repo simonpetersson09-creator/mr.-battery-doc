@@ -423,7 +423,7 @@ export const da = {
     reservableNote:
       "Et separat gennemsnitligt mål for reserverbarhed – ikke den effekt, som betalingen beregnes ud fra.",
     selectedServices: "Valgte systemydelser",
-    limitingFactor: "Primær begrænsende faktor",
+    limitingFactor: "Hvad begrænser batteristørrelsen",
     limiting: {
       power: "Batterieffekten",
       energy: "Batterikapaciteten",

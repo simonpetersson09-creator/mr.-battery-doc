@@ -427,7 +427,7 @@ export const de = {
     reservableNote:
       "Ein separater durchschnittlicher Reservierbarkeitswert – nicht die Leistung, auf der die Vergütung basiert.",
     selectedServices: "Gewählte Systemdienstleistungen",
-    limitingFactor: "Primärer begrenzender Faktor",
+    limitingFactor: "Was die Batteriegröße begrenzt",
     limiting: {
       power: "Batterieleistung",
       energy: "Batteriekapazität",
