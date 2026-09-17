@@ -79,8 +79,8 @@ export const en = {
     stats: {
       powerLabel: "Up to 200 kW",
       powerSub: "battery",
-      simsLabel: "8,760",
-      simsSub: "hourly simulations per analysis",
+      simsLabel: "3.5 million",
+      simsSub: "simulations per analysis",
     },
     cta: "Get started",
     footnote: "Takes about three minutes. Your answers are saved as you go.",

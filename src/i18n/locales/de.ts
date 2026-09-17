@@ -79,8 +79,8 @@ export const de = {
     stats: {
       powerLabel: "Bis zu 200 kW",
       powerSub: "Batterie",
-      simsLabel: "8.760",
-      simsSub: "Stundensimulationen pro Analyse",
+      simsLabel: "3,5 Millionen",
+      simsSub: "Simulationen pro Analyse",
     },
     cta: "Loslegen",
     footnote: "Dauert etwa drei Minuten. Ihre Angaben werden währenddessen gespeichert.",

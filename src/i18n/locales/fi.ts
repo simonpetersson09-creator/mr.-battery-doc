@@ -78,8 +78,8 @@ export const fi = {
     stats: {
       powerLabel: "Enintään 200 kW",
       powerSub: "akku",
-      simsLabel: "8 760",
-      simsSub: "tuntisimulaatiota per analyysi",
+      simsLabel: "3,5 miljoonaa",
+      simsSub: "simulaatiota per analyysi",
     },
     cta: "Aloita",
     footnote: "Kestää noin kolme minuuttia. Vastauksesi tallentuvat matkan varrella.",
