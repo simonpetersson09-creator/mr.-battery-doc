@@ -220,6 +220,10 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
   const maxInvestment = ancSelected
     ? ancSelected.maxInvestmentSek
     : maxInvestmentSek(ce.totalCustomerBenefitSek, targetYears);
+  /* Same total as the result page: in the ancillary-only case it is the selected pair's
+     customer benefit, so the headline, the cards and max investment all agree. */
+  const totalBenefitSek =
+    ancResult && ancSelected ? ancSelected.customerBenefitSek : ce.totalCustomerBenefitSek;
   const productLabel = reserveProductName(country, input.site?.marketArea ?? null);
   const yearsLabel = String(req.language) === "sv" ? "år" : "years";
 
