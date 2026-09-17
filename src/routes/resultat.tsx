@@ -336,13 +336,8 @@ function ResultStep() {
   const peakPct =
     g.importPeakBeforeKw > 0 ? (s.peak.peakReductionKw / g.importPeakBeforeKw) * 100 : 0;
 
-  /* Primary limiting factor — the ancillary-only flow reads it from the selected
-     candidate's own simulated run, the ordinary flow from the final simulation. */
-  const fcrLimitingFactor = ancillaryBest
-    ? (ancillaryScenario?.selectedResult?.summary.fcr.limitingFactor ?? null)
-    : s.fcr.enabled
-      ? s.fcr.limitingFactor
-      : null;
+
+
 
   /*
     Report entry point. The report must always be built from `outcome` — the current
