@@ -801,22 +801,45 @@ function ResultStep() {
         <div className="mt-2 space-y-2">
           {/* All key figures below come from the FINAL simulation of the recommended system. */}
           <TechGroup title={t("technical.usageGroup")}>
-            <Row label={t("technical.cycles")} value={nf(e.equivalentFullCycles, 1)} />
+            <Row
+              label={t("technical.cycles")}
+              value={nf(ancillaryBest ? ancillaryBest.equivalentFullCycles : e.equivalentFullCycles, 1)}
+            />
           </TechGroup>
 
           <TechGroup title={t("technical.powerGroup")}>
-            <Row label={t("technical.recommendedPower")} value={kw(p.recommendedPowerKw, 1)} />
-            <Row label={t("technical.physicalNeed")} value={kw(p.physicalPowerNeedKw, 1)} />
-            {p.powerCapNote ? <p className="ui-help">{p.powerCapNote}</p> : null}
-            {p.fcrHeldPowerKw !== null ? (
-              <Row label={t("technical.heldPower")} value={kw(p.fcrHeldPowerKw, 2)} />
-            ) : null}
-            <Row label={t("technical.cRate")} value={`${nf(p.systemCRate, 2)} C`} />
-            {/* Reserved power and active services — only when ancillary services are enabled. */}
-            {s.fcr.enabled ? (
+            {/* PV=0 flow: the technical pair comes from the ancillary scenario, whose
+                simulated run carries the real capacity/power — never the 0 kWh base run. */}
+            <Row
+              label={t("technical.recommendedPower")}
+              value={kw(ancillaryBest ? ancillaryBest.powerKw : p.recommendedPowerKw, 1)}
+            />
+            {ancillaryBest ? null : (
               <>
-                <Row label={t("technical.reservedPower")} value={kw(s.fcr.avgHeldPowerKw, 2)} />
-                {p.fcrReservableAvgPowerKw !== null ? (
+                <Row label={t("technical.physicalNeed")} value={kw(p.physicalPowerNeedKw, 1)} />
+                {p.powerCapNote ? <p className="ui-help">{p.powerCapNote}</p> : null}
+                {p.fcrHeldPowerKw !== null ? (
+                  <Row label={t("technical.heldPower")} value={kw(p.fcrHeldPowerKw, 2)} />
+                ) : null}
+              </>
+            )}
+            <Row
+              label={t("technical.cRate")}
+              value={`${nf(ancillaryBest ? ancillaryBest.cRate : p.systemCRate, 2)} C`}
+            />
+            {/* Reserved power and active services — ancillary flow or enabled services. */}
+            {ancillaryBest || s.fcr.enabled ? (
+              <>
+                <Row
+                  label={t("technical.reservedPower")}
+                  value={kw(
+                    ancillaryBest
+                      ? (ancillaryBest.paidUpKw + ancillaryBest.paidDownKw) / 2
+                      : s.fcr.avgHeldPowerKw,
+                    2,
+                  )}
+                />
+                {!ancillaryBest && p.fcrReservableAvgPowerKw !== null ? (
                   <>
                     <Row
                       label={t("technical.reservablePower")}
