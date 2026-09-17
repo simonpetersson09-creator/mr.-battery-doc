@@ -294,8 +294,12 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     pageBreak: false,
     blocks: [
       { kind: "cards", items: summaryCards },
-      { kind: "subheading", text: copy.summary.improvements },
-      { kind: "beforeAfter", rows: improvementRows },
+      ...(improvementRows.length
+        ? [
+            { kind: "subheading" as const, text: copy.summary.improvements },
+            { kind: "beforeAfter" as const, rows: improvementRows },
+          ]
+        : []),
       ...(summaryParts.length
         ? [{ kind: "note" as const, text: summaryParts.join(" · ") }]
         : []),
