@@ -112,7 +112,7 @@ function EconomyStep() {
             dense
             compact
             disabled={noSolar}
-            badge={noSolar ? lockedBadge : undefined}
+            {...(noSolar ? { badge: lockedBadge } : {})}
             label={t("economics.importPrice.label")}
             unit={t("units.perKwh", { currency: unit })}
             step="0.01"
@@ -125,7 +125,7 @@ function EconomyStep() {
             dense
             compact
             disabled={noSolar}
-            badge={noSolar ? lockedBadge : undefined}
+            {...(noSolar ? { badge: lockedBadge } : {})}
             label={t("economics.exportPrice.label")}
             unit={t("units.perKwh", { currency: unit })}
             step="0.01"
@@ -139,7 +139,7 @@ function EconomyStep() {
           dense
           compact
           disabled={noSolar}
-          badge={noSolar ? lockedBadge : undefined}
+          {...(noSolar ? { badge: lockedBadge } : {})}
           label={t("economics.demandCharge.label")}
           unit={t("units.perKwMonth", { currency: unit })}
           step="1"
