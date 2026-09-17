@@ -44,7 +44,7 @@ import { defaultConfig } from "@/lib/lab/defaults";
 import {
   clampCustomerAncillaryShare,
   clampTargetPaybackYears,
-  customerBenefitFromTotals,
+  
   maxInvestmentSek,
   DEFAULT_CUSTOMER_ANCILLARY_SHARE,
   DEFAULT_TARGET_PAYBACK_YEARS,
