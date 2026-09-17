@@ -57,10 +57,10 @@ function Welcome() {
                 <Icon className="size-4" strokeWidth={2.5} />
               </span>
               <span className="flex flex-col gap-0.5 pt-0.5">
-                <span className="text-[0.875rem] font-semibold leading-tight">
+                <span className="text-[0.8125rem] font-semibold leading-tight">
                   {t(`${key}.title`)}
                 </span>
-                <span className="text-[0.75rem] leading-snug text-muted-foreground">
+                <span className="text-[0.6875rem] leading-snug text-muted-foreground">
                   {t(`${key}.desc`)}
                 </span>
               </span>
