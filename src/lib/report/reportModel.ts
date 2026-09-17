@@ -33,6 +33,7 @@ import {
   type CountryCode,
 } from "@/lib/country-config";
 import { getReportCopy, type ReportCopy } from "./copy";
+import { ancillaryPlan } from "@/lib/lab/ancillary";
 
 export type SourceTag = "user" | "calculated" | "default" | "external";
 
@@ -59,6 +60,11 @@ export interface ReportAlternativeItem {
 
 export type ReportBlock =
   | { kind: "cards"; items: { label: string; value: string }[] }
+  | {
+      kind: "keyFigures";
+      primary: { label: string; value: string };
+      secondary: { label: string; value: string }[];
+    }
   | { kind: "rows"; rows: ReportRow[] }
   | { kind: "beforeAfter"; rows: ReportBeforeAfterRow[] }
   | { kind: "alternatives"; items: ReportAlternativeItem[] }
@@ -182,6 +188,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       )
     : req.customerEconomy;
   const cfg = result.diagnostics.config;
+  const servicePlan = ancillaryPlan(cfg.ancillary);
 
   const country = (input.site?.country ?? "SE") as CountryCode;
   const locale = numberLocale((req.language === "sv" ? "sv" : "en") as Language);
@@ -286,12 +293,12 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
   const summaryBlocks: ReportBlock[] = ancillaryOnly
     ? [
         {
-          kind: "cards",
-          items: [
-            {
-              label: copy.ancillaryOnly.summaryProposal,
-              value: `${kwh(capacityKWh)} / ${kw(powerKw, 1)}`,
-            },
+          kind: "keyFigures",
+          primary: {
+            label: copy.ancillaryOnly.summaryProposal,
+            value: `${kwh(capacityKWh)} / ${kw(powerKw, 1)}`,
+          },
+          secondary: [
             {
               label: copy.ancillaryOnly.summaryBenefit,
               value: totalBenefitSek === null ? copy.cannotBeCalculated : perYear(totalBenefitSek),
@@ -794,11 +801,26 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
           value: `${num(battery.minSocPct)} – ${num(battery.maxSocPct)} %`,
           source: "default",
         },
-        {
-          label: copy.assumptions.reserveSoc,
-          value: pct(battery.reserveSocPct),
-          source: "default",
-        },
+        ...(ancillaryOnly && servicePlan
+          ? [
+              {
+                label: copy.assumptions.serviceSocUp,
+                value: `${num(servicePlan.serviceMinSocPct)} – ${num(battery.maxSocPct)} %`,
+                source: "default" as const,
+              },
+              {
+                label: copy.assumptions.serviceSocDown,
+                value: `${num(battery.minSocPct)} – ${num(servicePlan.serviceMaxSocPct)} %`,
+                source: "default" as const,
+              },
+            ]
+          : [
+              {
+                label: copy.assumptions.reserveSoc,
+                value: pct(battery.reserveSocPct),
+                source: "default" as const,
+              },
+            ]),
         ...(!ancillaryOnly && battery.maxCyclesPerYear > 0
           ? [
               {
@@ -964,6 +986,10 @@ export function collectReportText(model: ReportModel): string[] {
       switch (block.kind) {
         case "cards":
           for (const c of block.items) out.push(c.label, c.value);
+          break;
+        case "keyFigures":
+          out.push(block.primary.label, block.primary.value);
+          for (const c of block.secondary) out.push(c.label, c.value);
           break;
         case "rows":
           for (const row of block.rows) {

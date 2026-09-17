@@ -192,6 +192,8 @@ export interface ReportCopy {
     efficiency: string;
     socWindow: string;
     reserveSoc: string;
+    serviceSocUp: string;
+    serviceSocDown: string;
     maxCycles: string;
     importPrice: string;
     exportPrice: string;
@@ -480,6 +482,8 @@ const sv: ReportCopy = {
     efficiency: "Verkningsgrad (round trip)",
     socWindow: "SOC-gränser",
     reserveSoc: "Reserverad SOC",
+    serviceSocUp: "Service-SOC, uppreglering",
+    serviceSocDown: "Service-SOC, nedreglering",
     maxCycles: "Maximalt antal cykler per år",
     importPrice: "Köpt el",
     exportPrice: "Såld solel",
@@ -847,6 +851,8 @@ const en: ReportCopy = {
     efficiency: "Round-trip efficiency",
     socWindow: "SOC limits",
     reserveSoc: "Reserved SOC",
+    serviceSocUp: "Service SOC, upward regulation",
+    serviceSocDown: "Service SOC, downward regulation",
     maxCycles: "Maximum cycles per year",
     importPrice: "Purchased electricity",
     exportPrice: "Sold solar",

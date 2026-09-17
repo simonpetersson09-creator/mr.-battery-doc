@@ -117,6 +117,62 @@ function cards(items: { label: string; value: string }[]): Node {
   );
 }
 
+/** Premium first-page hierarchy: one technical proposal plus two customer outcomes. */
+function keyFigures(block: Extract<ReportBlock, { kind: "keyFigures" }>): Node {
+  return {
+    stack: [
+      cardRow(
+        [
+          {
+            stack: [
+              {
+                text: block.primary.label,
+                fontSize: 9,
+                bold: true,
+                alignment: "center",
+                margin: [0, 13, 0, 0],
+              },
+              {
+                text: block.primary.value,
+                fontSize: 23,
+                bold: true,
+                alignment: "center",
+                margin: [0, 7, 0, 0],
+              },
+            ],
+          },
+        ],
+        82,
+        58,
+        8,
+      ),
+      cardRow(
+        block.secondary.map((item) => ({
+          fill: REPORT_COLORS.secondary,
+          stack: [
+            {
+              text: item.label,
+              fontSize: 8,
+              bold: true,
+              alignment: "center",
+              margin: [0, 11, 0, 0],
+            },
+            {
+              text: item.value,
+              fontSize: 16,
+              bold: true,
+              alignment: "center",
+              margin: [0, 7, 0, 0],
+            },
+          ],
+        })),
+        76,
+        52,
+      ),
+    ],
+  };
+}
+
 function rowsTable(model: ReportModel, block: Extract<ReportBlock, { kind: "rows" }>): Node {
   const showSource = block.rows.some((r) => r.source);
   const widths = showSource ? ["*", "auto", 82] : ["*", "auto"];
@@ -270,6 +326,8 @@ function renderBlock(model: ReportModel, block: ReportBlock): Node {
   switch (block.kind) {
     case "cards":
       return cards(block.items);
+    case "keyFigures":
+      return keyFigures(block);
     case "rows":
       return rowsTable(model, block);
     case "beforeAfter":
