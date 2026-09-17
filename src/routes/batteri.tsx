@@ -28,24 +28,24 @@ function BatteryStep() {
     update((prev) => ({ ...prev, strategies: { ...prev.strategies, [key]: v } }));
 
   /**
-   * Without a PV system the two SOLAR-driven uses have nothing to work with, so they are
-   * switched off and locked. Peak shaving is NOT solar dependent: the customer's own load
-   * peaks are a real battery need with or without PV, so it stays available. Ancillary
-   * services stay available too: the battery can be compensated for standing by.
+   * Without a PV system the energy-driven uses are switched off and locked, so the no-solar
+   * flow is a pure ancillary-service case. Ancillary services stay available: the battery
+   * can be compensated for standing by.
    */
   const noSolar = state.production.mode === "none";
   useEffect(() => {
     if (!noSolar) return;
-    if (!s.solarSelfConsumption && !s.reducedGridImport) return;
+    if (!s.solarSelfConsumption && !s.reducedGridImport && !s.peakShaving) return;
     update((prev) => ({
       ...prev,
       strategies: {
         ...prev.strategies,
         solarSelfConsumption: false,
         reducedGridImport: false,
+        peakShaving: false,
       },
     }));
-  }, [noSolar, s.solarSelfConsumption, s.reducedGridImport, update]);
+  }, [noSolar, s.solarSelfConsumption, s.reducedGridImport, s.peakShaving, update]);
 
   return (
     <WizardShell compact stepIndex={3} title={t("strategies.title")} intro={t("strategies.intro")}>
