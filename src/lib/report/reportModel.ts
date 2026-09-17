@@ -297,14 +297,23 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
   const summaryBlocks: ReportBlock[] = ancillaryOnly
     ? [
         {
-          kind: "hero",
-          label: copy.benefit.total,
-          value: totalBenefitSek === null ? copy.cannotBeCalculated : perYear(totalBenefitSek),
-        },
-        {
           kind: "cards",
-          items: summaryCards.filter((c) => c.label !== copy.summary.benefit),
+          items: [
+            {
+              label: copy.ancillaryOnly.summaryProposal,
+              value: `${kwh(capacityKWh)} / ${kw(powerKw, 1)}`,
+            },
+            {
+              label: copy.ancillaryOnly.summaryBenefit,
+              value: totalBenefitSek === null ? copy.cannotBeCalculated : perYear(totalBenefitSek),
+            },
+            {
+              label: copy.ancillaryOnly.summaryMaxInvestment,
+              value: maxInvestment === null ? copy.cannotBeCalculated : money(maxInvestment),
+            },
+          ],
         },
+        { kind: "text", text: copy.ancillaryOnly.summaryExplanation },
         { kind: "note", text: copy.benefit.note },
       ]
     : [
@@ -433,10 +442,9 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       title: copy.ancillaryScenario.title,
       pageBreak: true,
       blocks: [
-        { kind: "text", text: copy.ancillaryScenario.intro },
-        { kind: "note", text: copy.ancillaryScenario.technicalHint },
+        { kind: "text", text: copy.ancillaryOnly.comparisonIntro },
         ...candidateBlocks,
-        { kind: "note", text: copy.ancillaryScenario.note },
+        { kind: "note", text: copy.ancillaryOnly.comparisonExplanation },
       ],
     });
   }
@@ -453,15 +461,9 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
             ? copy.ancillary.limitingGrid
             : copy.ancillary.limitingNone;
 
-    // Primary customer view: one single power measure — the compensable power.
+    // Primary customer view: the four values a homeowner needs first.
     const rows: ReportRow[] = [
       { label: copy.ancillary.product, value: productLabel, source: "user" },
-      {
-        label: copy.ancillary.monetized,
-        value: kw(fcr.monetizedPowerKw, 1),
-        source: "calculated",
-      },
-      { label: copy.ancillary.availability, value: pct(fcr.availabilityPct), source: "calculated" },
       { label: copy.ancillary.limiting, value: limitingLabel, source: "calculated" },
       {
         label: copy.ancillary.reservedEnergy,
@@ -477,6 +479,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
 
     // Transparency only: separate technical power measures.
     const technicalRows: ReportRow[] = [
+      { label: copy.summary.power, value: kw(powerKw, 1), source: "calculated" },
       { label: copy.ancillary.offered, value: kw(fcr.offeredPowerKw, 1), source: "calculated" },
       {
         label: copy.ancillary.reservable,
@@ -516,13 +519,47 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       title: copy.ancillary.title,
       pageBreak: true,
       blocks: [
+        ...(ancillaryOnly
+          ? [
+              {
+                kind: "cards" as const,
+                items: [
+                  {
+                    label: copy.ancillaryOnly.serviceCompensation,
+                    value: ancillaryPriced
+                      ? perYear(ce.ancillaryCustomerValueSek)
+                      : copy.cannotBeCalculated,
+                  },
+                  {
+                    label: copy.ancillary.monetized,
+                    value: kw(fcr.monetizedPowerKw, 1),
+                  },
+                  {
+                    label: copy.ancillary.availability,
+                    value: pct(fcr.availabilityPct),
+                  },
+                  {
+                    label: copy.ancillaryOnly.servicePriceBasis,
+                    value: fcr.historicalReferenceYear
+                      ? `${copy.ancillary.priceBasisValue} ${fcr.historicalReferenceYear}`
+                      : copy.ancillary.priceBasisValue,
+                  },
+                ],
+              },
+            ]
+          : []),
         { kind: "rows", rows },
         ...(ancillaryPriced
           ? []
           : [{ kind: "text" as const, text: copy.ancillary.noPriceData }]),
         { kind: "text" as const, text: copy.ancillary.technicalTitle },
         { kind: "rows" as const, rows: technicalRows },
-        { kind: "note", text: copy.ancillary.technicalNote },
+        {
+          kind: "note",
+          text: ancillaryOnly
+            ? copy.ancillaryOnly.servicePowerExplanation
+            : copy.ancillary.technicalNote,
+        },
         { kind: "note", text: copy.ancillary.note },
       ],
     });
@@ -542,40 +579,44 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     highlight: a.level === "recommended",
   }));
 
+  const sizingRows: ReportRow[] = [
+    {
+      label: copy.sizing.capacity,
+      value: capacityAtSearchLimit
+        ? atLeast(copy.searchLimit.atLeastCapacity, kwh(capacityKWh))
+        : kwh(capacityKWh),
+      source: "calculated",
+    },
+    {
+      label: copy.sizing.power,
+      value: powerAtSearchLimit
+        ? atLeast(copy.searchLimit.atLeastPower, kw(powerKw, 1))
+        : kw(powerKw, 1),
+      source: "calculated",
+    },
+    {
+      label: copy.sizing.cRate,
+      value: capacityKWh > 0 ? num(powerKw / capacityKWh, 2) : copy.notAvailable,
+      source: "calculated",
+    },
+  ];
+  if (!ancillaryOnly) {
+    sizingRows.push({
+      label: copy.sizing.physicalNeed,
+      value: kw(r.physicalPowerNeedKw, 1),
+      source: "calculated",
+    });
+  }
+
   sections.push({
     id: "sizing",
     title: copy.sizing.title,
     pageBreak: true,
     blocks: [
-      {
-        kind: "rows",
-        rows: [
-          {
-            label: copy.sizing.capacity,
-            value: capacityAtSearchLimit
-              ? atLeast(copy.searchLimit.atLeastCapacity, kwh(capacityKWh))
-              : kwh(capacityKWh),
-            source: "calculated",
-          },
-          {
-            label: copy.sizing.power,
-            value: powerAtSearchLimit
-              ? atLeast(copy.searchLimit.atLeastPower, kw(powerKw, 1))
-              : kw(powerKw, 1),
-            source: "calculated",
-          },
-          {
-            label: copy.sizing.cRate,
-            value: capacityKWh > 0 ? num(powerKw / capacityKWh, 2) : copy.notAvailable,
-            source: "calculated",
-          },
-          {
-            label: copy.sizing.physicalNeed,
-            value: kw(r.physicalPowerNeedKw, 1),
-            source: "calculated",
-          },
-        ],
-      },
+      ...(ancillaryOnly
+        ? [{ kind: "subheading" as const, text: copy.ancillaryOnly.sizingProposal }]
+        : []),
+      { kind: "rows", rows: sizingRows },
       ...(alternativeItems.length
         ? [
             { kind: "subheading" as const, text: copy.sizing.alternatives },
@@ -594,7 +635,10 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       ...(capacityAtSearchLimit && powerAtSearchLimit
         ? [{ kind: "note" as const, text: copy.searchLimit.bothNote }]
         : []),
-      { kind: "note", text: copy.sizing.balance },
+      {
+        kind: "note",
+        text: ancillaryOnly ? copy.ancillaryOnly.sizingExplanation : copy.sizing.balance,
+      },
     ],
   });
 
@@ -730,9 +774,17 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
         value: money(maxInvestmentSek(totalBenefitSek, y)),
       })),
     });
-    investmentBlocks.push({ kind: "text", text: copy.investment.explanation });
+    investmentBlocks.push({
+      kind: "text",
+      text: ancillaryOnly
+        ? copy.ancillaryOnly.investmentExplanation
+        : copy.investment.explanation,
+    });
   }
-  investmentBlocks.push({ kind: "note", text: copy.investment.notAQuote });
+  investmentBlocks.push({
+    kind: "note",
+    text: ancillaryOnly ? copy.ancillaryOnly.investmentNotAQuote : copy.investment.notAQuote,
+  });
 
   sections.push({
     id: "investment",
@@ -796,24 +848,32 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
           value: pct(battery.reserveSocPct),
           source: "default",
         },
-        {
-          label: copy.assumptions.maxCycles,
-          value: battery.maxCyclesPerYear > 0 ? num(battery.maxCyclesPerYear) : copy.notAvailable,
-          source: "default",
-        },
+        ...(!ancillaryOnly && battery.maxCyclesPerYear > 0
+          ? [
+              {
+                label: copy.assumptions.maxCycles,
+                value: num(battery.maxCyclesPerYear),
+                source: "default" as const,
+              },
+            ]
+          : []),
       ],
     },
     { kind: "subheading", text: copy.assumptions.economy },
     {
       kind: "rows",
       rows: [
-        {
-          label: copy.assumptions.importPrice,
-          value: isFiniteNumber(economyIn.importEnergyPriceSekPerKWh)
-            ? `${money(economyIn.importEnergyPriceSekPerKWh, 2)}/kWh`
-            : copy.notAvailable,
-          source: "user",
-        },
+        ...(!ancillaryOnly
+          ? [
+              {
+                label: copy.assumptions.importPrice,
+                value: isFiniteNumber(economyIn.importEnergyPriceSekPerKWh)
+                  ? `${money(economyIn.importEnergyPriceSekPerKWh, 2)}/kWh`
+                  : copy.notAvailable,
+                source: "user" as const,
+              },
+            ]
+          : []),
         ...(hasSolar
           ? [
               {
@@ -887,7 +947,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     pageBreak: true,
     blocks: [
       { kind: "text", text: copy.risks.text },
-      { kind: "list", items: copy.risks.items },
+      { kind: "list", items: ancillaryOnly ? copy.ancillaryOnly.risks : copy.risks.items },
     ],
   });
 
@@ -895,7 +955,12 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     id: "installer",
     title: copy.installer.title,
     pageBreak: false,
-    blocks: [{ kind: "checklist", items: copy.installer.items }],
+    blocks: [
+      {
+        kind: "checklist",
+        items: ancillaryOnly ? copy.ancillaryOnly.installer : copy.installer.items,
+      },
+    ],
   });
 
   /* ============================ 10. FAQ ============================ */
@@ -904,7 +969,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     title: copy.faq.title,
     pageBreak: true,
     blocks: [
-      { kind: "faq", items: copy.faq.items },
+      { kind: "faq", items: ancillaryOnly ? copy.ancillaryOnly.faq : copy.faq.items },
       {
         kind: "note",
         text: `${copy.reportIdLabel}: ${reportId} · ${copy.created}: ${createdISO} · ${copy.engineVersionLabel}: ${BATTERY_ENGINE_VERSION}`,
