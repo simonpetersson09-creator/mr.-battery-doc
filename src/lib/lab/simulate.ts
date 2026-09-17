@@ -7,7 +7,8 @@ import {
   marketProfileForPriceArea,
   MISSING_PRICE_TEXT,
 } from "./ancillary";
-import { baseline, computeGridLimits, dispatch } from "./dispatch";
+import { baseline, computeGridLimits, dispatch, resolveWindow } from "./dispatch";
+import { solveAncillarySoc } from "./ancillarySoc";
 import { HOURS_PER_YEAR } from "./defaults";
 import {
   capexKr,
@@ -62,6 +63,19 @@ export function socCycleToleranceKWh(capacityKWh: number): number {
 
 type DispatchResult = ReturnType<typeof dispatch>;
 
+/**
+ * DEGENERATE CYCLIC YEAR. The battery moves no ordinary energy at all (no
+ * self-consumption, no peak shaving, no arbitrage). Readiness charging for the reserve
+ * itself is not ordinary energy work, so it is excluded. In this state SOC is constant
+ * and the fixed point soc_start = soc_end has infinitely many solutions.
+ */
+function isDegenerateEnergyWork(r: DispatchResult): boolean {
+  const t = r.tallies;
+  const eps = 1e-6;
+  const ordinaryCharge = t.chargedKWh - t.ancillaryReadinessChargeKWh;
+  return t.dischargedKWh <= eps && ordinaryCharge <= eps;
+}
+
 function dispatchCyclicYear(
   cfg: LabConfig,
   series: TimeSeries,
@@ -69,7 +83,13 @@ function dispatchCyclicYear(
   powerKw: number,
   plan: ReturnType<typeof ancillaryPlan>,
   cyclicSoc: boolean,
-): { result: DispatchResult; iterations: number; converged: boolean } {
+  solveDegenerateSoc: boolean,
+): {
+  result: DispatchResult;
+  iterations: number;
+  converged: boolean;
+  ancillarySocPct: number | null;
+} {
   const run = (battery: BatteryParams): DispatchResult =>
     dispatch({
       series,
@@ -93,6 +113,35 @@ function dispatchCyclicYear(
   let current = run(battery);
   let best = current;
   let iterations = 1;
+
+  /**
+   * DEGENERATE CASE (pure ancillary operation). The cyclic fixed point is not unique,
+   * so it may NOT decide the SOC. The start SOC is instead solved deterministically
+   * from the reserve physics (see ancillarySoc.ts). The ordinary path below is used
+   * unchanged as soon as the battery does any real energy work.
+   */
+  if (
+    solveDegenerateSoc &&
+    cyclicSoc &&
+    plan !== null &&
+    plan.active &&
+    capacityKWh > 0 &&
+    isDegenerateEnergyWork(current)
+  ) {
+    const win = resolveWindow(cfg.battery, cfg.strategies, cfg.flex, capacityKWh, powerKw);
+    const solved = solveAncillarySoc(win, plan);
+    if (solved !== null) {
+      const solvedRun = run({ ...cfg.battery, initialSocPct: solved.socPct });
+      if (isDegenerateEnergyWork(solvedRun)) {
+        return {
+          result: solvedRun,
+          iterations: 2,
+          converged: delta(solvedRun) <= tolerance,
+          ancillarySocPct: solved.socPct,
+        };
+      }
+    }
+  }
   while (cyclicSoc && delta(current) > tolerance && iterations < SOC_CYCLE_MAX_ITERATIONS) {
     if (!(capacityKWh > 0)) break;
     const nextPct = (current.tallies.socEnd / capacityKWh) * 100;
@@ -103,7 +152,7 @@ function dispatchCyclicYear(
     if (delta(current) < delta(best)) best = current;
   }
   if (delta(current) <= delta(best)) best = current;
-  return { result: best, iterations, converged: delta(best) <= tolerance };
+  return { result: best, iterations, converged: delta(best) <= tolerance, ancillarySocPct: null };
 }
 
 export interface SimulateOptions {
@@ -112,6 +161,12 @@ export interface SimulateOptions {
    * free end-of-year energy). The engine and every product code path use the default.
    */
   cyclicSoc?: boolean;
+  /**
+   * AUDIT/TEST ONLY. false keeps the supplied initial SOC in the degenerate pure-reserve
+   * case instead of solving it (used by the replay regression test to force a given SOC).
+   * Every product code path uses the default.
+   */
+  solveDegenerateAncillarySoc?: boolean;
 }
 
 /** Runs one full-year simulation for one (capacity, power) combination. */
@@ -132,6 +187,7 @@ export function simulate(
     powerKw,
     plan,
     options.cyclicSoc ?? true,
+    options.solveDegenerateAncillarySoc ?? true,
   );
   const d = cyclic.result;
 
@@ -450,6 +506,7 @@ export function simulate(
     socEndKWh: t.socEnd,
     socDeltaKWh: socDelta,
     socCycleIterations: cyclic.iterations,
+    ancillarySocPct: cyclic.ancillarySocPct,
     socCycleConverged: cyclic.converged,
     energyBalance: {
       ok: Math.abs(residual) <= tolerance,
