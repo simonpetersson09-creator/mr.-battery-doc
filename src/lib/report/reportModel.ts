@@ -308,7 +308,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
 
   /* ============================ 2. BENEFIT ============================ */
   const benefitRows: ReportRow[] = [];
-  if (ce.energyBenefitSek !== 0) {
+  if (!ancillaryOnly && ce.energyBenefitSek !== 0) {
     benefitRows.push({
       label: copy.benefit.energy,
       value: perYear(ce.energyBenefitSek),
