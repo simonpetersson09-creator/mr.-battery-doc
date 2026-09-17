@@ -466,18 +466,22 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
         value: pct(ce.customerAncillaryShare * 100),
         source: "default",
       });
-      rows.push({
-        label: copy.ancillary.customerValue,
-        value: perYear(ce.ancillaryCustomerValueSek),
-        source: "calculated",
-      });
-      rows.push({
-        label: copy.ancillary.priceBasis,
-        value: fcr.historicalReferenceYear
-          ? `${copy.ancillary.priceBasisValue} ${fcr.historicalReferenceYear}`
-          : copy.ancillary.priceBasisValue,
-        source: "external",
-      });
+      /* Ancillary-only: compensation and price basis are already the headline cards at the
+         top of this page, so the duplicate rows are omitted. */
+      if (!ancillaryOnly) {
+        rows.push({
+          label: copy.ancillary.customerValue,
+          value: perYear(ce.ancillaryCustomerValueSek),
+          source: "calculated",
+        });
+        rows.push({
+          label: copy.ancillary.priceBasis,
+          value: fcr.historicalReferenceYear
+            ? `${copy.ancillary.priceBasisValue} ${fcr.historicalReferenceYear}`
+            : copy.ancillary.priceBasisValue,
+          source: "external",
+        });
+      }
     }
 
     sections.push({
