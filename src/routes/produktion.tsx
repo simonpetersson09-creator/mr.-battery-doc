@@ -241,7 +241,7 @@ function ProductionStep() {
         </>
       ) : null}
 
-      {choice !== "none" ? selfConsumptionField : null}
+      
     </WizardShell>
   );
 }
