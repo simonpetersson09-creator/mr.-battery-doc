@@ -840,6 +840,23 @@ function ResultStep() {
               label={t("technical.cRate")}
               value={`${nf(ancillaryBest ? ancillaryBest.cRate : p.systemCRate, 2)} C`}
             />
+            {(() => {
+              const batteryCfg = ancillaryBest
+                ? ancillaryScenario?.selectedResult?.config.battery
+                : outcome.result.config.battery;
+              return batteryCfg ? (
+                <>
+                  <Row
+                    label={t("technical.socWindow")}
+                    value={`${nf(batteryCfg.minSocPct, 0)}–${nf(batteryCfg.maxSocPct, 0)} %`}
+                  />
+                  <Row
+                    label={t("technical.roundTrip")}
+                    value={`${nf(batteryCfg.roundTripEfficiency * 100, 0)} %`}
+                  />
+                </>
+              ) : null;
+            })()}
             {/* Reserved power and active services — ancillary flow or enabled services. */}
             {ancillaryBest || s.fcr.enabled ? (
               <>
