@@ -44,6 +44,43 @@ function build(state: WizardState, targetYears = 11) {
   return { outcome, ce, alternatives, model };
 }
 
+function buildAncillaryOnlyReport(targetYears = 12) {
+  const state = stateWith((s) => {
+    s.grid.mainFuseA = 20;
+    s.consumption.annualKwh = 20000;
+    s.consumption.profileId = "normal";
+    s.production.mode = "none";
+    s.strategies.solarSelfConsumption = false;
+    s.strategies.reducedGridImport = false;
+    s.strategies.peakShaving = false;
+    s.strategies.fcrDUp = true;
+    s.preferences.targetPaybackYears = targetYears;
+  });
+  const outcome = runBatteryApp(state);
+  if (outcome.status !== "ok") throw new Error("engine not ok");
+  const scenario = computeAncillaryScenario(
+    outcome.input,
+    outcome.result,
+    state.preferences.customerAncillaryShare,
+    targetYears,
+  );
+  if (!scenario?.selected) throw new Error("missing ancillary scenario");
+  const model = buildReportModel({
+    outcome,
+    language: "sv",
+    customerEconomy: customerEconomyFromResult(
+      outcome.result,
+      state.preferences.customerAncillaryShare,
+    ),
+    targetPaybackYears: targetYears,
+    alternatives: [],
+    ancillaryScenario: scenario,
+    now: new Date(2026, 8, 10),
+    reportId: "MBD-20260910-NOSOL",
+  });
+  return { state, outcome, scenario, model };
+}
+
 const baseState = () =>
   stateWith((s) => {
     s.consumption.annualKwh = 20000;
@@ -167,6 +204,41 @@ describe("report model", () => {
     for (const value of collectReportText(model)) {
       expect(value).not.toMatch(/undefined|NaN|\bnull\b/);
     }
+  });
+
+  it("keeps the frozen no-solar reference numbers unchanged", () => {
+    const { scenario, model } = buildAncillaryOnlyReport();
+    expect(scenario.selected?.capacityKWh).toBe(15);
+    expect(scenario.selected?.powerKw).toBe(10);
+    expect(scenario.selected?.customerBenefitSek).toBeCloseTo(7411.647036632467, 6);
+    expect(scenario.selected?.maxInvestmentSek).toBeCloseTo(88939.7644395896, 6);
+    expect(model.raw.capacityKWh).toBe(15);
+    expect(model.raw.powerKw).toBe(10);
+    expect(model.raw.maxInvestmentSek).toBeCloseTo(88939.7644395896, 6);
+  });
+
+  it("uses standalone ancillary copy and omits all solar and peak-shaving content", () => {
+    const { model } = buildAncillaryOnlyReport();
+    const text = collectReportText(model).join("\n");
+    expect(text).toContain("Tekniskt dimensioneringsförslag");
+    expect(text).toContain("Beräknad ersättning till dig");
+    expect(text).toContain("Historiska marknadspriser 2025");
+    expect(text).toContain("aggregator");
+    expect(text).not.toMatch(
+      /solproduktion|solcellsstorlek|egenanvändning|självförsörjning|överskottsel|exporterad solel|lagrad solel|peak shaving|effekttoppskapning|peak reduction|Fysiskt effektbehov|bäst balans|mest lönsam|ekonomiskt optimum/i,
+    );
+    expect(text).not.toContain("Uppgift saknas");
+    expect(model.sections.some((section) => section.id === "energy")).toBe(false);
+    expect(model.sections.some((section) => section.id === "grid")).toBe(false);
+  });
+
+  it("does not claim that household consumption selects the standalone battery size", () => {
+    const { model } = buildAncillaryOnlyReport();
+    const text = collectReportText(model).join("\n");
+    expect(text).toContain(
+      "Din förbrukning används därefter för att beräkna hur mycket reserv som kan hållas tillgänglig",
+    );
+    expect(text).not.toMatch(/storleken.+förbrukningsprofil|väljer.+högst.+ersättning/i);
   });
 
   it("uses Swedish number and unit formatting", () => {
