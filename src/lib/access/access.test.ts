@@ -239,3 +239,54 @@ describe("product configuration", () => {
     expect(PRODUCTS_CONFIGURED).toBe(false);
   });
 });
+
+describe("adjustment credits", () => {
+  it("grants three credits on a one-off purchase, none on premium", () => {
+    const e = applyPurchase(EMPTY_ENTITLEMENTS, { status: "purchased", key: "singleReport" }, "calc-1");
+    expect(e.adjustmentCredits).toBe(3);
+    expect(hasResultAccess(e, "calc-1")).toBe(true);
+
+    const p = applyPurchase(EMPTY_ENTITLEMENTS, { status: "purchased", key: "premiumYear", premiumExpiresISO: null }, "calc-1");
+    expect(p.adjustmentCredits).toBe(0);
+  });
+
+  it("a credit unlocks a new calculation and decrements the counter", () => {
+    const e = applyPurchase(EMPTY_ENTITLEMENTS, { status: "purchased", key: "singleReport" }, "calc-1");
+    expect(hasAdjustmentCredit(e, "calc-2")).toBe(true);
+    const after = consumeAdjustmentCredit(e, "calc-2");
+    expect(after.adjustmentCredits).toBe(2);
+    expect(hasResultAccess(after, "calc-2")).toBe(true);
+  });
+
+  it("lets a calculation through the paywall when credits remain", () => {
+    const e = applyPurchase(EMPTY_ENTITLEMENTS, { status: "purchased", key: "singleReport" }, "calc-1");
+    expect(destinationAfterStep5({ calculationStatus: "ok", entitlements: e, calculationId: "calc-2" })).toBe("/resultat");
+    // after spending all credits, a new calculation hits the paywall again
+    let spent = e;
+    spent = consumeAdjustmentCredit(spent, "calc-2");
+    spent = consumeAdjustmentCredit(spent, "calc-3");
+    spent = consumeAdjustmentCredit(spent, "calc-4");
+    expect(spent.adjustmentCredits).toBe(0);
+    expect(destinationAfterStep5({ calculationStatus: "ok", entitlements: spent, calculationId: "calc-5" })).toBe("/betalvagg");
+  });
+
+  it("ignores credits entirely when Premium is active", () => {
+    const e = withPremium(applyPurchase(EMPTY_ENTITLEMENTS, { status: "purchased", key: "singleReport" }, "calc-1"), null);
+    expect(hasAdjustmentCredit(e, "calc-2")).toBe(false);
+    expect(consumeAdjustmentCredit(e, "calc-2")).toBe(e);
+    expect(destinationAfterStep5({ calculationStatus: "ok", entitlements: e, calculationId: "calc-2" })).toBe("/resultat");
+  });
+
+  it("persists credits through parseEntitlements", () => {
+    const e = applyPurchase(EMPTY_ENTITLEMENTS, { status: "purchased", key: "singleReport" }, "calc-1");
+    const restored = parseEntitlements(JSON.parse(JSON.stringify(e)));
+    expect(restored.adjustmentCredits).toBe(3);
+    expect(restored.unlockedCalculations).toEqual(["calc-1"]);
+  });
+
+  it("does not grant credits from withUnlockedCalculation alone", () => {
+    const e = withUnlockedCalculation(EMPTY_ENTITLEMENTS, "calc-1");
+    expect(e.adjustmentCredits).toBe(0);
+    expect(destinationAfterStep5({ calculationStatus: "ok", entitlements: e, calculationId: "calc-2" })).toBe("/betalvagg");
+  });
+});
