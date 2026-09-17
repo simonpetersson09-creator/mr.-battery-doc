@@ -18,6 +18,7 @@ import type { BatteryAppResult } from "@/lib/battery-app";
 import type { BatteryAlternative } from "@/lib/battery-app/capacityAlternatives";
 import type { AncillaryScenario } from "@/lib/battery-app/ancillaryScenario";
 import {
+  customerEconomyFromResult,
   clampTargetPaybackYears,
   maxInvestmentSek,
   MAX_TARGET_PAYBACK_YEARS,
@@ -153,13 +154,33 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
   const reportId = req.reportId ?? createReportId(now);
   const createdISO = formatDateISO(now);
 
-  const { input, result } = req.outcome;
+  const input = req.outcome.input;
+  /**
+   * ANCILLARY-ONLY CASE (no solar, no physical battery need). The ordinary result is a
+   * 0 kWh "no battery" run, so every technical row would be empty. The result page shows
+   * the technically dimensioned ancillary pair instead — the report must show exactly the
+   * same simulated result. Presentation only: nothing is recomputed here.
+   */
+  const ancScenario = req.ancillaryScenario ?? null;
+  const ancSelected = ancScenario?.selected ?? null;
+  const ancResult =
+    req.outcome.result.summary.recommendation.capacityKWh <= 0 && ancSelected
+      ? (ancScenario?.selectedResult ?? null)
+      : null;
+  const result = ancResult ?? req.outcome.result;
   const s = result.summary;
   const r = s.recommendation;
   const e = s.energy;
   const g = s.grid;
   const fcr = s.fcr;
-  const ce = req.customerEconomy;
+  /* Same source as the result page: in the ancillary-only case the economics belong to
+     the selected pair, not to the 0 kWh run. */
+  const ce = ancResult
+    ? customerEconomyFromResult(
+        ancResult,
+        ancScenario?.customerAncillaryShare ?? req.customerEconomy.customerAncillaryShare,
+      )
+    : req.customerEconomy;
   const cfg = result.diagnostics.config;
 
   const country = (input.site?.country ?? "SE") as CountryCode;
@@ -196,7 +217,9 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
   const ancillaryEnabled = fcr.enabled;
   const ancillaryPriced = ancillaryEnabled && fcr.grossSek !== null;
   const targetYears = clampTargetPaybackYears(req.targetPaybackYears);
-  const maxInvestment = maxInvestmentSek(ce.totalCustomerBenefitSek, targetYears);
+  const maxInvestment = ancSelected
+    ? ancSelected.maxInvestmentSek
+    : maxInvestmentSek(ce.totalCustomerBenefitSek, targetYears);
   const productLabel = reserveProductName(country, input.site?.marketArea ?? null);
   const yearsLabel = String(req.language) === "sv" ? "år" : "years";
 
@@ -321,18 +344,16 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     ],
   });
 
-  /* ================= 2b. ANCILLARY SCENARIO (MODEL C, comparison only) ================= */
-  if (req.ancillaryScenario && req.ancillaryScenario.candidates.length > 0) {
+  /* ================= 2b. ANCILLARY-ONLY SIZES (same three cards as the app) =================
+   * The result page shows these capacities inside the ordinary comparison cards, so the
+   * report lists exactly the same simulated candidates — no separate scenario section. */
+  if (ancSelected && ancScenario && ancScenario.candidates.length > 1) {
     const rows: ReportRow[] = [];
-    const sel = req.ancillaryScenario.selected;
-    for (const c of req.ancillaryScenario.candidates) {
-      const isSelected =
-        sel !== null &&
-        sel !== undefined &&
-        c.capacityKWh === sel.capacityKWh &&
-        c.powerKw === sel.powerKw;
+    for (const c of ancScenario.candidates) {
       const label = `${kwh(c.capacityKWh)} / ${kw(c.powerKw, 1)}${
-        isSelected ? ` (${copy.ancillaryScenario.technicalTitle})` : ""
+        c.capacityKWh === ancSelected.capacityKWh && c.powerKw === ancSelected.powerKw
+          ? ` (${copy.ancillaryScenario.technicalTitle})`
+          : ""
       }`;
       rows.push({
         label: `${label} — ${copy.ancillaryScenario.compensation}`,
@@ -359,13 +380,13 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       pageBreak: true,
       blocks: [
         { kind: "text", text: copy.ancillaryScenario.intro },
-        { kind: "note", text: copy.ancillaryScenario.notRecommendation },
         { kind: "note", text: copy.ancillaryScenario.technicalHint },
         { kind: "rows", rows },
         { kind: "note", text: copy.ancillaryScenario.note },
       ],
     });
   }
+
 
   /* ============================ 3. ANCILLARY ============================ */
   if (ancillaryEnabled) {
