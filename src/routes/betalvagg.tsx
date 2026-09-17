@@ -240,6 +240,10 @@ function Paywall() {
               (products === null ? t("paywall.single.loadingPrice") : t("paywall.priceUnavailable"))}
           </p>
           <p className="ui-help mt-1">{t("paywall.single.description")}</p>
+          <p className="mt-1.5 inline-flex items-center gap-1.5 text-[11px] font-semibold text-accent">
+            <CheckCircle2 className="size-3.5 shrink-0" />
+            {t("paywall.single.adjustmentsIncluded")}
+          </p>
           <Button
             variant="outline"
             className="mt-2 h-10 w-full rounded-[0.75rem] text-[15px] font-semibold"
