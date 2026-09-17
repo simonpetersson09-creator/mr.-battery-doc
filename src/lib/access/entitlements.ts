@@ -143,6 +143,10 @@ export function parseEntitlements(raw: unknown): Entitlements {
     typeof o["adjustmentCredits"] === "number" && Number.isFinite(o["adjustmentCredits"])
       ? Math.max(0, Math.floor(o["adjustmentCredits"]))
       : 0;
+  const adjustmentCreditsExpiresISO =
+    typeof o["adjustmentCreditsExpiresISO"] === "string"
+      ? (o["adjustmentCreditsExpiresISO"] as string)
+      : null;
   return {
     premium: {
       active: premium["active"] === true,
@@ -150,5 +154,6 @@ export function parseEntitlements(raw: unknown): Entitlements {
     },
     unlockedCalculations: unlocked.slice(-MAX_UNLOCKED),
     adjustmentCredits,
+    adjustmentCreditsExpiresISO,
   };
 }
