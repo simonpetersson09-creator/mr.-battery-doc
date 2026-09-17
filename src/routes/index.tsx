@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BatteryFull, Gauge, Settings, TrendingUp, Wallet } from "lucide-react";
+import { ArrowRight, BatteryFull, Gauge, Settings, TrendingUp, Wallet, Zap, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LanguageSelect } from "@/components/LanguageSelect";
 import logo from "@/assets/mr-battery-doc-logo.png";
