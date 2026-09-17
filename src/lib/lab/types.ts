@@ -710,6 +710,12 @@ export interface SimResult {
   socDeltaKWh: number;
   socCycleIterations: number;
   socCycleConverged: boolean;
+  /**
+   * Deterministically solved start SOC (% of nominal) for the DEGENERATE case where the
+   * battery does no ordinary energy work and the cyclic fixed point is not unique.
+   * Null whenever the ordinary cyclic fixed point decided the SOC.
+   */
+  ancillarySocPct: number | null;
 
   /** Economy without market/flex revenue */
   annualSavingsKr: number;
