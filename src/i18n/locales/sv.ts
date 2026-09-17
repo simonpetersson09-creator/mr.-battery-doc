@@ -9,6 +9,7 @@ export const sv = {
     appName: "Mr. Battery Doc",
     back: "Tillbaka",
     next: "Nästa",
+    showResult: "Visa resultat",
     done: "Klar",
     cancel: "Avbryt",
     restart: "Börja om",
