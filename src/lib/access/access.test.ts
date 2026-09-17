@@ -12,6 +12,8 @@ import { calculationId } from "./calculationId";
 import { clearCalculationCache, getCalculation } from "./calculationCache";
 import {
   EMPTY_ENTITLEMENTS,
+  ADJUSTMENT_CREDITS_TTL_MS,
+  adjustmentCreditsRemaining,
   consumeAdjustmentCredit,
   hasAdjustmentCredit,
   hasResultAccess,
