@@ -83,8 +83,8 @@ export const sv = {
     stats: {
       powerLabel: "Upp till 200 kW",
       powerSub: "batteri",
-      simsLabel: "8 760",
-      simsSub: "timsimuleringar per analys",
+      simsLabel: "3,5 miljoner",
+      simsSub: "simulationer per analys",
     },
     cta: "Kom igång",
     footnote: "Tar ungefär tre minuter. Dina svar sparas medan du fyller i.",

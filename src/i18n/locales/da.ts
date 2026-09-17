@@ -79,8 +79,8 @@ export const da = {
     stats: {
       powerLabel: "Op til 200 kW",
       powerSub: "batteri",
-      simsLabel: "8.760",
-      simsSub: "timessimuleringer pr. analyse",
+      simsLabel: "3,5 millioner",
+      simsSub: "simuleringer pr. analyse",
     },
     cta: "Kom i gang",
     footnote: "Tager cirka tre minutter. Dine svar gemmes undervejs.",
