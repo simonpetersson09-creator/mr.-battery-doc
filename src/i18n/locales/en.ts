@@ -57,30 +57,28 @@ export const en = {
     },
   },
   intro: {
+    title: "Find the right battery for your property",
+    subtitle: "Sizing and financial analysis for a battery with solar – or a standalone battery for ancillary services.",
     lead: "Answer a few simple questions about your property and we will help you find a suitable battery size.",
     points: {
       capacity: {
-        title: "Recommended battery size and power",
-        desc: "How many kWh and kW suit your property.",
-      },
-      usage: {
-        title: "How the battery can be used",
-        desc: "Self-consumption, reduced grid import, peak shaving and ancillary services.",
+        title: "Recommended battery size",
+        desc: "See which capacity and power suit your property.",
       },
       economy: {
         title: "Estimated financial benefit",
-        desc: "What the battery can give in annual customer benefit.",
+        desc: "See the benefit from self-consumption, power peaks and ancillary services.",
       },
       investment: {
-        title: "Reasonable investment cost",
-        desc: "What the battery may cost based on your desired payback time.",
+        title: "Estimated maximum investment",
+        desc: "See what the battery may cost based on your desired payback time.",
       },
     },
     stats: {
       powerLabel: "Up to 200 kW / 500 kWh",
-      powerSub: "battery",
-      simsLabel: "3.5 million",
-      simsSub: "simulations per analysis",
+      powerSub: "battery size",
+      simsLabel: "≈ 800,000",
+      simsSub: "hourly calculations per analysis",
     },
     cta: "Get started",
     footnote: "Takes about three minutes. Your answers are saved as you go.",

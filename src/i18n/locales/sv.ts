@@ -61,30 +61,28 @@ export const sv = {
     },
   },
   intro: {
+    title: "Hitta rätt batteri för din fastighet",
+    subtitle: "Dimensionering och ekonomisk analys för batteri med solceller – eller fristående batteri för stödtjänster.",
     lead: "Svara på några enkla frågor om din fastighet, så hjälper vi dig att hitta en lämplig batteristorlek.",
     points: {
       capacity: {
-        title: "Rekommenderad batteristorlek och effekt",
-        desc: "Hur många kWh och kW som passar din fastighet.",
-      },
-      usage: {
-        title: "Hur batteriet kan användas",
-        desc: "Egenanvändning, minskad nätimport, effekttoppar och stödtjänster.",
+        title: "Rekommenderad batteristorlek",
+        desc: "Se vilken kapacitet och effekt som passar din fastighet.",
       },
       economy: {
         title: "Beräknad ekonomisk nytta",
-        desc: "Se vad batteriet kan ge i årlig nytta, med solceller eller som fristående batteri för stödtjänster.",
+        desc: "Se nyttan från egenanvändning, effekttoppar och stödtjänster.",
       },
       investment: {
-        title: "Rimlig investeringskostnad",
-        desc: "Vad batteriet får kosta utifrån din önskade återbetalningstid.",
+        title: "Beräknad maxinvestering",
+        desc: "Se vad batteriet får kosta utifrån din önskade återbetalningstid.",
       },
     },
     stats: {
       powerLabel: "Upp till 200 kW / 500 kWh",
-      powerSub: "batteri",
-      simsLabel: "3,5 miljoner",
-      simsSub: "simulationer per analys",
+      powerSub: "batteristorlek",
+      simsLabel: "≈ 800 000",
+      simsSub: "timberäkningar per analys",
     },
     cta: "Kom igång",
     footnote: "Tar ungefär tre minuter. Dina svar sparas medan du fyller i.",
