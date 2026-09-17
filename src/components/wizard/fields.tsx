@@ -126,6 +126,7 @@ export function NumberField({
       }}
       placeholder={placeholder}
       step={step}
+      disabled={disabled ?? false}
       className={`ui-control tabular-nums ${compact ? "h-9 ui-control-text-sm" : ""} ${unit ? "pr-[4.5rem]" : ""}${showError ? " border-destructive" : ""}`}
     />
   );
