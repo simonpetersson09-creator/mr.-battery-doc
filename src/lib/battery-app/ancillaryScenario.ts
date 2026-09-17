@@ -268,7 +268,12 @@ function runCandidate(
     const energy = res.summary.energy;
     const total = res.summary.economy.totalOperatingBenefitSek;
     const market = marketValue(res);
-    const customerBenefit = customerBenefitFromTotals(total, market, share);
+    /* Pure ancillary operation: there is no PV benefit and no peak shaving, so the only
+       thing `total` adds is a few kronor of standby loss that the customer is never shown.
+       The presented customer benefit is therefore the ancillary share alone, which keeps the
+       result page, the cards and the PDF on one and the same number. Selection is technical
+       and does not use this value. */
+    const customerBenefit = customerBenefitFromTotals(total === null ? null : 0, market, share);
     const hours = num(f.reservedHours);
     const paidUpKw = num(f.monetizedPowerKw);
     const paidDownKw = num(f.avgHeldDownPowerKw);

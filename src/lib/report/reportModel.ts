@@ -220,6 +220,10 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
   const maxInvestment = ancSelected
     ? ancSelected.maxInvestmentSek
     : maxInvestmentSek(ce.totalCustomerBenefitSek, targetYears);
+  /* Same total as the result page: in the ancillary-only case it is the selected pair's
+     customer benefit, so the headline, the cards and max investment all agree. */
+  const totalBenefitSek =
+    ancResult && ancSelected ? ancSelected.customerBenefitSek : ce.totalCustomerBenefitSek;
   const productLabel = reserveProductName(country, input.site?.marketArea ?? null);
   const yearsLabel = String(req.language) === "sv" ? "år" : "years";
 
@@ -239,7 +243,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
         ? atLeast(copy.searchLimit.atLeastPower, kw(powerKw, 1))
         : kw(powerKw, 1),
     },
-    { label: copy.summary.benefit, value: perYear(ce.totalCustomerBenefitSek) },
+    { label: copy.summary.benefit, value: perYear(totalBenefitSek) },
     {
       label: copy.summary.maxInvestment,
       value: maxInvestment === null ? copy.cannotBeCalculated : money(maxInvestment),
@@ -344,9 +348,9 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
         kind: "hero",
         label: copy.benefit.total,
         value:
-          ce.totalCustomerBenefitSek === null
+          totalBenefitSek === null
             ? copy.cannotBeCalculated
-            : perYear(ce.totalCustomerBenefitSek),
+            : perYear(totalBenefitSek),
       },
       ...(benefitRows.length
         ? [{ kind: "rows" as const, rows: benefitRows }]
@@ -666,7 +670,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
         label: `${num(y)} ${yearsLabel}${
           y === targetYears ? ` · ${copy.investment.yourChoice}` : ""
         }`,
-        value: money(maxInvestmentSek(ce.totalCustomerBenefitSek, y)),
+        value: money(maxInvestmentSek(totalBenefitSek, y)),
       })),
     });
     investmentBlocks.push({ kind: "text", text: copy.investment.explanation });
