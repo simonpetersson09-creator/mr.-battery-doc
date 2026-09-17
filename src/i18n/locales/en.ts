@@ -230,6 +230,8 @@ export const en = {
       intro:
         "Even without a battery need from solar or peak demand, a battery can be used for ancillary services. Here you can compare how different battery sizes affect the calculated compensation.",
       notRecommendation: "This is a comparison scenario, not a recommended battery size.",
+      technicalTitle: "Technical proposal",
+      technicalHint: "The size is chosen so that at least 95 % of the calculated ancillary service capacity for your connection and consumption profile can be used. It is a technical proposal, not a claim about the most profitable battery.",
       lead: "Ancillary services can still pay for a battery. Compare a few sizes below.",
       battery: "Battery",
       compensation: "Ancillary compensation",

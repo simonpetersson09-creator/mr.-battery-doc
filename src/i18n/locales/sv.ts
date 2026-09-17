@@ -232,6 +232,8 @@ export const sv = {
       intro:
         "Även utan ett batteribehov från solceller eller effekttoppar kan ett batteri användas för stödtjänster. Här kan du jämföra hur olika batteristorlekar påverkar den beräknade ersättningen.",
       notRecommendation: "Detta är ett jämförelsescenario, inte en rekommenderad batteristorlek.",
+      technicalTitle: "Tekniskt förslag",
+      technicalHint: "Storleken är vald för att kunna utnyttja minst 95 % av den beräknade stödtjänstkapaciteten för din anslutning och förbrukningsprofil. Det är ett tekniskt förslag, inte ett påstående om det mest lönsamma batteriet.",
       lead: "Stödtjänster kan ändå ge ersättning för ett batteri. Jämför några olika storlekar nedan.",
       battery: "Batteri",
       compensation: "Stödtjänstersättning",
