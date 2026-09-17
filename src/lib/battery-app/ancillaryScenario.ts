@@ -44,7 +44,7 @@ import { defaultConfig } from "@/lib/lab/defaults";
 import {
   clampCustomerAncillaryShare,
   clampTargetPaybackYears,
-  customerBenefitFromTotals,
+  
   maxInvestmentSek,
   DEFAULT_CUSTOMER_ANCILLARY_SHARE,
   DEFAULT_TARGET_PAYBACK_YEARS,
@@ -273,7 +273,7 @@ function runCandidate(
        The presented customer benefit is therefore the ancillary share alone, which keeps the
        result page, the cards and the PDF on one and the same number. Selection is technical
        and does not use this value. */
-    const customerBenefit = customerBenefitFromTotals(total === null ? null : 0, market, share);
+    const customerBenefit = total === null ? null : market * clampCustomerAncillaryShare(share);
     const hours = num(f.reservedHours);
     const paidUpKw = num(f.monetizedPowerKw);
     const paidDownKw = num(f.avgHeldDownPowerKw);
