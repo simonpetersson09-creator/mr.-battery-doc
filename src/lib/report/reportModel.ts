@@ -543,7 +543,9 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
             { kind: "alternatives" as const, items: alternativeItems },
           ]
         : []),
-      { kind: "text", text: r.explanation },
+      /* Ancillary-only: the ordinary capacity-ladder explanation references solar
+         production and energy-arbitrage thresholds that do not apply, so it is omitted. */
+      ...(ancillaryOnly ? [] : [{ kind: "text" as const, text: r.explanation }]),
       ...(capacityAtSearchLimit
         ? [{ kind: "note" as const, text: copy.searchLimit.capacityNote }]
         : []),
@@ -562,10 +564,14 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     { label: copy.energy.load, value: kwh(e.annualLoadKWh), source: "user" },
   ];
   if (hasSolar) energyRows.push({ label: copy.energy.pv, value: kwh(e.annualPvKWh), source: "user" });
-  energyRows.push(
-    { label: copy.energy.importBefore, value: kwh(e.importBeforeKWh), source: "calculated" },
-    { label: copy.energy.importAfter, value: kwh(e.importAfterKWh), source: "calculated" },
-  );
+  /* Ancillary-only: before/after import differs only by standby losses, which the
+     benefit presentation deliberately excludes — showing them would add noise. */
+  if (!ancillaryOnly) {
+    energyRows.push(
+      { label: copy.energy.importBefore, value: kwh(e.importBeforeKWh), source: "calculated" },
+      { label: copy.energy.importAfter, value: kwh(e.importAfterKWh), source: "calculated" },
+    );
+  }
   if (hasSolar) {
     energyRows.push(
       { label: copy.energy.exportBefore, value: kwh(e.exportBeforeKWh), source: "calculated" },
