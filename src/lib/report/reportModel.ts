@@ -643,15 +643,19 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
   }
   gridRows.push({ label: copy.grid.status, value: g.headline, source: "calculated" });
 
-  sections.push({
-    id: "grid",
-    title: copy.grid.title,
-    pageBreak: true,
-    blocks: [
-      { kind: "rows", rows: gridRows },
-      { kind: "note", text: copy.grid.kwKwh },
-    ],
-  });
+  /* Ancillary-only: the peak-shaving/grid-assessment page is not relevant — the
+     battery does not reduce peaks, so the whole "Effekt och nät" page is omitted. */
+  if (!ancillaryOnly) {
+    sections.push({
+      id: "grid",
+      title: copy.grid.title,
+      pageBreak: true,
+      blocks: [
+        { kind: "rows", rows: gridRows },
+        { kind: "note", text: copy.grid.kwKwh },
+      ],
+    });
+  }
 
   /* ============================ 7. INVESTMENT ============================ */
   const scenarioYears = [targetYears - 2, targetYears, targetYears + 2]
@@ -778,13 +782,19 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
               },
             ]
           : []),
-        {
-          label: copy.assumptions.demandCharge,
-          value: isFiniteNumber(s.peak.tariffSekPerKwMonth)
-            ? `${money(s.peak.tariffSekPerKwMonth, 2)}/kW`
-            : copy.cannotBeCalculated,
-          source: s.peak.tariffSource === "user-provided" ? "user" : "default",
-        },
+        ...(ancillaryOnly
+          ? []
+          : [
+              {
+                label: copy.assumptions.demandCharge,
+                value: isFiniteNumber(s.peak.tariffSekPerKwMonth)
+                  ? `${money(s.peak.tariffSekPerKwMonth, 2)}/kW`
+                  : copy.cannotBeCalculated,
+                source: (s.peak.tariffSource === "user-provided" ? "user" : "default") as
+                  | "user"
+                  | "default",
+              },
+            ]),
         {
           label: copy.assumptions.payback,
           value: `${num(targetYears)} ${yearsLabel}`,
