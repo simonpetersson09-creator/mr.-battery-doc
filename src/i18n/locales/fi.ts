@@ -75,6 +75,12 @@ export const fi = {
         desc: "Mitä akku saa maksaa halutun takaisinmaksuajan perusteella.",
       },
     },
+    stats: {
+      powerLabel: "Enintään 200 kW",
+      powerSub: "akku",
+      simsLabel: "8 760",
+      simsSub: "tuntisimulaatiota per analyysi",
+    },
     cta: "Aloita",
     footnote: "Kestää noin kolme minuuttia. Vastauksesi tallentuvat matkan varrella.",
   },

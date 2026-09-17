@@ -80,6 +80,12 @@ export const sv = {
         desc: "Vad batteriet får kosta utifrån din önskade återbetalningstid.",
       },
     },
+    stats: {
+      powerLabel: "Upp till 200 kW",
+      powerSub: "batteri",
+      simsLabel: "8 760",
+      simsSub: "timsimuleringar per analys",
+    },
     cta: "Kom igång",
     footnote: "Tar ungefär tre minuter. Dina svar sparas medan du fyller i.",
   },

@@ -76,6 +76,12 @@ export const de = {
         desc: "Was die Batterie kosten darf, basierend auf Ihrer gewünschten Amortisationszeit.",
       },
     },
+    stats: {
+      powerLabel: "Bis zu 200 kW",
+      powerSub: "Batterie",
+      simsLabel: "8.760",
+      simsSub: "Stundensimulationen pro Analyse",
+    },
     cta: "Loslegen",
     footnote: "Dauert etwa drei Minuten. Ihre Angaben werden währenddessen gespeichert.",
   },
