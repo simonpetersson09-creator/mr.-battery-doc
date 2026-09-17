@@ -44,7 +44,7 @@ function build(state: WizardState, targetYears = 11) {
   return { outcome, ce, alternatives, model };
 }
 
-function buildAncillaryOnlyReport(targetYears = 12) {
+function buildAncillaryOnlyReport(targetYears = 12, language: "sv" | "en" = "sv") {
   const state = stateWith((s) => {
     s.grid.mainFuseA = 20;
     s.consumption.annualKwh = 20000;
@@ -67,7 +67,7 @@ function buildAncillaryOnlyReport(targetYears = 12) {
   if (!scenario?.selected) throw new Error("missing ancillary scenario");
   const model = buildReportModel({
     outcome,
-    language: "sv",
+    language,
     customerEconomy: customerEconomyFromResult(
       outcome.result,
       state.preferences.customerAncillaryShare,
@@ -239,6 +239,15 @@ describe("report model", () => {
       "Din förbrukning används därefter för att beräkna hur mycket reserv som kan hållas tillgänglig",
     );
     expect(text).not.toMatch(/storleken.+förbrukningsprofil|väljer.+högst.+ersättning/i);
+  });
+
+  it("keeps the English ancillary-only fallback free from peak-shaving claims", () => {
+    const { model } = buildAncillaryOnlyReport(12, "en");
+    const text = collectReportText(model).join("\n");
+    expect(text).toContain("Technical sizing proposal");
+    expect(text).toContain("Historical market prices 2025");
+    expect(text).not.toMatch(/peak shaving|peak reduction|self-consumption|self-sufficiency/i);
+    expect(text).not.toMatch(/undefined|NaN|null/);
   });
 
   it("uses Swedish number and unit formatting", () => {
