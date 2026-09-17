@@ -205,63 +205,11 @@ function ProductionStep() {
         </Select>
       </SectionCard>
 
-      {choice === "annual" ? (
-        <SectionCard compact icon={<Zap />} title={t("production.plant.title")}>
-          <NumberField
-            label={t("production.plant.dcKwp")}
-            unit="kWp"
-            value={p.dcKwp}
-            placeholder={t("errors.egValue", { value: "14" })}
-            compact
-            error={fieldError.dcKwp}
-            onChange={(v) => update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))}
-          />
-          <NumberField
-            label={t("production.plant.acKw")}
-            unit="kW"
-            value={p.acKw}
-            placeholder={t("errors.egValue", { value: "12" })}
-            compact
-            error={fieldError.acKw}
-            onChange={(v) => update((s) => ({ ...s, production: { ...s.production, acKw: v } }))}
-          />
-          <NumberField
-            label={t("production.plant.annual")}
-            unit={t("units.kwhPerYear")}
-            value={p.annualKwh}
-            placeholder={t("errors.egValue", { value: "14000" })}
-            compact
-            error={fieldError.annualKwh}
-            onChange={(v) =>
-              update((s) => ({ ...s, production: { ...s.production, annualKwh: v } }))
-            }
-          />
-        </SectionCard>
-      ) : null}
+      {choice !== "none" ? annualCard : null}
+      {choice !== "none" ? plantCard : null}
 
       {choice === "monthly" ? (
         <>
-          <SectionCard compact icon={<Zap />} title={t("production.plant.title")}>
-            <NumberField
-              label={t("production.plant.dcKwp")}
-              unit="kWp"
-              value={p.dcKwp}
-              placeholder={t("errors.egValue", { value: "14" })}
-              compact
-              error={fieldError.dcKwp}
-              onChange={(v) => update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))}
-            />
-            <NumberField
-              label={t("production.plant.acKw")}
-              unit="kW"
-              value={p.acKw}
-              placeholder={t("errors.egValue", { value: "12" })}
-              compact
-              error={fieldError.acKw}
-              onChange={(v) => update((s) => ({ ...s, production: { ...s.production, acKw: v } }))}
-            />
-          </SectionCard>
-
           <SectionCard compact icon={<CalendarRange />} title={t("production.monthly.title")}>
             <MonthlyImport
               kind="production"
