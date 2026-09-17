@@ -105,7 +105,13 @@ function EconomyStep() {
         compact
         icon={<Coins className="size-4" />}
         title={t("economics.prices.title")}
-        badge={noSolar ? lockedBadge : undefined}
+        action={
+          noSolar ? (
+            <span className="rounded-full bg-secondary px-2 py-0.5 ui-control-text-sm font-semibold text-muted-foreground">
+              {lockedBadge}
+            </span>
+          ) : undefined
+        }
         description={
           noSolar
             ? t("economics.prices.lockedNote")
