@@ -10,10 +10,7 @@
 import { describe, expect, it } from "vitest";
 
 import { runBatteryApp } from "./index";
-import {
-  ANCILLARY_SCENARIO_CAPACITIES_KWH,
-  computeAncillaryScenario,
-} from "./ancillaryScenario";
+import { capacitySteps, computeAncillaryScenario } from "./ancillaryScenario";
 import { createInitialState, type WizardState } from "@/state/wizard";
 import { defaultConfig } from "@/lib/lab/defaults";
 import { runBatteryEngine } from "@/lib/battery-engine";
@@ -106,7 +103,8 @@ describe("ancillary scenario (Model C)", () => {
       // Sorted by capacity, only existing ladder steps, no invented sizes.
       const caps = scenario!.candidates.map((c) => c.capacityKWh);
       expect([...caps].sort((a, b) => a - b)).toEqual(caps);
-      for (const cap of caps) expect(ANCILLARY_SCENARIO_CAPACITIES_KWH).toContain(cap);
+      const ladder = capacitySteps(outcome.input);
+      for (const cap of caps) expect(ladder).toContain(cap);
     },
     T,
   );
@@ -455,6 +453,51 @@ describe("PV=0 technical sizing", () => {
       // Symmetric markets (DK1, DE) pay one capacity, so no separate down leg is held.
       if (country === "DE" || marketArea === "DK1") expect(t.maxDownCapacityKwh).toBe(0);
       else expect(t.maxDownCapacityKwh).toBeGreaterThan(0);
+    },
+    T,
+  );
+
+  it(
+    "L: pure FCR sizing is LOAD INDEPENDENT — same fuse -> same kWh/kW at every load",
+    () => {
+      const picks = [2500, 10000, 30000].map((annualKwh) => {
+        const sc = scenarioFor({ fuseA: 16, annualKwh })!;
+        expect(sc).not.toBeNull();
+        return sc.selected!;
+      });
+      for (const p of picks) {
+        expect(p.capacityKWh).toBe(picks[0]!.capacityKWh);
+        expect(p.powerKw).toBe(picks[0]!.powerKw);
+      }
+      // ...but the customer result still follows the customer's own 8760 h load.
+      expect(picks[0]!.upCapacityKwh).not.toBeCloseTo(picks[2]!.upCapacityKwh, 0);
+    },
+    T,
+  );
+
+  it(
+    "M: the special flow uses the CENTRAL capacity ladder — no artificial 40 kWh cap",
+    () => {
+      const { outcome } = run({ fcr: true, fuseA: 63, annualKwh: 10000 });
+      const ladder = capacitySteps(outcome.input);
+      expect(Math.max(...ladder)).toBeGreaterThan(40);
+      const sc = computeAncillaryScenario(outcome.input, outcome.result, 0.75, 10)!;
+      expect(sc).not.toBeNull();
+      // A large fuse is free to move past the old 40 kWh list limit.
+      expect(Math.max(...sc.matrix.map((c) => c.capacityKWh))).toBeGreaterThan(40);
+      for (const c of sc.matrix) expect(ladder).toContain(c.capacityKWh);
+    },
+    T,
+  );
+
+  it(
+    "N: peak shaving keeps the ordinary LOAD DEPENDENT dimensioning",
+    () => {
+      const small = run({ fcr: true, peakShaving: true, fuseA: 25, annualKwh: 5000 });
+      const big = run({ fcr: true, peakShaving: true, fuseA: 25, annualKwh: 40000 });
+      expect(big.outcome.result.summary.recommendation.capacityKWh).not.toBe(
+        small.outcome.result.summary.recommendation.capacityKWh,
+      );
     },
     T,
   );
