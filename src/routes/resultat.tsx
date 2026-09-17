@@ -336,6 +336,14 @@ function ResultStep() {
   const peakPct =
     g.importPeakBeforeKw > 0 ? (s.peak.peakReductionKw / g.importPeakBeforeKw) * 100 : 0;
 
+  /* Primary limiting factor — the ancillary-only flow reads it from the selected
+     candidate's own simulated run, the ordinary flow from the final simulation. */
+  const fcrLimitingFactor = ancillaryBest
+    ? (ancillaryScenario?.selectedResult?.summary.fcr.limitingFactor ?? null)
+    : s.fcr.enabled
+      ? s.fcr.limitingFactor
+      : null;
+
   /*
     Report entry point. The report must always be built from `outcome` — the current
     simulation rendered above — never from a cached or recalculated result.
@@ -614,11 +622,14 @@ function ResultStep() {
         {ancillaryBest ? (
           <>
             {/* Ancillary-only: the benefit is the reserve compensation for the best size. */}
-            <p className="text-center text-[30px] font-extrabold tracking-tight tabular-nums">
+            <p className="text-center text-[26px] font-extrabold tracking-tight tabular-nums">
               {money(ancillaryBest.customerBenefitSek)}
               <span className="ml-1 text-[11px] font-semibold">{t("units.perYear")}</span>
             </p>
-            <div className="surface-secondary mt-2 space-y-2 rounded-[1rem] p-3">
+            <p className="mt-1 text-center text-[11px] leading-relaxed text-foreground/70">
+              {t("results.benefit.priceBasis")}
+            </p>
+            <div className="surface-secondary mt-1.5 space-y-1.5 rounded-[1rem] p-2.5">
               <BenefitRow
                 label={t("results.benefit.ancillaryTitle")}
                 hint={t("results.benefit.ancillaryCustomerHint")}
