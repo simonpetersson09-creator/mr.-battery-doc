@@ -34,6 +34,18 @@ const MAX_UNLOCKED = 50;
 /** Number of free re-runs adjustments a one-off report purchase grants. Premium ignores these. */
 export const ADJUSTMENT_CREDITS_PER_PURCHASE = 3;
 
+/** Adjustment credits expire this many milliseconds after the purchase. */
+export const ADJUSTMENT_CREDITS_TTL_MS = 24 * 60 * 60 * 1000;
+
+/** Effective remaining credits, treating an expired batch as zero. */
+export function adjustmentCreditsRemaining(e: Entitlements, now: Date = new Date()): number {
+  if (e.adjustmentCredits <= 0) return 0;
+  if (!e.adjustmentCreditsExpiresISO) return 0;
+  const expires = Date.parse(e.adjustmentCreditsExpiresISO);
+  if (Number.isNaN(expires)) return 0;
+  return expires > now.getTime() ? e.adjustmentCredits : 0;
+}
+
 export function isPremiumActive(e: Entitlements, now: Date = new Date()): boolean {
   if (!e.premium.active) return false;
   if (!e.premium.expiresISO) return true;
