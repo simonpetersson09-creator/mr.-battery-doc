@@ -316,7 +316,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       source: "calculated",
     });
   }
-  if (ce.peakBenefitSek !== 0) {
+  if (!ancillaryOnly && ce.peakBenefitSek !== 0) {
     benefitRows.push({
       label: copy.benefit.peak,
       value: perYear(ce.peakBenefitSek),
