@@ -76,6 +76,12 @@ export const da = {
         desc: "Hvad batteriet må koste ud fra din ønskede tilbagebetalingstid.",
       },
     },
+    stats: {
+      powerLabel: "Op til 200 kW",
+      powerSub: "batteri",
+      simsLabel: "8.760",
+      simsSub: "timessimuleringer pr. analyse",
+    },
     cta: "Kom i gang",
     footnote: "Tager cirka tre minutter. Dine svar gemmes undervejs.",
   },
