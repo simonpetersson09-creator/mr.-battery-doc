@@ -62,6 +62,8 @@
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+  --color-toggle-on: var(--toggle-on);
+  --color-toggle-off: var(--toggle-off);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -146,6 +148,8 @@
   --success-foreground: oklch(0.985 0.004 95);
   --warning: oklch(0.68 0.15 55);
   --warning-foreground: var(--brand-black);
+  --toggle-on: oklch(0.6 0.11 155);
+  --toggle-off: oklch(0.62 0.1 28);
 
   --border: oklch(0.912 0.008 95);
   --input: oklch(0.912 0.008 95);
@@ -205,6 +209,8 @@ html[data-native="true"] {
   --success-foreground: var(--brand-black);
   --warning: oklch(0.8 0.14 60);
   --warning-foreground: var(--brand-black);
+  --toggle-on: oklch(0.64 0.11 155);
+  --toggle-off: oklch(0.66 0.1 28);
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 16%);
   --ring: var(--brand-yellow);
