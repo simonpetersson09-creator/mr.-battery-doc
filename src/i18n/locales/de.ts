@@ -156,7 +156,7 @@ export const de = {
       description: "Ich habe echte Ertragswerte für alle 12 Monate.",
     },
     plant: {
-      title: "Anlage",
+      title: "PV-Anlage",
       dcKwp: "Installierte Modulleistung",
       dcKwpShort: "Modulleistung",
       acKw: "Wechselrichter",

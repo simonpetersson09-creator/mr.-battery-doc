@@ -156,7 +156,7 @@ export const en = {
       description: "I have actual production values for all 12 months.",
     },
     plant: {
-      title: "Installation",
+      title: "Solar installation",
       dcKwp: "Installed panel power",
       dcKwpShort: "Panel power",
       acKw: "Inverter",

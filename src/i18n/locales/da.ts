@@ -156,7 +156,7 @@ export const da = {
       description: "Jeg har faktiske produktionsværdier for alle 12 måneder.",
     },
     plant: {
-      title: "Anlæg",
+      title: "Solcelleanlæg",
       dcKwp: "Installeret paneleffekt",
       dcKwpShort: "Paneleffekt",
       acKw: "Inverter",
