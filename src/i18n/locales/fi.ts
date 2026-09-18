@@ -212,7 +212,7 @@ export const fi = {
         "Vakioarvot eri akkuratkaisujen vertailuun. Tarkista ostosähkön hinta sähkölaskustasi ja käytä omaa näkemystäsi myydyn aurinkosähkön tulevista hinnoista.",
     },
     importPrice: { label: "Ostosähkö (sis. siirtomaksun)", hint: "Tarkista sähkölaskusi." },
-    exportPrice: { label: "Myyty aurinkosähkö", hint: "Käytä omaa näkemystäsi tulevasta." },
+    exportPrice: { label: "Myyty aurinkosähkö (spot-hinta)", hint: "Käytä omaa näkemystäsi tulevasta." },
     demandCharge: {
       label: "Tehomaksu",
       hintDefault:

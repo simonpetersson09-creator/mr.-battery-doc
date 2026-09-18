@@ -214,7 +214,7 @@ export const en = {
         "Standard values used to compare different battery solutions. Check your actual electricity bill for purchased power, and use your own view of future prices for exported solar power.",
     },
     importPrice: { label: "Purchased electricity (incl. grid fee)", hint: "Check your electricity bill." },
-    exportPrice: { label: "Exported solar power", hint: "Use your own view of the future." },
+    exportPrice: { label: "Exported solar power (spot price)", hint: "Use your own view of the future." },
     demandCharge: {
       label: "Demand charge",
       hintDefault:

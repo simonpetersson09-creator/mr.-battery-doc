@@ -215,7 +215,7 @@ export const de = {
     },
     importPrice: { label: "Bezogener Strom (inkl. Netzentgelt)", hint: "Prüfen Sie Ihre Stromrechnung." },
     exportPrice: {
-      label: "Eingespeister Solarstrom",
+      label: "Eingespeister Solarstrom (Spotpreis)",
       hint: "Gehen Sie von Ihrer eigenen Erwartung aus.",
     },
     demandCharge: {
