@@ -31,6 +31,8 @@ import {
 } from "./operatingEconomy";
 import type { FcrOptimisationResult, OperatingEconomyConfig, OperatingEconomyResult } from "./operatingEconomy";
 import { buildSeries } from "./simulate";
+import { computeGridLimits } from "./dispatch";
+
 import type { LabConfig, SimResult, TimeSeries } from "./types";
 import { productCost } from "./productCost";
 import type { ProductCostBreakdown, ProductCostConfig } from "./productCost";
