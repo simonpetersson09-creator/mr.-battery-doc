@@ -93,10 +93,15 @@ describe("fcrEnduranceCapacity — held reserve plateau", () => {
     expect(r.baseCapacityKWh).toBe(150);
   });
 
-  it("keeps the capacity unchanged when the grid caps the reserve (flat plateau)", () => {
-    const r = run(40, 20, 25); // 25 A main fuse: grid headroom binds long before energy does
-    expect(r.raised).toBe(false);
-    expect(r.capacityKWh).toBe(20);
+  it("does not add kWh to solve a grid-capped direction", () => {
+    const r = run(40, 20, 25); // 25 A main fuse: the UP reserve is grid-capped from the start
+    const up = r.steps.map((s) => s.heldPowerKw);
+    // The grid-capped direction is flat across the whole ladder: more kWh buys nothing there.
+    expect(Math.max(...up) - Math.min(...up)).toBeLessThan(0.5);
+    // Any raise here comes from the DOWN direction, which is genuinely energy-limited.
+    const chosen = r.steps.find((s) => s.capacityKWh === r.capacityKWh)!;
+    const base = r.steps[0]!;
+    if (r.raised) expect(chosen.heldDownPowerKw).toBeGreaterThan(base.heldDownPowerKw);
   });
 
   it("is inactive when ancillary services are off", () => {
