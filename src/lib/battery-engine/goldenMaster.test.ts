@@ -327,18 +327,21 @@ const EXPECTED = {
     "balanceOk": true,
     "residualKWh": 0
   },
+  // GM09 REGENERATED after the approved solar-flow sizing change: the power is now the
+  // smallest product step reaching 95 % of the saturated physical benefit (40 kW, equal to
+  // the physical need) instead of the economically swept 50 kW. Capacity is unchanged.
   "GM09": {
     "capacityKWh": 200,
-    "powerKw": 50,
+    "powerKw": 40,
     "physicalPowerNeedKw": 40,
     "importBeforeKWh": 247069.1937,
-    "importAfterKWh": 225526.1992,
+    "importAfterKWh": 225595.125,
     "exportBeforeKWh": 147069.1937,
-    "exportAfterKWh": 122934.0868,
-    "shiftedToLoadKWh": 21670.0145,
+    "exportAfterKWh": 123010.7274,
+    "shiftedToLoadKWh": 21601.0887,
     "recoveredCurtailmentKWh": 0,
-    "cycles": 120.389,
-    "utilisationPct": 32.9833,
+    "cycles": 120.006,
+    "utilisationPct": 32.8784,
     "peakBeforeKw": 214.5155,
     "peakAfterKw": 214.5355,
     "gridStatus": "none",
@@ -350,8 +353,8 @@ const EXPECTED = {
     "fcrHeldKw": 0,
     "fcrGrossSek": null,
     "fcrOptimisedKw": null,
-    "energyBenefitSek": 17833.43,
-    "totalOperatingBenefitSek": 18343.79,
+    "energyBenefitSek": 17776.02,
+    "totalOperatingBenefitSek": 18286.39,
     "balanceOk": true,
     "residualKWh": 0
   },
