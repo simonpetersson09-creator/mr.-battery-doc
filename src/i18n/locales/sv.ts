@@ -141,6 +141,8 @@ export const sv = {
       title: "När använder du mest el?",
       placeholder: "Välj profil",
       chartCaption: "Typiskt vardagsdygn",
+      chartPeaks: "Toppar",
+      chartBase: "Basförbrukning",
     },
   },
   production: {

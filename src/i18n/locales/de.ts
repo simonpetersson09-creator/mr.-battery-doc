@@ -138,6 +138,8 @@ export const de = {
       title: "Wann verbrauchen Sie am meisten Strom?",
       placeholder: "Profil wählen",
       chartCaption: "Typischer Werktag",
+      chartPeaks: "Spitzen",
+      chartBase: "Grundlast",
     },
   },
   production: {
