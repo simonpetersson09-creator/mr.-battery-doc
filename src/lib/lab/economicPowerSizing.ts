@@ -119,20 +119,27 @@ export function maxProductStepKw(productStepsKw: number[]): number {
 }
 
 /**
- * GRID CEILING FOR RECOMMENDABLE PRODUCT POWER.
+ * FUSE GUARDRAIL FOR RECOMMENDABLE PRODUCT POWER (solar flow).
  *
- * The customer's existing connection is a ceiling for the battery power we may
- * RECOMMEND. The limit itself is never re-derived here: it is the engine's own
- * operational import/export design limit (`computeGridLimits`, 95 % margin), exactly the
- * same definition the pure-FCR flow uses in `fuseDerivedPowerCeiling`. It is then rounded
- * DOWN to a real product step, so no synthetic kW rating is ever recommended. Dispatch
- * physics is untouched.
+ * PRODUCT RULE, NOT PHYSICS. A battery rated above the main fuse is not physically
+ * impossible behind the meter, but Mr. Battery Doc does not RECOMMEND a rating above the
+ * customer's nominal connection capacity.
+ *
+ * The ceiling is the NOMINAL fuse power `computeFuseKw(A, U, phases)` — the engine's own
+ * central formula, never re-derived here. The 95 % operational margin is deliberately NOT
+ * applied: it is an operating design margin for dispatch (`computeGridLimits`), not a
+ * hardware ceiling. The separate operational overrides `maxImportKw` / `maxExportKw` are
+ * likewise NOT used here — they constrain actual grid import/export in the dispatch, and
+ * a low export limit must never shrink the recommended installed kW, because behind the
+ * meter discharge to own load never crosses the meter.
+ *
+ * The value is rounded DOWN to a real product step by `gridAllowedProductStepKw`, so no
+ * synthetic kW rating is ever recommended. Dispatch physics is untouched, and the pure-FCR
+ * flow keeps its own `fuseDerivedPowerCeiling` unchanged (there all work IS grid exchange).
  */
-export function gridPowerCeilingKw(grid: LabConfig["grid"]): number {
+export function fuseProductGuardrailKw(grid: LabConfig["grid"]): number {
   const limits = computeGridLimits(grid);
-  const imp = limits.maxImportKw > 0 ? limits.maxImportKw : Infinity;
-  const exp = limits.maxExportKw > 0 ? limits.maxExportKw : Infinity;
-  return Math.max(0, Math.min(imp, exp));
+  return limits.fuseKw > 0 ? limits.fuseKw : Infinity;
 }
 
 /** Largest real product step at or below the grid ceiling; the smallest step if none fits. */
@@ -287,6 +294,19 @@ export interface EconomicPowerSizingResult {
    * i.e. the candidate range, not the economics, ended the search.
    */
   powerCeilingBinding: boolean;
+  /**
+   * PRODUCT GUARDRAIL (solar flow). Nominal main-fuse capacity, kW — no 95 % margin, and
+   * independent of any separate operational import/export limit.
+   */
+  fuseGuardrailKw?: number;
+  /** Largest real product step at or below the fuse guardrail, kW. */
+  fuseGuardrailStepKw?: number;
+  /**
+   * True when the engine's own physical power need was ABOVE the fuse guardrail, i.e. the
+   * recommendation is fuse constrained. `physicalPowerNeedKw` always stays the unclipped
+   * technical need, so the information survives the guardrail.
+   */
+  fuseGuardrailBinding?: boolean;
   candidatePowersKw: number[];
   options: PowerOption[];
   /** Highest annual operating benefit. THE v1 recommendation. */
@@ -360,11 +380,11 @@ export function runEconomicPowerSizing(
   const series = input.series ?? buildSeries(cfg);
 
   /**
-   * The recommended product power may never exceed the customer's existing operational
-   * grid limit. Same central definition the pure-FCR flow uses; no new fuse formula, no
-   * duplicated margin.
+   * The recommended product power may never exceed the NOMINAL main-fuse capacity. Product
+   * guardrail only: the engine's own `computeFuseKw` value, no 95 % margin, and never the
+   * separate operational import/export limits (those stay in the dispatch).
    */
-  const gridPowerLimitKw = gridPowerCeilingKw(cfg.grid);
+  const gridPowerLimitKw = fuseProductGuardrailKw(cfg.grid);
   const gridAllowedPowerKw = gridAllowedProductStepKw(
     cfg.powerSizing.productStepsKw,
     gridPowerLimitKw,
@@ -389,6 +409,10 @@ export function runEconomicPowerSizing(
     maxProductPowerKw,
     productCapBound: maxProductPowerKw > 0 && physicalPowerNeedKw > maxProductPowerKw + 1e-9,
     candidatePowersKw,
+    fuseGuardrailKw: gridPowerLimitKw,
+    fuseGuardrailStepKw: gridAllowedPowerKw,
+    fuseGuardrailBinding:
+      Number.isFinite(gridPowerLimitKw) && physicalPowerNeedKw > gridAllowedPowerKw + 1e-9,
     objective: OBJECTIVE_TEXT,
     tieToleranceSek: POWER_TIE_TOLERANCE_SEK,
     productCostGaps: [] as string[],
@@ -506,10 +530,15 @@ export function runEconomicPowerSizing(
     `Systemeffekten väljs på högst beräknad årlig nytta (energi + minskad effektkostnad + FCR). Produktkostnad ingår inte.`,
     `Vid skillnader under ${POWER_TIE_TOLERANCE_SEK} kr/år väljs den LÄGRE systemeffekten.`,
   ];
-  if (Number.isFinite(gridPowerLimitKw) && gridPowerLimitKw > 0)
+  if (Number.isFinite(gridPowerLimitKw) && gridPowerLimitKw > 0) {
     notes.push(
-      `Rekommenderad effekt begränsas även av befintlig anslutning: operativ nätgräns ${round2(gridPowerLimitKw)} kW ger högsta rekommenderbara produktsteg ${gridAllowedPowerKw} kW.`,
+      `Rekommenderad effekt begränsas även av huvudsäkringen som produktguardrail: nominell anslutningseffekt ${round2(gridPowerLimitKw)} kW ger högsta rekommenderbara produktsteg ${gridAllowedPowerKw} kW. Detta är en produktregel, inte en fysikalisk gräns; faktisk nätimport och nätexport begränsas separat i driftmodellen.`,
     );
+    if (physicalPowerNeedKw > gridAllowedPowerKw + 1e-9)
+      notes.push(
+        `Tekniskt effektbehov före guardrail: ${round2(physicalPowerNeedKw)} kW. Rekommendationen är säkringsbegränsad.`,
+      );
+  }
 
   if (fcrActive)
     notes.push(
