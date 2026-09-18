@@ -140,26 +140,28 @@ function ProductionStep() {
 
   const plantCard = (
     <SectionCard compact icon={<Zap />} title={t("production.plant.title")}>
-      <NumberField
-        label={t("production.plant.dcKwp")}
-        unit="kWp"
-        value={p.dcKwp}
-        placeholder={t("errors.egValue", { value: "14" })}
-        compact
-        error={fieldError.dcKwp}
-        reminder={t("validation.reminder")}
-        onChange={(v) => update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))}
-      />
-      <NumberField
-        label={t("production.plant.acKw")}
-        unit="kW"
-        value={p.acKw}
-        placeholder={t("errors.egValue", { value: "12" })}
-        compact
-        error={fieldError.acKw}
-        reminder={t("validation.reminder")}
-        onChange={(v) => update((s) => ({ ...s, production: { ...s.production, acKw: v } }))}
-      />
+      <div className="grid grid-cols-2 gap-2.5">
+        <NumberField
+          label={t("production.plant.dcKwpShort")}
+          unit="kWp"
+          value={p.dcKwp}
+          placeholder={t("errors.egValue", { value: "14" })}
+          compact
+          error={fieldError.dcKwp}
+          reminder={t("validation.reminder")}
+          onChange={(v) => update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))}
+        />
+        <NumberField
+          label={t("production.plant.acKw")}
+          unit="kW"
+          value={p.acKw}
+          placeholder={t("errors.egValue", { value: "12" })}
+          compact
+          error={fieldError.acKw}
+          reminder={t("validation.reminder")}
+          onChange={(v) => update((s) => ({ ...s, production: { ...s.production, acKw: v } }))}
+        />
+      </div>
     </SectionCard>
   );
 

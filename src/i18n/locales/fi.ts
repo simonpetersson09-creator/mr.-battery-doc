@@ -154,7 +154,7 @@ export const fi = {
       description: "Minulla on todelliset tuotantoarvot kaikille 12 kuukaudelle.",
     },
     plant: {
-      title: "Järjestelmä",
+      title: "Aurinkovoimala",
       dcKwp: "Asennettu paneeliteho",
       dcKwpShort: "Paneeliteho",
       acKw: "Invertteri",

@@ -159,7 +159,7 @@ export const sv = {
       description: "Jag har faktiska produktionsvärden för alla 12 månader.",
     },
     plant: {
-      title: "Anläggning",
+      title: "Solcellsanläggning",
       dcKwp: "Installerad paneleffekt",
       dcKwpShort: "Paneleffekt",
       acKw: "Växelriktare",
