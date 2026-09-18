@@ -51,9 +51,12 @@ describe("true without-FCR counterfactual", () => {
    * base-power correction: the 3 kW step is now scanned and already reaches 95 % of the
    * saturated physical benefit, so the technical level is 3 kW.
    */
-  it("B: the FCR-on recommendation is the technical 25 kWh / 3 kW", () => {
+  it("B: the FCR-on base power is the technical 25 kWh / 3 kW", () => {
     expect(rec.capacityKWh).toBe(25);
-    expect(rec.recommendedPowerKw).toBe(3);
+    // UPDATED: FCR revenue no longer changes the BASE power, but the approved product
+    // rule does raise the INSTALLED power to the highest step inside the fuse guardrail.
+    expect(rec.basePowerForEnergyKw).toBe(3);
+    expect(rec.recommendedPowerKw).toBe(15);
     expect(rec.physicalPowerNeedKw).toBeCloseTo(3.5, 6);
   });
 
@@ -69,6 +72,7 @@ describe("true without-FCR counterfactual", () => {
     });
     expect(wo.capacityKWh).toBe(direct.summary.recommendation.capacityKWh);
     expect(wo.withoutFcrOptimalPowerKw).toBe(direct.summary.recommendation.recommendedPowerKw);
+    expect(direct.summary.recommendation.ancillaryRaisedPowerKw).toBeNull();
     for (const kw of [3, 3.5, 5, 7.5, 10]) expect(wo.candidatePowersKw).toContain(kw);
   });
 
@@ -180,7 +184,7 @@ describe("compact power explanation card", () => {
    * had raised. That can no longer happen — the power is technical — so the card stays
    * hidden and the recommended level equals the without-FCR level.
    */
-  it("control case: no FCR power card, because FCR never raises the power", () => {
+  it("control case: no FCR power card; the base power still matches the counterfactual", () => {
     const p = buildResultPresentation(outcome.result, {
       peakShavingSelected: true,
       demandChargeTouched: false,
@@ -190,7 +194,7 @@ describe("compact power explanation card", () => {
     expect(p.showPhysicalNeedRow).toBe(false);
     expect(p.fcrPowerLevels).toHaveLength(0);
     expect(p.fcrPowerExplanation).toBeNull();
-    expect(outcome.result.summary.recommendation.recommendedPowerKw).toBe(
+    expect(outcome.result.summary.recommendation.basePowerForEnergyKw).toBe(
       wo.withoutFcrOptimalPowerKw,
     );
   });

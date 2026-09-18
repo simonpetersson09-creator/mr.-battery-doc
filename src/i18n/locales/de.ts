@@ -323,6 +323,10 @@ export const de = {
       reduction: "Reduktion",
       noReduction: "Keine Reduktion der Lastspitze mit den gewählten Einstellungen.",
     },
+    breakdown: {
+      title: "Verteilung des jährlichen Nutzens",
+      total: "Gesamter berechneter Kundennutzen",
+    },
     benefit: {
       nonPositive:
         "Mit Ihren aktuellen Angaben ergibt sich kein positiver berechneter wirtschaftlicher Nutzen pro Jahr. Das technische Ergebnis wird trotzdem unten gezeigt.",
@@ -425,6 +429,7 @@ export const de = {
     recommendedPower: "Empfohlene Systemleistung",
     physicalNeed: "Physischer Leistungsbedarf",
     basePowerForEnergy: "Grundleistung für Energiemanagement",
+    ancillaryRaisedNote: "Die höhere empfohlene Leistung ergibt sich aus der Auslegung für Systemdienstleistungen.",
     potentialTitle: "Potenzial für Systemdienstleistungen",
     potentialNote: "Eine höhere installierte Leistung kann den berechneten Nutzen aus Systemdienstleistungen erhöhen. Für diesen Netzanschluss kann das Modell Produktstufen bis {max} kW testen.",
     potentialColumn: "Zusätzlicher berechneter Jahresnutzen",

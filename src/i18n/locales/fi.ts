@@ -316,6 +316,10 @@ export const fi = {
       reduction: "Vähennys",
       noReduction: "Tehohuippu ei pienene valituilla asetuksilla.",
     },
+    breakdown: {
+      title: "Vuotuisen hyödyn jakauma",
+      total: "Laskettu kokonaishyöty asiakkaalle",
+    },
     benefit: {
       nonPositive:
         "Nykyisillä tiedoillasi akku ei tuota positiivista laskennallista taloudellista hyötyä vuodessa. Tekninen tulos näytetään silti alla.",
@@ -416,6 +420,7 @@ export const fi = {
     recommendedPower: "Suositeltu järjestelmäteho",
     physicalNeed: "Fyysinen tehontarve",
     basePowerForEnergy: "Perusteho energianhallintaan",
+    ancillaryRaisedNote: "Korkeampi suositeltu teho tulee reservipalvelujen mitoituksesta.",
     potentialTitle: "Reservipalvelujen potentiaali",
     potentialNote: "Suurempi asennettu teho voi kasvattaa laskettua reservipalveluhyötyä. Tälle liittymälle malli voi testata tuoteportaita {max} kW asti.",
     potentialColumn: "Lisälaskettu vuosihyöty",

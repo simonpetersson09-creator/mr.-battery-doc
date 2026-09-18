@@ -94,8 +94,8 @@ describe("engine wiring", () => {
   });
 });
 
-describe("the analysis never changes the recommendation", () => {
-  it("power, capacity and max investment are identical with and without the analysis", () => {
+describe("the analysis drives the recommended power when ancillary services are on", () => {
+  it("capacity and base power are identical with and without the analysis", () => {
     const on = run(c032());
     const off = run(
       c032({
@@ -108,21 +108,20 @@ describe("the analysis never changes the recommendation", () => {
       } as BatteryEngineInput),
     );
     expect(off.ancillaryPowerPotential).toBeNull();
-    expect(on.recommendation.powerKw).toBe(off.recommendation.powerKw);
     expect(on.recommendation.capacityKWh).toBe(off.recommendation.capacityKWh);
     expect(on.recommendation.basePowerForEnergyKw).toBe(off.recommendation.basePowerForEnergyKw);
-    expect(on.economy.annualCustomerBenefitSek).toBe(off.economy.annualCustomerBenefitSek);
-    expect(on.economy.totalOperatingBenefitSek).toBe(off.economy.totalOperatingBenefitSek);
+    // Without the analysis there is no higher step to select, so the base power stands.
+    expect(off.recommendation.powerKw).toBe(off.recommendation.basePowerForEnergyKw);
+    expect(off.recommendation.ancillaryRaisedPowerKw).toBeNull();
   });
 
-  it("the recommended power stays at the base power even when higher steps pay more", () => {
+  it("the recommended power becomes the highest simulated real product step", () => {
     const s = run(c032());
     const p = s.ancillaryPowerPotential!;
-    const best = p.steps.reduce((a, b) =>
-      b.totalCustomerBenefitPerYear > a.totalCustomerBenefitPerYear ? b : a,
-    );
-    expect(s.recommendation.powerKw).toBe(s.recommendation.basePowerForEnergyKw);
-    expect(best.installedPowerKw).toBeGreaterThanOrEqual(s.recommendation.powerKw);
+    const highest = p.steps.reduce((a, b) => Math.max(a, b.installedPowerKw), 0);
+    expect(s.recommendation.powerKw).toBe(highest);
+    expect(s.recommendation.ancillaryRaisedPowerKw).toBe(highest);
+    expect(s.recommendation.powerKw).toBeGreaterThan(s.recommendation.basePowerForEnergyKw);
   });
 
   it("the legacy 99 % power need is not used as the customer's base power", () => {
@@ -130,6 +129,8 @@ describe("the analysis never changes the recommendation", () => {
     expect(s.recommendation.basePowerForEnergyKw).toBeLessThanOrEqual(
       s.recommendation.physicalPowerNeedKw + 1e-9,
     );
-    expect(s.recommendation.powerKw).toBe(s.recommendation.basePowerForEnergyKw);
+    expect(s.recommendation.powerKw).toBeGreaterThanOrEqual(
+      s.recommendation.basePowerForEnergyKw,
+    );
   });
 });

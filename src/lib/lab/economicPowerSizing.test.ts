@@ -338,8 +338,11 @@ describe("engine integration", () => {
     expect(rec.physicalPowerNeedKw).toBe(3.5);
     // UPDATED: the 95 % rule may now see the 3 kW step; the old 99 % floor is gone.
     expect(rec.operatingOptimalPowerKw).toBe(3);
-    expect(rec.recommendedPowerKw).toBe(rec.operatingOptimalPowerKw);
+    // The 95 % base power equals the operating optimum; ancillary services may raise the
+    // installed power above it (approved product rule).
+    expect(rec.basePowerForEnergyKw).toBe(rec.operatingOptimalPowerKw);
     expect(rec.powerKw).toBe(rec.recommendedPowerKw);
+    expect(rec.recommendedPowerKw).toBeGreaterThanOrEqual(rec.basePowerForEnergyKw);
     expect(rec.economicallyOptimalPowerKw).toBeNull();
     expect(rec.recommendationUsesHistoricalFcr).toBe(false);
     expect(r.summary.powerOptions.length).toBeGreaterThanOrEqual(2);

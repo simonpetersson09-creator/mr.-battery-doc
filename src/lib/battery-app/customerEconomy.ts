@@ -110,3 +110,67 @@ export function maxInvestmentSek(
   const years = clampTargetPaybackYears(targetPaybackYears);
   return totalCustomerBenefitSek * years;
 }
+
+/**
+ * ANNUAL BENEFIT BREAKDOWN — presentation only, no recomputation.
+ *
+ * `totalCustomerBenefitSek` is composed of exactly three engine components:
+ *   energy benefit + peak/demand benefit + ancillary customer value.
+ * No fourth category exists, so none is invented here.
+ *
+ * SHARE RULE: a component may legitimately be NEGATIVE (e.g. energy value lost because
+ * the battery reserves capacity for the reserve market). Dividing by the net total would
+ * then produce shares above 100 %. The denominator is therefore the sum of the POSITIVE
+ * components only, and negative components keep their SEK value with no share at all.
+ * Rounded positive shares are corrected by largest remainder so they sum to exactly 100.
+ */
+export type BenefitComponentKey = "energy" | "peak" | "ancillary";
+
+export interface BenefitComponent {
+  key: BenefitComponentKey;
+  sek: number;
+  /** Share of the positive benefit total, 0-100. Null for non-positive components. */
+  sharePct: number | null;
+}
+
+export interface BenefitBreakdown {
+  components: BenefitComponent[];
+  positiveBenefitTotalSek: number;
+  totalCustomerBenefitSek: number | null;
+}
+
+export function benefitBreakdown(economy: CustomerEconomy): BenefitBreakdown {
+  const safe = (v: number) => (Number.isFinite(v) ? v : 0);
+  const raw: { key: BenefitComponentKey; sek: number }[] = [
+    { key: "energy", sek: safe(economy.energyBenefitSek) },
+    { key: "peak", sek: safe(economy.peakBenefitSek) },
+    {
+      key: "ancillary",
+      sek: economy.ancillaryEnabled ? safe(economy.ancillaryCustomerValueSek) : 0,
+    },
+  ];
+
+  const positiveBenefitTotalSek = raw.reduce((a, c) => a + Math.max(c.sek, 0), 0);
+  const exact = raw.map((c) =>
+    positiveBenefitTotalSek > 0 && c.sek > 0 ? (c.sek / positiveBenefitTotalSek) * 100 : null,
+  );
+  const floored = exact.map((v) => (v === null ? null : Math.floor(v)));
+  let remaining =
+    100 - floored.reduce<number>((a, v) => a + (v ?? 0), 0);
+  // Largest remainder: hand the rounding rest to the biggest fractional parts.
+  const order = exact
+    .map((v, i) => ({ i, frac: v === null ? -1 : v - Math.floor(v) }))
+    .filter((o) => o.frac >= 0)
+    .sort((a, b) => b.frac - a.frac);
+  for (const o of order) {
+    if (remaining <= 0) break;
+    floored[o.i] = (floored[o.i] ?? 0) + 1;
+    remaining -= 1;
+  }
+
+  return {
+    components: raw.map((c, i) => ({ key: c.key, sek: c.sek, sharePct: floored[i] ?? null })),
+    positiveBenefitTotalSek,
+    totalCustomerBenefitSek: economy.totalCustomerBenefitSek,
+  };
+}

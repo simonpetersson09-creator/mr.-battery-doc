@@ -60,7 +60,8 @@ describe("base power for energy handling — 95 % physical saturation", () => {
   it("1/3. C032 gets 15 kW: 10 kW is below 95 %, 15 kW is not", () => {
     const rec = runBatteryEngine(c032(true)).summary.recommendation;
     expect(rec.capacityKWh).toBe(150);
-    expect(rec.recommendedPowerKw).toBe(15);
+    // Base power is the 95 % answer; ancillary services raise the INSTALLED power.
+    expect(rec.basePowerForEnergyKw).toBe(15);
     // The old 99 % answer is still REPORTED separately and is higher.
     expect(rec.physicalPowerNeedKw).toBe(20);
   });
@@ -146,7 +147,8 @@ describe("base power for energy handling — 95 % physical saturation", () => {
   it("7. FCR on/off does not change the base power", () => {
     const off = runBatteryEngine(c032(false)).summary.recommendation;
     const on = runBatteryEngine(c032(true)).summary.recommendation;
-    expect(on.recommendedPowerKw).toBe(off.recommendedPowerKw);
+    expect(on.basePowerForEnergyKw).toBe(off.basePowerForEnergyKw);
+    expect(off.recommendedPowerKw).toBe(off.basePowerForEnergyKw);
     expect(on.recommendationUsesHistoricalFcr).toBe(false);
   });
 

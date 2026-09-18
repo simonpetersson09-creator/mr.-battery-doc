@@ -322,6 +322,10 @@ export const sv = {
       reduction: "Minskning",
       noReduction: "Ingen minskning av effekttoppen med de valda inställningarna.",
     },
+    breakdown: {
+      title: "Fördelning av årlig nytta",
+      total: "Total beräknad kundnytta",
+    },
     benefit: {
       nonPositive:
         "Med dina nuvarande uppgifter ger batteriet ingen positiv beräknad ekonomisk nytta per år. Det tekniska resultatet visas ändå nedan.",
@@ -422,6 +426,7 @@ export const sv = {
     recommendedPower: "Rekommenderad systemeffekt",
     physicalNeed: "Fysiskt effektbehov",
     basePowerForEnergy: "Grundeffekt för energihantering",
+    ancillaryRaisedNote: "Den högre rekommenderade effekten kommer från stödtjänstdimensioneringen.",
     potentialTitle: "Stödtjänstpotential",
     potentialNote: "Högre installerad effekt kan öka den beräknade stödtjänstnyttan. För den här anslutningen kan motorn testa produktsteg upp till {max} kW.",
     potentialColumn: "Ytterligare beräknad årsnytta",

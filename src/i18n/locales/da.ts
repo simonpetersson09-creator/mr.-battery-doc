@@ -320,6 +320,10 @@ export const da = {
       reduction: "Reduktion",
       noReduction: "Ingen reduktion af effekttoppen med de valgte indstillinger.",
     },
+    breakdown: {
+      title: "Fordeling af årlig værdi",
+      total: "Samlet beregnet kundeværdi",
+    },
     benefit: {
       nonPositive:
         "Med dine nuværende oplysninger giver batteriet ingen positiv beregnet økonomisk fordel per år. Det tekniske resultat vises alligevel nedenfor.",
@@ -421,6 +425,7 @@ export const da = {
     recommendedPower: "Anbefalet systemeffekt",
     physicalNeed: "Fysisk effektbehov",
     basePowerForEnergy: "Grundeffekt til energistyring",
+    ancillaryRaisedNote: "Den højere anbefalede effekt kommer fra dimensioneringen til systemydelser.",
     potentialTitle: "Potentiale for systemydelser",
     potentialNote: "Højere installeret effekt kan øge den beregnede nytte fra systemydelser. For denne nettilslutning kan modellen teste produkttrin op til {max} kW.",
     potentialColumn: "Yderligere beregnet årlig nytte",

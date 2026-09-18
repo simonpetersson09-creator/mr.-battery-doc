@@ -43,6 +43,8 @@ export interface ResultPresentation {
   physicalPowerNeedKw: number;
   /** 95 % base power for energy handling, kW — the customer-facing base power. */
   basePowerForEnergyKw: number;
+  /** Set when ancillary services raised the installed power above the base power. */
+  ancillaryRaisedPowerKw: number | null;
   /**
    * INFORMATION ONLY: higher real product steps the engine simulated with ancillary
    * services on. Never a recommendation, never "optimal". Null when there is nothing
@@ -381,6 +383,7 @@ export function buildResultPresentation(
     fcrMonetizedPowerKw: showFcr ? s.fcr.monetizedPowerKw : null,
     fcrReservableAvgPowerKw: showFcr ? s.fcr.reservablePowerAvgKw : null,
     basePowerForEnergyKw: r.basePowerForEnergyKw,
+    ancillaryRaisedPowerKw: r.ancillaryRaisedPowerKw,
     ancillaryPotential: ancillaryPotential,
 
 
