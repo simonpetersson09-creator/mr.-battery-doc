@@ -676,30 +676,3 @@ html[data-native="true"] * {
 html[data-native="true"] .pt-safe {
   padding-top: env(safe-area-inset-top);
 }
-
-/*
- * Logo "battery pulse" — a slow, subtle yellow glow that traces the logo
- * silhouette (house + battery + bolt) via drop-shadow on the alpha channel.
- * Reads as the battery being "alive" without distracting from content.
- */
-@keyframes logo-pulse {
-  0%, 100% {
-    filter:
-      drop-shadow(0 0 0.5px rgba(255, 220, 56, 0.35))
-      drop-shadow(0 0 2px rgba(255, 220, 56, 0.12));
-  }
-  50% {
-    filter:
-      drop-shadow(0 0 1.5px rgba(255, 220, 56, 0.6))
-      drop-shadow(0 0 5px rgba(255, 220, 56, 0.28));
-  }
-}
-.logo-pulse {
-  animation: logo-pulse 2.8s ease-in-out infinite;
-}
-/* Respect reduced-motion preferences. */
-@media (prefers-reduced-motion: reduce) {
-  .logo-pulse {
-    animation: none;
-  }
-}
