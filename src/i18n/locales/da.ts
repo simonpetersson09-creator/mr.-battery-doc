@@ -5,6 +5,7 @@ export const da = {
     back: "Tilbage",
     next: "Næste",
     showResult: "Vis resultat",
+    calculating: "Beregner…",
     done: "Færdig",
     cancel: "Annuller",
     restart: "Start forfra",

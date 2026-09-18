@@ -5,6 +5,7 @@ export const fi = {
     back: "Takaisin",
     next: "Seuraava",
     showResult: "Näytä tulos",
+    calculating: "Lasketaan…",
     done: "Valmis",
     cancel: "Peruuta",
     restart: "Aloita alusta",

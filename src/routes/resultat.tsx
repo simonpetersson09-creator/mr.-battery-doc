@@ -6,11 +6,13 @@ import { loadSnapshot, saveSnapshot } from "@/lib/history/store";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { SectionCard } from "@/components/wizard/fields";
 import { Button } from "@/components/ui/button";
-import { clearCalculationCache, getCalculation } from "@/lib/access/calculationCache";
+import {
+  clearCalculationCache,
+  getCalculation,
+  getDerivedAnalyses,
+} from "@/lib/access/calculationCache";
 import { useAccess } from "@/state/access";
 import { buildResultPresentation } from "@/lib/battery-app/resultPresentation";
-import { computeWithoutFcrOptimum } from "@/lib/battery-app/withoutFcrOptimum";
-import { computeBatteryAlternatives } from "@/lib/battery-app/capacityAlternatives";
 import {
   ancillaryAlternatives,
   bestAncillaryCandidate,
@@ -124,29 +126,15 @@ function ResultStep() {
    * Genuine FCR-off counterfactual (full capacity + power sizing with FCR switched off).
    * Only needed while the reserve product is actually part of the recommendation.
    */
-  const withoutFcr = useMemo(
-    () =>
-      snapshot
-        ? snapshot.withoutFcr
-        : outcome.status === "ok" && outcome.result.summary.fcr.enabled
-          ? computeWithoutFcrOptimum(outcome.input, outcome.result)
-          : null,
-    [snapshot, outcome],
+  /* Both comparison layers come from the one-slot cache, so re-entering the result
+     page (purchase, back navigation) never re-runs them. Identical inputs/arguments. */
+  const derived = useMemo(
+    () => (snapshot ? null : getDerivedAnalyses(liveState)),
+    [snapshot, liveState],
   );
+  const withoutFcr = snapshot ? snapshot.withoutFcr : (derived?.withoutFcr ?? null);
   /** Comparison layer: nearest simulated capacity step below/above the recommendation. */
-  const alternatives = useMemo(
-    () =>
-      snapshot
-        ? snapshot.alternatives
-        : outcome.status === "ok"
-          ? computeBatteryAlternatives(
-              outcome.input,
-              outcome.result,
-              state.preferences.customerAncillaryShare,
-            )
-          : [],
-    [snapshot, outcome, state.preferences.customerAncillaryShare],
-  );
+  const alternatives = snapshot ? snapshot.alternatives : (derived?.alternatives ?? []);
 
   /**
    * Ancillary-only case: the physical sizing finds no battery need (no solar, no peak

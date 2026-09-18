@@ -10,6 +10,7 @@ export const sv = {
     back: "Tillbaka",
     next: "Nästa",
     showResult: "Visa resultat",
+    calculating: "Beräknar…",
     done: "Klar",
     cancel: "Avbryt",
     restart: "Börja om",
