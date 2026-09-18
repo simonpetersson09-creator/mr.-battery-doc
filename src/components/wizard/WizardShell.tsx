@@ -64,13 +64,12 @@ export function WizardShell({
             />
           </Link>
         </div>
+        <p className="mt-2 ui-caption">
+          {t("common.step", { current: stepIndex + 1, total: WIZARD_STEPS.length })}
+        </p>
         <StepIndicator stepIndex={stepIndex} />
 
         <section className="mt-2">
-          <p className={eyebrowClassName ?? "ui-caption"}>
-            {t("common.step", { current: stepIndex + 1, total: WIZARD_STEPS.length })}
-          </p>
-
           <div className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}>{children}</div>
         </section>
 
