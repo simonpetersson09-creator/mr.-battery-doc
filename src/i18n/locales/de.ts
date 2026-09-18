@@ -213,7 +213,7 @@ export const de = {
       description:
         "Pauschalwerte, um Batterielösungen zu vergleichen. Für bezogenen Strom Ihre Stromrechnung heranziehen und für eingespeisten Solarstrom Ihre eigene Erwartung künftiger Preise.",
     },
-    importPrice: { label: "Bezogener Strom", hint: "Prüfen Sie Ihre Stromrechnung." },
+    importPrice: { label: "Bezogener Strom (inkl. Netzentgelt)", hint: "Prüfen Sie Ihre Stromrechnung." },
     exportPrice: {
       label: "Eingespeister Solarstrom",
       hint: "Gehen Sie von Ihrer eigenen Erwartung aus.",
