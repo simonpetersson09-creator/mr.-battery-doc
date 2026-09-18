@@ -70,7 +70,7 @@ export function WizardShell({
           <div className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}>{children}</div>
         </section>
 
-        <nav className="pb-safe mt-auto pt-4" aria-label={t("common.step", { current: stepIndex + 1, total: WIZARD_STEPS.length })}>
+        <nav className="pb-safe mt-auto pt-4" aria-label="Wizard navigation">
           <div className="flex gap-2">
             <Button asChild variant="outline" className={`h-10 flex-1 rounded-[0.75rem] text-[15px] font-semibold${navButtonClassName ? ` ${navButtonClassName}` : ""}`}>
               <Link to={prev}>{t("common.back")}</Link>
