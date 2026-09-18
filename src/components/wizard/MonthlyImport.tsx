@@ -159,11 +159,33 @@ export function MonthlyImport({
     }
   };
 
+  /**
+   * Browser file input fallback. WKWebView opens the same iOS camera / photo /
+   * Files sheets, so the step keeps working even when a native plugin is missing
+   * from the build or never answers.
+   */
+  const openWebPicker = (source: PickerSource) => {
+    const input = inputRef.current;
+    if (!input) return;
+    input.accept = source === "files" ? IMPORT_ACCEPT : "image/*";
+    if (source === "camera") input.setAttribute("capture", "environment");
+    else input.removeAttribute("capture");
+    input.click();
+  };
+
   /** Camera / photo library / Files inside the iOS app. */
   const handleNativePick = async (source: PickerSource) => {
-    if (busy) return;
+    if (busy || picking) return;
     setError(null);
-    const outcome = await pickFrom(source);
+    setPicking(true);
+    let outcome: Awaited<ReturnType<typeof pickFrom>>;
+    try {
+      outcome = await pickFrom(source);
+    } catch {
+      outcome = { status: "unsupported" };
+    } finally {
+      setPicking(false);
+    }
     switch (outcome.status) {
       case "picked":
         await analyze(outcome.file);
