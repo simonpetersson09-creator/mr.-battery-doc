@@ -72,10 +72,16 @@ describe("true without-FCR counterfactual", () => {
     for (const kw of [3, 3.5, 5, 7.5, 10]) expect(wo.candidatePowersKw).toContain(kw);
   });
 
+  /**
+   * UPDATED with the base-power correction: the counterfactual power is the TECHNICAL
+   * choice (smallest step reaching 95 % of the saturated physical benefit), not the highest
+   * SEK option, so a higher-benefit option may exist above it. The tie tolerance is still
+   * reported unchanged.
+   */
   it("A: returns the full engine's purchasable 3 kW recommendation", () => {
     expect(wo.tieToleranceSek).toBe(25);
     expect(wo.withoutFcrOptimalPowerKw).toBe(3);
-    expect(wo.bestBenefitSek - wo.withoutFcrBenefitSek).toBeLessThanOrEqual(25);
+    expect(wo.bestBenefitSek).toBeGreaterThanOrEqual(wo.withoutFcrBenefitSek);
   });
 
   it("E: no FCR revenue and no reservation touched the counterfactual dispatch", () => {

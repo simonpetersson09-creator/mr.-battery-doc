@@ -77,15 +77,16 @@ describe("upper search-limit classification", () => {
    *
    * UPDATED with the base-power correction: the candidate ladder now also contains the
    * steps below the older 99 % floor, and the smallest step reaching 95 % of the saturated
-   * physical benefit is 125 kW. The CAPACITY still sits on the analysed boundary, which is
-   * what this classification test asserts. 200 kW remains reachable — see
-   * `basePowerSizing.test.ts`.
+   * physical benefit is 125 kW. The CAPACITY still sits on the analysed boundary and is
+   * flagged; the POWER no longer does, which is exactly what the flag should report. That
+   * 200 kW is still reachable when the physics needs it is covered by
+   * `src/lib/lab/basePowerSizing.test.ts`.
    */
-  it("flags both limits for a case beyond the analysed range", () => {
+  it("flags the capacity limit for a case beyond the analysed range", () => {
     const r = runBatteryEngine(build(3000000, 2000000, 630)).summary.recommendation;
     expect(r.capacityKWh).toBe(500);
     expect(r.recommendedPowerKw).toBe(125);
     expect(r.upperLimitReached).toBe(true);
-    expect(r.powerUpperLimitReached).toBe(true);
+    expect(r.powerUpperLimitReached).toBe(false);
   });
 });
