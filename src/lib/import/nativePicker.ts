@@ -299,7 +299,13 @@ export async function pickFile(adapters?: PickerAdapters): Promise<PickOutcome> 
 }
 
 export function pickFrom(source: PickerSource, adapters?: PickerAdapters): Promise<PickOutcome> {
-  if (source === "camera") return takePhoto(adapters);
-  if (source === "photos") return pickPhoto(adapters);
-  return pickFile(adapters);
+  const work =
+    source === "camera"
+      ? takePhoto(adapters)
+      : source === "photos"
+        ? pickPhoto(adapters)
+        : pickFile(adapters);
+  // A native sheet that never answers becomes "unsupported", which lets the caller
+  // fall back to the browser file input instead of appearing dead.
+  return withTimeout<PickOutcome>(work, PICKER_TIMEOUT_MS, { status: "unsupported" });
 }
