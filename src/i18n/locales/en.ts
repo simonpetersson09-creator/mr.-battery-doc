@@ -11,6 +11,7 @@ export const en = {
     restart: "Start over",
     locked: "Locked",
     step: "Step {{current}} of {{total}}",
+    now: "Right now",
   },
   language: {
     title: "Language",
@@ -85,6 +86,7 @@ export const en = {
     footnote: "Takes about three minutes. Your answers are saved as you go.",
   },
   network: {
+    primary: "Choose your main fuse",
     title: "Grid and main fuse",
     intro:
       "Start by choosing a country. The right grid values and standard prices are then set automatically.",
@@ -113,6 +115,7 @@ export const en = {
     },
   },
   consumption: {
+    primary: "Enter your annual consumption",
     title: "Consumption",
     intro: "Choose whichever way suits you best. You can change it later.",
     modeTitle: "How do you want to enter your consumption?",
@@ -141,6 +144,7 @@ export const en = {
     },
   },
   production: {
+    primary: "Enter your solar production",
     title: "Production",
     intro: "Does the property have solar panels today?",
     modeTitle: "How do you want to enter your production?",
@@ -173,6 +177,7 @@ export const en = {
     },
   },
   strategies: {
+    primary: "Choose what the battery should do",
     title: "Battery",
     intro: "Everything is on from the start. Turn off what is not relevant to you.",
     solar: {
@@ -195,6 +200,7 @@ export const en = {
       "You have stated that the property has no solar panels. Self-consumption of solar power therefore gives no benefit today — the other uses are unaffected.",
   },
   economics: {
+    primary: "Check your electricity prices",
     customerShare: {
       title: "Ancillary services",
       description: "The full market value rarely reaches you. Enter the share you expect to receive.",
