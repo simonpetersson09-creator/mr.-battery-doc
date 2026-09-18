@@ -86,6 +86,7 @@ function ConsumptionStep() {
       stepIndex={1}
       title={t("consumption.title")}
       intro={t("consumption.intro")}
+      primaryTask={t("consumption.primary")}
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
       compact
