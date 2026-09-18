@@ -234,7 +234,13 @@ const EXPECTED: Record<string, { capacityKWh: number; powerKw: number }> = {
   CG01: { capacityKWh: 20, powerKw: 3 },
   CG02: { capacityKWh: 25, powerKw: 5 },
   CG03: { capacityKWh: 5, powerKw: 3 },
-  CG04: { capacityKWh: 300, powerKw: 150 },
+  /**
+   * CG04 regenerated after the approved GRID-CEILING change: 200 A / 400 V gives an
+   * operational limit of ~131.6 kW, so the highest recommendable product step is 125 kW
+   * (150 kW was above the connection). Capacity is unchanged.
+   */
+  CG04: { capacityKWh: 300, powerKw: 125 },
+
   CG05: { capacityKWh: 0, powerKw: 0 },
   CG06: { capacityKWh: 10, powerKw: 3 },
   CG07: { capacityKWh: 50, powerKw: 25 },
