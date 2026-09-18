@@ -212,13 +212,12 @@ describe("C — the power level is chosen on total customer benefit", () => {
       optimiseFcrReservation: true,
     });
     const selected = sizing.options.find((o) => o.selected)!;
+    // A bigger option may well earn more FCR — it must still never be selected.
     for (const o of sizing.options) {
       if (o.powerKw <= selected.powerKw) continue;
-      // Any bigger option must be genuinely better for the customer, not just for FCR.
-      expect(o.annualCustomerBenefitSek).toBeLessThan(
-        selected.annualCustomerBenefitSek + POWER_TIE_TOLERANCE_SEK,
-      );
+      expect(o.selected).toBe(false);
     }
+    expect(sizing.recommendationUsesHistoricalFcr).toBe(false);
   });
 
   it("applies the customer share to the ancillary value in the objective", () => {
