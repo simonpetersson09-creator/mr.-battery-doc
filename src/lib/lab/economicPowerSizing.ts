@@ -359,12 +359,24 @@ export function runEconomicPowerSizing(
   } = input;
   const series = input.series ?? buildSeries(cfg);
 
+  /**
+   * The recommended product power may never exceed the customer's existing operational
+   * grid limit. Same central definition the pure-FCR flow uses; no new fuse formula, no
+   * duplicated margin.
+   */
+  const gridPowerLimitKw = gridPowerCeilingKw(cfg.grid);
+  const gridAllowedPowerKw = gridAllowedProductStepKw(
+    cfg.powerSizing.productStepsKw,
+    gridPowerLimitKw,
+  );
   const candidatePowersKw = buildPowerCandidates(
     capacityKWh,
     productPowerKw,
     cfg.powerSizing.productStepsKw,
     maxProductCRate,
+    gridPowerLimitKw,
   );
+
   const fcrActive = cfg.strategies.ancillaryServices;
   const fcrMarketGaps = fcrActive ? fcrMarketRealismGaps(fcrMarket) : [];
 
