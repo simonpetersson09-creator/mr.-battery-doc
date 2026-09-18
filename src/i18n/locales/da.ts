@@ -529,6 +529,7 @@ export const da = {
     demandCharge: "Effektbetalingen kan ikke være negativ.",
     fxRateAncillary: "Valutakursen skal være større end nul, når systemydelser er slået til.",
     fxRate: "Valutakursen skal være større end nul.",
+    reminder: "Angiv en værdi.",
   },
   meta: {
     intro: {

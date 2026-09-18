@@ -524,6 +524,7 @@ export const fi = {
     demandCharge: "Tehomaksu ei voi olla negatiivinen.",
     fxRateAncillary: "Valuuttakurssin on oltava nollaa suurempi, kun reservipalvelut ovat päällä.",
     fxRate: "Valuuttakurssin on oltava nollaa suurempi.",
+    reminder: "Anna arvo.",
   },
   meta: {
     intro: {

@@ -536,6 +536,7 @@ export const de = {
     fxRateAncillary:
       "Der Wechselkurs muss größer als null sein, wenn Systemdienstleistungen aktiv sind.",
     fxRate: "Der Wechselkurs muss größer als null sein.",
+    reminder: "Geben Sie einen Wert ein.",
   },
   meta: {
     intro: {
