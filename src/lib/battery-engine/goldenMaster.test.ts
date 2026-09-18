@@ -327,21 +327,22 @@ const EXPECTED = {
     "balanceOk": true,
     "residualKWh": 0
   },
-  // GM09 REGENERATED after the approved solar-flow sizing change: the power is now the
-  // smallest product step reaching 95 % of the saturated physical benefit (40 kW, equal to
-  // the physical need) instead of the economically swept 50 kW. Capacity is unchanged.
+  // GM09 REGENERATED again after the BASE-POWER correction: the candidate ladder is no
+  // longer floored by the older 99 % sizing in powerSizing.sizePower, so the 30 kW step is
+  // now scanned and already reaches 95 % of the saturated physical benefit (40 kW before).
+  // Capacity is unchanged; physicalPowerNeedKw (the separate 99 % answer) stays 40 kW.
   "GM09": {
     "capacityKWh": 200,
-    "powerKw": 40,
+    "powerKw": 30,
     "physicalPowerNeedKw": 40,
     "importBeforeKWh": 247069.1937,
-    "importAfterKWh": 225595.125,
+    "importAfterKWh": 226097.431,
     "exportBeforeKWh": 147069.1937,
-    "exportAfterKWh": 123010.7274,
-    "shiftedToLoadKWh": 21601.0887,
+    "exportAfterKWh": 123569.0087,
+    "shiftedToLoadKWh": 21098.7827,
     "recoveredCurtailmentKWh": 0,
-    "cycles": 120.006,
-    "utilisationPct": 32.8784,
+    "cycles": 117.2155,
+    "utilisationPct": 32.1138,
     "peakBeforeKw": 214.5155,
     "peakAfterKw": 214.5355,
     "gridStatus": "none",
@@ -353,8 +354,8 @@ const EXPECTED = {
     "fcrHeldKw": 0,
     "fcrGrossSek": null,
     "fcrOptimisedKw": null,
-    "energyBenefitSek": 17776.02,
-    "totalOperatingBenefitSek": 18286.39,
+    "energyBenefitSek": 17357.53,
+    "totalOperatingBenefitSek": 17867.9,
     "balanceOk": true,
     "residualKWh": 0
   },
@@ -414,31 +415,33 @@ const EXPECTED = {
     "balanceOk": true,
     "residualKWh": 0
   },
+  // GM12 REGENERATED with the same BASE-POWER correction: 3 kW now reaches 95 % of the
+  // saturated physical benefit, so the recommendation drops one real product step (5 -> 3).
   "GM12": {
     "capacityKWh": 25,
-    "powerKw": 5,
+    "powerKw": 3,
     "physicalPowerNeedKw": 3.5,
     "importBeforeKWh": 14019.3075,
-    "importAfterKWh": 10453.3502,
+    "importAfterKWh": 10549.0543,
     "exportBeforeKWh": 8019.3075,
-    "exportAfterKWh": 3867.5664,
-    "shiftedToLoadKWh": 3686.0726,
+    "exportAfterKWh": 3973.9257,
+    "shiftedToLoadKWh": 3590.3685,
     "recoveredCurtailmentKWh": 0,
-    "cycles": 163.8255,
-    "utilisationPct": 44.8837,
+    "cycles": 159.5719,
+    "utilisationPct": 43.7183,
     "peakBeforeKw": 9.0698,
     "peakAfterKw": 9.0898,
     "gridStatus": "none",
     "unservedKWh": 0,
     "peakReductionKw": -0.02,
-    "demandCostSavingSek": 146.06,
+    "demandCostSavingSek": 155.08,
     "fcrEnabled": false,
     "fcrOfferedKw": 0,
     "fcrHeldKw": 0,
     "fcrGrossSek": null,
     "fcrOptimisedKw": null,
-    "energyBenefitSek": 2857.89,
-    "totalOperatingBenefitSek": 3003.95,
+    "energyBenefitSek": 2778.15,
+    "totalOperatingBenefitSek": 2933.23,
     "balanceOk": true,
     "residualKWh": 0
   }
