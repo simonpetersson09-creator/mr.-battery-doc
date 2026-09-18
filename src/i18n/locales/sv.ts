@@ -16,6 +16,7 @@ export const sv = {
     restart: "Börja om",
     locked: "Låst",
     step: "Steg {{current}} av {{total}}",
+    now: "Just nu",
   },
   language: {
     title: "Språk",
@@ -89,6 +90,7 @@ export const sv = {
     footnote: "Tar ungefär tre minuter. Dina svar sparas medan du fyller i.",
   },
   network: {
+    primary: "Välj din huvudsäkring",
     title: "Elnät och huvudsäkring",
     intro: "Börja med att välja land. Då sätts rätt nätvärden och standardpriser automatiskt.",
     country: { title: "Land", description: "Var ligger fastigheten?" },
@@ -116,6 +118,7 @@ export const sv = {
     },
   },
   consumption: {
+    primary: "Ange din årsförbrukning",
     title: "Förbrukning",
     intro: "Välj det sätt som passar dig bäst. Du kan ändra dig senare.",
     modeTitle: "Hur vill du ange förbrukningen?",
@@ -144,6 +147,7 @@ export const sv = {
     },
   },
   production: {
+    primary: "Ange din solproduktion",
     title: "Produktion",
     intro: "Har fastigheten solceller idag?",
     modeTitle: "Hur vill du ange din produktion?",
@@ -176,6 +180,7 @@ export const sv = {
     },
   },
   strategies: {
+    primary: "Välj vad batteriet ska göra",
     title: "Batteri",
     intro: "Allt är påslaget från start. Slå av det som inte är intressant för dig.",
     solar: {
@@ -198,6 +203,7 @@ export const sv = {
       "Du har angett att fastigheten inte har solceller. Då ger egenanvändning av solel ingen nytta idag — övriga användningssätt påverkas inte.",
   },
   economics: {
+    primary: "Kontrollera dina elpriser",
     customerShare: {
       title: "Stödtjänster",
       description: "Hela stödtjänstvärdet tillfaller sällan dig. Ange hur stor del du räknar med att få.",
