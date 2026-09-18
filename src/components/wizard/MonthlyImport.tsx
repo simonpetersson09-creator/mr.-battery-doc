@@ -56,6 +56,8 @@ export function MonthlyImport({
   const months = monthShortLabels();
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  /** True while a native picker sheet is being opened. */
+  const [picking, setPicking] = useState(false);
   const [pickedName, setPickedName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [candidates, setCandidates] = useState<NormalisedSeries[] | null>(null);
@@ -205,7 +207,8 @@ export function MonthlyImport({
         );
         return;
       case "unsupported":
-        setError(t("errors.importPickerUnavailable"));
+        // Never dead-end: hand over to the WebView's own picker.
+        openWebPicker(source);
         return;
       case "tooLarge":
         setError(t("errors.importTooLarge"));
