@@ -225,6 +225,7 @@ export const fi = {
     intro: "Kuinka nopeasti haluat akun maksavan itsensä takaisin?",
     card: "Toivottu takaisinmaksuaika",
     years: "{{years}} vuotta",
+    guide: "Säätelet asennuskustannusta valitun takaisinmaksuajan mukaan.",
     investment: {
       title: "Järkevä investointikustannus",
       hint: "Arvioitu enimmäisinvestointi valitulla takaisinmaksuajalla laskennallisen vuotuisen asiakashyödyn perusteella.",

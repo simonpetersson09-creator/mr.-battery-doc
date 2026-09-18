@@ -228,6 +228,7 @@ export const da = {
     intro: "Hvor hurtigt skal batteriet have tjent sig hjem?",
     card: "Ønsket tilbagebetalingstid",
     years: "{{years}} år",
+    guide: "Du styr installationsprisen efter den valte tilbagebetalingstid.",
     investment: {
       title: "Rimelig investeringsomkostning",
       hint: "Omtrentlig maksimal investering for at nå den valgte tilbagebetalingstid ud fra den beregnede årlige kundegevinst.",

@@ -228,6 +228,7 @@ export const en = {
     intro: "How quickly do you want the battery to pay for itself?",
     card: "Desired payback period",
     years: "{{years}} years",
+    guide: "You set the installation cost based on your chosen payback time.",
     investment: {
       title: "Reasonable investment cost",
       hint: "Approximate maximum investment to reach the chosen payback period, based on the calculated annual customer benefit.",

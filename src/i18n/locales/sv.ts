@@ -230,6 +230,7 @@ export const sv = {
     intro: "Hur snabbt vill du att batteriet ska ha betalat sig?",
     card: "Önskad återbetalningstid",
     years: "{{years}} år",
+    guide: "Du styr installationskostnaden efter vald återbetalningstid.",
     investment: {
       title: "Rimlig investeringskostnad",
       hint: "Ungefärlig högsta investering för att nå vald återbetalningstid, utifrån beräknad årlig kundnytta.",

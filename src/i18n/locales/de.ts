@@ -231,6 +231,7 @@ export const de = {
     intro: "Wie schnell soll sich der Speicher bezahlt machen?",
     card: "Gewünschte Amortisationszeit",
     years: "{{years}} Jahre",
+    guide: "Sie steuern die Installationskosten nach der gewählten Amortisationszeit.",
     investment: {
       title: "Sinnvolle Investitionskosten",
       hint: "Ungefähre maximale Investition für die gewählte Amortisationszeit, basierend auf dem berechneten jährlichen Kundennutzen.",
