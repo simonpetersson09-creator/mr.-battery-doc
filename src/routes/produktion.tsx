@@ -184,7 +184,7 @@ function ProductionStep() {
           value={choice}
           onValueChange={(v) => setChoice(v as "none" | "annual" | "monthly")}
         >
-          <SelectTrigger className="ui-control ui-control-active">
+          <SelectTrigger className="ui-control">
             <SelectValue>{modeLabel}</SelectValue>
           </SelectTrigger>
           <SelectContent>
