@@ -132,7 +132,7 @@ function StepIndicator({ stepIndex }: { stepIndex: number }) {
                   : "border-2 border-foreground/15 bg-transparent text-muted-foreground")
             }
           >
-            {i + 1}
+            {i === WIZARD_STEPS.length - 1 ? "R" : i + 1}
           </span>
           {i < WIZARD_STEPS.length - 1 ? (
             <span
