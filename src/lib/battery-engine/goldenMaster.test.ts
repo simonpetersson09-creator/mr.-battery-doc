@@ -327,21 +327,22 @@ const EXPECTED = {
     "balanceOk": true,
     "residualKWh": 0
   },
-  // GM09 REGENERATED after the approved solar-flow sizing change: the power is now the
-  // smallest product step reaching 95 % of the saturated physical benefit (40 kW, equal to
-  // the physical need) instead of the economically swept 50 kW. Capacity is unchanged.
+  // GM09 REGENERATED again after the BASE-POWER correction: the candidate ladder is no
+  // longer floored by the older 99 % sizing in powerSizing.sizePower, so the 30 kW step is
+  // now scanned and already reaches 95 % of the saturated physical benefit (40 kW before).
+  // Capacity is unchanged; physicalPowerNeedKw (the separate 99 % answer) stays 40 kW.
   "GM09": {
     "capacityKWh": 200,
-    "powerKw": 40,
+    "powerKw": 30,
     "physicalPowerNeedKw": 40,
     "importBeforeKWh": 247069.1937,
-    "importAfterKWh": 225595.125,
+    "importAfterKWh": 226097.431,
     "exportBeforeKWh": 147069.1937,
-    "exportAfterKWh": 123010.7274,
-    "shiftedToLoadKWh": 21601.0887,
+    "exportAfterKWh": 123569.0087,
+    "shiftedToLoadKWh": 21098.7827,
     "recoveredCurtailmentKWh": 0,
-    "cycles": 120.006,
-    "utilisationPct": 32.8784,
+    "cycles": 117.2155,
+    "utilisationPct": 32.1138,
     "peakBeforeKw": 214.5155,
     "peakAfterKw": 214.5355,
     "gridStatus": "none",
@@ -353,8 +354,8 @@ const EXPECTED = {
     "fcrHeldKw": 0,
     "fcrGrossSek": null,
     "fcrOptimisedKw": null,
-    "energyBenefitSek": 17776.02,
-    "totalOperatingBenefitSek": 18286.39,
+    "energyBenefitSek": 17357.53,
+    "totalOperatingBenefitSek": 17867.9,
     "balanceOk": true,
     "residualKWh": 0
   },
