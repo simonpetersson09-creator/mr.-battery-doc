@@ -13,8 +13,6 @@ import {
 } from "@/lib/access/calculationCache";
 import { useAccess } from "@/state/access";
 import { buildResultPresentation } from "@/lib/battery-app/resultPresentation";
-import { computeWithoutFcrOptimum } from "@/lib/battery-app/withoutFcrOptimum";
-import { computeBatteryAlternatives } from "@/lib/battery-app/capacityAlternatives";
 import {
   ancillaryAlternatives,
   bestAncillaryCandidate,
