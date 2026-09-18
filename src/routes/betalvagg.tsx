@@ -164,7 +164,7 @@ function Paywall() {
           <img
             src={logo}
             alt="Mr. Battery Doc"
-            className="h-14 w-auto"
+            className="logo-pulse h-14 w-auto"
             width={480}
             height={320}
           />
