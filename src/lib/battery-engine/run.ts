@@ -136,7 +136,7 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       });
 
   /** The recommended system power is the technically motivated optimum when available. */
-  const powerKw = economicPowerSizing.operatingOptimalPowerKw ?? productPowerKw;
+  let powerKw = economicPowerSizing.operatingOptimalPowerKw ?? productPowerKw;
 
   /**
    * STEP D — FCR ENDURANCE CAPACITY. The power above is FIXED here. Only the capacity may
@@ -157,14 +157,52 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
 
   /**
    * BASE POWER FOR ENERGY HANDLING — the 95 % physical saturation step. This is the
-   * customer-facing base power. The legacy 99 % `physicalNeedKw` is NOT used for it.
+   * customer-facing base power for energy shifting, self-consumption and peak shaving.
+   * The legacy 99 % `physicalNeedKw` is NOT used for it, and ancillary services never
+   * overwrite it.
    */
   const basePowerForEnergyKw = economicPowerSizing.energyPowerNeedKw ?? powerKw;
 
+  /**
+   * ANCILLARY POWER POTENTIAL — every real product step from the base power up to
+   * min(nominal main-fuse product guardrail, global 200 kW product cap), each one a
+   * complete 8760 run through the existing engine. No cost model, no C-rate rule.
+   */
+  const ancillaryPowerPotential =
+    sizingWasFixed || (input.strategies?.ancillaryPowerPotential ?? true) === false
+      ? null
+      : computeAncillaryPowerPotential({
+          cfg,
+          series,
+          capacityKWh: finalCapacityKWh,
+          basePowerKw: basePowerForEnergyKw,
+          econ,
+          optimiseFcrReservation: input.strategies?.optimiseFcrReservation ?? false,
+        });
 
+  /**
+   * PRODUCT RULE — ancillary services may raise the installed power.
+   *
+   * With ancillary services OFF the recommendation stays at the base power. With them ON
+   * the recommendation is the HIGHEST real product step the potential analysis was
+   * allowed to simulate, i.e. the largest step inside the nominal main-fuse guardrail and
+   * the 200 kW product cap. This is a deliberate product decision: no CAPEX, no SEK/kW,
+   * no C-rate limit, no multiplier and no payback rule is involved. Capacity is untouched.
+   */
+  const ancillaryPowerSelection =
+    cfg.strategies.ancillaryServices && ancillaryPowerPotential
+      ? ancillaryPowerPotential.steps.reduce(
+          (best, st) => Math.max(best, st.installedPowerKw),
+          0,
+        )
+      : 0;
+  const ancillaryRaisedPowerKw = ancillaryPowerSelection > powerKw ? ancillaryPowerSelection : null;
+  if (ancillaryRaisedPowerKw !== null) powerKw = ancillaryRaisedPowerKw;
 
-
-  // Optional FCR reservation sweep. Every candidate runs through the normal simulation.
+  /**
+   * Everything below runs on the FINAL recommended power: FCR reservation sweep,
+   * dispatch, economy and therefore also the customer benefit and max investment.
+   */
   let fcrOptimisation: FcrOptimisationResult | null = null;
   let runCfg = cfg;
   if (cfg.strategies.ancillaryServices && input.strategies?.optimiseFcrReservation) {
@@ -191,21 +229,6 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
     series,
   );
 
-  /**
-   * ANCILLARY POWER POTENTIAL — information only. It runs AFTER the recommendation is
-   * fixed and never feeds back into capacity, power, economy or max investment.
-   */
-  const ancillaryPowerPotential =
-    sizingWasFixed || (input.strategies?.ancillaryPowerPotential ?? true) === false
-      ? null
-      : computeAncillaryPowerPotential({
-          cfg,
-          series,
-          capacityKWh: finalCapacityKWh,
-          basePowerKw: basePowerForEnergyKw,
-          econ,
-          optimiseFcrReservation: input.strategies?.optimiseFcrReservation ?? false,
-        });
 
   let economyWithoutFcr: OperatingEconomyResult | null = null;
   if (withoutFcr)
@@ -273,6 +296,7 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       // LEGACY 99 % diagnostic — not the customer's base power.
       physicalPowerNeedKw: sweep.powerSizing.physicalNeedKw,
       basePowerForEnergyKw,
+      ancillaryRaisedPowerKw,
       reasonableRangeKWh: sweep.sweetSpot.reasonableRangeKWh,
       diminishingFromKWh: sweep.sweetSpot.diminishingFromKWh,
       upperLimitReached: sweep.sweetSpot.upperLimitReached,

@@ -17,8 +17,13 @@ import {
   computeAncillaryScenario,
 } from "@/lib/battery-app/ancillaryScenario";
 import {
+  benefitBreakdown,
   customerEconomyFromResult,
   maxInvestmentSek,
+} from "@/lib/battery-app/customerEconomy";
+import type {
+  BenefitBreakdown,
+  BenefitComponentKey,
 } from "@/lib/battery-app/customerEconomy";
 import {
   importantInfoFooter,
@@ -727,6 +732,24 @@ function ResultStep() {
                 </>
               ) : null}
             </div>
+            {/* Share of the ANNUAL BENEFIT per engine component. Presentation only. */}
+            <BenefitDistribution
+              breakdown={benefitBreakdown(ce)}
+              label={(key) =>
+                key === "energy"
+                  ? p.hasSolar
+                    ? t("results.benefit.energyWithSolar")
+                    : t("results.benefit.energyNoSolar")
+                  : key === "peak"
+                    ? t("results.benefit.peak")
+                    : t("results.benefit.ancillaryTitle")
+              }
+              title={t("results.breakdown.title")}
+              totalLabel={t("results.breakdown.total")}
+              money={money}
+              moneyPerYear={moneyPerYear}
+              nf={nf}
+            />
           </>
         )}
       </SectionCard>
@@ -810,6 +833,9 @@ function ResultStep() {
                   label={t("technical.basePowerForEnergy")}
                   value={kw(p.basePowerForEnergyKw, 1)}
                 />
+                {p.ancillaryRaisedPowerKw !== null ? (
+                  <p className="ui-help">{t("technical.ancillaryRaisedNote")}</p>
+                ) : null}
                 {p.powerCapNote ? <p className="ui-help">{p.powerCapNote}</p> : null}
                 {p.fcrHeldPowerKw !== null ? (
                   <Row label={t("technical.heldPower")} value={kw(p.fcrHeldPowerKw, 2)} />
@@ -987,6 +1013,64 @@ function BeforeAfter({
       <span className="font-semibold tabular-nums">
         <span className="text-muted-foreground">{before}</span> → {after}
       </span>
+    </div>
+  );
+}
+
+function BenefitDistribution({
+  breakdown,
+  label,
+  title,
+  totalLabel,
+  money,
+  moneyPerYear,
+  nf,
+}: {
+  breakdown: BenefitBreakdown;
+  label: (key: BenefitComponentKey) => string;
+  title: string;
+  totalLabel: string;
+  money: (v: number | null) => string;
+  moneyPerYear: (v: number | null) => string;
+  nf: (v: number, d?: number) => string;
+}) {
+  const rows = breakdown.components.filter((c) => c.sek !== 0);
+  if (rows.length === 0 || breakdown.positiveBenefitTotalSek <= 0) return null;
+  const tone: Record<BenefitComponentKey, string> = {
+    ancillary: "bg-primary",
+    energy: "bg-primary/60",
+    peak: "bg-primary/30",
+  };
+  const positives = rows.filter((c) => c.sharePct !== null);
+  return (
+    <div className="surface-secondary mt-1.5 rounded-[1rem] p-2.5">
+      <p className="text-center text-[12px] font-semibold">{title}</p>
+      <div className="mt-2 flex h-2 overflow-hidden rounded-full bg-foreground/10">
+        {positives.map((c) => (
+          <div key={c.key} className={tone[c.key]} style={{ width: `${c.sharePct}%` }} />
+        ))}
+      </div>
+      <div className="mt-2 space-y-1">
+        {rows
+          .slice()
+          .sort((a, b) => b.sek - a.sek)
+          .map((c) => (
+            <div key={c.key} className="flex items-baseline justify-between gap-3 text-[12px]">
+              <span className="flex items-center gap-1.5">
+                <span className={`inline-block h-2 w-2 rounded-full ${tone[c.key]}`} />
+                {label(c.key)}
+              </span>
+              <span className="font-semibold tabular-nums">
+                {moneyPerYear(c.sek)}
+                {c.sharePct === null ? "" : ` \u00b7 ${nf(c.sharePct, 0)} %`}
+              </span>
+            </div>
+          ))}
+      </div>
+      <div className="mt-2 flex items-baseline justify-between gap-3 border-t border-foreground/10 pt-1.5 text-[12px] font-semibold">
+        <span>{totalLabel}</span>
+        <span className="tabular-nums">{money(breakdown.totalCustomerBenefitSek)}</span>
+      </div>
     </div>
   );
 }

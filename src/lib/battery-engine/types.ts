@@ -209,6 +209,12 @@ export interface EngineRecommendation {
    * ancillary services excluded. This is the customer-facing base power.
    */
   basePowerForEnergyKw: number;
+  /**
+   * Set when ancillary services raised the installed power above the base power, to the
+   * highest real product step inside the nominal fuse guardrail and the 200 kW cap.
+   * Null when ancillary services are off or the base power already was that step.
+   */
+  ancillaryRaisedPowerKw: number | null;
   reasonableRangeKWh: [number, number];
   diminishingFromKWh: number | null;
   upperLimitReached: boolean;

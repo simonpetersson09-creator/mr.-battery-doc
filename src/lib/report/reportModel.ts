@@ -17,6 +17,7 @@ import { reserveProductName } from "@/i18n/labels";
 import type { BatteryAppResult } from "@/lib/battery-app";
 import type { BatteryAlternative } from "@/lib/battery-app/capacityAlternatives";
 import type { AncillaryScenario } from "@/lib/battery-app/ancillaryScenario";
+import { benefitBreakdown } from "@/lib/battery-app/customerEconomy";
 import {
   customerEconomyFromResult,
   clampTargetPaybackYears,
@@ -334,11 +335,26 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
 
   /* ============================ 2. BENEFIT ============================ */
   const benefitRows: ReportRow[] = [];
+  /* Same distribution as the result page: shares are computed on the POSITIVE components
+     only, so a negative component keeps its SEK value without distorting the percentages. */
+  const breakdown = benefitBreakdown(ce);
+  const shareOf = (key: "energy" | "peak" | "ancillary"): string => {
+    const pct = breakdown.components.find((c) => c.key === key)?.sharePct ?? null;
+    return pct === null ? "" : ` · ${pct} %`;
+  };
   if (!ancillaryOnly && ce.energyBenefitSek !== 0) {
     benefitRows.push({
       label: copy.benefit.energy,
-      value: perYear(ce.energyBenefitSek),
+      value: `${perYear(ce.energyBenefitSek)}${shareOf("energy")}`,
       hint: hasSolar ? copy.benefit.energyHint : copy.benefit.energyNoSolarHint,
+      source: "calculated",
+    });
+  }
+  if (!ancillaryOnly && ce.peakBenefitSek !== 0) {
+    benefitRows.push({
+      label: copy.benefit.peak,
+      value: `${perYear(ce.peakBenefitSek)}${shareOf("peak")}`,
+      hint: copy.benefit.peakHint,
       source: "calculated",
     });
   }
@@ -346,7 +362,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     benefitRows.push({
       label: copy.benefit.ancillary,
       value: ancillaryPriced
-        ? perYear(ce.ancillaryCustomerValueSek)
+        ? `${perYear(ce.ancillaryCustomerValueSek)}${shareOf("ancillary")}`
         : copy.cannotBeCalculated,
       hint: copy.benefit.ancillaryHint,
       source: "calculated",

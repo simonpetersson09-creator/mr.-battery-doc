@@ -320,6 +320,10 @@ export const en = {
       reduction: "Reduction",
       noReduction: "No reduction of the power peak with the selected settings.",
     },
+    breakdown: {
+      title: "Distribution of annual benefit",
+      total: "Total calculated customer benefit",
+    },
     benefit: {
       nonPositive:
         "With your current inputs the battery gives no positive calculated economic benefit per year. The technical result is still shown below.",
@@ -421,6 +425,7 @@ export const en = {
     recommendedPower: "Recommended system power",
     physicalNeed: "Physical power need",
     basePowerForEnergy: "Base power for energy handling",
+    ancillaryRaisedNote: "The higher recommended power comes from the ancillary services sizing.",
     potentialTitle: "Ancillary services potential",
     potentialNote: "A higher installed power can increase the calculated ancillary benefit. For this grid connection the engine can test product steps up to {max} kW.",
     potentialColumn: "Additional calculated annual benefit",
