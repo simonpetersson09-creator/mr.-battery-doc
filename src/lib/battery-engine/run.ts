@@ -27,6 +27,7 @@ import {
 
 import type { EconomicPowerSizingResult } from "../lab/economicPowerSizing";
 import { productCostConfig } from "../lab/productCost";
+import { fcrEnduranceCapacity } from "../lab/fcrEnduranceCapacity";
 import { assessGrid } from "../lab/gridAssessment";
 import { simulate } from "../lab/simulate";
 import { runSweep } from "../lab/sweep";
@@ -133,15 +134,34 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
         maxProductCRate: input.battery?.maxProductCRateForCandidates,
       });
 
-  /** The recommended system power is the operating-benefit optimum when available. */
+  /** The recommended system power is the technically motivated optimum when available. */
   const powerKw = economicPowerSizing.operatingOptimalPowerKw ?? productPowerKw;
+
+  /**
+   * STEP D — FCR ENDURANCE CAPACITY. The power above is FIXED here. Only the capacity may
+   * be raised, and only to the smallest real capacity step that makes that fixed power a
+   * fully sustainable reserve. A grid- or power-bound reserve is never compensated with
+   * extra kWh, and the search stops as soon as the power is sustainable.
+   */
+  const fcrEnduranceCapacityResult = sizingWasFixed
+    ? null
+    : fcrEnduranceCapacity({
+        cfg,
+        series,
+        capacityKWh,
+        powerKw,
+        capacityStepsKWh: cfg.sweep.capacitiesKWh,
+      });
+  const finalCapacityKWh = fcrEnduranceCapacityResult?.capacityKWh ?? capacityKWh;
+
+
 
 
   // Optional FCR reservation sweep. Every candidate runs through the normal simulation.
   let fcrOptimisation: FcrOptimisationResult | null = null;
   let runCfg = cfg;
   if (cfg.strategies.ancillaryServices && input.strategies?.optimiseFcrReservation) {
-    fcrOptimisation = optimizeFcrReservation(cfg, capacityKWh, powerKw, econ, undefined, series);
+    fcrOptimisation = optimizeFcrReservation(cfg, finalCapacityKWh, powerKw, econ, undefined, series);
     runCfg = {
       ...cfg,
       strategies: {
@@ -158,7 +178,7 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
 
   const { result, economy, withoutFcr } = evaluateOperatingEconomy(
     runCfg,
-    capacityKWh,
+    finalCapacityKWh,
     powerKw,
     econ,
     series,
@@ -191,7 +211,7 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       strategies: { ...cfg.strategies, ancillaryServices: true },
       ancillary: { ...cfg.ancillary, enabled: true, offeredPowerKw: powerKw },
     };
-    reservePhysicalPreview = simulate(previewCfg, series, capacityKWh, powerKw).ancillary;
+    reservePhysicalPreview = simulate(previewCfg, series, finalCapacityKWh, powerKw).ancillary;
   }
 
   const gridAssessment = assessGrid(result, sweep.baseline, cfg.gridAssessment);
@@ -225,7 +245,7 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
   const summary: BatteryEngineSummary = {
     selfConsumptionCalibration: calibration,
     recommendation: {
-      capacityKWh,
+      capacityKWh: finalCapacityKWh,
       powerKw,
       physicalPowerNeedKw: sweep.powerSizing.physicalNeedKw,
       reasonableRangeKWh: sweep.sweetSpot.reasonableRangeKWh,
@@ -403,6 +423,7 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       series,
       config: runCfg,
       economicPowerSizing,
+      fcrEnduranceCapacity: fcrEnduranceCapacityResult,
       reservePhysicalPreview,
     },
   };

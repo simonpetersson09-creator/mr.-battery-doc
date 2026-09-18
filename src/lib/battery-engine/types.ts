@@ -14,6 +14,7 @@
  */
 
 import type { FcrRevenueResult } from "../lab/ancillary/fcrEconomics";
+import type { FcrEnduranceCapacityResult } from "../lab/fcrEnduranceCapacity";
 import type {
   EconomicPowerSizingResult,
   EconomicPowerSizingStatus,
@@ -411,6 +412,11 @@ export interface BatteryEngineDiagnostics {
   config: LabConfig;
   /** Full economic power-sizing evaluation, including every simulated candidate. */
   economicPowerSizing: EconomicPowerSizingResult;
+  /**
+   * STEP D: FCR endurance capacity check for the already fixed power. Null when the sizing
+   * was fixed by the caller. Capacity may be raised here, power never.
+   */
+  fcrEnduranceCapacity?: FcrEnduranceCapacityResult | null;
   /**
    * Physics-only reserve simulation for markets without verified price data (symmetric
    * FCR in Germany/DK1, and DK2). Null when prices exist. Diagnostics only.

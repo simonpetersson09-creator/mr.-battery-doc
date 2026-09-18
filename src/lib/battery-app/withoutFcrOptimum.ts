@@ -20,8 +20,9 @@
 import type { BatteryEngineInput, BatteryEngineResult } from "@/lib/battery-engine";
 import { runBatteryEngine, toEconomyConfig, toLabConfig, toTimeSeries } from "@/lib/battery-engine";
 import {
-  DEFAULT_MAX_PRODUCT_C_RATE,
   POWER_TIE_TOLERANCE_SEK,
+  fuseProductGuardrailKw,
+  gridAllowedProductStepKw,
   simulateAtPower,
   maxProductStepKw,
 } from "@/lib/lab/economicPowerSizing";
@@ -62,9 +63,10 @@ function round3(v: number): number {
 }
 
 /**
- * Candidate powers for the counterfactual: every product step up to the 0.5 C ceiling,
- * the ceiling itself, the physical need and the physically sized product power. Lower
- * steps are deliberately included — without FCR the answer is often below the FCR-driven
+ * Candidate powers for the counterfactual: every real product step up to the NOMINAL main
+ * fuse guardrail, plus the physical need and the physically sized product power. The old
+ * 0.5 C ceiling is gone here too — the solar flow no longer uses a C-rate filter. Lower
+ * steps are deliberately included: without FCR the answer is often below the FCR-driven
  * recommendation.
  */
 export function buildWithoutFcrCandidates(
@@ -72,13 +74,16 @@ export function buildWithoutFcrCandidates(
   physicalPowerNeedKw: number,
   productPowerKw: number,
   productStepsKw: number[],
-  maxProductCRate: number = DEFAULT_MAX_PRODUCT_C_RATE,
+  powerCeilingKw: number = Infinity,
 ): number[] {
   if (!(capacityKWh > 0)) return [];
-  // Product levels only: the C-rate ceiling can never exceed the largest product step.
+  // Product levels only: the ceiling can never exceed the largest product step.
   const productCapKw = maxProductStepKw(productStepsKw);
-  const rawCeiling = maxProductCRate > 0 ? round3(capacityKWh * maxProductCRate) : 0;
-  const ceiling = productCapKw > 0 ? Math.min(rawCeiling, productCapKw) : rawCeiling;
+  const guardrailStepKw =
+    Number.isFinite(powerCeilingKw) && powerCeilingKw > 0
+      ? gridAllowedProductStepKw(productStepsKw, powerCeilingKw)
+      : productCapKw;
+  const ceiling = productCapKw > 0 ? Math.min(guardrailStepKw, productCapKw) : guardrailStepKw;
   const out = new Set<number>();
   for (const step of productStepsKw)
     if (step > 0 && step <= ceiling + 1e-9) out.add(round3(step));
@@ -128,6 +133,7 @@ export function computeWithoutFcrOptimum(
     rec.physicalPowerNeedKw,
     rec.productPowerKw,
     cfg.powerSizing.productStepsKw,
+    fuseProductGuardrailKw(cfg.grid),
   );
   if (candidatePowersKw.length === 0) return null;
 

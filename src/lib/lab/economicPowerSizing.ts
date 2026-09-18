@@ -30,7 +30,7 @@ import {
   SWEDISH_OPERATING_ECONOMY,
 } from "./operatingEconomy";
 import type { FcrOptimisationResult, OperatingEconomyConfig, OperatingEconomyResult } from "./operatingEconomy";
-import { buildSeries } from "./simulate";
+import { buildSeries, simulate } from "./simulate";
 import { computeGridLimits } from "./dispatch";
 
 import type { LabConfig, SimResult, TimeSeries } from "./types";
@@ -152,6 +152,94 @@ export function gridAllowedProductStepKw(
   if (!Number.isFinite(gridPowerLimitKw) || gridPowerLimitKw <= 0) return steps[steps.length - 1]!;
   const allowed = steps.filter((s) => s <= gridPowerLimitKw + 1e-9);
   return allowed.length > 0 ? allowed[allowed.length - 1]! : steps[0]!;
+}
+
+/**
+ * PHYSICAL SATURATION TARGET (solar flow).
+ *
+ * The recommended system power is the SMALLEST real product step that reaches this share
+ * of the saturated PHYSICAL benefit (useful energy and peak reduction). It is a physical
+ * criterion in kWh and kW — no SEK, no FCR revenue, no C-rate.
+ */
+export const PHYSICAL_SATURATION_FRACTION = 0.95;
+
+/**
+ * Candidate powers for the SOLAR flow, C-rate free.
+ *
+ * Members: every real product step from the physically sized product power up to
+ * min(nominal fuse guardrail step, largest product step). The old
+ * `capacityKWh x 0.5 C` ceiling is deliberately NOT used: 0.5 C was a product
+ * assumption, never a physical limit, and the read-only audits showed the physical
+ * power need lands far below it (0.03-0.19 C) while FCR has no physical saturation at
+ * all. Capacity therefore no longer restricts which powers may be analysed.
+ */
+export function buildTechnicalPowerCandidates(
+  physicalProductPowerKw: number,
+  productStepsKw: number[],
+  ceilingKw: number,
+): number[] {
+  const steps = productStepsKw.filter((s) => s > 0).sort((a, b) => a - b);
+  if (steps.length === 0 || !(physicalProductPowerKw > 0)) return [];
+  const cap = Math.min(
+    Number.isFinite(ceilingKw) && ceilingKw > 0 ? gridAllowedProductStepKw(steps, ceilingKw) : Infinity,
+    steps[steps.length - 1]!,
+  );
+  const lowest = Math.min(physicalProductPowerKw, cap);
+  const out = new Set<number>([Math.round(lowest * 1000) / 1000]);
+  for (const step of steps) if (step > lowest && step <= cap + 1e-9) out.add(step);
+  return [...out].sort((a, b) => a - b);
+}
+
+/** Physical (non-monetary) benefit of one candidate power: useful energy and peak cut. */
+export interface PhysicalBenefitPoint {
+  powerKw: number;
+  usefulKWh: number;
+  peakReductionKw: number;
+}
+
+/**
+ * STEP B — ENERGY POWER NEED.
+ *
+ * Runs every candidate through the SAME dispatch with FCR switched OFF and measures the
+ * purely physical benefit (useful kWh moved and peak reduction in kW). The need is the
+ * smallest product step that reaches `fraction` of the saturated value of BOTH measures.
+ * FCR is excluded on purpose: the audits proved the reserve grows almost linearly with kW
+ * and would otherwise always push the recommendation to the fuse ceiling.
+ */
+export function scanPhysicalPowerBenefit(
+  cfg: LabConfig,
+  series: TimeSeries,
+  capacityKWh: number,
+  candidatePowersKw: number[],
+): PhysicalBenefitPoint[] {
+  const physicalCfg: LabConfig = {
+    ...cfg,
+    strategies: { ...cfg.strategies, ancillaryServices: false },
+    ancillary: { ...cfg.ancillary, enabled: false, offeredPowerKw: 0 },
+  };
+  return candidatePowersKw.map((powerKw) => {
+    const sim = simulate(physicalCfg, series, capacityKWh, powerKw);
+    return {
+      powerKw,
+      usefulKWh: sim.totalUsefulKWh,
+      peakReductionKw: Math.max(0, sim.baseModelledPeakKw - sim.modelledPeakKw),
+    };
+  });
+}
+
+export function energyPowerNeedFromScan(
+  scan: PhysicalBenefitPoint[],
+  fraction: number = PHYSICAL_SATURATION_FRACTION,
+): number | null {
+  if (scan.length === 0) return null;
+  const maxUseful = Math.max(...scan.map((p) => p.usefulKWh));
+  const maxPeak = Math.max(...scan.map((p) => p.peakReductionKw));
+  const hit = scan.find(
+    (p) =>
+      (maxUseful <= 0 || p.usefulKWh >= maxUseful * fraction - 1e-9) &&
+      (maxPeak <= 0 || p.peakReductionKw >= maxPeak * fraction - 1e-9),
+  );
+  return (hit ?? scan[scan.length - 1]!).powerKw;
 }
 
 export function buildPowerCandidates(
@@ -308,6 +396,15 @@ export interface EconomicPowerSizingResult {
    */
   fuseGuardrailBinding?: boolean;
   candidatePowersKw: number[];
+  /**
+   * STEP B result: smallest real product step reaching `physicalSaturationFraction` of the
+   * saturated PHYSICAL benefit (useful kWh + peak reduction), FCR excluded. Null when no
+   * candidate could be scanned.
+   */
+  energyPowerNeedKw?: number | null;
+  /** Physical scan behind `energyPowerNeedKw` — kW, useful kWh and peak reduction. */
+  physicalBenefitScan?: PhysicalBenefitPoint[];
+  physicalSaturationFraction?: number;
   options: PowerOption[];
   /** Highest annual operating benefit. THE v1 recommendation. */
   operatingOptimalPowerKw: number | null;
@@ -389,11 +486,13 @@ export function runEconomicPowerSizing(
     cfg.powerSizing.productStepsKw,
     gridPowerLimitKw,
   );
-  const candidatePowersKw = buildPowerCandidates(
-    capacityKWh,
+  /**
+   * STEP B — candidates are real product steps up to the fuse guardrail. No C-rate filter:
+   * capacity no longer decides which powers may be analysed.
+   */
+  const candidatePowersKw = buildTechnicalPowerCandidates(
     productPowerKw,
     cfg.powerSizing.productStepsKw,
-    maxProductCRate,
     gridPowerLimitKw,
   );
 
@@ -401,6 +500,23 @@ export function runEconomicPowerSizing(
   const fcrMarketGaps = fcrActive ? fcrMarketRealismGaps(fcrMarket) : [];
 
   const maxProductPowerKw = maxProductStepKw(cfg.powerSizing.productStepsKw);
+
+  /**
+   * STEP B — PHYSICAL POWER NEED. Every candidate is simulated with FCR OFF and scored on
+   * physical benefit only (useful kWh and peak reduction). The recommended power is the
+   * smallest step reaching 95 % of the saturated physical benefit. FCR is deliberately
+   * excluded from the choice: it never saturates in kW and would always buy the ceiling.
+   */
+  const physicalBenefitScan =
+    candidatePowersKw.length > 0
+      ? scanPhysicalPowerBenefit(cfg, series, capacityKWh, candidatePowersKw)
+      : [];
+  const energyNeedKw = energyPowerNeedFromScan(physicalBenefitScan);
+  const chosenPowerKw =
+    energyNeedKw === null
+      ? Math.min(productPowerKw, gridAllowedPowerKw)
+      : Math.min(Math.max(energyNeedKw, Math.min(productPowerKw, gridAllowedPowerKw)), gridAllowedPowerKw);
+
   const base = {
     capacityKWh,
     physicalPowerNeedKw,
@@ -418,6 +534,9 @@ export function runEconomicPowerSizing(
     productCostGaps: [] as string[],
     fcrMarketGaps,
     economicallyOptimalPowerKw: null as null,
+    energyPowerNeedKw: energyNeedKw,
+    physicalBenefitScan,
+    physicalSaturationFraction: PHYSICAL_SATURATION_FRACTION,
   };
 
   if (candidatePowersKw.length === 0)
@@ -433,9 +552,19 @@ export function runEconomicPowerSizing(
       notes: ["Inga giltiga effektkandidater kunde byggas för den valda kapaciteten."],
     };
 
-  /* --- Simulate every candidate fully. --- */
+  /**
+   * Fully simulated alternatives: every candidate up to the technically chosen power plus
+   * the next step above it, so the customer still sees a lower and a higher neighbour. The
+   * economics is REPORTED here, it no longer selects the power.
+   */
+  const chosenIndex = Math.max(
+    0,
+    candidatePowersKw.findIndex((p) => Math.abs(p - chosenPowerKw) < 1e-9),
+  );
+  const reportedPowersKw = candidatePowersKw.slice(0, chosenIndex + 2);
+
   const cache = input.runCache;
-  const options: PowerOption[] = candidatePowersKw.map((powerKw) => {
+  const options: PowerOption[] = reportedPowersKw.map((powerKw) => {
     const cached = cache?.get(powerKw);
     const run = cached ?? simulateAtPower(cfg, series, capacityKWh, powerKw, econ, optimiseFcr);
     if (cache && !cached) cache.set(powerKw, run);
@@ -492,43 +621,33 @@ export function runEconomicPowerSizing(
     );
   }
 
-  /* --- Winner: highest TOTAL CUSTOMER BENEFIT; ties within the tolerance go LOWER. --- */
-  const best = Math.max(...options.map((o) => o.annualCustomerBenefitSek));
+  /**
+   * WINNER — the TECHNICALLY motivated power: smallest product step at 95 % physical
+   * saturation, clipped by the nominal fuse guardrail. FCR revenue can never raise it.
+   */
   const winner =
-    options.find((o) => o.annualCustomerBenefitSek >= best - POWER_TIE_TOLERANCE_SEK) ??
-    options[0]!;
+    options.find((o) => Math.abs(o.powerKw - chosenPowerKw) < 1e-9) ?? options[0]!;
   winner.selected = true;
 
   /**
-   * SEARCH-BOUNDARY CLASSIFICATION. Only true when the winner sits at the very top of
-   * the analysed candidate range, that top equals the largest purchasable product level,
-   * and the last step was still worth more than the tie tolerance. Simply landing on
-   * 200 kW is NOT enough.
+   * SEARCH-BOUNDARY CLASSIFICATION. Only true when the physical need itself reaches the
+   * largest purchasable product level — landing on 200 kW because of a guardrail or a
+   * short candidate list is NOT enough.
    */
-  const topOption = options[options.length - 1]!;
-  const belowTop = options.length >= 2 ? options[options.length - 2]! : null;
   const powerCeilingBinding =
-    winner === topOption &&
     maxProductPowerKw > 0 &&
     winner.powerKw >= maxProductPowerKw - 1e-9 &&
-    belowTop !== null &&
-    winner.annualCustomerBenefitSek - belowTop.annualCustomerBenefitSek > POWER_TIE_TOLERANCE_SEK;
+    energyNeedKw !== null &&
+    energyNeedKw >= maxProductPowerKw - 1e-9;
 
-  const physical = options.find((o) => o.physicalSizingChoice);
-  const fcrDecided =
-    fcrActive &&
-    winner.fcrRevenueSek > 0 &&
-    physical !== undefined &&
-    winner.powerKw > physical.powerKw &&
-    // Without the FCR term the higher power would not have beaten the physical one.
-    winner.totalOperatingBenefitSek - winner.fcrRevenueSek <
-      physical.totalOperatingBenefitSek - physical.fcrRevenueSek + POWER_TIE_TOLERANCE_SEK;
+  /** FCR can no longer decide the power level: the choice is physical, not economic. */
+  const fcrDecided = false;
 
   const notes: string[] = [
-    `Kandidater byggs från vald kapacitet: från fysiskt vald produkteffekt ${productPowerKw} kW upp till ${maxProductCRate} C (${round2(capacityKWh * maxProductCRate)} kW). C-raten är ett kandidattak, aldrig ett minimikrav.`,
-    "Varje kandidat körs genom samma dispatch, samma peak shaving, samma FCR-gate och samma 10 %-sweep — ingen extrapolering.",
-    `Systemeffekten väljs på högst beräknad årlig nytta (energi + minskad effektkostnad + FCR). Produktkostnad ingår inte.`,
-    `Vid skillnader under ${POWER_TIE_TOLERANCE_SEK} kr/år väljs den LÄGRE systemeffekten.`,
+    `Kandidater är verkliga produktsteg från fysiskt vald produkteffekt ${productPowerKw} kW upp till huvudsäkringens guardrail. Ingen C-rate används som kandidatfilter; C-raten är ett resultat (${round2(winner.powerKw / capacityKWh)} C).`,
+    "Varje kandidat körs genom samma dispatch och samma peak shaving — ingen extrapolering.",
+    `Systemeffekten väljs tekniskt: minsta produktsteg som når ${Math.round(PHYSICAL_SATURATION_FRACTION * 100)} % av mättad fysisk nytta (nyttiggjord energi och effektreduktion), beräknat utan stödtjänster.`,
+    "Stödtjänster får aldrig höja rekommenderad effekt — reserven mättar inte i kW och skulle annars alltid köpa taket.",
   ];
   if (Number.isFinite(gridPowerLimitKw) && gridPowerLimitKw > 0) {
     notes.push(
