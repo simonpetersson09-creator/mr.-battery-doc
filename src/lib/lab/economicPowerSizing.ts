@@ -506,6 +506,11 @@ export function runEconomicPowerSizing(
     `Systemeffekten väljs på högst beräknad årlig nytta (energi + minskad effektkostnad + FCR). Produktkostnad ingår inte.`,
     `Vid skillnader under ${POWER_TIE_TOLERANCE_SEK} kr/år väljs den LÄGRE systemeffekten.`,
   ];
+  if (Number.isFinite(gridPowerLimitKw) && gridPowerLimitKw > 0)
+    notes.push(
+      `Rekommenderad effekt begränsas även av befintlig anslutning: operativ nätgräns ${round2(gridPowerLimitKw)} kW ger högsta rekommenderbara produktsteg ${gridAllowedPowerKw} kW.`,
+    );
+
   if (fcrActive)
     notes.push(
       "FCR-D upp-intäkten bygger på ett HISTORISKT 2025-scenario — inte en prognos eller garanterad intäkt.",
