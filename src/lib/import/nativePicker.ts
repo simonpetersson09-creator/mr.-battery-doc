@@ -125,22 +125,76 @@ export function documentFromBase64(
   return { status: "picked", file: { name, mimeType: mime, dataUrl: toDataUrl(mime, base64), size } };
 }
 
+/**
+ * A native call must never leave the UI in a silent, permanent "nothing happened"
+ * state: if the bridge never answers (plugin missing from the native build, a
+ * sheet that failed to present), we resolve as unsupported so the caller can fall
+ * back to the plain file input.
+ */
+const PICKER_TIMEOUT_MS = 60_000;
+const LOAD_TIMEOUT_MS = 8_000;
+
+function withTimeout<T>(work: Promise<T>, ms: number, onTimeout: T): Promise<T> {
+  return new Promise<T>((resolve) => {
+    let done = false;
+    const timer = setTimeout(() => {
+      if (!done) {
+        done = true;
+        resolve(onTimeout);
+      }
+    }, ms);
+    void work.then(
+      (value) => {
+        if (!done) {
+          done = true;
+          clearTimeout(timer);
+          resolve(value);
+        }
+      },
+      () => {
+        if (!done) {
+          done = true;
+          clearTimeout(timer);
+          resolve(onTimeout);
+        }
+      },
+    );
+  });
+}
+
+/** True when the Capacitor bridge actually registered this native plugin. */
+function pluginRegistered(name: string): boolean {
+  if (typeof window === "undefined") return false;
+  const cap = (window as unknown as {
+    Capacitor?: { isPluginAvailable?: (n: string) => boolean; Plugins?: Record<string, unknown> };
+  }).Capacitor;
+  if (!cap) return false;
+  if (typeof cap.isPluginAvailable === "function") return cap.isPluginAvailable(name) === true;
+  return !!cap.Plugins?.[name];
+}
+
 async function loadCamera(): Promise<CameraLike | null> {
-  try {
-    const mod = await import("@capacitor/camera");
-    return mod.Camera as unknown as CameraLike;
-  } catch {
-    return null;
-  }
+  if (!pluginRegistered("Camera")) return null;
+  return withTimeout(
+    (async () => {
+      const mod = await import("@capacitor/camera");
+      return (mod.Camera as unknown as CameraLike) ?? null;
+    })(),
+    LOAD_TIMEOUT_MS,
+    null,
+  );
 }
 
 async function loadFilePicker(): Promise<FilePickerLike | null> {
-  try {
-    const mod = await import("@capawesome/capacitor-file-picker");
-    return mod.FilePicker as unknown as FilePickerLike;
-  } catch {
-    return null;
-  }
+  if (!pluginRegistered("FilePicker")) return null;
+  return withTimeout(
+    (async () => {
+      const mod = await import("@capawesome/capacitor-file-picker");
+      return (mod.FilePicker as unknown as FilePickerLike) ?? null;
+    })(),
+    LOAD_TIMEOUT_MS,
+    null,
+  );
 }
 
 /** True when the three native buttons should replace the plain file input. */
