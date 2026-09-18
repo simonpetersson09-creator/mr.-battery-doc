@@ -163,6 +163,11 @@ export function NumberField({
           {error}
         </span>
       ) : null}
+      {!showError && reminder && value === null ? (
+        <span role="status" className="ui-help mt-1 block font-medium text-warning">
+          {reminder}
+        </span>
+      ) : null}
       {hint ? <span className="ui-help mt-1 block">{hint}</span> : null}
     </label>
   );
