@@ -255,18 +255,18 @@ export function MonthlyImport({
             type="button"
             variant="ghost"
             className="cta-primary w-full"
-            disabled={busy}
+            disabled={busy || picking}
             onClick={() => void handleNativePick("camera")}
           >
             {importIcon}
-            {busy ? label : t("monthlyImport.takePhoto")}
+            {busy || picking ? label : t("monthlyImport.takePhoto")}
           </Button>
           <div className="flex gap-2">
             <Button
               type="button"
               variant="outline"
               className="flex-1"
-              disabled={busy}
+              disabled={busy || picking}
               onClick={() => void handleNativePick("photos")}
             >
               {t("monthlyImport.choosePhoto")}
@@ -275,7 +275,7 @@ export function MonthlyImport({
               type="button"
               variant="outline"
               className="flex-1"
-              disabled={busy}
+              disabled={busy || picking}
               onClick={() => void handleNativePick("files")}
             >
               {t("monthlyImport.chooseFile")}
