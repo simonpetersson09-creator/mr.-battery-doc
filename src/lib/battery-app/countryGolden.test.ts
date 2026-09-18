@@ -244,6 +244,10 @@ const EXPECTED: Record<string, { capacityKWh: number; powerKw: number }> = {
   CG02: { capacityKWh: 25, powerKw: 3 },
   CG03: { capacityKWh: 5, powerKw: 3 },
 
+  /* Ancillary services raise the installed power to the highest real product step
+     inside the nominal main-fuse guardrail (CG04, CG07, CG12, CG14, CG15). */
+  CG04: { capacityKWh: 300, powerKw: 125 },
+  CG15: { capacityKWh: 500, powerKw: 200 },
   CG05: { capacityKWh: 0, powerKw: 0 },
   CG06: { capacityKWh: 10, powerKw: 3 },
   CG08: { capacityKWh: 15, powerKw: 3 },
@@ -316,8 +320,10 @@ describe("country golden regression cases", () => {
         // The product ladder is capped at 200 kW; the operating optimum may sit
         // higher (0.5 C of a large pack) and is reported separately.
         expect(rec.productPowerKw ?? 0).toBeLessThanOrEqual(MAX_PRODUCT_POWER_KW);
-        // 0.5 C ceiling, with the engine's smallest product step as the floor.
-        expect(rec.powerKw).toBeLessThanOrEqual(Math.max(3, rec.capacityKWh * 0.5) + 1e-9);
+        /* There is NO C-rate ceiling any more: the C-rate is an output. The only
+           ceiling on the recommended power is the 200 kW product cap (the main-fuse
+           guardrail is asserted in the dedicated power-sizing suites). */
+        expect(rec.powerKw).toBeLessThanOrEqual(MAX_PRODUCT_POWER_KW + 1e-9);
 
         for (const [name, value] of Object.entries(s.energy)) {
           if (typeof value === "number") finite(`${key} energy.${name}`, value);
