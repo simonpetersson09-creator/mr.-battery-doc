@@ -122,7 +122,7 @@ export function WizardShell({
 
 function StepIndicator({ stepIndex }: { stepIndex: number }) {
   return (
-    <div className="mt-3 flex items-center gap-1.5">
+    <div className="mt-1 flex items-center gap-1.5">
       {WIZARD_STEPS.map((step, i) => (
         <div
           key={step.path}
