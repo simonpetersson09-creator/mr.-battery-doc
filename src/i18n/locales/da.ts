@@ -213,7 +213,7 @@ export const da = {
       description:
         "Standardværdier til at sammenligne forskellige batteriløsninger. Se din faktiske elregning for købt el, og tag udgangspunkt i din forventning til fremtidige priser for solgt solstrøm.",
     },
-    importPrice: { label: "Købt el", hint: "Tjek din elregning." },
+    importPrice: { label: "Købt el (inkl. netafgift)", hint: "Tjek din elregning." },
     exportPrice: { label: "Solgt solstrøm", hint: "Tag udgangspunkt i din forventning." },
     demandCharge: {
       label: "Effektbetaling",
