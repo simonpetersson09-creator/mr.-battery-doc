@@ -401,7 +401,7 @@ export function runEconomicPowerSizing(
       ...base,
       options: [],
       operatingOptimalPowerKw: null,
-      recommendedPowerKw: productPowerKw,
+      recommendedPowerKw: Math.min(productPowerKw, gridAllowedPowerKw),
       recommendationUsesHistoricalFcr: false,
       powerCeilingBinding: false,
       status: "incomplete",
