@@ -70,8 +70,13 @@ describe("upper search-limit classification", () => {
     expect(r.powerUpperLimitReached).toBe(false);
   });
 
+  /**
+   * Case size raised after the physical-saturation sizing change: 1.5 GWh now saturates at
+   * 125 kW, so it no longer sits ON the 200 kW boundary. 3 GWh does, which is what this
+   * classification test needs.
+   */
   it("flags both limits for a case beyond the analysed range", () => {
-    const r = runBatteryEngine(build(1500000, 1000000, 630)).summary.recommendation;
+    const r = runBatteryEngine(build(3000000, 2000000, 630)).summary.recommendation;
     expect(r.capacityKWh).toBe(500);
     expect(r.recommendedPowerKw).toBe(200);
     expect(r.upperLimitReached).toBe(true);
