@@ -671,3 +671,8 @@ html[data-native="true"] {
 html[data-native="true"] * {
   -webkit-text-size-adjust: 100%;
 }
+/* Native already gets the real status-bar inset from env(safe-area-inset-top),
+   so the web-only minimum/extra gap is dropped to keep the header tight. */
+html[data-native="true"] .pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
