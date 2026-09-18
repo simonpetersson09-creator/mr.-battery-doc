@@ -295,7 +295,10 @@ describe("D. small grid connection limits the FCR value of extra kW", () => {
       optimiseFcrReservation: true,
     });
     const biggest = r.options[r.options.length - 1]!;
-    expect(biggest.powerKw).toBe(12.5);
+    // 16 A -> operational limit ~10.5 kW, so the top candidate is the 10 kW product step
+    // (0.5 C would have allowed 12.5 kW).
+    expect(biggest.powerKw).toBe(10);
+
     expect(biggest.fcrMonetizedPowerKw).toBeLessThan(biggest.powerKw);
     expect(biggest.fcrMonetizedPowerKw).toBeLessThanOrEqual(biggest.fcrOfferedPowerKw + 1e-9);
   });

@@ -31,6 +31,8 @@ import {
 } from "./operatingEconomy";
 import type { FcrOptimisationResult, OperatingEconomyConfig, OperatingEconomyResult } from "./operatingEconomy";
 import { buildSeries } from "./simulate";
+import { computeGridLimits } from "./dispatch";
+
 import type { LabConfig, SimResult, TimeSeries } from "./types";
 import { productCost } from "./productCost";
 import type { ProductCostBreakdown, ProductCostConfig } from "./productCost";
@@ -116,11 +118,41 @@ export function maxProductStepKw(productStepsKw: number[]): number {
   return steps.length > 0 ? Math.max(...steps) : 0;
 }
 
+/**
+ * GRID CEILING FOR RECOMMENDABLE PRODUCT POWER.
+ *
+ * The customer's existing connection is a ceiling for the battery power we may
+ * RECOMMEND. The limit itself is never re-derived here: it is the engine's own
+ * operational import/export design limit (`computeGridLimits`, 95 % margin), exactly the
+ * same definition the pure-FCR flow uses in `fuseDerivedPowerCeiling`. It is then rounded
+ * DOWN to a real product step, so no synthetic kW rating is ever recommended. Dispatch
+ * physics is untouched.
+ */
+export function gridPowerCeilingKw(grid: LabConfig["grid"]): number {
+  const limits = computeGridLimits(grid);
+  const imp = limits.maxImportKw > 0 ? limits.maxImportKw : Infinity;
+  const exp = limits.maxExportKw > 0 ? limits.maxExportKw : Infinity;
+  return Math.max(0, Math.min(imp, exp));
+}
+
+/** Largest real product step at or below the grid ceiling; the smallest step if none fits. */
+export function gridAllowedProductStepKw(
+  productStepsKw: number[],
+  gridPowerLimitKw: number,
+): number {
+  const steps = productStepsKw.filter((s) => s > 0).sort((a, b) => a - b);
+  if (steps.length === 0) return 0;
+  if (!Number.isFinite(gridPowerLimitKw) || gridPowerLimitKw <= 0) return steps[steps.length - 1]!;
+  const allowed = steps.filter((s) => s <= gridPowerLimitKw + 1e-9);
+  return allowed.length > 0 ? allowed[allowed.length - 1]! : steps[0]!;
+}
+
 export function buildPowerCandidates(
   capacityKWh: number,
   physicalProductPowerKw: number,
   productStepsKw: number[],
   maxProductCRate: number = DEFAULT_MAX_PRODUCT_C_RATE,
+  gridPowerLimitKw: number = Infinity,
 ): number[] {
   if (!(capacityKWh > 0) || !(physicalProductPowerKw > 0)) return [];
   const round = (v: number) => Math.round(v * 1000) / 1000;
@@ -128,18 +160,27 @@ export function buildPowerCandidates(
    * PRODUCT CEILING. Candidates are real product levels the customer can actually buy.
    * The C-rate ceiling is a candidate RANGE, never a product level of its own: when it
    * lands above the largest product step it is clamped to that step. The physical need
-   * is a separate concept and is never clamped.
+   * is a separate concept and is never clamped by the C-rate — but it IS clamped by the
+   * connection, so the physical-need floor can never reintroduce a candidate above the
+   * operational grid limit.
    */
   const productCapKw = maxProductStepKw(productStepsKw);
+  const gridStepCapKw =
+    Number.isFinite(gridPowerLimitKw) && gridPowerLimitKw > 0
+      ? gridAllowedProductStepKw(productStepsKw, gridPowerLimitKw)
+      : Infinity;
   const rawCeiling = maxProductCRate > 0 ? round(capacityKWh * maxProductCRate) : 0;
-  const ceiling = productCapKw > 0 ? Math.min(rawCeiling, productCapKw) : rawCeiling;
-  const lowest = productCapKw > 0 ? Math.min(physicalProductPowerKw, productCapKw) : physicalProductPowerKw;
+  let ceiling = productCapKw > 0 ? Math.min(rawCeiling, productCapKw) : rawCeiling;
+  ceiling = Math.min(ceiling, gridStepCapKw);
+  let lowest = productCapKw > 0 ? Math.min(physicalProductPowerKw, productCapKw) : physicalProductPowerKw;
+  lowest = Math.min(lowest, gridStepCapKw);
   const out = new Set<number>([round(lowest)]);
   for (const step of productStepsKw)
-    if (step > physicalProductPowerKw && step <= ceiling + 1e-9) out.add(round(step));
-  if (ceiling > physicalProductPowerKw + 1e-9) out.add(ceiling);
+    if (step > lowest && step <= ceiling + 1e-9) out.add(round(step));
+  if (ceiling > lowest + 1e-9) out.add(round(ceiling));
   return [...out].sort((a, b) => a - b);
 }
+
 
 /* ------------------------------------------------------------------ *
  * Per-candidate simulation
@@ -318,12 +359,24 @@ export function runEconomicPowerSizing(
   } = input;
   const series = input.series ?? buildSeries(cfg);
 
+  /**
+   * The recommended product power may never exceed the customer's existing operational
+   * grid limit. Same central definition the pure-FCR flow uses; no new fuse formula, no
+   * duplicated margin.
+   */
+  const gridPowerLimitKw = gridPowerCeilingKw(cfg.grid);
+  const gridAllowedPowerKw = gridAllowedProductStepKw(
+    cfg.powerSizing.productStepsKw,
+    gridPowerLimitKw,
+  );
   const candidatePowersKw = buildPowerCandidates(
     capacityKWh,
     productPowerKw,
     cfg.powerSizing.productStepsKw,
     maxProductCRate,
+    gridPowerLimitKw,
   );
+
   const fcrActive = cfg.strategies.ancillaryServices;
   const fcrMarketGaps = fcrActive ? fcrMarketRealismGaps(fcrMarket) : [];
 
@@ -348,7 +401,7 @@ export function runEconomicPowerSizing(
       ...base,
       options: [],
       operatingOptimalPowerKw: null,
-      recommendedPowerKw: productPowerKw,
+      recommendedPowerKw: Math.min(productPowerKw, gridAllowedPowerKw),
       recommendationUsesHistoricalFcr: false,
       powerCeilingBinding: false,
       status: "incomplete",
@@ -453,6 +506,11 @@ export function runEconomicPowerSizing(
     `Systemeffekten väljs på högst beräknad årlig nytta (energi + minskad effektkostnad + FCR). Produktkostnad ingår inte.`,
     `Vid skillnader under ${POWER_TIE_TOLERANCE_SEK} kr/år väljs den LÄGRE systemeffekten.`,
   ];
+  if (Number.isFinite(gridPowerLimitKw) && gridPowerLimitKw > 0)
+    notes.push(
+      `Rekommenderad effekt begränsas även av befintlig anslutning: operativ nätgräns ${round2(gridPowerLimitKw)} kW ger högsta rekommenderbara produktsteg ${gridAllowedPowerKw} kW.`,
+    );
+
   if (fcrActive)
     notes.push(
       "FCR-D upp-intäkten bygger på ett HISTORISKT 2025-scenario — inte en prognos eller garanterad intäkt.",
