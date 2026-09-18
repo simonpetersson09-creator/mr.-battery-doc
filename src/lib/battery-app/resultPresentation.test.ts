@@ -84,43 +84,18 @@ describe("main recommendation reads the engine's recommended system power", () =
 });
 
 describe("FCR-driven power explanation", () => {
-  it("case A: three power levels are separated and every number is dynamic", () => {
+  /**
+   * UPDATED after the approved solar-flow sizing change: ancillary revenue may no longer
+   * raise the recommended power, so the "why this power" card can no longer trigger and
+   * the recommendation never leans on historical FCR prices.
+   */
+  it("case A: FCR never drives the power, so no card and no FCR-driven level", () => {
     const p = present({ ...REF, fcr: true });
-    expect(p.fcrDrivesPower).toBe(true);
-    expect(p.showFcrPowerCard).toBe(true);
-    expect(p.withoutFcrPowerKw).not.toBeNull();
-    expect(p.recommendedPowerKw).toBeGreaterThan(p.withoutFcrPowerKw!);
-
-    const f = (v: number) =>
-      v.toLocaleString("sv-SE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-    const rec = f(p.recommendedPowerKw);
-    const phys = f(p.physicalPowerNeedKw);
-    const without = f(p.withoutFcrPowerKw!);
-
-    expect(p.fcrPowerCardTitle).toBe(`Varför ${rec} kW?`);
-    if (p.showPhysicalNeedRow) expect(p.fcrPowerCardText).toContain(`cirka ${phys} kW`);
-    expect(p.fcrPowerCardText).toContain(`${rec} kW`);
-    // B: the FCR-off level only appears as its own sentence when it differs from the physical need.
-    if (p.showPhysicalNeedRow) {
-      expect(p.fcrPowerCardText).toContain(`Utan FCR-D upp och ned ger ${without} kW`);
-    } else {
-      expect(p.fcrPowerCardText).not.toContain("Utan FCR-D upp och ned ger");
-    }
-    expect(p.powerWhy).toBe(p.fcrPowerCardText);
-    // Repetition removed.
-    expect(p.fcrPowerCardNeutralText).toBeNull();
-    // F: historical scenario, never a forecast or a guarantee.
-    expect(p.fcrHistoricalNote).toMatch(/både högre och lägre/);
-    for (const text of [p.fcrPowerCardText, p.fcrHistoricalNote]) {
-      expect(text ?? "").not.toMatch(/garanter|prognos|mer lönsam|du bör|tjänar mer/i);
-    }
-  });
-
-  it("case A: annual benefit comparison comes from the engine's own candidates", () => {
-    const p = present({ ...REF, fcr: true });
-    expect(p.withoutFcrBenefitSek).not.toBeNull();
-    expect(p.withFcrBenefitSek).not.toBeNull();
-    expect(p.benefitDeltaSek).toBeCloseTo(p.withFcrBenefitSek! - p.withoutFcrBenefitSek!, 6);
+    expect(p.fcrDrivesPower).toBe(false);
+    expect(p.showFcrPowerCard).toBe(false);
+    expect(p.fcrPowerCardText).toBeNull();
+    expect(p.fcrPowerLevels).toHaveLength(0);
+    expect(p.recommendedPowerKw).toBeGreaterThan(0);
   });
 
   it("case B: FCR off -> no FCR wording and no card", () => {
