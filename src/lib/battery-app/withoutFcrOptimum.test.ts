@@ -47,11 +47,13 @@ describe("true without-FCR counterfactual", () => {
   /**
    * UPDATED after the approved solar-flow sizing change: FCR revenue may no longer raise
    * the recommended power, so the FCR-on case lands on the same technically motivated
-   * 5 kW as the FCR-off counterfactual. The capacity is unchanged.
+   * power as the FCR-off counterfactual. The capacity is unchanged. UPDATED again with the
+   * base-power correction: the 3 kW step is now scanned and already reaches 95 % of the
+   * saturated physical benefit, so the technical level is 3 kW.
    */
-  it("B: the FCR-on recommendation is the technical 25 kWh / 5 kW", () => {
+  it("B: the FCR-on recommendation is the technical 25 kWh / 3 kW", () => {
     expect(rec.capacityKWh).toBe(25);
-    expect(rec.recommendedPowerKw).toBe(5);
+    expect(rec.recommendedPowerKw).toBe(3);
     expect(rec.physicalPowerNeedKw).toBeCloseTo(3.5, 6);
   });
 
@@ -70,9 +72,9 @@ describe("true without-FCR counterfactual", () => {
     for (const kw of [3, 3.5, 5, 7.5, 10]) expect(wo.candidatePowersKw).toContain(kw);
   });
 
-  it("A: returns the full engine's purchasable 5 kW recommendation", () => {
+  it("A: returns the full engine's purchasable 3 kW recommendation", () => {
     expect(wo.tieToleranceSek).toBe(25);
-    expect(wo.withoutFcrOptimalPowerKw).toBe(5);
+    expect(wo.withoutFcrOptimalPowerKw).toBe(3);
     expect(wo.bestBenefitSek - wo.withoutFcrBenefitSek).toBeLessThanOrEqual(25);
   });
 
@@ -90,7 +92,7 @@ describe("true without-FCR counterfactual", () => {
     };
     const counterfactual = computeWithoutFcrOptimum(inputWithFixedSizing, outcome.result);
     expect(counterfactual?.capacityKWh).toBe(25);
-    expect(counterfactual?.withoutFcrOptimalPowerKw).toBe(5);
+    expect(counterfactual?.withoutFcrOptimalPowerKw).toBe(3);
   });
 
   it("F: the old subtraction method is gone — FCR-off totals differ from total minus FCR", () => {
@@ -136,7 +138,7 @@ describe("true without-FCR counterfactual", () => {
       demandChargeTouched: false,
       withoutFcr: wo,
     });
-    expect(p.withoutFcrPowerKw).toBe(5);
+    expect(p.withoutFcrPowerKw).toBe(3);
     expect(p.physicalPowerNeedKw).toBeCloseTo(3.5, 6);
   });
 

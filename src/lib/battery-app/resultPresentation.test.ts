@@ -73,7 +73,13 @@ describe("main recommendation reads the engine's recommended system power", () =
       withoutFcr: computeWithoutFcrOptimum(outcome.input, outcome.result),
     });
     expect(p.recommendedPowerKw).toBe(r.recommendedPowerKw);
-    expect(p.recommendedPowerKw).toBeGreaterThan(r.physicalPowerNeedKw);
+    /**
+     * UPDATED with the base-power correction: the recommended power is the smallest real
+     * product step reaching 95 % of the saturated physical benefit, which may now land
+     * BELOW the separate 99 % physical need. The presentation must show the engine's
+     * recommended power, whichever side of the physical need it lands on.
+     */
+    expect(p.recommendedPowerKw).toBeGreaterThan(0);
   });
 
   it("case D (FCR off): the recommendation stays at the physical product power", () => {
