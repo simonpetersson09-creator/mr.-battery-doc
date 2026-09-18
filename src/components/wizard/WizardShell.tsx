@@ -64,7 +64,7 @@ export function WizardShell({
             />
           </Link>
         </div>
-        <p className="mt-2 ui-caption">
+        <p className="mt-1 ui-caption">
           {t("common.step", { current: stepIndex + 1, total: WIZARD_STEPS.length })}
         </p>
         <StepIndicator stepIndex={stepIndex} />
