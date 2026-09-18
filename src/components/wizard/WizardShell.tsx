@@ -122,19 +122,30 @@ export function WizardShell({
 
 function StepIndicator({ stepIndex }: { stepIndex: number }) {
   return (
-    <div className="mt-1 flex items-center gap-1.5">
+    <div className="mt-1 flex items-center">
       {WIZARD_STEPS.map((step, i) => (
-        <div
-          key={step.path}
-          className={
-            "h-1.5 flex-1 rounded-full transition-colors " +
-            (i < stepIndex
-              ? "bg-foreground"
-              : i === stepIndex
-                ? "bg-accent"
-                : "bg-foreground/12")
-          }
-        />
+        <div key={step.path} className="flex flex-1 items-center last:flex-none">
+          <span
+            className={
+              "flex size-7 shrink-0 items-center justify-center rounded-full text-[12px] font-bold transition-colors " +
+              (i < stepIndex
+                ? "bg-foreground text-background"
+                : i === stepIndex
+                  ? "bg-accent text-accent-foreground ring-4 ring-accent/25"
+                  : "border-2 border-foreground/15 bg-transparent text-muted-foreground")
+            }
+          >
+            {i + 1}
+          </span>
+          {i < WIZARD_STEPS.length - 1 ? (
+            <span
+              className={
+                "mx-1 h-0.5 flex-1 rounded-full transition-colors " +
+                (i < stepIndex ? "bg-foreground" : "bg-foreground/12")
+              }
+            />
+          ) : null}
+        </div>
       ))}
     </div>
   );
