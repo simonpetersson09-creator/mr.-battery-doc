@@ -74,7 +74,11 @@ describe("grid limitation attribution", () => {
     expect(big.summary.recommendation.capacityKWh).toBe(
       base.summary.recommendation.capacityKWh,
     );
-    expect(big.summary.recommendation.powerKw).toBe(base.summary.recommendation.powerKw);
+    /* UPDATED: with ancillary services on, a bigger fuse allows a higher real product
+       step, so only the 95 % BASE power has to be unchanged. */
+    expect(big.summary.recommendation.basePowerForEnergyKw).toBe(
+      base.summary.recommendation.basePowerForEnergyKw,
+    );
     // The PHYSICAL dispatch is unchanged by the bigger fuse; only the FCR reservation
     // may grow, because after the physical FCR gate the grid headroom is part of what can
     // be reserved. MODEL DECISION: that trade-off is now judged on TOTAL CUSTOMER

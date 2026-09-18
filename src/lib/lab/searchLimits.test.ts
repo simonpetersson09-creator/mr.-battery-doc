@@ -85,7 +85,9 @@ describe("upper search-limit classification", () => {
   it("flags the capacity limit for a case beyond the analysed range", () => {
     const r = runBatteryEngine(build(3000000, 2000000, 630)).summary.recommendation;
     expect(r.capacityKWh).toBe(500);
-    expect(r.recommendedPowerKw).toBe(125);
+    // UPDATED: ancillary services raise the installed power to the 200 kW product cap.
+    expect(r.basePowerForEnergyKw).toBe(125);
+    expect(r.recommendedPowerKw).toBe(200);
     expect(r.upperLimitReached).toBe(true);
     expect(r.powerUpperLimitReached).toBe(false);
   });
