@@ -138,6 +138,8 @@ export const en = {
       title: "When do you use the most electricity?",
       placeholder: "Choose profile",
       chartCaption: "Typical weekday",
+      chartPeaks: "Peaks",
+      chartBase: "Base load",
     },
   },
   production: {

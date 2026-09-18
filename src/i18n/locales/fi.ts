@@ -136,6 +136,8 @@ export const fi = {
       title: "Milloin käytät eniten sähköä?",
       placeholder: "Valitse profiili",
       chartCaption: "Tyypillinen arkipäivä",
+      chartPeaks: "Huiput",
+      chartBase: "Peruskulutus",
     },
   },
   production: {

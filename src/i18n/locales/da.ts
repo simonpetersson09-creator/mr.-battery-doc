@@ -138,6 +138,8 @@ export const da = {
       title: "Hvornår bruger du mest strøm?",
       placeholder: "Vælg profil",
       chartCaption: "Typisk hverdag",
+      chartPeaks: "Spidser",
+      chartBase: "Basisforbrug",
     },
   },
   production: {
