@@ -241,7 +241,7 @@ export function MonthlyImport({
     </svg>
   );
 
-  const label = busy
+  const label = busy || picking
     ? t("monthlyImport.reading")
     : applied
       ? t("monthlyImport.reimport")
