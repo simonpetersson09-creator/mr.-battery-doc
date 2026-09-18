@@ -49,6 +49,8 @@ function EconomyStep() {
   const { state, update } = useWizard();
   const navigate = useNavigate();
   const access = useAccess();
+  /** Visible feedback while the (synchronous) simulation runs. Presentation only. */
+  const [calculating, setCalculating] = useState(false);
   const country = getCountry(state.grid.country);
   /* CURRENCY STAYS COUNTRY-DRIVEN — the UI language never changes it. */
   const unit = country.economy.currencyLabel;

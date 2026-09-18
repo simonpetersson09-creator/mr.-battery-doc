@@ -5,6 +5,7 @@ export const de = {
     back: "Zurück",
     next: "Weiter",
     showResult: "Ergebnis anzeigen",
+    calculating: "Berechnung…",
     done: "Fertig",
     cancel: "Abbrechen",
     restart: "Neu beginnen",

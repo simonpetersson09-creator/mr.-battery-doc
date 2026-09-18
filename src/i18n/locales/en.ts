@@ -5,6 +5,7 @@ export const en = {
     back: "Back",
     next: "Next",
     showResult: "Show result",
+    calculating: "Calculating…",
     done: "Done",
     cancel: "Cancel",
     restart: "Start over",
