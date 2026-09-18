@@ -530,6 +530,7 @@ export const sv = {
     demandCharge: "Effektavgiften kan inte vara negativ.",
     fxRateAncillary: "Valutakursen måste vara större än noll när stödtjänster är påslaget.",
     fxRate: "Valutakursen måste vara större än noll.",
+    reminder: "Ange ett värde.",
   },
   meta: {
     intro: {

@@ -86,6 +86,7 @@ export function NumberField({
   dense,
   compact,
   error,
+  reminder,
   disabled,
 }: {
   label: string;
@@ -103,6 +104,8 @@ export function NumberField({
   compact?: boolean;
   /** Localized message from the step's validation — shown once the field is used. */
   error?: string | null;
+  /** Soft nudge shown while the field is still empty — never blocks Next. */
+  reminder?: string;
   /** Read-only field: shown but not editable (e.g. not applicable to the chosen setup). */
   disabled?: boolean;
 }) {
@@ -158,6 +161,11 @@ export function NumberField({
       {showError ? (
         <span role="alert" className="ui-help mt-1 block font-medium text-destructive">
           {error}
+        </span>
+      ) : null}
+      {!showError && reminder && value === null ? (
+        <span role="status" className="ui-help mt-1 block font-medium text-warning">
+          {reminder}
         </span>
       ) : null}
       {hint ? <span className="ui-help mt-1 block">{hint}</span> : null}

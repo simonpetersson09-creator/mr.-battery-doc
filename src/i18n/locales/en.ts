@@ -529,6 +529,7 @@ export const en = {
     demandCharge: "The demand charge cannot be negative.",
     fxRateAncillary: "The exchange rate must be greater than zero when grid services are on.",
     fxRate: "The exchange rate must be greater than zero.",
+    reminder: "Enter a value.",
   },
   meta: {
     intro: {

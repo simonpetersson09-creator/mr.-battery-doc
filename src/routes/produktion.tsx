@@ -130,6 +130,7 @@ function ProductionStep() {
           placeholder={t("errors.egValue", { value: "14000" })}
           compact
           error={fieldError.annualKwh}
+          reminder={t("validation.reminder")}
           onChange={(v) => update((s) => ({ ...s, production: { ...s.production, annualKwh: v } }))}
         />
       ) : null}
@@ -146,6 +147,7 @@ function ProductionStep() {
         placeholder={t("errors.egValue", { value: "14" })}
         compact
         error={fieldError.dcKwp}
+        reminder={t("validation.reminder")}
         onChange={(v) => update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))}
       />
       <NumberField
@@ -155,6 +157,7 @@ function ProductionStep() {
         placeholder={t("errors.egValue", { value: "12" })}
         compact
         error={fieldError.acKw}
+        reminder={t("validation.reminder")}
         onChange={(v) => update((s) => ({ ...s, production: { ...s.production, acKw: v } }))}
       />
     </SectionCard>
