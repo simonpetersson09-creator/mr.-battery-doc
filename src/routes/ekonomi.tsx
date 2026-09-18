@@ -83,30 +83,45 @@ function EconomyStep() {
         <Button
           variant="cta"
           className="h-10 flex-[2] rounded-[0.75rem] text-[15px] font-bold shadow-cta"
-          disabled={!validity.ok}
-          aria-disabled={!validity.ok}
+          disabled={!validity.ok || calculating}
+          aria-disabled={!validity.ok || calculating}
+          aria-busy={calculating}
           onClick={() => {
-            if (!validity.ok) return;
-            const calc = getCalculation(state);
-            const dest = destinationAfterStep5({
-              calculationStatus: calc.outcome.status,
-              entitlements: access.entitlements,
-              calculationId: calc.id,
-            });
-            // Adjustment-credit path: an otherwise locked "ok" calculation that
-            // the flow rule let through because credits remain. Spend exactly
-            // one credit and unlock this calculation before navigating.
-            if (
-              dest === "/resultat" &&
-              calc.outcome.status === "ok" &&
-              !access.canOpenResult(calc.id)
-            ) {
-              access.consumeAdjustment(calc.id);
-            }
-            void navigate({ to: dest });
+            if (!validity.ok || calculating) return;
+            // The simulation blocks the main thread for seconds on a phone. Painting
+            // the "calculating" label BEFORE it starts is the whole point of the
+            // deferral — the inputs, the engine and the flow rule are unchanged.
+            setCalculating(true);
+            const run = () => {
+              try {
+                const calc = getCalculation(state);
+                // Same comparison layers the result page shows — computed here so the
+                // result page renders immediately instead of freezing on arrival.
+                getDerivedAnalyses(state);
+                const dest = destinationAfterStep5({
+                  calculationStatus: calc.outcome.status,
+                  entitlements: access.entitlements,
+                  calculationId: calc.id,
+                });
+                // Adjustment-credit path: an otherwise locked "ok" calculation that
+                // the flow rule let through because credits remain. Spend exactly
+                // one credit and unlock this calculation before navigating.
+                if (
+                  dest === "/resultat" &&
+                  calc.outcome.status === "ok" &&
+                  !access.canOpenResult(calc.id)
+                ) {
+                  access.consumeAdjustment(calc.id);
+                }
+                void navigate({ to: dest });
+              } finally {
+                setCalculating(false);
+              }
+            };
+            requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(run, 0)));
           }}
         >
-          {t("common.showResult")}
+          {calculating ? t("common.calculating") : t("common.showResult")}
           <ArrowRight className="size-4" />
         </Button>
       }
