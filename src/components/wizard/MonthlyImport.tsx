@@ -56,6 +56,8 @@ export function MonthlyImport({
   const months = monthShortLabels();
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  /** True while a native picker sheet is being opened. */
+  const [picking, setPicking] = useState(false);
   const [pickedName, setPickedName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [candidates, setCandidates] = useState<NormalisedSeries[] | null>(null);
@@ -159,11 +161,33 @@ export function MonthlyImport({
     }
   };
 
+  /**
+   * Browser file input fallback. WKWebView opens the same iOS camera / photo /
+   * Files sheets, so the step keeps working even when a native plugin is missing
+   * from the build or never answers.
+   */
+  const openWebPicker = (source: PickerSource) => {
+    const input = inputRef.current;
+    if (!input) return;
+    input.accept = source === "files" ? IMPORT_ACCEPT : "image/*";
+    if (source === "camera") input.setAttribute("capture", "environment");
+    else input.removeAttribute("capture");
+    input.click();
+  };
+
   /** Camera / photo library / Files inside the iOS app. */
   const handleNativePick = async (source: PickerSource) => {
-    if (busy) return;
+    if (busy || picking) return;
     setError(null);
-    const outcome = await pickFrom(source);
+    setPicking(true);
+    let outcome: Awaited<ReturnType<typeof pickFrom>>;
+    try {
+      outcome = await pickFrom(source);
+    } catch {
+      outcome = { status: "unsupported" };
+    } finally {
+      setPicking(false);
+    }
     switch (outcome.status) {
       case "picked":
         await analyze(outcome.file);
@@ -183,7 +207,8 @@ export function MonthlyImport({
         );
         return;
       case "unsupported":
-        setError(t("errors.importPickerUnavailable"));
+        // Never dead-end: hand over to the WebView's own picker.
+        openWebPicker(source);
         return;
       case "tooLarge":
         setError(t("errors.importTooLarge"));
@@ -216,7 +241,7 @@ export function MonthlyImport({
     </svg>
   );
 
-  const label = busy
+  const label = busy || picking
     ? t("monthlyImport.reading")
     : applied
       ? t("monthlyImport.reimport")
@@ -230,18 +255,18 @@ export function MonthlyImport({
             type="button"
             variant="ghost"
             className="cta-primary w-full"
-            disabled={busy}
+            disabled={busy || picking}
             onClick={() => void handleNativePick("camera")}
           >
             {importIcon}
-            {busy ? label : t("monthlyImport.takePhoto")}
+            {busy || picking ? label : t("monthlyImport.takePhoto")}
           </Button>
           <div className="flex gap-2">
             <Button
               type="button"
               variant="outline"
               className="flex-1"
-              disabled={busy}
+              disabled={busy || picking}
               onClick={() => void handleNativePick("photos")}
             >
               {t("monthlyImport.choosePhoto")}
@@ -250,7 +275,7 @@ export function MonthlyImport({
               type="button"
               variant="outline"
               className="flex-1"
-              disabled={busy}
+              disabled={busy || picking}
               onClick={() => void handleNativePick("files")}
             >
               {t("monthlyImport.chooseFile")}
