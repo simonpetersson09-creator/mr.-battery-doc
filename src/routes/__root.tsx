@@ -153,6 +153,46 @@ function RootComponent() {
     }
   }, []);
 
+  // Swipe from the left edge to go back, like the native iOS back gesture.
+  // Only fires when the touch starts at the screen edge and is clearly
+  // horizontal, so vertical scrolling and sliders are unaffected.
+  const router = useRouter();
+  useEffect(() => {
+    const EDGE_PX = 28;
+    const TRIGGER_PX = 64;
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+
+    const onTouchStart = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (!t || t.clientX > EDGE_PX) {
+        tracking = false;
+        return;
+      }
+      tracking = true;
+      startX = t.clientX;
+      startY = t.clientY;
+    };
+    const onTouchEnd = (e: TouchEvent) => {
+      if (!tracking) return;
+      tracking = false;
+      const t = e.changedTouches[0];
+      if (!t) return;
+      const dx = t.clientX - startX;
+      const dy = t.clientY - startY;
+      if (dx >= TRIGGER_PX && Math.abs(dx) > Math.abs(dy) * 2) {
+        router.history.back();
+      }
+    };
+    document.addEventListener("touchstart", onTouchStart, { passive: true });
+    document.addEventListener("touchend", onTouchEnd, { passive: true });
+    return () => {
+      document.removeEventListener("touchstart", onTouchStart);
+      document.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [router]);
+
   // Native iOS only: register the StoreKit adapter before the access layer runs
   // its recovery pass. A no-op in the browser, where purchases do not exist.
   useEffect(() => {
