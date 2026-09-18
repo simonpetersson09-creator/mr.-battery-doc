@@ -11,7 +11,6 @@ export const de = {
     restart: "Neu beginnen",
     locked: "Gesperrt",
     step: "Schritt {{current}} von {{total}}",
-    now: "Jetzt",
   },
   language: {
     title: "Sprache",
@@ -86,7 +85,6 @@ export const de = {
     footnote: "Dauert etwa drei Minuten. Ihre Angaben werden währenddessen gespeichert.",
   },
   network: {
-    primary: "Wählen Sie Ihre Hauptsicherung",
     title: "Stromnetz und Hauptsicherung",
     intro:
       "Wählen Sie zuerst das Land. Danach werden Netzwerte und Standardpreise automatisch gesetzt.",
@@ -115,7 +113,6 @@ export const de = {
     },
   },
   consumption: {
-    primary: "Geben Sie Ihren Jahresverbrauch ein",
     title: "Verbrauch",
     intro: "Wählen Sie den Weg, der Ihnen am besten passt. Sie können später wechseln.",
     modeTitle: "Wie möchten Sie Ihren Verbrauch angeben?",
@@ -144,7 +141,6 @@ export const de = {
     },
   },
   production: {
-    primary: "Geben Sie Ihre Solarproduktion ein",
     title: "Erzeugung",
     intro: "Hat die Immobilie heute eine PV-Anlage?",
     modeTitle: "Wie möchten Sie Ihre Erzeugung angeben?",
@@ -177,7 +173,6 @@ export const de = {
     },
   },
   strategies: {
-    primary: "Wählen Sie, was die Batterie tun soll",
     title: "Batterie",
     intro: "Alles ist zu Beginn aktiviert. Schalten Sie ab, was für Sie nicht relevant ist.",
     solar: {
@@ -200,7 +195,6 @@ export const de = {
       "Sie haben angegeben, dass die Immobilie keine PV-Anlage hat. Eigenverbrauch von Solarstrom bringt daher heute keinen Nutzen – die übrigen Anwendungen sind davon unberührt.",
   },
   economics: {
-    primary: "Prüfen Sie Ihre Strompreise",
     customerShare: {
       title: "Systemdienstleistungen",
       description: "Der volle Marktwert erreicht Sie selten. Geben Sie den Anteil an, mit dem Sie rechnen.",

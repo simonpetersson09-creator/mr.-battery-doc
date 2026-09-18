@@ -48,7 +48,7 @@ function BatteryStep() {
   }, [noSolar, s.solarSelfConsumption, s.reducedGridImport, s.peakShaving, update]);
 
   return (
-    <WizardShell compact stepIndex={3} title={t("strategies.title")} intro={t("strategies.intro")} primaryTask={t("strategies.primary")}>
+    <WizardShell compact stepIndex={3} title={t("strategies.title")} intro={t("strategies.intro")}>
       <div className="space-y-2">
         <ToggleRow
           title={t("strategies.solar.title")}

@@ -175,7 +175,6 @@ function ProductionStep() {
       stepIndex={2}
       title={t("production.title")}
       intro={t("production.intro")}
-      primaryTask={t("production.primary")}
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
       compact

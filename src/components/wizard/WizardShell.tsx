@@ -10,8 +10,6 @@ interface WizardShellProps {
   stepIndex: number;
   title: string;
   intro?: string;
-  /** One short "do this now" line shown above the step content. */
-  primaryTask?: string;
   children: ReactNode;
   nextLabel?: string;
   nextDisabled?: boolean;
@@ -34,7 +32,6 @@ export function WizardShell({
   stepIndex,
   title,
   intro,
-  primaryTask,
   children,
   nextLabel,
   nextDisabled,
@@ -73,14 +70,6 @@ export function WizardShell({
           <p className={eyebrowClassName ?? "ui-caption"}>
             {t("common.step", { current: stepIndex + 1, total: WIZARD_STEPS.length })}
           </p>
-          {primaryTask ? (
-            <p className="mt-1.5 flex items-center gap-2 rounded-[0.75rem] bg-accent/15 px-3 py-2">
-              <span className="ui-control-text-sm shrink-0 font-semibold uppercase tracking-wide text-muted-foreground">
-                {t("common.now")}
-              </span>
-              <span className="ui-label">{primaryTask}</span>
-            </p>
-          ) : null}
           {intro ? <p className={introClassName ?? "ui-help mt-1"}>{intro}</p> : null}
           <div className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}>{children}</div>
         </section>

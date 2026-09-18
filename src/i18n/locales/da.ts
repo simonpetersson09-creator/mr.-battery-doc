@@ -11,7 +11,6 @@ export const da = {
     restart: "Start forfra",
     locked: "Låst",
     step: "Trin {{current}} af {{total}}",
-    now: "Lige nu",
   },
   language: {
     title: "Sprog",
@@ -86,7 +85,6 @@ export const da = {
     footnote: "Tager cirka tre minutter. Dine svar gemmes undervejs.",
   },
   network: {
-    primary: "Vælg din hovedsikring",
     title: "ElNet og hovedsikring",
     intro:
       "Start med at vælge land. Så sættes de rigtige netværdier og standardpriser automatisk.",
@@ -115,7 +113,6 @@ export const da = {
     },
   },
   consumption: {
-    primary: "Angiv dit årsforbrug",
     title: "Forbrug",
     intro: "Vælg den måde, der passer dig bedst. Du kan ændre det senere.",
     modeTitle: "Hvordan vil du angive forbruget?",
@@ -144,7 +141,6 @@ export const da = {
     },
   },
   production: {
-    primary: "Angiv din solproduktion",
     title: "Produktion",
     intro: "Har ejendommen solceller i dag?",
     modeTitle: "Hvordan vil du angive din produktion?",
@@ -177,7 +173,6 @@ export const da = {
     },
   },
   strategies: {
-    primary: "Vælg hvad batteriet skal gøre",
     title: "Batteri",
     intro: "Alt er slået til fra start. Slå det fra, som ikke er relevant for dig.",
     solar: {
@@ -200,7 +195,6 @@ export const da = {
       "Du har angivet, at ejendommen ikke har solceller. Derfor giver egetforbrug af solstrøm ingen nytte i dag — de øvrige anvendelser påvirkes ikke.",
   },
   economics: {
-    primary: "Tjek dine elpriser",
     customerShare: {
       title: "Støttetjenester",
       description: "Hele markedsværdien tilfalder sjældent dig. Angiv den andel, du forventer at få.",

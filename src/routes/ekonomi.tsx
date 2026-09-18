@@ -74,7 +74,6 @@ function EconomyStep() {
       stepIndex={4}
       title={t("economics.title")}
       intro={t("economics.intro", { country: countryName(state.grid.country) })}
-      primaryTask={t("economics.primary")}
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
       footerAction={

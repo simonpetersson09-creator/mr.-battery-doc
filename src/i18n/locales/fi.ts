@@ -11,7 +11,6 @@ export const fi = {
     restart: "Aloita alusta",
     locked: "Lukittu",
     step: "Vaihe {{current}} / {{total}}",
-    now: "Juuri nyt",
   },
   language: {
     title: "Kieli",
@@ -85,7 +84,6 @@ export const fi = {
     footnote: "Kestää noin kolme minuuttia. Vastauksesi tallentuvat matkan varrella.",
   },
   network: {
-    primary: "Valitse pääsulake",
     title: "Sähköverkko ja pääsulake",
     intro: "Valitse ensin maa. Silloin verkkoarvot ja oletushinnat asetetaan automaattisesti.",
     country: { title: "Maa", description: "Missä kiinteistö sijaitsee?" },
@@ -113,7 +111,6 @@ export const fi = {
     },
   },
   consumption: {
-    primary: "Anna vuosikulutuksesi",
     title: "Kulutus",
     intro: "Valitse sinulle sopivin tapa. Voit vaihtaa myöhemmin.",
     modeTitle: "Miten haluat syöttää kulutuksen?",
@@ -142,7 +139,6 @@ export const fi = {
     },
   },
   production: {
-    primary: "Anna aurinkotuotantosi",
     title: "Tuotanto",
     intro: "Onko kiinteistössä aurinkopaneeleita tällä hetkellä?",
     modeTitle: "Miten haluat syöttää tuotantosi?",
@@ -175,7 +171,6 @@ export const fi = {
     },
   },
   strategies: {
-    primary: "Valitse mitä akun pitää tehdä",
     title: "Akku",
     intro: "Kaikki on aluksi päällä. Kytke pois se, mikä ei ole sinulle kiinnostavaa.",
     solar: {
@@ -198,7 +193,6 @@ export const fi = {
       "Olet ilmoittanut, ettei kiinteistössä ole aurinkopaneeleita. Siksi aurinkosähkön oma käyttö ei tuo tällä hetkellä hyötyä — muut käyttötavat eivät muutu.",
   },
   economics: {
-    primary: "Tarkista sähkön hinnat",
     customerShare: {
       title: "Tukipalvelut",
       description: "Koko markkina-arvo päätyy harvoin sinulle. Anna osuus, jonka arvioit saavasi.",

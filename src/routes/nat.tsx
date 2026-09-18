@@ -54,7 +54,6 @@ function GridStep() {
       stepIndex={0}
       title={t("network.title")}
       intro={t("network.intro")}
-      primaryTask={t("network.primary")}
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
       compact
