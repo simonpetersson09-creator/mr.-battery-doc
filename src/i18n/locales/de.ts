@@ -433,6 +433,8 @@ export const de = {
     reservablePower: "Physikalisch reservierbare Leistung (Durchschnitt)",
     reservableNote:
       "Ein separater durchschnittlicher Reservierbarkeitswert – nicht die Leistung, auf der die Vergütung basiert.",
+    reservationNote:
+      "Die Engine reserviert die Leistung, die den höchsten Gesamtnutzen bringt. Ein größerer Teil der Batterieleistung könnte technisch für Systemdienstleistungen verfügbar sein, wird aber nicht genutzt, wenn Eigenverbrauch und Spitzenlastkappung einen größeren Nutzen bringen.",
     selectedServices: "Gewählte Systemdienstleistungen",
     limitingFactor: "Was die Batteriegröße begrenzt",
     limiting: {

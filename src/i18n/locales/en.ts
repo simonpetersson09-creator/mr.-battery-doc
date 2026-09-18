@@ -429,6 +429,8 @@ export const en = {
     reservablePower: "Physically reservable power (average)",
     reservableNote:
       "A separate average reservability measure – not the power the compensation is calculated from.",
+    reservationNote:
+      "The engine reserves the level that gives the highest total calculated benefit. More of the battery's power may be technically available for ancillary services, but is not used if self-consumption and peak shaving give greater benefit.",
     selectedServices: "Selected services",
     limitingFactor: "What limits the battery size",
     limiting: {

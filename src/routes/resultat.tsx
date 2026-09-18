@@ -860,7 +860,7 @@ function ResultStep() {
                   value={kw(
                     ancillaryBest
                       ? (ancillaryBest.paidUpKw + ancillaryBest.paidDownKw) / 2
-                      : s.fcr.avgHeldPowerKw,
+                      : s.fcr.offeredPowerKw,
                     2,
                   )}
                 />
@@ -872,6 +872,9 @@ function ResultStep() {
                     />
                     <p className="ui-help">{t("technical.reservableNote")}</p>
                   </>
+                ) : null}
+                {!ancillaryBest ? (
+                  <p className="ui-help">{t("technical.reservationNote")}</p>
                 ) : null}
                 <Row label={t("technical.selectedServices")} value={productLabel} />
               </>

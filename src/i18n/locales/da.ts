@@ -429,6 +429,8 @@ export const da = {
     reservablePower: "Fysisk reserverbar effekt (gennemsnit)",
     reservableNote:
       "Et separat gennemsnitligt mål for reserverbarhed – ikke den effekt, som betalingen beregnes ud fra.",
+    reservationNote:
+      "Motoren reserverer det niveau, der giver den højeste samlede beregnede nytte. En større del af batteriets effekt kan være teknisk tilgængelig til systemydelser, men bruges ikke, hvis eget forbrug og spidslastkapning giver større nytte.",
     selectedServices: "Valgte systemydelser",
     limitingFactor: "Hvad begrænser batteristørrelsen",
     limiting: {
