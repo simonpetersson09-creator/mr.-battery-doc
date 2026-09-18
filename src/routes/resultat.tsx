@@ -6,7 +6,11 @@ import { loadSnapshot, saveSnapshot } from "@/lib/history/store";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { SectionCard } from "@/components/wizard/fields";
 import { Button } from "@/components/ui/button";
-import { clearCalculationCache, getCalculation } from "@/lib/access/calculationCache";
+import {
+  clearCalculationCache,
+  getCalculation,
+  getDerivedAnalyses,
+} from "@/lib/access/calculationCache";
 import { useAccess } from "@/state/access";
 import { buildResultPresentation } from "@/lib/battery-app/resultPresentation";
 import { computeWithoutFcrOptimum } from "@/lib/battery-app/withoutFcrOptimum";
