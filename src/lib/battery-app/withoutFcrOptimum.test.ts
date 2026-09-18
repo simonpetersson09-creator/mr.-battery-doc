@@ -44,9 +44,14 @@ describe("true without-FCR counterfactual", () => {
   const rec = outcome.result.summary.recommendation;
   const wo = computeWithoutFcrOptimum(outcome.input, outcome.result)!;
 
-  it("B: the ordinary FCR-on recommendation is unchanged (25 kWh / 12,5 kW)", () => {
+  /**
+   * UPDATED after the approved solar-flow sizing change: FCR revenue may no longer raise
+   * the recommended power, so the FCR-on case lands on the same technically motivated
+   * 5 kW as the FCR-off counterfactual. The capacity is unchanged.
+   */
+  it("B: the FCR-on recommendation is the technical 25 kWh / 5 kW", () => {
     expect(rec.capacityKWh).toBe(25);
-    expect(rec.recommendedPowerKw).toBe(12.5);
+    expect(rec.recommendedPowerKw).toBe(5);
     expect(rec.physicalPowerNeedKw).toBeCloseTo(3.5, 6);
   });
 
@@ -62,7 +67,7 @@ describe("true without-FCR counterfactual", () => {
     });
     expect(wo.capacityKWh).toBe(direct.summary.recommendation.capacityKWh);
     expect(wo.withoutFcrOptimalPowerKw).toBe(direct.summary.recommendation.recommendedPowerKw);
-    for (const kw of [3, 3.5, 5, 7.5, 10, 12.5]) expect(wo.candidatePowersKw).toContain(kw);
+    for (const kw of [3, 3.5, 5, 7.5, 10]) expect(wo.candidatePowersKw).toContain(kw);
   });
 
   it("A: returns the full engine's purchasable 5 kW recommendation", () => {
@@ -133,19 +138,18 @@ describe("true without-FCR counterfactual", () => {
     });
     expect(p.withoutFcrPowerKw).toBe(5);
     expect(p.physicalPowerNeedKw).toBeCloseTo(3.5, 6);
-    expect(p.showPhysicalNeedRow).toBe(true);
-    expect(p.fcrPowerCardText).toContain("5,0 kW");
-    expect(p.fcrPowerCardText).toContain("12,5 kW");
   });
 
-  it("D: three levels are shown when the without-FCR power differs from the physical need", () => {
+  it("D: FCR can no longer drive the power, so no FCR power card is shown", () => {
     const p = buildResultPresentation(outcome.result, {
       peakShavingSelected: true,
       demandChargeTouched: false,
-      withoutFcr: { ...wo, withoutFcrOptimalPowerKw: 5 },
+      withoutFcr: wo,
     });
-    expect(p.showPhysicalNeedRow).toBe(true);
-    expect(p.fcrPowerCardText).toContain("Utan FCR-D upp och ned ger 5,0 kW");
+    expect(outcome.result.summary.recommendation.recommendationUsesHistoricalFcr).toBe(false);
+    expect(p.fcrDrivesPower).toBe(false);
+    expect(p.showFcrPowerCard).toBe(false);
+    expect(p.showPhysicalNeedRow).toBe(false);
   });
 
   it("no counterfactual supplied -> no reconstructed level at all", () => {
@@ -163,48 +167,24 @@ describe("compact power explanation card", () => {
   const outcome = run(refState(true));
   const wo = computeWithoutFcrOptimum(outcome.input, outcome.result)!;
 
-  it("control case: shows physical need, full without-FCR product and FCR product", () => {
+  /**
+   * UPDATED: the card only ever existed to explain a power level that ancillary revenue
+   * had raised. That can no longer happen — the power is technical — so the card stays
+   * hidden and the recommended level equals the without-FCR level.
+   */
+  it("control case: no FCR power card, because FCR never raises the power", () => {
     const p = buildResultPresentation(outcome.result, {
       peakShavingSelected: true,
       demandChargeTouched: false,
       withoutFcr: wo,
     });
-    expect(p.showFcrPowerCard).toBe(true);
-    expect(p.showPhysicalNeedRow).toBe(true);
-    expect(p.fcrPowerLevels).toHaveLength(3);
-    expect(p.fcrPowerLevels[0]!.label).toBe("Fysiskt effektbehov");
-    expect(p.fcrPowerLevels[0]!.kw).toBeCloseTo(3.5, 6);
-    expect(p.fcrPowerLevels[1]!.label).toBe("Utan FCR-D upp och ned");
-    expect(p.fcrPowerLevels[1]!.kw).toBe(5);
-    expect(p.fcrPowerLevels[2]!.label).toBe("Med stödtjänst");
-    expect(p.fcrPowerLevels[2]!.kw).toBeCloseTo(12.5, 6);
-    // The old stale 10 kW level must never appear.
-    for (const lvl of p.fcrPowerLevels) {
-      expect(Math.abs(lvl.kw - 10)).toBeGreaterThan(0.1);
-    }
-  });
-
-  it("three rows when physical need differs from without-FCR power", () => {
-    const p = buildResultPresentation(outcome.result, {
-      peakShavingSelected: true,
-      demandChargeTouched: false,
-      withoutFcr: { ...wo, withoutFcrOptimalPowerKw: 5 },
-    });
-    expect(p.showPhysicalNeedRow).toBe(true);
-    expect(p.fcrPowerLevels).toHaveLength(3);
-    expect(p.fcrPowerLevels[0]!.label).toBe("Fysiskt effektbehov");
-    expect(p.fcrPowerLevels[1]!.label).toBe("Utan FCR-D upp och ned");
-    expect(p.fcrPowerLevels[2]!.label).toBe("Med stödtjänst");
-  });
-
-  it("explanation is short, neutral and mentions historical prices", () => {
-    const p = buildResultPresentation(outcome.result, {
-      peakShavingSelected: true,
-      demandChargeTouched: false,
-      withoutFcr: wo,
-    });
-    expect(p.fcrPowerExplanation).toContain("historiska stödtjänst-priser");
-    expect(p.fcrPowerExplanation).toContain("Framtida priser");
+    expect(p.showFcrPowerCard).toBe(false);
+    expect(p.showPhysicalNeedRow).toBe(false);
+    expect(p.fcrPowerLevels).toHaveLength(0);
+    expect(p.fcrPowerExplanation).toBeNull();
+    expect(outcome.result.summary.recommendation.recommendedPowerKw).toBe(
+      wo.withoutFcrOptimalPowerKw,
+    );
   });
 
   it("FCR off -> no card, no levels, no explanation", () => {

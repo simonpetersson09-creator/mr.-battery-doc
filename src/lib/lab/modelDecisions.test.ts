@@ -190,19 +190,15 @@ describe("C — the power level is chosen on total customer benefit", () => {
       econ,
       optimiseFcrReservation: true,
     });
+    /**
+     * MODEL RULE (new solar sizing chain): the level is the SMALLEST product step that
+     * reaches 95 % of the saturated PHYSICAL benefit. The economics is reported, never
+     * used to pick the level, so the selected option is exactly `energyPowerNeedKw`.
+     */
     const selected = sizing.options.find((o) => o.selected);
     expect(selected).toBeDefined();
-    const best = Math.max(...sizing.options.map((o) => o.annualCustomerBenefitSek));
-    expect(selected!.annualCustomerBenefitSek).toBeGreaterThanOrEqual(
-      best - POWER_TIE_TOLERANCE_SEK,
-    );
-    // A strictly lower option with the same benefit must have won instead.
-    const cheaperTie = sizing.options.find(
-      (o) =>
-        o.powerKw < selected!.powerKw &&
-        o.annualCustomerBenefitSek >= best - POWER_TIE_TOLERANCE_SEK,
-    );
-    expect(cheaperTie).toBeUndefined();
+    expect(selected!.powerKw).toBe(sizing.energyPowerNeedKw);
+    expect(sizing.recommendedPowerKw).toBe(selected!.powerKw);
   });
 
   it("never lets raw FCR gross alone drive a higher power level", () => {
@@ -216,13 +212,12 @@ describe("C — the power level is chosen on total customer benefit", () => {
       optimiseFcrReservation: true,
     });
     const selected = sizing.options.find((o) => o.selected)!;
+    // A bigger option may well earn more FCR — it must still never be selected.
     for (const o of sizing.options) {
       if (o.powerKw <= selected.powerKw) continue;
-      // Any bigger option must be genuinely better for the customer, not just for FCR.
-      expect(o.annualCustomerBenefitSek).toBeLessThan(
-        selected.annualCustomerBenefitSek + POWER_TIE_TOLERANCE_SEK,
-      );
+      expect(o.selected).toBe(false);
     }
+    expect(sizing.recommendationUsesHistoricalFcr).toBe(false);
   });
 
   it("applies the customer share to the ancillary value in the objective", () => {

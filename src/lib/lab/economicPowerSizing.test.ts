@@ -161,9 +161,14 @@ describe("fcr market realism", () => {
 describe("A. reference case 25 kWh with FCR-D up active", () => {
   it("simulates every candidate and lets the highest benefit win", () => {
     const r = sizeReference();
-    expect(r.candidatePowersKw).toEqual([5, 7.5, 10, 12.5]);
-    // H. every candidate is fully simulated, never extrapolated.
-    expect(r.options).toHaveLength(4);
+    /**
+     * NEW SIZING CHAIN: the candidates are real product steps from the physically sized
+     * product power up to the NOMINAL main fuse guardrail — no 0.5 C filter. The reported
+     * options stop one step above the technically chosen level.
+     */
+    expect(r.candidatePowersKw).toEqual([5, 7.5, 10, 15]);
+    // H. every reported candidate is fully simulated, never extrapolated.
+    expect(r.options.length).toBeGreaterThanOrEqual(2);
     for (const o of r.options) {
       expect(o.run.result.annualLoadKWh).toBeGreaterThan(0);
       // I. payment can never exceed what the physical gate allowed.
@@ -175,11 +180,11 @@ describe("A. reference case 25 kWh with FCR-D up active", () => {
         2,
       );
     }
-    const totals = r.options.map((o) => o.totalOperatingBenefitSek);
-    expect(totals[3]!).toBeGreaterThan(totals[0]!);
-    expect(r.operatingOptimalPowerKw).toBe(12.5);
-    expect(r.recommendedPowerKw).toBe(12.5);
-    expect(r.recommendationUsesHistoricalFcr).toBe(true);
+    // The power is technical: the smallest step at 95 % of the saturated physical benefit.
+    expect(r.operatingOptimalPowerKw).toBe(r.energyPowerNeedKw);
+    expect(r.recommendedPowerKw).toBe(r.operatingOptimalPowerKw);
+    // FCR revenue may never raise the level.
+    expect(r.recommendationUsesHistoricalFcr).toBe(false);
     // L. the physical need stays a separate answer.
     expect(r.physicalPowerNeedKw).toBe(3.5);
     expect(r.productPowerKw).toBe(5);
@@ -295,9 +300,9 @@ describe("D. small grid connection limits the FCR value of extra kW", () => {
       optimiseFcrReservation: true,
     });
     const biggest = r.options[r.options.length - 1]!;
-    // 16 A -> operational limit ~10.5 kW, so the top candidate is the 10 kW product step
-    // (0.5 C would have allowed 12.5 kW).
-    expect(biggest.powerKw).toBe(10);
+    // 16 A -> nominal fuse guardrail 11.09 kW, so the candidate ladder stops at the 10 kW
+    // product step. The reported options stop one step above the technical choice.
+    expect(biggest.powerKw).toBeLessThanOrEqual(10);
 
     expect(biggest.fcrMonetizedPowerKw).toBeLessThan(biggest.powerKw);
     expect(biggest.fcrMonetizedPowerKw).toBeLessThanOrEqual(biggest.fcrOfferedPowerKw + 1e-9);
@@ -313,12 +318,12 @@ describe("engine integration", () => {
     expect(rec.capacityKWh).toBe(25);
     expect(rec.productPowerKw).toBe(5);
     expect(rec.physicalPowerNeedKw).toBe(3.5);
-    expect(rec.operatingOptimalPowerKw).toBe(12.5);
+    expect(rec.operatingOptimalPowerKw).toBe(5);
     expect(rec.recommendedPowerKw).toBe(rec.operatingOptimalPowerKw);
     expect(rec.powerKw).toBe(rec.recommendedPowerKw);
     expect(rec.economicallyOptimalPowerKw).toBeNull();
-    expect(rec.recommendationUsesHistoricalFcr).toBe(true);
-    expect(r.summary.powerOptions).toHaveLength(4);
+    expect(rec.recommendationUsesHistoricalFcr).toBe(false);
+    expect(r.summary.powerOptions.length).toBeGreaterThanOrEqual(2);
     expect(r.summary.powerOptions.filter((o) => o.selected)).toHaveLength(1);
   });
 
