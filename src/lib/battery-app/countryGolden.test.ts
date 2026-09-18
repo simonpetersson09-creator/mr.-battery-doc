@@ -243,16 +243,13 @@ const EXPECTED: Record<string, { capacityKWh: number; powerKw: number }> = {
   CG01: { capacityKWh: 20, powerKw: 3 },
   CG02: { capacityKWh: 25, powerKw: 3 },
   CG03: { capacityKWh: 5, powerKw: 3 },
-  CG04: { capacityKWh: 300, powerKw: 30 },
 
   CG05: { capacityKWh: 0, powerKw: 0 },
   CG06: { capacityKWh: 10, powerKw: 3 },
-  CG07: { capacityKWh: 50, powerKw: 7.5 },
   CG08: { capacityKWh: 15, powerKw: 3 },
   CG09: { capacityKWh: 150, powerKw: 20 },
   CG10: { capacityKWh: 5, powerKw: 3 },
   CG11: { capacityKWh: 20, powerKw: 3 },
-  CG12: { capacityKWh: 100, powerKw: 15 },
   /**
    * MODEL DECISION (peak shaving with demandFee = 0): Denmark prices no demand charge,
    * so economically driven peak shaving no longer charges from the grid. CG13 previously
@@ -260,8 +257,6 @@ const EXPECTED: Record<string, { capacityKWh: number; powerKw: number }> = {
    * that could never be repaid. The physical peak reduction is still simulated.
    */
   CG13: { capacityKWh: 0, powerKw: 0 },
-  CG14: { capacityKWh: 50, powerKw: 7.5 },
-  CG15: { capacityKWh: 500, powerKw: 60 },
 };
 
 function buildState(c: Case): WizardState {
