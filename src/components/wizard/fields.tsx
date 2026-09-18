@@ -236,8 +236,7 @@ export function ToggleRow({
   return (
     <div
       className={
-        "flex items-center justify-between gap-3 rounded-[1.25rem] px-3.5 py-3 transition-colors " +
-        (checked ? "chip-selected" : "chip-unselected") +
+        "flex items-center justify-between gap-3 px-3.5 py-3 transition-colors card-surface" +
         (disabled ? " opacity-55" : "")
       }
     >
@@ -251,7 +250,7 @@ export function ToggleRow({
         checked={checked}
         disabled={disabled}
         onCheckedChange={onChange}
-        className="shrink-0 data-[state=checked]:border-[oklch(0.3172_0_0/0.3)] data-[state=checked]:bg-[var(--brand-yellow)]"
+        className="shrink-0 data-[state=checked]:bg-toggle-on data-[state=unchecked]:bg-toggle-off"
       />
     </div>
   );
