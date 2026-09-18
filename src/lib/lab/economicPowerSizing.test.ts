@@ -162,11 +162,12 @@ describe("A. reference case 25 kWh with FCR-D up active", () => {
   it("simulates every candidate and lets the highest benefit win", () => {
     const r = sizeReference();
     /**
-     * NEW SIZING CHAIN: the candidates are real product steps from the physically sized
-     * product power up to the NOMINAL main fuse guardrail — no 0.5 C filter. The reported
-     * options stop one step above the technically chosen level.
+     * NEW SIZING CHAIN: the candidates are real product steps from the BASE product step
+     * up to the NOMINAL main fuse guardrail — no 0.5 C filter and no floor from the older
+     * 99 % sizing in `powerSizing.sizePower`. The reported options stop one step above the
+     * technically chosen level.
      */
-    expect(r.candidatePowersKw).toEqual([5, 7.5, 10, 15]);
+    expect(r.candidatePowersKw).toEqual([3, 5, 7.5, 10, 15]);
     // H. every reported candidate is fully simulated, never extrapolated.
     expect(r.options.length).toBeGreaterThanOrEqual(2);
     for (const o of r.options) {
@@ -219,16 +220,22 @@ describe("B. without FCR the physical level wins", () => {
       optimiseFcrReservation: false,
     });
     expect(r.status).toBe("complete");
-    expect(r.operatingOptimalPowerKw).toBe(5);
+    /**
+     * UPDATED: the base power for energy handling is the SMALLEST real product step that
+     * reaches 95 % of the saturated physical benefit. The older 99 % sizing in
+     * `powerSizing.sizePower` (productPowerKw = 5) may no longer raise that floor, so the
+     * 3 kW step is now scanned and wins.
+     */
+    expect(r.operatingOptimalPowerKw).toBe(3);
     expect(r.recommendationUsesHistoricalFcr).toBe(false);
     for (const o of r.options) expect(o.fcrRevenueSek).toBe(0);
   });
 });
 
-/* ----------------------- G. tie-break ----------------------- */
+/* ----------------------- G. technical selection ----------------------- */
 
-describe("G. tie-break", () => {
-  it("chooses the LOWER system power when candidates are within the tolerance", () => {
+describe("G. technical selection", () => {
+  it("picks the smallest step reaching 95 % of BOTH saturated physical measures", () => {
     const input = referenceInput({
       strategies: { selfConsumption: true, reduceImport: true, peakShaving: true, fcrDUp: false },
     });
@@ -242,13 +249,24 @@ describe("G. tie-break", () => {
       econ: ECON,
       optimiseFcrReservation: false,
     });
-    const best = Math.max(...r.options.map((o) => o.totalOperatingBenefitSek));
-    const winner = r.options.find((o) => o.selected)!;
-    expect(best - winner.totalOperatingBenefitSek).toBeLessThanOrEqual(POWER_TIE_TOLERANCE_SEK);
     expect(r.tieToleranceSek).toBe(25);
-    // No higher candidate may be selected while a lower one is within the tolerance.
-    const lower = r.options.filter((o) => o.powerKw < winner.powerKw);
-    for (const o of lower) expect(best - o.totalOperatingBenefitSek).toBeGreaterThan(POWER_TIE_TOLERANCE_SEK);
+    const scan = r.physicalBenefitScan ?? [];
+    const maxUseful = Math.max(...scan.map((p) => p.usefulKWh));
+    const maxPeak = Math.max(...scan.map((p) => p.peakReductionKw));
+    const expected = scan.find(
+      (p) =>
+        (maxUseful <= 0 || p.usefulKWh >= 0.95 * maxUseful - 1e-9) &&
+        (maxPeak <= 0 || p.peakReductionKw >= 0.95 * maxPeak - 1e-9),
+    )!;
+    const winner = r.options.find((o) => o.selected)!;
+    expect(winner.powerKw).toBe(expected.powerKw);
+    expect(r.operatingOptimalPowerKw).toBe(expected.powerKw);
+    // No lower candidate may reach the 95 % target.
+    for (const p of scan.filter((s) => s.powerKw < expected.powerKw))
+      expect(
+        (maxUseful <= 0 || p.usefulKWh >= 0.95 * maxUseful - 1e-9) &&
+          (maxPeak <= 0 || p.peakReductionKw >= 0.95 * maxPeak - 1e-9),
+      ).toBe(false);
   });
 });
 
@@ -318,7 +336,8 @@ describe("engine integration", () => {
     expect(rec.capacityKWh).toBe(25);
     expect(rec.productPowerKw).toBe(5);
     expect(rec.physicalPowerNeedKw).toBe(3.5);
-    expect(rec.operatingOptimalPowerKw).toBe(5);
+    // UPDATED: the 95 % rule may now see the 3 kW step; the old 99 % floor is gone.
+    expect(rec.operatingOptimalPowerKw).toBe(3);
     expect(rec.recommendedPowerKw).toBe(rec.operatingOptimalPowerKw);
     expect(rec.powerKw).toBe(rec.recommendedPowerKw);
     expect(rec.economicallyOptimalPowerKw).toBeNull();

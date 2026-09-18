@@ -230,28 +230,29 @@ const CASES: Record<string, Case> = {
  * before freezing: capacity scales with consumption and solar surplus, power
  * never exceeds the grid connection or the 200 kW product ceiling.
  */
+/**
+ * REGENERATED (base power for energy handling). The candidate ladder no longer starts at
+ * the answer of the older 99 % sizing in `powerSizing.sizePower`; it starts at the base
+ * product step, so the 95 % saturation rule can finally see the steps below that floor.
+ * Capacities are unchanged in every case; only the recommended power moves DOWN one real
+ * product step where the lower step already reaches 95 % of both physical measures:
+ * CG02 5 -> 3, CG04 50 -> 30, CG07 10 -> 7.5, CG09 25 -> 20, CG12 20 -> 15,
+ * CG14 10 -> 7.5, CG15 100 -> 60 kW.
+ */
 const EXPECTED: Record<string, { capacityKWh: number; powerKw: number }> = {
   CG01: { capacityKWh: 20, powerKw: 3 },
-  CG02: { capacityKWh: 25, powerKw: 5 },
+  CG02: { capacityKWh: 25, powerKw: 3 },
   CG03: { capacityKWh: 5, powerKw: 3 },
-  /**
-   * REGENERATED after the approved SOLAR-FLOW SIZING CHANGE (0.5 C removed as a candidate
-   * filter, power chosen as the smallest product step reaching 95 % of the saturated
-   * PHYSICAL benefit, FCR revenue no longer allowed to buy extra kW). Capacities are
-   * unchanged in every case below; only the recommended power moves DOWN to the physically
-   * motivated level: CG04 125 -> 50, CG07 25 -> 10, CG09 30 -> 25, CG12 50 -> 20,
-   * CG14 25 -> 10, CG15 200 -> 100 kW.
-   */
-  CG04: { capacityKWh: 300, powerKw: 50 },
+  CG04: { capacityKWh: 300, powerKw: 30 },
 
   CG05: { capacityKWh: 0, powerKw: 0 },
   CG06: { capacityKWh: 10, powerKw: 3 },
-  CG07: { capacityKWh: 50, powerKw: 10 },
+  CG07: { capacityKWh: 50, powerKw: 7.5 },
   CG08: { capacityKWh: 15, powerKw: 3 },
-  CG09: { capacityKWh: 150, powerKw: 25 },
+  CG09: { capacityKWh: 150, powerKw: 20 },
   CG10: { capacityKWh: 5, powerKw: 3 },
   CG11: { capacityKWh: 20, powerKw: 3 },
-  CG12: { capacityKWh: 100, powerKw: 20 },
+  CG12: { capacityKWh: 100, powerKw: 15 },
   /**
    * MODEL DECISION (peak shaving with demandFee = 0): Denmark prices no demand charge,
    * so economically driven peak shaving no longer charges from the grid. CG13 previously
@@ -259,13 +260,8 @@ const EXPECTED: Record<string, { capacityKWh: number; powerKw: number }> = {
    * that could never be repaid. The physical peak reduction is still simulated.
    */
   CG13: { capacityKWh: 0, powerKw: 0 },
-  CG14: { capacityKWh: 50, powerKw: 10 },
-  /**
-   * CG15 previously froze 250 kW (physical need at 0.5 C) and then 200 kW (product cap).
-   * With the physical saturation rule the recommendation is 100 kW: beyond that step the
-   * useful energy and peak reduction no longer improve. The physical need stays unclamped.
-   */
-  CG15: { capacityKWh: 500, powerKw: 100 },
+  CG14: { capacityKWh: 50, powerKw: 7.5 },
+  CG15: { capacityKWh: 500, powerKw: 60 },
 };
 
 function buildState(c: Case): WizardState {

@@ -32,6 +32,7 @@ import {
 import type { FcrOptimisationResult, OperatingEconomyConfig, OperatingEconomyResult } from "./operatingEconomy";
 import { buildSeries, simulate } from "./simulate";
 import { computeGridLimits } from "./dispatch";
+import { nearestProductStep } from "./powerSizing";
 
 import type { LabConfig, SimResult, TimeSeries } from "./types";
 import { productCost } from "./productCost";
@@ -489,9 +490,21 @@ export function runEconomicPowerSizing(
   /**
    * STEP B — candidates are real product steps up to the fuse guardrail. No C-rate filter:
    * capacity no longer decides which powers may be analysed.
+   *
+   * CANDIDATE FLOOR. The ladder starts at the configured base product step (the lowest
+   * power the product line is sold at), NEVER at `productPowerKw`. The older sizing in
+   * `powerSizing.sizePower` uses a 99 % utility threshold plus a 1 % step rule; using its
+   * answer as a floor made steps below it invisible to the 95 % rule (audit case C032:
+   * 15 kW = 98.90 % was never tested because the 99 % floor started the ladder at 20 kW).
+   * `productPowerKw` is still reported and still used as the fallback when no candidate
+   * can be scanned, but it may not raise the base power for energy handling.
    */
-  const candidatePowersKw = buildTechnicalPowerCandidates(
+  const candidateFloorKw = Math.min(
     productPowerKw,
+    nearestProductStep(cfg.powerSizing.basePowerKw, cfg.powerSizing.productStepsKw),
+  );
+  const candidatePowersKw = buildTechnicalPowerCandidates(
+    candidateFloorKw,
     cfg.powerSizing.productStepsKw,
     gridPowerLimitKw,
   );
@@ -515,7 +528,7 @@ export function runEconomicPowerSizing(
   const chosenPowerKw =
     energyNeedKw === null
       ? Math.min(productPowerKw, gridAllowedPowerKw)
-      : Math.min(Math.max(energyNeedKw, Math.min(productPowerKw, gridAllowedPowerKw)), gridAllowedPowerKw);
+      : Math.min(energyNeedKw, gridAllowedPowerKw);
 
   const base = {
     capacityKWh,
