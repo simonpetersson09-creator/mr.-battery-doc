@@ -223,50 +223,73 @@ function ProfileShapeChart({ profileId }: { profileId: string }) {
   const t = useT();
   const weights = hourWeightsOf(profileId as LoadProfileShape);
   const max = Math.max(...weights, 1e-9);
-  const barW = 6;
-  const gap = 3;
+  const barW = 8;
+  const gap = 4;
   const step = barW + gap;
   const width = 24 * step - gap;
-  const chartH = 44;
-  const labelH = 12;
+  const chartH = 88;
+  const labelH = 14;
+  const padTop = 2;
   return (
-    <figure className="mt-1 space-y-1" aria-label={t("consumption.profile.chartCaption")}>
+    <figure className="mt-2 space-y-2" aria-label={t("consumption.profile.chartCaption")}>
       <svg
         viewBox={`0 0 ${width} ${chartH + labelH}`}
-        className="h-16 w-full"
+        className="h-28 w-full"
         role="img"
         aria-hidden="true"
       >
+        {/* subtle horizontal guide lines */}
+        {[0.25, 0.5, 0.75].map((f) => (
+          <line
+            key={f}
+            x1={0}
+            x2={width}
+            y1={padTop + chartH - f * chartH}
+            y2={padTop + chartH - f * chartH}
+            className="stroke-border/40"
+            strokeWidth={0.5}
+          />
+        ))}
         {weights.map((w, i) => {
-          const h = Math.max(1.5, (w / max) * chartH);
+          const h = Math.max(barW, (w / max) * chartH);
           const peak = w / max >= 0.75;
           return (
             <rect
               key={i}
               x={i * step}
-              y={chartH - h}
+              y={padTop + chartH - h}
               width={barW}
               height={h}
-              rx={1.5}
-              className={peak ? "fill-accent" : "fill-muted-foreground/35"}
+              rx={barW / 2}
+              className={peak ? "fill-accent" : "fill-muted-foreground/25"}
             />
           );
         })}
-        {[0, 6, 12, 18].map((hr) => (
-          <text
-            key={hr}
-            x={hr * step + barW / 2}
-            y={chartH + labelH - 2}
-            textAnchor="middle"
-            className="fill-muted-foreground"
-            fontSize="7"
-          >
-            {String(hr).padStart(2, "0")}
-          </text>
-        ))}
+        {[0, 6, 12, 18, 24].map((hr) => {
+          const x = hr === 24 ? width - barW / 2 : hr * step + barW / 2;
+          return (
+            <text
+              key={hr}
+              x={x}
+              y={chartH + labelH}
+              textAnchor={hr === 0 ? "start" : hr === 24 ? "end" : "middle"}
+              className="fill-muted-foreground"
+              fontSize="8"
+            >
+              {String(hr).padStart(2, "0")}
+            </text>
+          );
+        })}
       </svg>
-      <figcaption className="ui-caption text-center">
-        {t("consumption.profile.chartCaption")}
+      <figcaption className="flex items-center justify-center gap-5">
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block size-2 rounded-full bg-accent" />
+          <span className="ui-caption">{t("consumption.profile.chartPeaks")}</span>
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block size-2 rounded-full bg-muted-foreground/25" />
+          <span className="ui-caption">{t("consumption.profile.chartBase")}</span>
+        </span>
       </figcaption>
     </figure>
   );
