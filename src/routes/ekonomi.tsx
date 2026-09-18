@@ -269,6 +269,7 @@ function EconomyStep() {
           <span>{t("payback.years", { years: formatNumber(MIN_TARGET_PAYBACK_YEARS, 0) })}</span>
           <span>{t("payback.years", { years: formatNumber(MAX_TARGET_PAYBACK_YEARS, 0) })}</span>
         </div>
+        <p className="ui-help mt-1.5 text-pretty">{t("payback.guide")}</p>
       </SectionCard>
     </WizardShell>
   );
