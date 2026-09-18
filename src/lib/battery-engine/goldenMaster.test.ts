@@ -262,37 +262,39 @@ const EXPECTED = {
     "residualKWh": 0
   },
   /**
-   * GM07 regenerated after the approved GRID-CEILING change: the recommended product
-   * power may never exceed the connection's operational limit (min of operational
-   * import/export, 95 % margin), rounded down to a real product step. Here the 3 kW
-   * export cap gives 2.85 kW operational, so 2 kW replaces 3 kW. Dispatch physics,
-   * capacity sizing and the 0.5 C rule are unchanged.
+   * GM07 regenerated after the approved FUSE-GUARDRAIL change, which REVERTS the previous
+   * grid-ceiling regeneration of this case. The recommendable product power is now capped
+   * by the NOMINAL main-fuse power only (no 95 % margin, and never the separate
+   * operational export/import limits). The 3 kW export cap is an operating limit, so it no
+   * longer shrinks the recommendation from 3 kW to 2 kW; the dispatch still clips actual
+   * export at 2.85 kW ("export-limited" is unchanged). Dispatch physics, capacity sizing
+   * and the 0.5 C rule are unchanged.
    */
   "GM07": {
     "capacityKWh": 15,
-    "powerKw": 2,
+    "powerKw": 3,
     "physicalPowerNeedKw": 2.5,
     "importBeforeKWh": 7126.1765,
-    "importAfterKWh": 4942.533,
+    "importAfterKWh": 4882.4355,
     "exportBeforeKWh": 6218.0423,
-    "exportAfterKWh": 4343.5723,
-    "shiftedToLoadKWh": 2297.9062,
-    "recoveredCurtailmentKWh": 639.7544,
-    "cycles": 170.2153,
-    "utilisationPct": 46.6343,
+    "exportAfterKWh": 4097.5532,
+    "shiftedToLoadKWh": 2358.0036,
+    "recoveredCurtailmentKWh": 478.4912,
+    "cycles": 174.6669,
+    "utilisationPct": 47.854,
     "peakBeforeKw": 5.5338,
     "peakAfterKw": 5.5538,
     "gridStatus": "export-limited",
     "unservedKWh": 0,
     "peakReductionKw": -0.02,
-    "demandCostSavingSek": 307.21,
+    "demandCostSavingSek": 275.46,
     "fcrEnabled": false,
     "fcrOfferedKw": 0,
     "fcrHeldKw": 0,
     "fcrGrossSek": null,
     "fcrOptimisedKw": null,
-    "energyBenefitSek": 2150.78,
-    "totalOperatingBenefitSek": 2457.99,
+    "energyBenefitSek": 2093.32,
+    "totalOperatingBenefitSek": 2368.78,
     "balanceOk": true,
     "residualKWh": 0
   },
