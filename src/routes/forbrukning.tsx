@@ -209,7 +209,7 @@ function ProfilePicker({ error }: { error: string | null }) {
         </SelectContent>
       </Select>
       <FieldError message={error} />
-      {selected ? <ProfileShapeChart profileId={selected.id} /> : null}
+      {selected ? <div className="mt-4"><ProfileShapeChart profileId={selected.id} /></div> : null}
     </SectionCard>
   );
 }
