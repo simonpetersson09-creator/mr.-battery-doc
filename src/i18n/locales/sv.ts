@@ -430,6 +430,8 @@ export const sv = {
     reservablePower: "Fysiskt reserverbar effekt (medel)",
     reservableNote:
       "Separat tekniskt medelvärde för reserverbarhet – inte den effekt som ersättningen beräknas på.",
+    reservationNote:
+      "Motorn reserverar den nivå som ger högst total beräknad nytta. En större del av batteriets effekt kan vara tekniskt tillgänglig för stödtjänster, men används inte om egenanvändning och effekttoppskapning ger större nytta.",
     selectedServices: "Valda stödtjänster",
     limitingFactor: "Vad begränsar batteristorleken",
     limiting: {

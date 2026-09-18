@@ -424,6 +424,8 @@ export const fi = {
     reservablePower: "Fyysisesti varattavissa oleva teho (keskiarvo)",
     reservableNote:
       "Erillinen varattavuuden keskiarvo – ei se teho, jonka perusteella korvaus lasketaan.",
+    reservationNote:
+      "Moottori varaa sen tason, joka antaa suurimman kokonaishyödyn. Suurempi osa akun tehosta voi olla teknisesti saatavilla reservipalveluihin, mutta sitä ei käytetä, jos oma kulutus ja huippukuormituksen tasaus tuovat enemmän hyötyä.",
     selectedServices: "Valitut reservipalvelut",
     limitingFactor: "Mikä rajoittaa akun kokoa",
     limiting: {
