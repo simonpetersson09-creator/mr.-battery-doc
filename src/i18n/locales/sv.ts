@@ -217,7 +217,7 @@ export const sv = {
         "Schablonvärden för att jämföra olika batterilösningar. Se din faktiska elräkning för köpt el, och utgå från vad du tror om framtida priser för såld solel.",
     },
     importPrice: { label: "Köpt el (inkl. nätavgift)", hint: "Kolla din elräkning." },
-    exportPrice: { label: "Såld solel", hint: "Utgå från vad du tror om framtiden." },
+    exportPrice: { label: "Såld solel (spotpris)", hint: "Utgå från vad du tror om framtiden." },
     demandCharge: {
       label: "Effektavgift",
       hintDefault:
