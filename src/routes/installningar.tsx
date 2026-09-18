@@ -157,7 +157,7 @@ function SettingsPage() {
 
 
         {/* Premium */}
-        <section className="relative mt-1.5 rounded-[1rem] bg-accent px-3 py-2.5 text-accent-foreground">
+        <section className="relative mt-1.5 rounded-[1rem] bg-brand-yellow px-3 py-2.5 text-accent-foreground">
           <p className="absolute right-3 top-3 text-[10px] font-bold uppercase tracking-wide opacity-70">
             {t("settings.premium.badge")}
           </p>
