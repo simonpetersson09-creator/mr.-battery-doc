@@ -127,6 +127,7 @@ export interface ReportCopy {
     power: string;
     cRate: string;
     physicalNeed: string;
+    basePower: string;
     alternatives: string;
     lower: string;
     yours: string;
@@ -412,6 +413,7 @@ const sv: ReportCopy = {
     power: "Effekt",
     cRate: "C-rate",
     physicalNeed: "Fysiskt effektbehov",
+    basePower: "Grundeffekt för energihantering",
     alternatives: "Simulerade alternativ",
     lower: "Mindre",
     yours: "Ditt batteri",
@@ -781,6 +783,7 @@ const en: ReportCopy = {
     power: "Power",
     cRate: "C-rate",
     physicalNeed: "Physical power need",
+    basePower: "Base power for energy handling",
     alternatives: "Simulated alternatives",
     lower: "Smaller",
     yours: "Your battery",

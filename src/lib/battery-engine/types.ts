@@ -14,6 +14,7 @@
  */
 
 import type { FcrRevenueResult } from "../lab/ancillary/fcrEconomics";
+import type { AncillaryPowerPotential } from "../lab/ancillaryPowerPotential";
 import type { FcrEnduranceCapacityResult } from "../lab/fcrEnduranceCapacity";
 import type {
   EconomicPowerSizingResult,
@@ -140,6 +141,12 @@ export interface EngineStrategyInput {
   fcrOfferedPowerKw?: number;
   /** Run the 0/25/50/75/100 % FCR reservation sweep and pick the historically best level. */
   optimiseFcrReservation?: boolean;
+  /**
+   * Run the INFORMATIONAL ancillary power potential analysis (higher real product steps
+   * up to the fuse guardrail). Defaults to true when ancillary services are selected. It
+   * never changes the recommendation.
+   */
+  ancillaryPowerPotential?: boolean;
 }
 
 export interface EngineEconomyInput {
@@ -189,8 +196,19 @@ export interface BatteryEngineInput {
 export interface EngineRecommendation {
   capacityKWh: number;
   powerKw: number;
-  /** Technical power need before it is mapped onto a product step, kW. */
+  /**
+   * LEGACY DIAGNOSTIC — the old 99 %-utility power need from `powerSizing.sizePower`.
+   * It is NOT the customer's base power, it does not set `recommendedPowerKw`, it is not
+   * a candidate floor and it must never be presented as the current physical power need.
+   * Use `basePowerForEnergyKw` instead. Kept only for diagnostics and legacy consumers.
+   */
   physicalPowerNeedKw: number;
+  /**
+   * BASE POWER FOR ENERGY HANDLING, kW — the smallest real product step reaching 95 % of
+   * the saturated physical benefit (useful energy and, when it exists, peak reduction),
+   * ancillary services excluded. This is the customer-facing base power.
+   */
+  basePowerForEnergyKw: number;
   reasonableRangeKWh: [number, number];
   diminishingFromKWh: number | null;
   upperLimitReached: boolean;
@@ -391,6 +409,11 @@ export interface BatteryEngineSummary {
   energyBalance: EnergyBalance;
   /** Simulated product alternatives at the recommended capacity. Empty when not run. */
   powerOptions: EnginePowerOption[];
+  /**
+   * INFORMATION ONLY: simulated ancillary potential at higher real product steps. Null
+   * when ancillary services are off. It never changes the recommendation.
+   */
+  ancillaryPowerPotential: AncillaryPowerPotential | null;
 }
 
 /** Everything an engineering/debug view needs. Never required by a consumer app. */

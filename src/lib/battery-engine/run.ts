@@ -26,6 +26,7 @@ import {
 } from "../lab/economicPowerSizing";
 
 import type { EconomicPowerSizingResult } from "../lab/economicPowerSizing";
+import { computeAncillaryPowerPotential } from "../lab/ancillaryPowerPotential";
 import { productCostConfig } from "../lab/productCost";
 import { fcrEnduranceCapacity } from "../lab/fcrEnduranceCapacity";
 import { assessGrid } from "../lab/gridAssessment";
@@ -154,6 +155,12 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       });
   const finalCapacityKWh = fcrEnduranceCapacityResult?.capacityKWh ?? capacityKWh;
 
+  /**
+   * BASE POWER FOR ENERGY HANDLING — the 95 % physical saturation step. This is the
+   * customer-facing base power. The legacy 99 % `physicalNeedKw` is NOT used for it.
+   */
+  const basePowerForEnergyKw = economicPowerSizing.energyPowerNeedKw ?? powerKw;
+
 
 
 
@@ -183,6 +190,22 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
     econ,
     series,
   );
+
+  /**
+   * ANCILLARY POWER POTENTIAL — information only. It runs AFTER the recommendation is
+   * fixed and never feeds back into capacity, power, economy or max investment.
+   */
+  const ancillaryPowerPotential =
+    sizingWasFixed || (input.strategies?.ancillaryPowerPotential ?? true) === false
+      ? null
+      : computeAncillaryPowerPotential({
+          cfg,
+          series,
+          capacityKWh: finalCapacityKWh,
+          basePowerKw: basePowerForEnergyKw,
+          econ,
+          optimiseFcrReservation: input.strategies?.optimiseFcrReservation ?? false,
+        });
 
   let economyWithoutFcr: OperatingEconomyResult | null = null;
   if (withoutFcr)
@@ -247,7 +270,9 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
     recommendation: {
       capacityKWh: finalCapacityKWh,
       powerKw,
+      // LEGACY 99 % diagnostic — not the customer's base power.
       physicalPowerNeedKw: sweep.powerSizing.physicalNeedKw,
+      basePowerForEnergyKw,
       reasonableRangeKWh: sweep.sweetSpot.reasonableRangeKWh,
       diminishingFromKWh: sweep.sweetSpot.diminishingFromKWh,
       upperLimitReached: sweep.sweetSpot.upperLimitReached,
@@ -404,6 +429,7 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
       selected: o.selected,
       physicalSizingChoice: o.physicalSizingChoice,
     })),
+    ancillaryPowerPotential,
   };
 
 
