@@ -39,7 +39,20 @@ export interface ResultPresentation {
   capacityKWh: number;
   /** The ONLY power the customer-facing recommendation is allowed to show. */
   recommendedPowerKw: number;
+  /** LEGACY 99 % diagnostic — never presented as the current physical power need. */
   physicalPowerNeedKw: number;
+  /** 95 % base power for energy handling, kW — the customer-facing base power. */
+  basePowerForEnergyKw: number;
+  /**
+   * INFORMATION ONLY: higher real product steps the engine simulated with ancillary
+   * services on. Never a recommendation, never "optimal". Null when there is nothing
+   * above the base power to show.
+   */
+  ancillaryPotential: {
+    basePowerKw: number;
+    maxAnalysedPowerKw: number;
+    steps: { powerKw: number; extraAnnualBenefitSek: number }[];
+  } | null;
   /** Set when the physical need is above the largest purchasable product level. */
   powerCapNote: string | null;
   actualDispatchPowerKw: number;
@@ -215,6 +228,34 @@ export function buildResultPresentation(
     propertyOnlyPowerKw !== null &&
     Math.abs(propertyOnlyPowerKw - r.physicalPowerNeedKw) > 0.05;
 
+  /**
+   * INFORMATION ONLY. Simulated higher product steps from the engine's separate ancillary
+   * potential analysis. Only steps ABOVE the base power with a positive calculated extra
+   * annual benefit are shown, and no step is ever labelled best/optimal/recommended.
+   */
+  const potential = result.summary.ancillaryPowerPotential;
+  const potentialSteps =
+    potential && showFcr
+      ? potential.steps
+          .filter(
+            (st) =>
+              st.installedPowerKw > potential.basePowerKw + 1e-9 &&
+              st.incrementalAnnualBenefitVsBase > 0,
+          )
+          .map((st) => ({
+            powerKw: st.installedPowerKw,
+            extraAnnualBenefitSek: st.incrementalAnnualBenefitVsBase,
+          }))
+      : [];
+  const ancillaryPotential =
+    potential && potentialSteps.length > 0
+      ? {
+          basePowerKw: potential.basePowerKw,
+          maxAnalysedPowerKw: potential.maxAnalysedPowerKw,
+          steps: potentialSteps,
+        }
+      : null;
+
   const capacityAtSearchLimit = !noBattery && r.upperLimitReached;
   const powerAtSearchLimit = !noBattery && r.powerUpperLimitReached;
   const atLeast = (value: string) => t("results.searchLimit.atLeast", { value });
@@ -339,6 +380,9 @@ export function buildResultPresentation(
     // reservability measure. No calculation is performed here.
     fcrMonetizedPowerKw: showFcr ? s.fcr.monetizedPowerKw : null,
     fcrReservableAvgPowerKw: showFcr ? s.fcr.reservablePowerAvgKw : null,
+    basePowerForEnergyKw: r.basePowerForEnergyKw,
+    ancillaryPotential: ancillaryPotential,
+
 
     hasSolar,
     showSelfConsumption,

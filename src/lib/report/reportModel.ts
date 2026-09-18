@@ -577,8 +577,9 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
   ];
   if (!ancillaryOnly) {
     sizingRows.push({
-      label: copy.sizing.physicalNeed,
-      value: kw(r.physicalPowerNeedKw, 1),
+      // 95 % base power for energy handling — not the legacy 99 % diagnostic.
+      label: copy.sizing.basePower,
+      value: kw(r.basePowerForEnergyKw, 1),
       source: "calculated",
     });
   } else {

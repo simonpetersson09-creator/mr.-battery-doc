@@ -805,7 +805,11 @@ function ResultStep() {
             />
             {ancillaryBest ? null : (
               <>
-                <Row label={t("technical.physicalNeed")} value={kw(p.physicalPowerNeedKw, 1)} />
+                {/* The 95 % base power for energy handling — NOT the legacy 99 % need. */}
+                <Row
+                  label={t("technical.basePowerForEnergy")}
+                  value={kw(p.basePowerForEnergyKw, 1)}
+                />
                 {p.powerCapNote ? <p className="ui-help">{p.powerCapNote}</p> : null}
                 {p.fcrHeldPowerKw !== null ? (
                   <Row label={t("technical.heldPower")} value={kw(p.fcrHeldPowerKw, 2)} />
@@ -861,6 +865,31 @@ function ResultStep() {
               </>
             ) : null}
           </TechGroup>
+
+          {/* INFORMATION ONLY: simulated higher product steps. Never a recommendation. */}
+          {p.ancillaryPotential ? (
+            <TechGroup title={t("technical.potentialTitle")}>
+              <p className="ui-help">
+                {t("technical.potentialNote", {
+                  max: nf(p.ancillaryPotential.maxAnalysedPowerKw, 0),
+                })}
+              </p>
+              <Row
+                label={t("technical.potentialColumn")}
+                value={`${t("technical.basePowerForEnergy")}: ${kw(
+                  p.ancillaryPotential.basePowerKw,
+                  1,
+                )}`}
+              />
+              {p.ancillaryPotential.steps.map((st) => (
+                <Row
+                  key={st.powerKw}
+                  label={kw(st.powerKw, 1)}
+                  value={`+${money(st.extraAnnualBenefitSek)}`}
+                />
+              ))}
+            </TechGroup>
+          ) : null}
         </div>
       </details>
 
