@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BatteryFull, LineChart, PiggyBank, Settings, Zap, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LanguageSelect } from "@/components/LanguageSelect";
+import { useCountUp, formatStatNumber } from "@/components/CountUp";
 import logo from "@/assets/mr-battery-doc-logo.png";
 import { useT } from "@/i18n";
 
@@ -29,6 +30,42 @@ const POINTS = [
   { icon: LineChart, key: "intro.points.economy" },
   { icon: PiggyBank, key: "intro.points.investment" },
 ];
+
+/** Animated stat cards: count 0→max with ease-out, then glow-pulse once. */
+function AnimatedStats({ t }: { t: ReturnType<typeof useT> }) {
+  const power = useCountUp(200);
+  const capacity = useCountUp(500);
+  const sims = useCountUp(800_000, 1200);
+
+  const powerDone = power.done && capacity.done;
+
+  return (
+    <div className="mt-5 flex w-full items-stretch justify-center gap-3">
+      <div
+        className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl border border-border bg-card px-2.5 py-2 text-center transition-shadow ${powerDone ? "stat-glow-pulse" : ""}`}
+      >
+        <Zap className="size-3.5 text-accent" strokeWidth={2.5} />
+        <span className="text-[0.75rem] font-bold leading-tight">
+          {power.value} kW / {capacity.value} kWh
+        </span>
+        <span className="text-[0.6875rem] leading-tight text-muted-foreground">
+          {t("intro.stats.powerSub")}
+        </span>
+      </div>
+      <div
+        className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl border border-border bg-card px-2.5 py-2 text-center transition-shadow ${sims.done ? "stat-glow-pulse" : ""}`}
+      >
+        <Activity className="size-3.5 text-accent" strokeWidth={2.5} />
+        <span className="text-[0.75rem] font-bold leading-tight">
+          ≈ {formatStatNumber(sims.value)}
+        </span>
+        <span className="text-[0.6875rem] leading-tight text-muted-foreground">
+          {t("intro.stats.simsSub")}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 function Welcome() {
   const t = useT();
@@ -71,26 +108,7 @@ function Welcome() {
           ))}
         </ul>
 
-        <div className="mt-5 flex w-full items-stretch justify-center gap-3">
-          <div className="flex flex-1 flex-col items-center gap-0.5 rounded-xl border border-border bg-card px-2.5 py-2 text-center">
-            <Zap className="size-3.5 text-accent" strokeWidth={2.5} />
-            <span className="text-[0.75rem] font-bold leading-tight">
-              {t("intro.stats.powerLabel")}
-            </span>
-            <span className="text-[0.6875rem] leading-tight text-muted-foreground">
-              {t("intro.stats.powerSub")}
-            </span>
-          </div>
-          <div className="flex flex-1 flex-col items-center gap-0.5 rounded-xl border border-border bg-card px-2.5 py-2 text-center">
-            <Activity className="size-3.5 text-accent" strokeWidth={2.5} />
-            <span className="text-[0.75rem] font-bold leading-tight">
-              {t("intro.stats.simsLabel")}
-            </span>
-            <span className="text-[0.6875rem] leading-tight text-muted-foreground">
-              {t("intro.stats.simsSub")}
-            </span>
-          </div>
-        </div>
+        <AnimatedStats t={t} />
 
         <div className="mt-6 flex w-full items-stretch gap-2">
           <Button

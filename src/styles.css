@@ -727,3 +727,25 @@ html[data-native="true"] .pt-safe {
     animation: none;
   }
 }
+
+/* Stat cards: one-time glow pulse when count-up reaches max.
+   Paused for reduced motion. */
+@keyframes stat-glow-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--brand-yellow) 0%, transparent);
+  }
+  35% {
+    box-shadow: 0 0 0 5px color-mix(in oklab, var(--brand-yellow) 35%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 12px color-mix(in oklab, var(--brand-yellow) 0%, transparent);
+  }
+}
+.stat-glow-pulse {
+  animation: stat-glow-pulse 0.7s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .stat-glow-pulse {
+    animation: none;
+  }
+}
