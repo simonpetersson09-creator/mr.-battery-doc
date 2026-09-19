@@ -6,6 +6,7 @@ import { loadSnapshot, saveSnapshot } from "@/lib/history/store";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { SectionCard } from "@/components/wizard/fields";
 import { Button } from "@/components/ui/button";
+import { CountUpValue } from "@/components/CountUp";
 import {
   clearCalculationCache,
   getCalculation,
@@ -420,7 +421,7 @@ function ResultStep() {
                   className={
                     "relative flex flex-col items-center justify-between rounded-[0.75rem] px-2 py-2.5 text-center " +
                     (main
-                      ? "z-10 scale-[1.04] bg-background shadow-lg shadow-amber-900/10 ring-1 ring-foreground/10"
+                      ? "z-10 scale-[1.04] bg-background shadow-lg shadow-amber-900/10 ring-1 ring-foreground/10 recommend-glow-once"
                       : "surface-secondary")
                   }
                 >
@@ -449,7 +450,11 @@ function ResultStep() {
                         (main ? "text-[30px] font-extrabold tracking-tight" : "text-[18px] font-bold text-foreground/95")
                       }
                     >
-                      {nf(alt.capacityKWh)}
+                      {main ? (
+                        <CountUpValue value={alt.capacityKWh} format={(v) => nf(v)} />
+                      ) : (
+                        nf(alt.capacityKWh)
+                      )}
                     </span>
                     <span
                       className={
@@ -472,7 +477,14 @@ function ResultStep() {
                         (main ? "text-[14px]" : "text-[12px] text-foreground/85")
                       }
                     >
-                      {moneyPerYear(alt.customerBenefitSek)}
+                      {main && alt.customerBenefitSek !== null ? (
+                        <CountUpValue
+                          value={alt.customerBenefitSek}
+                          format={(v) => moneyPerYear(v)}
+                        />
+                      ) : (
+                        moneyPerYear(alt.customerBenefitSek)
+                      )}
                     </p>
                   </div>
                 </div>
@@ -763,7 +775,8 @@ function ResultStep() {
             {t("results.investment.title")}
           </p>
           <p className="mt-0.5 text-[24px] font-extrabold tracking-tight tabular-nums">
-            {t("results.investment.approx")} {money(maxInvestment)}
+            {t("results.investment.approx")}{" "}
+            <CountUpValue value={maxInvestment} format={(v) => money(v)} />
           </p>
           <div className="surface-secondary mt-1.5 rounded-[1rem] p-2.5 text-left">
             <p className="text-center text-[12px] font-semibold">{t("results.investment.otherTitle")}</p>
