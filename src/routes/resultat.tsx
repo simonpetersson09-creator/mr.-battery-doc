@@ -775,7 +775,8 @@ function ResultStep() {
             {t("results.investment.title")}
           </p>
           <p className="mt-0.5 text-[24px] font-extrabold tracking-tight tabular-nums">
-            {t("results.investment.approx")} {money(maxInvestment)}
+            {t("results.investment.approx")}{" "}
+            <CountUpValue value={maxInvestment} format={(v) => money(v)} />
           </p>
           <div className="surface-secondary mt-1.5 rounded-[1rem] p-2.5 text-left">
             <p className="text-center text-[12px] font-semibold">{t("results.investment.otherTitle")}</p>
