@@ -630,6 +630,10 @@ export const da = {
     terms: "Brugervilkår",
     privacy: "Privatlivspolitik",
     eula: "Licensaftale (Apple)",
+    reset: {
+      title: "Start forfra",
+      confirm: "Start forfra? Alle indtastede værdier i guiden slettes.",
+    },
     historyPanel: {
       premiumActive: "Premium aktivt til {{date}}",
       premiumInactive: "Intet aktivt Premium",

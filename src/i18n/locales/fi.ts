@@ -625,6 +625,10 @@ export const fi = {
     terms: "Käyttöehdot",
     privacy: "Tietosuojakäytäntö",
     eula: "Käyttöoikeussopimus (Apple)",
+    reset: {
+      title: "Aloita alusta",
+      confirm: "Aloita alusta? Kaikki ohjattuun toimintoon syötetyt arvot poistetaan.",
+    },
     historyPanel: {
       premiumActive: "Premium käytössä {{date}} asti",
       premiumInactive: "Ei aktiivista Premiumia",

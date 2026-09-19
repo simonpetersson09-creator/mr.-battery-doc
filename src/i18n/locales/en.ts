@@ -630,6 +630,10 @@ export const en = {
     terms: "Terms of use",
     privacy: "Privacy policy",
     eula: "License agreement (Apple)",
+    reset: {
+      title: "Start over",
+      confirm: "Start over? All entered values in the guide will be cleared.",
+    },
     historyPanel: {
       premiumActive: "Premium active until {{date}}",
       premiumInactive: "No active Premium",

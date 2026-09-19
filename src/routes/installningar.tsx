@@ -6,7 +6,7 @@
  * restoring go through the same gateway as the paywall; nothing here touches
  * the wizard state, the engine or any calculation.
  */
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   BadgeCheck,
@@ -19,7 +19,10 @@ import {
   RotateCcw,
   ShieldCheck,
   SlidersHorizontal,
+  Trash2,
 } from "lucide-react";
+import { clearCalculationCache } from "@/lib/access/calculationCache";
+import { useWizard } from "@/state/wizard";
 import { lazy, Suspense, useEffect, useState } from "react";
 import type { ProductKey } from "@/lib/access/products";
 import type { StoreProduct } from "@/lib/access/purchaseGateway";
@@ -57,11 +60,14 @@ const PREMIUM_POINTS = ["calculations", "pdf", "full"] as const;
 function SettingsPage() {
   const t = useT();
   const access = useAccess();
+  const { reset } = useWizard();
+  const navigate = useNavigate();
   const [busy, setBusy] = useState<"premium" | "restore" | null>(null);
   const [notice, setNotice] = useState<
     "restored" | "restoreNothing" | "manageWeb" | "pending" | "unresolved" | null
   >(null);
   const [error, setError] = useState<string | null>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
 
   // Apple's localized prices — the same source the paywall uses. Never a
   // hardcoded amount.
@@ -290,6 +296,45 @@ function SettingsPage() {
             <span className="flex-1 text-[14px] font-semibold">{t("settings.history")}</span>
             <ChevronRight className="size-4 text-muted-foreground" />
           </Link>
+
+          {confirmReset ? (
+            <div className="rounded-[1rem] border border-border bg-card px-3 py-2.5">
+              <p className="text-[13px] font-semibold leading-snug">{t("settings.reset.confirm")}</p>
+              <div className="mt-2 flex gap-2">
+                <Button
+                  variant="outline"
+                  className="h-9 flex-1 rounded-[0.75rem] text-[14px] font-semibold"
+                  onClick={() => setConfirmReset(false)}
+                >
+                  {t("common.cancel")}
+                </Button>
+                <Button
+                  variant="cta"
+                  className="h-9 flex-1 rounded-[0.75rem] text-[14px] font-bold"
+                  onClick={() => {
+                    clearCalculationCache();
+                    reset();
+                    setConfirmReset(false);
+                    void navigate({ to: "/" });
+                  }}
+                >
+                  {t("common.restart")}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5 text-left"
+              onClick={() => setConfirmReset(true)}
+            >
+              <span className="flex size-8 items-center justify-center rounded-full bg-muted">
+                <Trash2 className="size-4" />
+              </span>
+              <span className="flex-1 text-[14px] font-semibold">{t("settings.reset.title")}</span>
+              <ChevronRight className="size-4 text-muted-foreground" />
+            </button>
+          )}
 
           {LEGAL_LINKS.terms ? (
             <button

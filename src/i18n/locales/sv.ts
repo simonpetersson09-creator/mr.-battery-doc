@@ -631,6 +631,10 @@ export const sv = {
     terms: "Användarvillkor",
     privacy: "Integritetspolicy",
     eula: "Licensavtal (Apple)",
+    reset: {
+      title: "Börja om",
+      confirm: "Vill du börja om? Alla ifyllda värden i guiden raderas.",
+    },
     historyPanel: {
       premiumActive: "Premium aktivt till {{date}}",
       premiumInactive: "Inget aktivt Premium",
