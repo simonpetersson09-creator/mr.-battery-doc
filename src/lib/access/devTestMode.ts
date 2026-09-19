@@ -25,12 +25,31 @@ const CONFIG_KEY = "mr-battery-doc:dev:purchase-test:v1";
  * purchase flow can be tested in the mobile preview; the published App Store
  * and production web builds never match this host.
  */
+const OVERRIDE_KEY = "mr-battery-doc:dev:force-test-panel";
+
+/** Preview hosts (never the published App Store or production web build). */
+function isPreviewHost(hostname: string): boolean {
+  if (hostname === "localhost" || hostname === "127.0.0.1") return true;
+  if (hostname.includes("preview--")) return true;
+  if (hostname.endsWith("-dev.lovable.app")) return true;
+  if (hostname.endsWith(".lovableproject.com")) return true;
+  return false;
+}
+
 export function isDevBuild(): boolean {
   if (import.meta.env.DEV === true) return true;
-  if (typeof window !== "undefined") {
-    return window.location.hostname.startsWith("id-preview--");
+  if (typeof window === "undefined") return false;
+  try {
+    const search = window.location.search + window.location.hash;
+    if (/[?&#]devtest=1/.test(search)) {
+      localStorage.setItem(OVERRIDE_KEY, "1");
+      return true;
+    }
+    if (localStorage.getItem(OVERRIDE_KEY) === "1") return true;
+  } catch {
+    /* storage unavailable */
   }
-  return false;
+  return isPreviewHost(window.location.hostname);
 }
 
 export type PurchaseScenario =
