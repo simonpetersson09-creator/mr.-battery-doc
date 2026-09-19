@@ -57,3 +57,20 @@ export function useCountUp(target: number, duration = 1200) {
 export function formatStatNumber(value: number): string {
   return formatNumber(value);
 }
+
+/**
+ * Renders a number that counts up from 0 to `value` on mount.
+ * Presentation only — the formatter decides how the number is displayed.
+ */
+export function CountUpValue({
+  value,
+  format,
+  duration = 1200,
+}: {
+  value: number;
+  format: (v: number) => string;
+  duration?: number;
+}) {
+  const { value: current } = useCountUp(value, duration);
+  return <>{format(current)}</>;
+}

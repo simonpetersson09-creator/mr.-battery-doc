@@ -124,11 +124,11 @@ function StepIndicator({ stepIndex }: { stepIndex: number }) {
         <div key={step.path} className="flex flex-1 items-center last:flex-none">
           <span
             className={
-              "flex size-7 shrink-0 items-center justify-center rounded-full text-[12px] font-bold transition-colors " +
+              "flex size-7 shrink-0 items-center justify-center rounded-full text-[12px] font-bold transition-[background-color,color,box-shadow,transform,border-color] duration-200 ease-out motion-reduce:transition-none " +
               (i < stepIndex
                 ? "bg-foreground text-background"
                 : i === stepIndex
-                  ? "bg-accent text-accent-foreground ring-4 ring-accent/25"
+                  ? "scale-110 bg-accent text-accent-foreground ring-4 ring-accent/25"
                   : "border-2 border-foreground/15 bg-transparent text-muted-foreground")
             }
           >
@@ -137,7 +137,7 @@ function StepIndicator({ stepIndex }: { stepIndex: number }) {
           {i < WIZARD_STEPS.length - 1 ? (
             <span
               className={
-                "mx-1 h-0.5 flex-1 rounded-full transition-colors " +
+                "mx-1 h-0.5 flex-1 rounded-full transition-colors duration-200 ease-out " +
                 (i < stepIndex ? "bg-foreground" : "bg-foreground/12")
               }
             />

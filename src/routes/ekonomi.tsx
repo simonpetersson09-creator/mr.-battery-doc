@@ -123,7 +123,11 @@ function EconomyStep() {
             requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(run, 0)));
           }}
         >
-          {calculating ? t("common.calculating") : t("common.showResult")}
+          {calculating ? (
+            <span className="animate-pulse motion-reduce:animate-none">{t("common.calculating")}</span>
+          ) : (
+            t("common.showResult")
+          )}
           <ArrowRight className="size-4" />
         </Button>
       }
