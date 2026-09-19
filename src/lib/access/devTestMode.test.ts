@@ -61,9 +61,10 @@ it("gates every entry point on import.meta.env.DEV", () => {
     );
     // The dev panel is only ever rendered behind the dev/preview-host check.
     expect(panel).toContain("isDevBuild()");
-    // The preview-host escape is strictly limited to the id-preview host so the
-    // published site and App Store build never enable the test mode.
-    expect(src).toContain('hostname.startsWith("id-preview--")');
+    // The escape hatch is limited to preview hosts (or an explicit ?devtest=1
+    // opt-in) so the published site and App Store build never enable it.
+    expect(src).toContain('hostname.includes("preview--")');
+    expect(src).toContain("devtest=1");
   });
 
   it("selects the test gateway only while the tester enabled the mode", () => {
