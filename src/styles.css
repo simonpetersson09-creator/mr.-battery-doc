@@ -671,10 +671,10 @@ html[data-native="true"] {
 html[data-native="true"] * {
   -webkit-text-size-adjust: 100%;
 }
-/* Native already gets the real status-bar inset from env(safe-area-inset-top),
-   so the web-only minimum/extra gap is dropped to keep the header tight. */
+/* The native iOS view already starts below the status bar. Adding the CSS safe
+   area here reserves the same space twice and leaves a blank band above logos. */
 html[data-native="true"] .pt-safe {
-  padding-top: env(safe-area-inset-top);
+  padding-top: 0;
 }
 
 /* Logo: gentle float (option 3). Paused when the user prefers reduced motion. */
