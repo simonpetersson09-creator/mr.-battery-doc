@@ -51,9 +51,12 @@ function Welcome() {
         </p>
 
         <ul className="mt-5 w-full space-y-2.5 text-left">
-          {POINTS.map(({ icon: Icon, key }) => (
+          {POINTS.map(({ icon: Icon, key }, i) => (
             <li key={key} className="flex items-start gap-3 px-1 py-0.5">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+              <span
+                className="icon-tilt-pop flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground"
+                style={{ animationDelay: `${i * 2}s` }}
+              >
                 <Icon className="size-4" strokeWidth={2.5} />
               </span>
               <span className="flex flex-col gap-0.5 pt-0.5">
