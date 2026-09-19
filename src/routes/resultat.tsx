@@ -169,6 +169,16 @@ function ResultStep() {
    * what is rendered.
    */
   const purchasedNow = access.hydrated && access.canOpenResult(calculation.id);
+  /**
+   * In-app rating: ask only after an unlocked, successfully rendered result —
+   * never mid-wizard. Eligibility (once per version, native only) is enforced
+   * inside scheduleAppReview; Apple applies its own 3-per-year cap on top.
+   */
+  useEffect(() => {
+    if (purchasedNow && outcome.status === "ok") scheduleAppReview();
+    // One shot per result view is enough; identity of the inputs is irrelevant.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [purchasedNow, outcome.status]);
   useEffect(() => {
     if (snapshot || !purchasedNow || outcome.status !== "ok") return;
     const ce = customerEconomyFromResult(outcome.result, state.preferences.customerAncillaryShare);
