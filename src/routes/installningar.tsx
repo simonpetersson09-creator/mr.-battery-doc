@@ -327,7 +327,7 @@ function SettingsPage() {
           <p className="mt-1.5 text-center text-[11px] font-semibold">{error}</p>
         ) : null}
 
-        {PurchaseTestPanel ? (
+        {isDevBuild() ? (
           <Suspense fallback={null}>
             <PurchaseTestPanel />
           </Suspense>
