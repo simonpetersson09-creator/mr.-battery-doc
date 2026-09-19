@@ -19,7 +19,10 @@ import {
   RotateCcw,
   ShieldCheck,
   SlidersHorizontal,
+  Trash2,
 } from "lucide-react";
+import { clearCalculationCache } from "@/lib/access/calculationCache";
+import { useWizard } from "@/state/wizard";
 import { lazy, Suspense, useEffect, useState } from "react";
 import type { ProductKey } from "@/lib/access/products";
 import type { StoreProduct } from "@/lib/access/purchaseGateway";
