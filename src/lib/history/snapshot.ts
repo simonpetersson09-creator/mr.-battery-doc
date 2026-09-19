@@ -77,6 +77,12 @@ export function buildSnapshot(args: {
   withoutFcr: WithoutFcrOptimum | null;
   customerEconomy: CustomerEconomy;
   maxInvestment: number | null;
+  /**
+   * Presentation only. When the result page shows the ancillary-only scenario
+   * (no physical battery need, reserve market pays), the list headline must
+   * match what the customer bought — not the zero-need engine recommendation.
+   */
+  headlineOverride?: Partial<SnapshotHeadline>;
   now?: Date;
 }): CalculationSnapshot {
   const { outcome, wizard } = args;
@@ -109,6 +115,7 @@ export function buildSnapshot(args: {
       maxInvestment: args.maxInvestment,
       targetPaybackYears: wizard.preferences.targetPaybackYears,
       customerAncillaryShare: wizard.preferences.customerAncillaryShare,
+      ...(args.headlineOverride ?? {}),
     },
   };
 }
