@@ -6,7 +6,7 @@
  * restoring go through the same gateway as the paywall; nothing here touches
  * the wizard state, the engine or any calculation.
  */
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   BadgeCheck,
