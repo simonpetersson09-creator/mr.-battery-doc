@@ -25,9 +25,9 @@ export const Route = createFileRoute("/")({
 });
 
 const POINTS = [
-  { icon: BatteryFull, key: "intro.points.capacity" },
-  { icon: LineChart, key: "intro.points.economy" },
-  { icon: PiggyBank, key: "intro.points.investment" },
+  { icon: BatteryFull, key: "intro.points.capacity", anim: "icon-anim-battery" },
+  { icon: LineChart, key: "intro.points.economy", anim: "icon-anim-chart" },
+  { icon: PiggyBank, key: "intro.points.investment", anim: "icon-anim-piggy" },
 ];
 
 function Welcome() {
