@@ -115,6 +115,7 @@ export function buildSnapshot(args: {
       maxInvestment: args.maxInvestment,
       targetPaybackYears: wizard.preferences.targetPaybackYears,
       customerAncillaryShare: wizard.preferences.customerAncillaryShare,
+      ...(args.headlineOverride ?? {}),
     },
   };
 }
