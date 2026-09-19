@@ -25,9 +25,9 @@ export const Route = createFileRoute("/")({
 });
 
 const POINTS = [
-  { icon: BatteryFull, key: "intro.points.capacity" },
-  { icon: LineChart, key: "intro.points.economy" },
-  { icon: PiggyBank, key: "intro.points.investment" },
+  { icon: BatteryFull, key: "intro.points.capacity", anim: "icon-anim-battery" },
+  { icon: LineChart, key: "intro.points.economy", anim: "icon-anim-chart" },
+  { icon: PiggyBank, key: "intro.points.investment", anim: "icon-anim-piggy" },
 ];
 
 function Welcome() {
@@ -51,9 +51,9 @@ function Welcome() {
         </p>
 
         <ul className="mt-5 w-full space-y-2.5 text-left">
-          {POINTS.map(({ icon: Icon, key }) => (
+          {POINTS.map(({ icon: Icon, key, anim }) => (
             <li key={key} className="flex items-start gap-3 px-1 py-0.5">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+              <span className={`flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground ${anim}`}>
                 <Icon className="size-4" strokeWidth={2.5} />
               </span>
               <span className="flex flex-col gap-0.5 pt-0.5">
@@ -70,7 +70,7 @@ function Welcome() {
 
         <div className="mt-5 flex w-full items-stretch justify-center gap-3">
           <div className="flex flex-1 flex-col items-center gap-0.5 rounded-xl border border-border bg-card px-2.5 py-2 text-center">
-            <Zap className="size-3.5 text-accent" strokeWidth={2.5} />
+            <Zap className="icon-anim-zap size-3.5 text-accent" strokeWidth={2.5} />
             <span className="text-[0.75rem] font-bold leading-tight">
               {t("intro.stats.powerLabel")}
             </span>
@@ -79,7 +79,7 @@ function Welcome() {
             </span>
           </div>
           <div className="flex flex-1 flex-col items-center gap-0.5 rounded-xl border border-border bg-card px-2.5 py-2 text-center">
-            <Activity className="size-3.5 text-accent" strokeWidth={2.5} />
+            <Activity className="icon-anim-activity size-3.5 text-accent" strokeWidth={2.5} />
             <span className="text-[0.75rem] font-bold leading-tight">
               {t("intro.stats.simsLabel")}
             </span>
