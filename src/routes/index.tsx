@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BatteryFull, LineChart, PiggyBank, Settings, Zap, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LanguageSelect } from "@/components/LanguageSelect";
+import { useCountUp, formatStatNumber } from "@/components/CountUp";
 import logo from "@/assets/mr-battery-doc-logo.png";
 import { useT } from "@/i18n";
 
