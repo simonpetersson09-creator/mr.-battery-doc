@@ -147,6 +147,7 @@ function ProductionStep() {
           value={p.dcKwp}
           placeholder={t("errors.egValue", { value: "14" })}
           compact
+          dense
           error={fieldError.dcKwp}
           reminder={t("validation.reminder")}
           onChange={(v) => update((s) => ({ ...s, production: { ...s.production, dcKwp: v } }))}
@@ -157,6 +158,7 @@ function ProductionStep() {
           value={p.acKw}
           placeholder={t("errors.egValue", { value: "12" })}
           compact
+          dense
           error={fieldError.acKw}
           reminder={t("validation.reminder")}
           onChange={(v) => update((s) => ({ ...s, production: { ...s.production, acKw: v } }))}
