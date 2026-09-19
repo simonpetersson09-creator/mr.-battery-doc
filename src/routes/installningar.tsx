@@ -33,13 +33,11 @@ import {
 import { openManageSubscription } from "@/lib/access/manageSubscription";
 
 /**
- * Development-only purchase test panel. The dynamic import sits behind
- * `import.meta.env.DEV`, so the component is tree-shaken out of the production
- * bundle and never rendered in the App Store build.
+ * Development-only purchase test panel. Rendered only when `isDevBuild()`
+ * is true (dev server or the Lovable id-preview host); it renders nothing in
+ * the published/App Store build.
  */
-const PurchaseTestPanel = import.meta.env.DEV
-  ? lazy(() => import("@/components/dev/PurchaseTestPanel"))
-  : null;
+const PurchaseTestPanel = lazy(() => import("@/components/dev/PurchaseTestPanel"));
 
 export const Route = createFileRoute("/installningar")({
   head: () => ({
