@@ -108,26 +108,7 @@ function Welcome() {
           ))}
         </ul>
 
-        <div className="mt-5 flex w-full items-stretch justify-center gap-3">
-          <div className="flex flex-1 flex-col items-center gap-0.5 rounded-xl border border-border bg-card px-2.5 py-2 text-center">
-            <Zap className="size-3.5 text-accent" strokeWidth={2.5} />
-            <span className="text-[0.75rem] font-bold leading-tight">
-              {t("intro.stats.powerLabel")}
-            </span>
-            <span className="text-[0.6875rem] leading-tight text-muted-foreground">
-              {t("intro.stats.powerSub")}
-            </span>
-          </div>
-          <div className="flex flex-1 flex-col items-center gap-0.5 rounded-xl border border-border bg-card px-2.5 py-2 text-center">
-            <Activity className="size-3.5 text-accent" strokeWidth={2.5} />
-            <span className="text-[0.75rem] font-bold leading-tight">
-              {t("intro.stats.simsLabel")}
-            </span>
-            <span className="text-[0.6875rem] leading-tight text-muted-foreground">
-              {t("intro.stats.simsSub")}
-            </span>
-          </div>
-        </div>
+        <AnimatedStats t={t} />
 
         <div className="mt-6 flex w-full items-stretch gap-2">
           <Button
