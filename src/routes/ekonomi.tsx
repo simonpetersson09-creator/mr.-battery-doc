@@ -215,11 +215,9 @@ function EconomyStep() {
           title={t("economics.customerShare.title")}
           description={t("economics.customerShare.description")}
         >
-          <p className="text-[1.125rem] font-extrabold leading-none tracking-[-0.03em] tabular-nums">
-            {formatNumber(sharePct, 0)} %
-          </p>
           <Slider
-            className="mt-2"
+            className="mt-9"
+            valueLabel={`${formatNumber(sharePct, 0)} %`}
             value={[sharePct]}
             min={60}
             max={100}
@@ -245,11 +243,9 @@ function EconomyStep() {
 
       {/* Desired payback horizon — presentation preference, no engine input. */}
       <SectionCard compact icon={<Timer className="size-4" />} title={t("payback.card")}>
-        <p className="text-[1.125rem] font-extrabold leading-none tracking-[-0.03em] tabular-nums">
-          {t("payback.years", { years: formatNumber(years, 0) })}
-        </p>
         <Slider
-          className="mt-2"
+          className="mt-9"
+          valueLabel={t("payback.years", { years: formatNumber(years, 0) })}
           value={[years]}
           min={MIN_TARGET_PAYBACK_YEARS}
           max={MAX_TARGET_PAYBACK_YEARS}
