@@ -70,7 +70,7 @@ function Welcome() {
 
         <div className="mt-5 flex w-full items-stretch justify-center gap-3">
           <div className="flex flex-1 flex-col items-center gap-0.5 rounded-xl border border-border bg-card px-2.5 py-2 text-center">
-            <Zap className="size-3.5 text-accent" strokeWidth={2.5} />
+            <Zap className="icon-anim-zap size-3.5 text-accent" strokeWidth={2.5} />
             <span className="text-[0.75rem] font-bold leading-tight">
               {t("intro.stats.powerLabel")}
             </span>
@@ -79,7 +79,7 @@ function Welcome() {
             </span>
           </div>
           <div className="flex flex-1 flex-col items-center gap-0.5 rounded-xl border border-border bg-card px-2.5 py-2 text-center">
-            <Activity className="size-3.5 text-accent" strokeWidth={2.5} />
+            <Activity className="icon-anim-activity size-3.5 text-accent" strokeWidth={2.5} />
             <span className="text-[0.75rem] font-bold leading-tight">
               {t("intro.stats.simsLabel")}
             </span>
