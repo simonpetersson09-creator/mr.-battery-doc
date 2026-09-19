@@ -637,6 +637,10 @@ export const de = {
     terms: "Nutzungsbedingungen",
     privacy: "Datenschutzerklärung",
     eula: "Lizenzvereinbarung (Apple)",
+    reset: {
+      title: "Neu beginnen",
+      confirm: "Neu beginnen? Alle eingegebenen Werte im Assistenten werden gelöscht.",
+    },
     historyPanel: {
       premiumActive: "Premium aktiv bis {{date}}",
       premiumInactive: "Kein aktives Premium",
