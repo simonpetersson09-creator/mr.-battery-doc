@@ -31,6 +31,7 @@ import {
   openExternalUrl,
 } from "@/lib/platform/runtime";
 import { openManageSubscription } from "@/lib/access/manageSubscription";
+import { isDevBuild } from "@/lib/access/devTestMode";
 
 /**
  * Development-only purchase test panel. Rendered only when `isDevBuild()`
