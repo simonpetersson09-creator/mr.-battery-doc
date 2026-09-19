@@ -59,8 +59,11 @@ it("gates every entry point on import.meta.env.DEV", () => {
       new URL("../../routes/installningar.tsx", import.meta.url),
       "utf8",
     );
-    // The dev panel is only ever imported behind the DEV flag.
-    expect(panel).toContain("import.meta.env.DEV");
+    // The dev panel is only ever rendered behind the dev/preview-host check.
+    expect(panel).toContain("isDevBuild()");
+    // The preview-host escape is strictly limited to the id-preview host so the
+    // published site and App Store build never enable the test mode.
+    expect(src).toContain('hostname.startsWith("id-preview--")');
   });
 
   it("selects the test gateway only while the tester enabled the mode", () => {

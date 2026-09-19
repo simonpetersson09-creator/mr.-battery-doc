@@ -31,15 +31,14 @@ import {
   openExternalUrl,
 } from "@/lib/platform/runtime";
 import { openManageSubscription } from "@/lib/access/manageSubscription";
+import { isDevBuild } from "@/lib/access/devTestMode";
 
 /**
- * Development-only purchase test panel. The dynamic import sits behind
- * `import.meta.env.DEV`, so the component is tree-shaken out of the production
- * bundle and never rendered in the App Store build.
+ * Development-only purchase test panel. Rendered only when `isDevBuild()`
+ * is true (dev server or the Lovable id-preview host); it renders nothing in
+ * the published/App Store build.
  */
-const PurchaseTestPanel = import.meta.env.DEV
-  ? lazy(() => import("@/components/dev/PurchaseTestPanel"))
-  : null;
+const PurchaseTestPanel = lazy(() => import("@/components/dev/PurchaseTestPanel"));
 
 export const Route = createFileRoute("/installningar")({
   head: () => ({
@@ -329,7 +328,7 @@ function SettingsPage() {
           <p className="mt-1.5 text-center text-[11px] font-semibold">{error}</p>
         ) : null}
 
-        {PurchaseTestPanel ? (
+        {isDevBuild() ? (
           <Suspense fallback={null}>
             <PurchaseTestPanel />
           </Suspense>

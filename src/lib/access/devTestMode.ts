@@ -19,9 +19,18 @@ import type { VerificationRequest, VerificationResult } from "./serverVerificati
 
 const CONFIG_KEY = "mr-battery-doc:dev:purchase-test:v1";
 
-/** The build-time switch. Everything in this module is dead in production. */
+/**
+ * The build-time switch. Everything in this module is dead in production.
+ * Also enabled on the Lovable preview host (id-preview--*.lovable.app) so the
+ * purchase flow can be tested in the mobile preview; the published App Store
+ * and production web builds never match this host.
+ */
 export function isDevBuild(): boolean {
-  return import.meta.env.DEV === true;
+  if (import.meta.env.DEV === true) return true;
+  if (typeof window !== "undefined") {
+    return window.location.hostname.startsWith("id-preview--");
+  }
+  return false;
 }
 
 export type PurchaseScenario =
