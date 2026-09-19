@@ -95,9 +95,11 @@ function ProductionStep() {
   const selfConsumptionSlider = (
     <>
       <p className="mt-2 text-sm font-medium">{t("production.self.label")}</p>
+      <p className="text-[1.125rem] font-extrabold leading-none tracking-[-0.03em] tabular-nums">
+        {selfPct} %
+      </p>
       <Slider
-        className="mt-9"
-        valueLabel={`${selfPct} %`}
+        className="mt-2"
         value={[selfPct]}
         min={0}
         max={100}
