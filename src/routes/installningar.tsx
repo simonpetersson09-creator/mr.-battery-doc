@@ -60,11 +60,14 @@ const PREMIUM_POINTS = ["calculations", "pdf", "full"] as const;
 function SettingsPage() {
   const t = useT();
   const access = useAccess();
+  const { reset } = useWizard();
+  const navigate = useNavigate();
   const [busy, setBusy] = useState<"premium" | "restore" | null>(null);
   const [notice, setNotice] = useState<
     "restored" | "restoreNothing" | "manageWeb" | "pending" | "unresolved" | null
   >(null);
   const [error, setError] = useState<string | null>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
 
   // Apple's localized prices — the same source the paywall uses. Never a
   // hardcoded amount.
