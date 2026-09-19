@@ -195,10 +195,23 @@ function ResultStep() {
           ce.totalCustomerBenefitSek,
           state.preferences.targetPaybackYears,
         ),
+        // Presentation only: in the ancillary-only flow the cards, the benefit and
+        // the max investment on this page come from the ancillary scenario, so the
+        // history list must show those exact numbers too.
+        ...(ancillaryBest
+          ? {
+              headlineOverride: {
+                capacityKWh: ancillaryBest.capacityKWh,
+                powerKw: ancillaryBest.powerKw,
+                annualCustomerBenefit: ancillaryBest.customerBenefitSek,
+                maxInvestment: ancillaryBest.maxInvestmentSek,
+              },
+            }
+          : {}),
       }),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [snapshot, purchasedNow, calculation.id, outcome]);
+  }, [snapshot, purchasedNow, calculation.id, outcome, ancillaryBest]);
 
 
   const restart = (
