@@ -696,3 +696,34 @@ html[data-native="true"] .pt-safe {
     animation: none;
   }
 }
+
+/* Intro icons: gentle tilt with an occasional soft pop. Mostly idle —
+   the pop happens once per long cycle. Paused for reduced motion. */
+@keyframes icon-tilt-pop {
+  0%,
+  62%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+  70% {
+    transform: rotate(-6deg) scale(1.08);
+  }
+  78% {
+    transform: rotate(5deg) scale(1.12);
+  }
+  86% {
+    transform: rotate(-2deg) scale(1.05);
+  }
+  93% {
+    transform: rotate(0deg) scale(1);
+  }
+}
+.icon-tilt-pop {
+  animation: icon-tilt-pop 6s ease-in-out infinite;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .icon-tilt-pop {
+    animation: none;
+  }
+}
