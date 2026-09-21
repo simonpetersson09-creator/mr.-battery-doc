@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, ChevronDown } from "lucide-react";
 import { useT } from "@/i18n";
 
 /**
@@ -94,29 +94,38 @@ export function CardFlowFooter() {
 
   const isDone = flow.done.has(index);
   const isLast = index === flow.total - 1;
+  const isActive = flow.active === index;
 
   return (
-    <button
-      type="button"
-      onClick={() => flow.confirm(index)}
-      className={
-        "mt-1 flex h-9 w-full items-center justify-center gap-1.5 rounded-[0.75rem] text-[14px] font-bold transition-colors duration-300 ease-out active:scale-[0.99] motion-reduce:transition-none " +
-        (isDone
-          ? "bg-[var(--toggle-on)] text-white"
-          : "bg-[var(--brand-yellow-cta)] text-[var(--brand-black)]")
-      }
-    >
-      {isDone ? (
-        <>
-          {t("common.done")}
-          <Check className="size-4" />
-        </>
-      ) : (
-        <>
-          {t("common.next")}
-          {isLast ? <Check className="size-4" /> : <ArrowRight className="size-4" />}
-        </>
-      )}
-    </button>
+    <>
+      {/* Nudge arrow: only on the active card that hasn't been confirmed yet */}
+      {isActive && !isDone ? (
+        <div className="next-arrow mt-1 flex justify-center" aria-hidden="true">
+          <ChevronDown className="size-5 text-[var(--brand-yellow-cta)]" />
+        </div>
+      ) : null}
+      <button
+        type="button"
+        onClick={() => flow.confirm(index)}
+        className={
+          "mt-1 flex h-9 w-full items-center justify-center gap-1.5 rounded-[0.75rem] text-[14px] font-bold transition-colors duration-300 ease-out active:scale-[0.99] motion-reduce:transition-none " +
+          (isDone
+            ? "bg-[var(--toggle-on)] text-white"
+            : "bg-[var(--brand-yellow-cta)] text-[var(--brand-black)]")
+        }
+      >
+        {isDone ? (
+          <>
+            {t("common.done")}
+            <Check className="size-4" />
+          </>
+        ) : (
+          <>
+            {t("common.next")}
+            {isLast ? <Check className="size-4" /> : <ArrowRight className="size-4" />}
+          </>
+        )}
+      </button>
+    </>
   );
 }
