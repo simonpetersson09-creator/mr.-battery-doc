@@ -223,7 +223,6 @@ function ResultStep() {
         stepIndex={5}
         title={t("history.title")}
         intro={t("history.missing.intro")}
-        footerAction={restart}
       >
         <SectionCard title={t("history.missing.title")} description={t("history.missing.text")} />
       </WizardShell>
@@ -236,7 +235,6 @@ function ResultStep() {
         stepIndex={5}
         title={t("results.title")}
         intro={t("results.incomplete.intro")}
-        footerAction={restart}
       >
         <SectionCard
           title={t("results.incomplete.title")}
@@ -261,7 +259,6 @@ function ResultStep() {
         stepIndex={5}
         title={t("results.title")}
         intro={t("results.error.intro")}
-        footerAction={restart}
       >
         <SectionCard
           title={t("results.error.title")}
@@ -286,7 +283,6 @@ function ResultStep() {
           stepIndex={5}
           title={t("history.title")}
           intro={t("history.locked.intro")}
-          footerAction={restart}
         >
           <SectionCard title={t("history.locked.title")} description={t("history.locked.text")} />
         </WizardShell>
