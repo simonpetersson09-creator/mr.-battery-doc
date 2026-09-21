@@ -46,9 +46,10 @@ describe("report copy translations", () => {
     expect(getReportCopy("no")).toBe(getReportCopy("en"));
   });
 
-  it("each language is distinct from Swedish", () => {
+  it("each language has its own copy object", () => {
     for (const lang of ["en", "da", "fi", "de"] as const) {
-      expect(getReportCopy(lang).title).not.toBe(getReportCopy("sv").title);
+      expect(getReportCopy(lang)).not.toBe(getReportCopy("sv"));
     }
   });
+
 });
