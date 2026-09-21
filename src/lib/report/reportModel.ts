@@ -326,24 +326,55 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
     ? atLeast(copy.searchLimit.atLeastPower, kw(powerKw, 1))
     : kw(powerKw, 1);
 
+  /** Change between two shares, formatted with a sign, e.g. "+23 procentenheter". */
+  const pointsDelta = (before: number, after: number): string => {
+    const diff = after - before;
+    const sign = diff >= 0 ? "+" : "-";
+    return `${sign}${num(Math.abs(diff))} ${copy.summary.percentagePoints}`;
+  };
+  const kwhDelta = (before: number, after: number): string => {
+    const diff = after - before;
+    const sign = diff >= 0 ? "+" : "-";
+    return `${sign}${kwh(Math.abs(diff))} ${copy.summary.perYearLong}`;
+  };
+
   const improvementRows: ReportBeforeAfterRow[] = [];
   if (hasSolar) {
     improvementRows.push({
       label: copy.summary.selfConsumption,
+      hint: copy.summary.selfConsumptionHint,
+      icon: "house",
       before: pct(e.selfConsumptionBeforePct),
       after: pct(e.selfConsumptionAfterPct),
+      beforePct: e.selfConsumptionBeforePct,
+      afterPct: e.selfConsumptionAfterPct,
+      delta: pointsDelta(e.selfConsumptionBeforePct, e.selfConsumptionAfterPct),
+      improved: e.selfConsumptionAfterPct >= e.selfConsumptionBeforePct,
     });
     improvementRows.push({
       label: copy.summary.selfSufficiency,
+      hint: copy.summary.selfSufficiencyHint,
+      icon: "leaf",
       before: pct(e.selfSufficiencyBeforePct),
       after: pct(e.selfSufficiencyAfterPct),
+      beforePct: e.selfSufficiencyBeforePct,
+      afterPct: e.selfSufficiencyAfterPct,
+      delta: pointsDelta(e.selfSufficiencyBeforePct, e.selfSufficiencyAfterPct),
+      improved: e.selfSufficiencyAfterPct >= e.selfSufficiencyBeforePct,
     });
   }
   if (!ancillaryOnly) {
+    const importShare =
+      e.importBeforeKWh > 0 ? (e.importAfterKWh / e.importBeforeKWh) * 100 : 0;
     improvementRows.push({
       label: copy.summary.gridImport,
+      hint: copy.summary.gridImportHint,
+      icon: "grid",
       before: kwh(e.importBeforeKWh),
       after: kwh(e.importAfterKWh),
+      afterPct: importShare,
+      delta: kwhDelta(e.importBeforeKWh, e.importAfterKWh),
+      improved: e.importAfterKWh <= e.importBeforeKWh,
     });
   }
 
@@ -355,52 +386,67 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
 
   const summaryBlocks: ReportBlock[] = [
     {
-      kind: "keyFigures",
-      primary: {
-        label: ancillaryOnly ? copy.ancillaryOnly.summaryProposal : copy.summary.recommendedBattery,
-        value: `${capacityText}  ·  ${powerText}`,
-      },
-      secondary: [
+      kind: "cards",
+      items: [
+        { label: copy.summary.capacity, value: capacityText, icon: "battery" },
+        { label: copy.summary.power, value: powerText, icon: "bolt" },
         {
           label: copy.summary.benefit,
           value: totalBenefitSek === null ? copy.cannotBeCalculated : perYear(totalBenefitSek),
+          icon: "coin",
         },
         {
-          label: `${copy.summary.maxInvestment} · ${num(targetYears)} ${yearsLabel}`,
+          label: copy.summary.maxInvestment,
           value: maxInvestment === null ? copy.cannotBeCalculated : money(maxInvestment),
+          sub: `${num(targetYears)} ${yearsLabel}`,
+          icon: "chart",
         },
       ],
     },
   ];
 
   if (improvementRows.length) {
-    summaryBlocks.push({ kind: "subheading", text: copy.summary.improvements });
+    summaryBlocks.push({
+      kind: "subheading",
+      text: copy.summary.improvements,
+      hint: copy.summary.improvementsSubtitle,
+    });
     summaryBlocks.push({ kind: "beforeAfter", rows: improvementRows });
   }
   if (hasSolar && e.shiftedSolarKWh > 0) {
     summaryBlocks.push({
-      kind: "cards",
-      items: [{ label: copy.summary.shiftedSolar, value: `${kwh(e.shiftedSolarKWh)}${copy.perYear}` }],
+      kind: "hero",
+      tone: "green",
+      icon: "flow",
+      label: copy.summary.shiftedSolar,
+      value: `${kwh(e.shiftedSolarKWh)}${copy.perYear} ${copy.summary.shifted}`,
+      hint: copy.summary.shiftedSolarHint,
     });
   }
-  if (summaryValueRows.length > 1) {
-    summaryBlocks.push({ kind: "subheading", text: copy.summary.valueSplit });
-    summaryBlocks.push({ kind: "rows", rows: summaryValueRows });
-  }
-  if (ancillaryOnly) summaryBlocks.push({ kind: "text", text: copy.ancillaryOnly.summaryExplanation });
-  if (ancillaryEnabled && ancillaryPriced) {
-    summaryBlocks.push({
-      kind: "note",
-      text: copy.summary.ancillaryShareNote.replace(
-        "{value}",
-        perYear(ce.ancillaryCustomerValueSek),
-      ),
-    });
+  /* The value split has its own section on the next page; page 1 stays a clean
+   * one-page overview with the recommendation, the improvements and the shifted solar.
+   * Ancillary-only calculations have no value-split page, so they keep both blocks here. */
+  if (ancillaryOnly) {
+    summaryBlocks.push({ kind: "text", text: copy.ancillaryOnly.summaryExplanation });
+    if (summaryValueRows.length > 1) {
+      summaryBlocks.push({ kind: "subheading", text: copy.summary.valueSplit });
+      summaryBlocks.push({ kind: "rows", rows: summaryValueRows });
+    }
+    if (ancillaryEnabled && ancillaryPriced) {
+      summaryBlocks.push({
+        kind: "note",
+        text: copy.summary.ancillaryShareNote.replace(
+          "{value}",
+          perYear(ce.ancillaryCustomerValueSek),
+        ),
+      });
+    }
   }
 
   sections.push({
     id: "summary",
     title: copy.summary.title,
+    subtitle: copy.summary.subtitle,
     pageBreak: false,
     blocks: summaryBlocks,
   });
@@ -994,11 +1040,7 @@ export function collectReportText(model: ReportModel): string[] {
     for (const block of section.blocks) {
       switch (block.kind) {
         case "cards":
-          for (const c of block.items) out.push(c.label, c.value);
-          break;
-        case "keyFigures":
-          out.push(block.primary.label, block.primary.value);
-          for (const c of block.secondary) out.push(c.label, c.value);
+          for (const c of block.items) out.push(c.label, c.value, ...(c.sub ? [c.sub] : []));
           break;
         case "rows":
           for (const row of block.rows) {
