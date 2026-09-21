@@ -163,12 +163,12 @@ function SettingsPage() {
 
 
         {/* Premium */}
-        <section className="relative mt-1.5 rounded-[1rem] bg-brand-yellow px-3 py-2 text-accent-foreground">
+        <section className="relative mt-1.5 rounded-[1rem] border border-border bg-card px-3 py-2.5 shadow-sm">
           <p className="absolute right-3 top-2.5 text-[9px] font-bold uppercase tracking-wide opacity-70">
             {t("settings.premium.badge")}
           </p>
           <p className="flex items-center gap-1.5 font-display text-[13px] font-bold">
-            <Crown className="size-3.5" />
+            <Crown className="size-3.5 text-amber-500" />
             {t("settings.premium.title")}
           </p>
           <p
