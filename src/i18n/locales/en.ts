@@ -36,7 +36,6 @@ export const en = {
   },
   units: {
     perYear: "/yr",
-    perYearShort: "kr/yr",
     kwhPerYear: "kWh/yr",
     perKwh: "{{currency}}/kWh",
     perKwMonth: "{{currency}}/kW/month",
