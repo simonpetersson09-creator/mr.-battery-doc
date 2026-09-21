@@ -69,7 +69,15 @@ export function SectionCard({
         </div>
       )}
       {children ? (
-        <div className={title || description ? (compact ? "mt-1.5 space-y-1.5" : "mt-3 space-y-3") : compact ? "space-y-1.5" : "space-y-3"}>{children}</div>
+        <fieldset
+          disabled={locked}
+          className={
+            (title || description ? (compact ? "mt-1.5 space-y-1.5" : "mt-3 space-y-3") : compact ? "space-y-1.5" : "space-y-3") +
+            " border-0 p-0 m-0"
+          }
+        >
+          {children}
+        </fieldset>
       ) : null}
       <CardFlowFooter />
     </section>
