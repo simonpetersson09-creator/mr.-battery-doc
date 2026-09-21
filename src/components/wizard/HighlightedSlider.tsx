@@ -37,7 +37,7 @@ export function HighlightedSlider({
       {/* "Vanligast" label, centered between the two markers */}
       {label ? (
         <span
-          className="pointer-events-none absolute -top-4 -translate-x-1/2 text-[10px] font-semibold text-emerald-600/90 whitespace-nowrap"
+          className="pointer-events-none absolute -top-4 -translate-x-1/2 text-[10px] font-semibold text-amber-700/80 whitespace-nowrap"
           style={{ left: `${centerPct}%` }}
         >
           {label}
