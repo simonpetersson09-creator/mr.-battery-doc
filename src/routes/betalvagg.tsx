@@ -59,6 +59,11 @@ function Paywall() {
   // Reads the already finished calculation. Same inputs => cache hit => no re-run.
   const calc = useMemo(() => getCalculation(state), [state]);
 
+  // Anonymous conversion tracking: seen paywall vs. started/finished purchase.
+  useEffect(() => {
+    track("paywall_view", { country: state.grid.country, once: true });
+  }, [state.grid.country]);
+
   const [products, setProducts] = useState<StoreProduct[] | null>(null);
   // Lets the user ask the App Store for prices again after a transient failure,
   // instead of being stuck with permanently disabled purchase buttons.
