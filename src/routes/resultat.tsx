@@ -416,6 +416,8 @@ function ResultStep() {
       introClassName="mt-1 text-[11px] leading-relaxed"
       navButtonClassName="text-[15px]"
       footerExtra={pdfReport}
+      backSlot={editInputs}
+      navNote={editNote}
       compact
     >
       
