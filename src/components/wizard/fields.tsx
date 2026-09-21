@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Check } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { DecimalInput } from "./DecimalInput";
-import { CardFlowFooter } from "./cardFlow";
+import { CardFlowFooter, useCardLocked } from "./cardFlow";
 
 /**
  * Short inline error shown right below the field it belongs to.
@@ -44,6 +44,7 @@ export function SectionCard({
   /** Center the title/description block (used by the result page). */
   centerTitle?: boolean;
 }) {
+  const locked = useCardLocked();
   return (
     <section
       className={
@@ -69,7 +70,15 @@ export function SectionCard({
         </div>
       )}
       {children ? (
-        <div className={title || description ? (compact ? "mt-1.5 space-y-1.5" : "mt-3 space-y-3") : compact ? "space-y-1.5" : "space-y-3"}>{children}</div>
+        <fieldset
+          disabled={locked}
+          className={
+            (title || description ? (compact ? "mt-1.5 space-y-1.5" : "mt-3 space-y-3") : compact ? "space-y-1.5" : "space-y-3") +
+            " border-0 p-0 m-0"
+          }
+        >
+          {children}
+        </fieldset>
       ) : null}
       <CardFlowFooter />
     </section>
