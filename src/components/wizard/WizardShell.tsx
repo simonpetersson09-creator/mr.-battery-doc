@@ -76,6 +76,7 @@ export function WizardShell({
             <CardFlow
               className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}
               onProgress={setFlowProgress}
+              flowId={WIZARD_STEPS[stepIndex]?.path ?? String(stepIndex)}
             >
               {children}
             </CardFlow>
@@ -132,7 +133,7 @@ export function WizardShell({
                       <Button
                         asChild
                         variant="cta"
-                        className={`h-10 w-full rounded-[0.75rem] text-[15px] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
+                        className={`h-10 w-full rounded-[0.75rem] text-[15px] font-bold shadow-cta${pageDone ? " bg-[var(--toggle-on)] text-white hover:bg-[var(--toggle-on)]" : ""}${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
                       >
                         <Link to={next}>
                           {badge}
