@@ -1,4 +1,4 @@
-import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { ChevronDown, FileText } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { buildSnapshot, snapshotOutcome } from "@/lib/history/snapshot";
@@ -8,7 +8,6 @@ import { SectionCard } from "@/components/wizard/fields";
 import { Button } from "@/components/ui/button";
 import { CountUpValue } from "@/components/CountUp";
 import {
-  clearCalculationCache,
   getCalculation,
   getDerivedAnalyses,
 } from "@/lib/access/calculationCache";
@@ -85,7 +84,7 @@ const pct = (v: number) => `${nf(v, 0)} %`;
 
 function ResultStep() {
   const t = useT();
-  const { state: liveState, reset } = useWizard();
+  const { state: liveState } = useWizard();
   const access = useAccess();
   /**
    * HISTORY MODE. `?calc=<id>` renders a stored snapshot of an already purchased
@@ -109,7 +108,6 @@ function ResultStep() {
   const money = (v: number | null) => (v === null ? "—" : formatMoney(v, countryCode, 0));
   const moneyPerYear = (v: number | null) =>
     v === null ? "—" : `${formatMoney(v, countryCode, 0)}${t("units.perYear")}`;
-  const navigate = useNavigate();
   /*
     Single integration point: wizard -> adapter -> frozen Battery Engine.
     The calculation ran when the user left step 5; this reads the cached outcome
@@ -214,19 +212,6 @@ function ResultStep() {
   }, [snapshot, purchasedNow, calculation.id, outcome, ancillaryBest]);
 
 
-  const restart = (
-    <Button
-      variant="cta"
-      className="h-10 flex-[2] rounded-[0.75rem] text-[15px] font-bold shadow-cta"
-      onClick={() => {
-        clearCalculationCache();
-        reset();
-        void navigate({ to: "/" });
-      }}
-    >
-      {t("common.restart")}
-    </Button>
-  );
 
   /* A history link whose local snapshot is gone or unreadable must never crash
      the result page — it explains itself and leads back. */
@@ -236,7 +221,6 @@ function ResultStep() {
         stepIndex={5}
         title={t("history.title")}
         intro={t("history.missing.intro")}
-        footerAction={restart}
       >
         <SectionCard title={t("history.missing.title")} description={t("history.missing.text")} />
       </WizardShell>
@@ -249,7 +233,6 @@ function ResultStep() {
         stepIndex={5}
         title={t("results.title")}
         intro={t("results.incomplete.intro")}
-        footerAction={restart}
       >
         <SectionCard
           title={t("results.incomplete.title")}
@@ -274,7 +257,6 @@ function ResultStep() {
         stepIndex={5}
         title={t("results.title")}
         intro={t("results.error.intro")}
-        footerAction={restart}
       >
         <SectionCard
           title={t("results.error.title")}
@@ -299,7 +281,6 @@ function ResultStep() {
           stepIndex={5}
           title={t("history.title")}
           intro={t("history.locked.intro")}
-          footerAction={restart}
         >
           <SectionCard title={t("history.locked.title")} description={t("history.locked.text")} />
         </WizardShell>
@@ -403,7 +384,6 @@ function ResultStep() {
       eyebrowClassName="text-[11px] font-bold uppercase tracking-widest"
       introClassName="mt-1 text-[11px] leading-relaxed"
       navButtonClassName="text-[15px]"
-      footerAction={restart}
       footerExtra={pdfReport}
       compact
     >
