@@ -199,9 +199,19 @@ describe("transport", () => {
     await expect(send(input)).resolves.toMatchObject({ errorCode: "unreadable", series: [] });
   });
 
-  it("native without a configured backend fails politely", async () => {
+  it("native falls back to the published backend when none is configured", async () => {
+    const calls: string[] = [];
+    const fetchMock = vi.fn(async (url: unknown) => {
+      calls.push(String(url));
+      return new Response(JSON.stringify({ series: [], selfConsumptionPct: null, notes: [] }));
+    });
+    vi.stubGlobal("fetch", fetchMock);
     const send = await nativeTransport("");
-    await expect(send(input)).resolves.toMatchObject({ errorCode: "notConfigured" });
+    await send(input);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(calls[0]).toBe(
+      "https://battery-buddy-wizard.lovable.app/api/public/extract-monthly",
+    );
   });
 
   it("the web keeps the same-origin server function and never calls the public endpoint", async () => {

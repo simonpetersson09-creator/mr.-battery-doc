@@ -6,6 +6,7 @@ export const en = {
     next: "Next",
     showResult: "Show result",
     calculating: "Calculating…",
+    simulating: "Simulating",
     done: "Done",
     cancel: "Cancel",
     restart: "Start over",

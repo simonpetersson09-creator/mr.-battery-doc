@@ -6,6 +6,7 @@ export const da = {
     next: "Næste",
     showResult: "Vis resultat",
     calculating: "Beregner…",
+    simulating: "Simulerer",
     done: "Færdig",
     cancel: "Annuller",
     restart: "Start forfra",

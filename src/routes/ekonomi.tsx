@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { SimulatingOverlay } from "@/components/SimulatingOverlay";
 import { getCalculation, getDerivedAnalyses } from "@/lib/access/calculationCache";
 import { destinationAfterStep5 } from "@/lib/access/flow";
 import { useAccess } from "@/state/access";
@@ -52,6 +53,8 @@ function EconomyStep() {
   const access = useAccess();
   /** Visible feedback while the (synchronous) simulation runs. Presentation only. */
   const [calculating, setCalculating] = useState(false);
+  /** Snaps the progress ring to 100 % before navigating away. */
+  const [calcDone, setCalcDone] = useState(false);
   const country = getCountry(state.grid.country);
   /* CURRENCY STAYS COUNTRY-DRIVEN — the UI language never changes it. */
   const unit = country.economy.currencyLabel;
@@ -70,6 +73,8 @@ function EconomyStep() {
   const validity = economyValidity.ok ? paybackValidity : economyValidity;
 
   return (
+    <>
+    <SimulatingOverlay active={calculating} done={calcDone} />
     <WizardShell
       compact
       cardFlow
@@ -96,6 +101,7 @@ function EconomyStep() {
             // the "calculating" label BEFORE it starts is the whole point of the
             // deferral — the inputs, the engine and the flow rule are unchanged.
             setCalculating(true);
+            setCalcDone(false);
             const run = () => {
               try {
                 const calc = getCalculation(state);
@@ -117,9 +123,12 @@ function EconomyStep() {
                 ) {
                   access.consumeAdjustment(calc.id);
                 }
-                void navigate({ to: dest });
-              } finally {
+                // Let the ring visibly reach 100 % before leaving the page.
+                setCalcDone(true);
+                window.setTimeout(() => void navigate({ to: dest }), 480);
+              } catch {
                 setCalculating(false);
+                setCalcDone(false);
               }
             };
             requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(run, 0)));
@@ -281,5 +290,6 @@ function EconomyStep() {
         <p className="ui-help mt-1.5 text-pretty">{t("payback.guide")}</p>
       </SectionCard>
     </WizardShell>
+    </>
   );
 }

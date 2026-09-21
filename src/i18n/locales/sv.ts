@@ -11,6 +11,7 @@ export const sv = {
     next: "Nästa",
     showResult: "Visa resultat",
     calculating: "Beräknar…",
+    simulating: "Simulerar",
     done: "Klar",
     cancel: "Avbryt",
     restart: "Börja om",
