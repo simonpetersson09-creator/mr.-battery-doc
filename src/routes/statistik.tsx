@@ -23,10 +23,26 @@ export const Route = createFileRoute("/statistik")({
     ],
   }),
   beforeLoad: () => {
-    if (!import.meta.env.DEV) throw redirect({ to: "/" });
+    if (!isInternalHost()) throw redirect({ to: "/" });
   },
   component: StatsPage,
 });
+
+/**
+ * The page exists only for internal use: local development and the private
+ * preview address. On the published site it is not reachable at all.
+ */
+function isInternalHost(): boolean {
+  if (import.meta.env.DEV) return true;
+  if (typeof window === "undefined") return true; // decided again in the browser
+  const host = window.location.hostname;
+  return (
+    host === "localhost" ||
+    host === "127.0.0.1" ||
+    host.includes("-preview--") ||
+    host.endsWith(".lovableproject.com")
+  );
+}
 
 const PIN_KEY = "mr-battery-doc:stats:pin:v1";
 const RANGES = [7, 30, 90] as const;
