@@ -90,6 +90,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "description",
         content: "Hitta rätt batteristorlek och effekt till din fastighet.",
       },
+      { name: "robots", content: "noindex, nofollow, noarchive, nosnippet, noimageindex" },
       { name: "theme-color", content: "#FDFBF4" },
       { name: "color-scheme", content: "light" },
       { property: "og:site_name", content: "Mr. Battery Doc" },
