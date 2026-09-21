@@ -142,6 +142,7 @@ function GridStep() {
             unit="A"
             value={state.grid.mainFuseA}
             placeholder={t("network.fuse.manualPlaceholder")}
+            dense
             error={fieldError.mainFuseA}
             onChange={(v) =>
               update((s) => ({
