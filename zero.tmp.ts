@@ -11,6 +11,7 @@ for (const kwh of [0, 1000]) {
   s.strategies = { ...s.strategies, solarSelfConsumption: false, peakShaving: false, ancillary: true };
   s.economy = { ...s.economy, paybackYears: 10 };
   const r: any = getCalculation(s);
-  const sc: any = computeAncillaryScenario(s);
-  console.log(kwh, r.outcome.status, "best:", sc?.best?.capacityKWh, sc?.best?.powerKw, "cands:", sc?.candidates?.length);
+  const o = r.outcome;
+  const sc: any = computeAncillaryScenario(o.input, o.result, o.input.economy.customerAncillaryShare, 10);
+  console.log(kwh, o.status, "best:", sc?.best?.capacityKWh, sc?.best?.powerKw, "cands:", sc?.candidates?.length);
 }
