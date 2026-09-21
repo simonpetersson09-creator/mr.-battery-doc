@@ -58,6 +58,8 @@ function EconomyStep() {
   const [calculating, setCalculating] = useState(false);
   /** Snaps the progress ring to 100 % before navigating away. */
   const [calcDone, setCalcDone] = useState(false);
+  /** Shows the adjustment-credit info before spending a credit. */
+  const [showAdjustmentDialog, setShowAdjustmentDialog] = useState(false);
   const country = getCountry(state.grid.country);
   /* CURRENCY STAYS COUNTRY-DRIVEN — the UI language never changes it. */
   const unit = country.economy.currencyLabel;
