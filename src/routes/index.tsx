@@ -109,8 +109,9 @@ function Welcome() {
         </ul>
 
         <AnimatedStats t={t} />
+      </div>
 
-        <div className="mt-6 flex w-full items-stretch gap-2">
+      <div className="flex w-full items-stretch gap-2 pt-6">
           <Button
             asChild
             variant="secondary"
