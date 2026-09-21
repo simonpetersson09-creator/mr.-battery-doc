@@ -702,68 +702,9 @@ function ResultStep() {
                 {t("results.benefit.nonPositive")}
               </p>
             ) : null}
-            <div className="surface-secondary mt-1.5 space-y-1.5 rounded-[1rem] p-2.5">
-              {s.economy.energyBenefitSek !== 0 ? (
-                <BenefitRow
-                  label={
-                    p.hasSolar
-                      ? t("results.benefit.energyWithSolar")
-                      : t("results.benefit.energyNoSolar")
-                  }
-                  hint={
-                    p.hasSolar
-                      ? t("results.benefit.energyHintSolar")
-                      : t("results.benefit.energyHintNoSolar")
-                  }
-                  value={<CountUpValue value={s.economy.energyBenefitSek} format={(v) => moneyPerYear(v)} />}
-                />
-              ) : null}
-              {p.showDemandSavingRow ? (
-                <BenefitRow
-                  label={t("results.benefit.peak")}
-                  hint={t("results.benefit.peakHint")}
-                  value={s.economy.demandCostSavingSek === null ? moneyPerYear(null) : <CountUpValue value={s.economy.demandCostSavingSek} format={(v) => moneyPerYear(v)} />}
-                />
-              ) : null}
-              {ancillaryNote ? (
-                <p className="text-[11px] leading-relaxed">{ancillaryNote}</p>
-              ) : s.fcr.enabled ? (
-                <>
-                  {/* The customer's own ancillary compensation is the row that adds to the total. */}
-                  <BenefitRow
-                    label={t("results.benefit.ancillaryTitle")}
-                    hint={t("results.benefit.ancillaryCustomerHint")}
-                    value={ce.ancillaryCustomerValueSek === null ? moneyPerYear(null) : <CountUpValue value={ce.ancillaryCustomerValueSek} format={(v) => moneyPerYear(v)} />}
-                  />
-                  {/* Background only: how that figure was derived. Collapsed by default. */}
-                  <AncillaryDetails
-                    rows={[
-                      ...(p.fcrMonetizedPowerKw !== null
-                        ? [
-                            {
-                              label: t("results.benefit.ancillaryPower"),
-                              value: kw(p.fcrMonetizedPowerKw, 1),
-                            },
-                          ]
-                        : []),
-                      {
-                        label: t("results.benefit.ancillaryMarket"),
-                        value: moneyPerYear(ce.ancillaryMarketValueSek),
-                      },
-                      {
-                        label: t("results.benefit.ancillaryShare"),
-                        value: `${nf(ce.customerAncillaryShare * 100, 0)} %`,
-                      },
-                    ]}
-                    hints={[
-                      t("results.benefit.ancillaryShareHint"),
-                      t("results.benefit.ancillaryNote"),
-                    ]}
-                    toggleLabel={t("results.benefit.showCalculation")}
-                  />
-                </>
-              ) : null}
-            </div>
+            {ancillaryNote ? (
+              <p className="mt-1.5 text-center text-[11px] leading-relaxed">{ancillaryNote}</p>
+            ) : null}
             {/* Share of the ANNUAL BENEFIT per engine component. Presentation only. */}
             <BenefitDistribution
               breakdown={benefitBreakdown(ce)}
