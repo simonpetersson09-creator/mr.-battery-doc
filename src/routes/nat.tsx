@@ -57,6 +57,7 @@ function GridStep() {
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
       compact
+      cardFlow
     >
       <SectionCard compact icon={<Globe />} title={t("network.country.title")} description={t("network.country.description")}>
         <Select

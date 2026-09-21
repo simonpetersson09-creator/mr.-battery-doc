@@ -185,6 +185,7 @@ function ProductionStep() {
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
       compact
+      cardFlow
     >
       <SectionCard compact icon={<ListChecks />} title={t("production.modeTitle")}>
         <Select
