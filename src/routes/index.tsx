@@ -132,8 +132,7 @@ function Welcome() {
               <ArrowRight className="size-4" />
             </Link>
           </Button>
-          <LanguageSelect />
-        </div>
+        <LanguageSelect />
       </div>
     </div>
   );
