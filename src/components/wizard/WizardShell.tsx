@@ -49,6 +49,7 @@ export function WizardShell({
   navButtonClassName,
 }: WizardShellProps) {
   const t = useT();
+  const [flowProgress, setFlowProgress] = useState<{ done: number; total: number } | null>(null);
   // Both back affordances follow the wizard's own step order.
   const prev = stepIndex > 0 ? WIZARD_STEPS[stepIndex - 1]!.path : "/";
   const next = stepIndex < WIZARD_STEPS.length - 1 ? WIZARD_STEPS[stepIndex + 1]!.path : null;
