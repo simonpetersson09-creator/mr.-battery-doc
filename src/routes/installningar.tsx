@@ -252,21 +252,21 @@ function SettingsPage() {
         <div className="mt-1.5 space-y-1.5">
           <button
             type="button"
-            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5 text-left"
+            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2 text-left"
             disabled={busy !== null}
             onClick={() => void restore()}
           >
-            <span className="flex size-8 items-center justify-center rounded-full bg-muted">
+            <span className="flex size-7 items-center justify-center rounded-full bg-muted">
               {busy === "restore" ? (
                 <Loader2 className="size-4 animate-spin" />
               ) : (
                 <RotateCcw className="size-4" />
               )}
             </span>
-            <span className="flex-1 text-[14px] font-semibold">
+            <span className="flex-1 text-[13px] font-semibold">
               {busy === "restore" ? t("paywall.restoring") : t("settings.restore")}
             </span>
-            <ChevronRight className="size-4 text-muted-foreground" />
+            <ChevronRight className="size-3.5 text-muted-foreground" />
           </button>
 
           <button
@@ -277,33 +277,33 @@ function SettingsPage() {
                 if (mode === "external") setNotice("manageWeb");
               })
             }
-            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5 text-left"
+            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2 text-left"
           >
-            <span className="flex size-8 items-center justify-center rounded-full bg-muted">
+            <span className="flex size-7 items-center justify-center rounded-full bg-muted">
               <SlidersHorizontal className="size-4" />
             </span>
-            <span className="flex-1 text-[14px] font-semibold">{t("settings.subscription")}</span>
-            <ChevronRight className="size-4 text-muted-foreground" />
+            <span className="flex-1 text-[13px] font-semibold">{t("settings.subscription")}</span>
+            <ChevronRight className="size-3.5 text-muted-foreground" />
           </button>
 
           <Link
             to="/historik"
-            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5 text-left"
+            className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2 text-left"
           >
-            <span className="flex size-8 items-center justify-center rounded-full bg-muted">
+            <span className="flex size-7 items-center justify-center rounded-full bg-muted">
               <History className="size-4" />
             </span>
-            <span className="flex-1 text-[14px] font-semibold">{t("settings.history")}</span>
-            <ChevronRight className="size-4 text-muted-foreground" />
+            <span className="flex-1 text-[13px] font-semibold">{t("settings.history")}</span>
+            <ChevronRight className="size-3.5 text-muted-foreground" />
           </Link>
 
           {confirmReset ? (
-            <div className="rounded-[1rem] border border-border bg-card px-3 py-2.5">
+            <div className="rounded-[1rem] border border-border bg-card px-3 py-2">
               <p className="text-[13px] font-semibold leading-snug">{t("settings.reset.confirm")}</p>
               <div className="mt-2 flex gap-2">
                 <Button
                   variant="outline"
-                  className="h-9 flex-1 rounded-[0.75rem] text-[14px] font-semibold"
+                  className="h-9 flex-1 rounded-[0.75rem] text-[13px] font-semibold"
                   onClick={() => setConfirmReset(false)}
                 >
                   {t("common.cancel")}
@@ -325,14 +325,14 @@ function SettingsPage() {
           ) : (
             <button
               type="button"
-              className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5 text-left"
+              className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2 text-left"
               onClick={() => setConfirmReset(true)}
             >
-              <span className="flex size-8 items-center justify-center rounded-full bg-muted">
+              <span className="flex size-7 items-center justify-center rounded-full bg-muted">
                 <Trash2 className="size-4" />
               </span>
-              <span className="flex-1 text-[14px] font-semibold">{t("settings.reset.title")}</span>
-              <ChevronRight className="size-4 text-muted-foreground" />
+              <span className="flex-1 text-[13px] font-semibold">{t("settings.reset.title")}</span>
+              <ChevronRight className="size-3.5 text-muted-foreground" />
             </button>
           )}
 
@@ -340,13 +340,13 @@ function SettingsPage() {
             <button
               type="button"
               onClick={() => openExternalUrl(LEGAL_LINKS.terms!)}
-              className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5 text-left"
+              className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2 text-left"
             >
-              <span className="flex size-8 items-center justify-center rounded-full bg-muted">
+              <span className="flex size-7 items-center justify-center rounded-full bg-muted">
                 <FileText className="size-4" />
               </span>
-              <span className="flex-1 text-[14px] font-semibold">{t("settings.terms")}</span>
-              <ChevronRight className="size-4 text-muted-foreground" />
+              <span className="flex-1 text-[13px] font-semibold">{t("settings.terms")}</span>
+              <ChevronRight className="size-3.5 text-muted-foreground" />
             </button>
           ) : null}
 
@@ -354,13 +354,13 @@ function SettingsPage() {
             <button
               type="button"
               onClick={() => openExternalUrl(LEGAL_LINKS.privacy!)}
-              className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5 text-left"
+              className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2 text-left"
             >
-              <span className="flex size-8 items-center justify-center rounded-full bg-muted">
+              <span className="flex size-7 items-center justify-center rounded-full bg-muted">
                 <ShieldCheck className="size-4" />
               </span>
-              <span className="flex-1 text-[14px] font-semibold">{t("settings.privacy")}</span>
-              <ChevronRight className="size-4 text-muted-foreground" />
+              <span className="flex-1 text-[13px] font-semibold">{t("settings.privacy")}</span>
+              <ChevronRight className="size-3.5 text-muted-foreground" />
             </button>
           ) : null}
         </div>
