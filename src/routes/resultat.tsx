@@ -727,7 +727,7 @@ function ResultStep() {
                   <BenefitRow
                     label={t("results.benefit.ancillaryTitle")}
                     hint={t("results.benefit.ancillaryCustomerHint")}
-                    value={moneyPerYear(ce.ancillaryCustomerValueSek)}
+                    value={ce.ancillaryCustomerValueSek === null ? moneyPerYear(null) : <CountUpValue value={ce.ancillaryCustomerValueSek} format={(v) => moneyPerYear(v)} />}
                   />
                   {/* Background only: how that figure was derived. Collapsed by default. */}
                   <AncillaryDetails
