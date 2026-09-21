@@ -109,6 +109,9 @@ function ResultStep() {
    * the economics layer).
    */
   const countryCode = state.grid.country;
+  useEffect(() => {
+    track("result_view", { country: countryCode, detail: historyId ? "history" : "new" });
+  }, [countryCode, historyId]);
   const money = (v: number | null) => (v === null ? "—" : formatMoney(v, countryCode, 0));
   const moneyPerYear = (v: number | null) =>
     v === null ? "—" : `${formatMoney(v, countryCode, 0)}${t("units.perYear")}`;
