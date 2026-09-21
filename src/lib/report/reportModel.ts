@@ -189,7 +189,8 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       )
     : req.customerEconomy;
   const cfg = result.diagnostics.config;
-  const servicePlan = ancillaryPlan(cfg.ancillary);
+  /* A snapshot reopened from the history may predate the stored ancillary config. */
+  const servicePlan = cfg.ancillary ? ancillaryPlan(cfg.ancillary) : null;
 
   const country = (input.site?.country ?? "SE") as CountryCode;
   const locale = numberLocale((req.language === "sv" ? "sv" : "en") as Language);

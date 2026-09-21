@@ -59,6 +59,8 @@ export interface CalculationSnapshot {
     grid: BatteryEngineResult["diagnostics"]["config"]["grid"];
     battery: BatteryEngineResult["diagnostics"]["config"]["battery"];
     consumption: { shape: BatteryEngineResult["diagnostics"]["config"]["consumption"]["shape"] };
+    /** The PDF reads the reservation plan from this. Absent in older snapshots. */
+    ancillary?: BatteryEngineResult["diagnostics"]["config"]["ancillary"];
   };
   /** Pre-computed derived layers, so reopening never re-simulates. */
   alternatives: BatteryAlternative[];
@@ -104,6 +106,7 @@ export function buildSnapshot(args: {
       grid: structuredCopy(d.config.grid),
       battery: structuredCopy(d.config.battery),
       consumption: { shape: d.config.consumption.shape },
+      ...(d.config.ancillary ? { ancillary: structuredCopy(d.config.ancillary) } : {}),
     },
     alternatives: structuredCopy(args.alternatives),
     withoutFcr: args.withoutFcr ? structuredCopy(args.withoutFcr) : null,
