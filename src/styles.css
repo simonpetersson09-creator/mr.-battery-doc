@@ -870,7 +870,7 @@ html[data-native="true"] * {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--app-bg);
+  background: var(--background);
 }
 
 @keyframes radial-fill-spin {
