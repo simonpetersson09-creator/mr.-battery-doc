@@ -44,6 +44,7 @@ export function SectionCard({
   /** Center the title/description block (used by the result page). */
   centerTitle?: boolean;
 }) {
+  const locked = useCardLocked();
   return (
     <section
       className={
