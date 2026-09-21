@@ -6,6 +6,7 @@ export const fi = {
     next: "Seuraava",
     showResult: "Näytä tulos",
     calculating: "Lasketaan…",
+    simulating: "Simuloidaan",
     done: "Valmis",
     cancel: "Peruuta",
     restart: "Aloita alusta",
