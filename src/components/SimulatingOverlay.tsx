@@ -29,6 +29,7 @@ export function SimulatingOverlay({ active, done }: SimulatingOverlayProps) {
       const id = window.setTimeout(() => setVisible(false), 520);
       return () => window.clearTimeout(id);
     }
+    return undefined;
   }, [active, done]);
 
   if (!visible) return null;
