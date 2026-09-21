@@ -466,7 +466,7 @@ function ResultStep() {
                       {main ? (
                         <CountUpValue value={alt.capacityKWh} format={(v) => nf(v)} />
                       ) : (
-                        nf(alt.capacityKWh)
+                        <CountUpValue value={alt.capacityKWh} format={(v) => nf(v)} duration={900} />
                       )}
                     </span>
                     <span
