@@ -20,6 +20,10 @@ interface WizardShellProps {
   nextBlockedReason?: string | null;
   /** Optional full-width action rendered below the back/next row (e.g. PDF report). */
   footerExtra?: ReactNode;
+  /** Replaces the "Back" button (e.g. "Edit inputs" on a purchased result). */
+  backSlot?: ReactNode;
+  /** Small note rendered under the back/restart row. */
+  navNote?: ReactNode;
   /** Replaces the "Next" button on the last step. */
   footerAction?: ReactNode;
   /** Tighter card spacing and page padding for dense steps. */
