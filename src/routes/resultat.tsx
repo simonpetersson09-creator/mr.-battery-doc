@@ -628,7 +628,7 @@ function ResultStep() {
           <>
             {/* Ancillary-only: the benefit is the reserve compensation for the best size. */}
             <p className="text-center text-[26px] font-extrabold tracking-tight tabular-nums">
-              {money(ancillaryBest.customerBenefitSek)}
+              <CountUpValue value={ancillaryBest.customerBenefitSek} format={(v) => money(v)} />
               <span className="ml-1 text-[11px] font-semibold">{t("units.perYear")}</span>
             </p>
             <p className="mt-1 text-center text-[11px] leading-relaxed text-foreground/70">
