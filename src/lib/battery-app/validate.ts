@@ -32,10 +32,9 @@ export function validateBatteryEngineInput(state: WizardState): ValidationResult
   if (c.mode === "monthly") {
     const months = completeMonths(c.monthlyKwh);
     if (!months) add("consumption.monthlyKwh", "validation.months");
-    else if (months.reduce((a, b) => a + b, 0) <= 0)
-      add("consumption.monthlyKwh", "validation.monthsZero");
+    else if (months.some((m) => m < 0)) add("consumption.monthlyKwh", "validation.monthsZero");
   } else {
-    if (typeof c.annualKwh !== "number" || !Number.isFinite(c.annualKwh) || c.annualKwh <= 0)
+    if (typeof c.annualKwh !== "number" || !Number.isFinite(c.annualKwh) || c.annualKwh < 0)
       add("consumption.annualKwh", "validation.annualConsumption");
   }
   // The profile shapes the hourly distribution in BOTH modes.
