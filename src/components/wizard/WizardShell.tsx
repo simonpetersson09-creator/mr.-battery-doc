@@ -86,28 +86,49 @@ export function WizardShell({
             {footerAction ? (
               footerAction
             ) : next ? (
-              nextDisabled ? (
-                <Button
-                  variant="cta"
-                  className={`h-10 flex-[2] rounded-[0.75rem] text-[15px] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
-                  disabled
-                  aria-disabled="true"
-                >
-                  {nextLabel ?? t("common.next")}
-                  <ArrowRight className="size-4" />
-                </Button>
-              ) : (
-                <Button
-                  asChild
-                  variant="cta"
-                  className={`h-10 flex-[2] rounded-[0.75rem] text-[15px] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
-                >
-                  <Link to={next}>
-                    {nextLabel ?? t("common.next")}
-                    <ArrowRight className="size-4" />
-                  </Link>
-                </Button>
-              )
+              (() => {
+                const totalNextSteps = WIZARD_STEPS.length - 1;
+                const counter = `${stepIndex + 1}/${totalNextSteps}`;
+                const pageDone = !nextDisabled;
+                const badge = (
+                  <span className="rounded-full bg-foreground/15 px-1.5 py-0.5 text-[10px] font-bold leading-none tabular-nums">
+                    {counter}
+                  </span>
+                );
+                return (
+                  <div className="flex flex-[2] flex-col">
+                    {pageDone ? (
+                      <div className="next-arrow mb-0.5 flex justify-center" aria-hidden="true">
+                        <ChevronDown className="size-5 text-[var(--brand-yellow-cta)]" />
+                      </div>
+                    ) : null}
+                    {nextDisabled ? (
+                      <Button
+                        variant="cta"
+                        className={`h-10 w-full rounded-[0.75rem] text-[15px] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
+                        disabled
+                        aria-disabled="true"
+                      >
+                        {badge}
+                        {nextLabel ?? t("common.next")}
+                        <ArrowRight className="size-4" />
+                      </Button>
+                    ) : (
+                      <Button
+                        asChild
+                        variant="cta"
+                        className={`h-10 w-full rounded-[0.75rem] text-[15px] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
+                      >
+                        <Link to={next}>
+                          {badge}
+                          {nextLabel ?? t("common.next")}
+                          <Check className="size-4" />
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+                );
+              })()
             ) : (
               <Button
                 asChild
