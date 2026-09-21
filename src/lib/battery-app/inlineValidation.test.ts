@@ -58,9 +58,9 @@ describe("inline field errors mirror the step gate", () => {
     expect(gridFieldErrors(s as WizardState).marketArea).toBeTruthy();
   });
 
-  it("a missing or non-positive annual consumption flags that field", () => {
+  it("a missing or negative annual consumption flags that field, zero is allowed", () => {
     const base = createInitialState();
-    for (const annualKwh of [null, 0, -5]) {
+    for (const annualKwh of [null, -5]) {
       const s = {
         ...base,
         consumption: { ...base.consumption, mode: "annual" as const, annualKwh },
@@ -68,6 +68,11 @@ describe("inline field errors mirror the step gate", () => {
       expect(validateConsumptionStep(s).ok).toBe(false);
       expect(consumptionFieldErrors(s).annualKwh).toBeTruthy();
     }
+    const zero = {
+      ...base,
+      consumption: { ...base.consumption, mode: "annual" as const, annualKwh: 0 },
+    };
+    expect(consumptionFieldErrors(zero).annualKwh).toBeNull();
   });
 
   it("an incomplete month grid flags the months, not the annual field", () => {
