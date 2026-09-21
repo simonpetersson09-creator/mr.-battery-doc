@@ -214,19 +214,6 @@ function ResultStep() {
   }, [snapshot, purchasedNow, calculation.id, outcome, ancillaryBest]);
 
 
-  const restart = (
-    <Button
-      variant="cta"
-      className="h-10 flex-[2] rounded-[0.75rem] text-[15px] font-bold shadow-cta"
-      onClick={() => {
-        clearCalculationCache();
-        reset();
-        void navigate({ to: "/" });
-      }}
-    >
-      {t("common.restart")}
-    </Button>
-  );
 
   /* A history link whose local snapshot is gone or unreadable must never crash
      the result page — it explains itself and leads back. */
