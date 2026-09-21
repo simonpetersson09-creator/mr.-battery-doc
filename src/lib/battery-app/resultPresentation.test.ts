@@ -285,10 +285,12 @@ describe("RESULT PAGE CUSTOMER SIMPLIFICATION", () => {
     expect(page()).not.toMatch(/Nätexport/);
   });
 
-  it("case H: the demand-charge amount is only shown under Beräknad nytta", () => {
+  it("case H: the demand-charge has no separate row (folded into the peak benefit component)", () => {
     const src = page();
     expect(src).not.toMatch(/Minskad effektkostnad/);
-    expect((src.match(/demandCostSavingSek/g) ?? []).length).toBe(1);
+    // The demand-charge saving is presented only as the peak component of the
+    // annual-benefit distribution; no standalone demandCostSavingSek row remains.
+    expect((src.match(/demandCostSavingSek/g) ?? []).length).toBe(0);
   });
 
   it("case F: 20 kWh / 10 kW gives a 0.50 C system C-rate", () => {

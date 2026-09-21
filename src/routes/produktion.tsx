@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
+import { HighlightedSlider } from "@/components/wizard/HighlightedSlider";
 import { useWizard } from "@/state/wizard";
 import { useT } from "@/i18n";
 
@@ -98,14 +98,16 @@ function ProductionStep() {
       <p className="text-[1.125rem] font-extrabold leading-none tracking-[-0.03em] tabular-nums">
         {selfPct} %
       </p>
-      <Slider
-        className="mt-2"
+      <HighlightedSlider
+        className="mt-7"
         value={[selfPct]}
         min={0}
         max={100}
-        step={1}
+        commonMin={35}
+        commonMax={55}
+        label={t("common.mostCommon")}
         aria-label={t("production.self.label")}
-        onValueChange={(v) =>
+        onValueChange={(v: number[]) =>
           update((s) => ({
             ...s,
             production: { ...s.production, selfConsumptionPct: v[0] ?? selfPct },

@@ -8,6 +8,7 @@ import { useAccess } from "@/state/access";
 import { Coins, HandCoins, Timer } from "lucide-react";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { NumberField, SectionCard } from "@/components/wizard/fields";
+import { HighlightedSlider } from "@/components/wizard/HighlightedSlider";
 import { Slider } from "@/components/ui/slider";
 import { getCountry } from "@/lib/country-config";
 import { demandChargeHint } from "@/lib/battery-app/economyCopy";
@@ -252,14 +253,16 @@ function EconomyStep() {
         <p className="text-[1.125rem] font-extrabold leading-none tracking-[-0.03em] tabular-nums">
           {t("payback.years", { years: formatNumber(years, 0) })}
         </p>
-        <Slider
-          className="mt-2"
+        <HighlightedSlider
+          className="mt-7"
           value={[years]}
           min={MIN_TARGET_PAYBACK_YEARS}
           max={MAX_TARGET_PAYBACK_YEARS}
-          step={1}
+          commonMin={7}
+          commonMax={11}
+          label={t("common.mostCommon")}
           aria-label={t("payback.card")}
-          onValueChange={(v) =>
+          onValueChange={(v: number[]) =>
             update((s) => ({
               ...s,
               preferences: {

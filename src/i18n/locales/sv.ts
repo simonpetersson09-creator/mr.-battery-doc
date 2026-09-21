@@ -16,6 +16,7 @@ export const sv = {
     restart: "Börja om",
     locked: "Låst",
     step: "Steg {{current}} av {{total}}",
+    mostCommon: "Vanligast",
   },
   language: {
     title: "Språk",
@@ -138,7 +139,7 @@ export const sv = {
       monthsTitle: "Importerad månadsdata",
     },
     profile: {
-      title: "När använder du mest el?",
+      title: "När använder du mest el? (dygnsprofil)",
       placeholder: "Välj profil",
       chartCaption: "Typiskt vardagsdygn",
       chartPeaks: "Toppar",

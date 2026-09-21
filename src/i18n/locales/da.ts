@@ -11,6 +11,7 @@ export const da = {
     restart: "Start forfra",
     locked: "Låst",
     step: "Trin {{current}} af {{total}}",
+    mostCommon: "Mest almindeligt",
   },
   language: {
     title: "Sprog",
@@ -135,7 +136,7 @@ export const da = {
       monthsTitle: "Importeret månedlig data",
     },
     profile: {
-      title: "Hvornår bruger du mest strøm?",
+      title: "Hvornår bruger du mest strøm? (døgnprofil)",
       placeholder: "Vælg profil",
       chartCaption: "Typisk hverdag",
       chartPeaks: "Spidser",

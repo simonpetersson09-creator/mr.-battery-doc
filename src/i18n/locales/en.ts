@@ -11,6 +11,7 @@ export const en = {
     restart: "Start over",
     locked: "Locked",
     step: "Step {{current}} of {{total}}",
+    mostCommon: "Most common",
   },
   language: {
     title: "Language",
@@ -135,7 +136,7 @@ export const en = {
       monthsTitle: "Imported monthly data",
     },
     profile: {
-      title: "When do you use the most electricity?",
+      title: "When do you use the most electricity? (daily profile)",
       placeholder: "Choose profile",
       chartCaption: "Typical weekday",
       chartPeaks: "Peaks",

@@ -78,9 +78,10 @@ describe("reserve product labels come from the market config", () => {
     expect(block).toContain("results.benefit.ancillaryNote");
     // No fee/percentage is ever applied to the engine figure inline in the UI.
     expect(block).not.toMatch(/0\.\d+\s*\*\s*s\.fcr/);
-    // J: nothing outside `s.fcr.enabled` prints the note.
+    // J: nothing outside `s.fcr.enabled` prints the note. The ancillary block is now
+    // guarded by `s.fcr.enabled && !ancillaryNote`, so anchor on `s.fcr.enabled`.
     expect(resultatSource.lastIndexOf("results.benefit.ancillaryNote")).toBeGreaterThan(
-      resultatSource.indexOf("s.fcr.enabled ?"),
+      resultatSource.indexOf("s.fcr.enabled"),
     );
     // The customer-facing wording itself is unchanged, now centralized in the locale.
     expect(sv.results.benefit.ancillaryHint).toContain("Beräknat marknadsvärde");
