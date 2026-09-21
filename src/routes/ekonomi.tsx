@@ -72,6 +72,7 @@ function EconomyStep() {
   return (
     <WizardShell
       compact
+      cardFlow
       stepIndex={4}
       title={t("economics.title")}
       intro={t("economics.intro", { country: countryName(state.grid.country) })}
