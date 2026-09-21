@@ -19,6 +19,7 @@ import type { ProductKey } from "@/lib/access/products";
 import type { PurchaseErrorCode, StoreProduct } from "@/lib/access/purchaseGateway";
 import { useAccess } from "@/state/access";
 import { useWizard } from "@/state/wizard";
+import { track } from "@/lib/analytics/track";
 import logo from "@/assets/mr-battery-doc-logo.png";
 
 export const Route = createFileRoute("/betalvagg")({
