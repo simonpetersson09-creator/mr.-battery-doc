@@ -558,29 +558,29 @@ function ResultStep() {
               {p.showSelfConsumption ? (
                 <BeforeAfter
                   label={t("results.energy.selfConsumption")}
-                  before={pct(e.selfConsumptionBeforePct)}
-                  after={pct(e.selfConsumptionAfterPct)}
+                  before={<CountUpValue value={e.selfConsumptionBeforePct} format={(v) => pct(v)} />}
+                  after={<CountUpValue value={e.selfConsumptionAfterPct} format={(v) => pct(v)} />}
                 />
               ) : null}
               {p.showSelfSufficiency ? (
                 <BeforeAfter
                   label={t("results.energy.selfSufficiency")}
-                  before={pct(e.selfSufficiencyBeforePct)}
-                  after={pct(e.selfSufficiencyAfterPct)}
+                  before={<CountUpValue value={e.selfSufficiencyBeforePct} format={(v) => pct(v)} />}
+                  after={<CountUpValue value={e.selfSufficiencyAfterPct} format={(v) => pct(v)} />}
                 />
               ) : null}
               {p.showImport ? (
                 <BeforeAfter
                   label={t("results.energy.gridImport")}
-                  before={kwh(e.importBeforeKWh)}
-                  after={kwh(e.importAfterKWh)}
+                  before={<CountUpValue value={e.importBeforeKWh} format={(v) => kwh(v)} />}
+                  after={<CountUpValue value={e.importAfterKWh} format={(v) => kwh(v)} />}
                 />
               ) : null}
               {p.showPeakSection ? (
                 <BeforeAfter
                   label={t("results.power.peak")}
-                  before={kw(g.importPeakBeforeKw)}
-                  after={kw(g.importPeakAfterKw)}
+                  before={<CountUpValue value={g.importPeakBeforeKw} format={(v) => kw(v)} />}
+                  after={<CountUpValue value={g.importPeakAfterKw} format={(v) => kw(v)} />}
                 />
               ) : null}
               {e.recoveredCurtailmentKWh > 0 ? (
