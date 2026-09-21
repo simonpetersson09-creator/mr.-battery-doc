@@ -163,12 +163,12 @@ function SettingsPage() {
 
 
         {/* Premium */}
-        <section className="relative mt-1.5 rounded-[1rem] bg-brand-yellow px-3 py-2 text-accent-foreground">
+        <section className="relative mt-1.5 rounded-[1rem] border border-border bg-card px-3 py-2.5 shadow-sm">
           <p className="absolute right-3 top-2.5 text-[9px] font-bold uppercase tracking-wide opacity-70">
             {t("settings.premium.badge")}
           </p>
           <p className="flex items-center gap-1.5 font-display text-[13px] font-bold">
-            <Crown className="size-3.5" />
+            <Crown className="size-3.5 text-amber-500" />
             {t("settings.premium.title")}
           </p>
           <p
@@ -185,14 +185,14 @@ function SettingsPage() {
             ))}
           </ul>
           {access.premiumActive ? (
-            <p className="mt-1.5 flex h-9 w-full items-center justify-center gap-1.5 rounded-[0.75rem] bg-foreground text-[14px] font-bold text-background">
+            <p className="mt-1.5 flex h-9 w-full items-center justify-center gap-1.5 rounded-[0.75rem] bg-[var(--done-fill)] text-[14px] font-bold text-[var(--done-foreground)]">
               <BadgeCheck className="size-3.5" />
               {t("settings.premium.active")}
             </p>
           ) : (
             <>
               <Button
-                variant="ink"
+                variant="cta"
                 className="mt-1.5 h-9 w-full rounded-[0.75rem] text-[14px] font-bold"
                 // Never disabled for a missing price: a dead-looking button fails
                 // App Review. Tapping without prices retries the store lookup and
@@ -233,7 +233,7 @@ function SettingsPage() {
         </section>
 
         {/* One-off report */}
-        <section className="mt-1.5 rounded-[1rem] bg-accent px-3 py-2 text-accent-foreground">
+        <section className="mt-1.5 rounded-[1rem] border border-border bg-card px-3 py-2.5 shadow-sm">
           <p className="font-display text-[13px] font-bold">{t("settings.single.title")}</p>
           <p
             className={`mt-0.5 leading-none ${singlePrice ? "text-[16px] font-extrabold tabular-nums" : "text-[11px] font-semibold opacity-80"}`}
@@ -241,7 +241,7 @@ function SettingsPage() {
             {singlePrice ?? priceFallback}
           </p>
           <p className="mt-1 text-[10px] leading-snug">{t("settings.single.description")}</p>
-          <p className="mt-1.5 flex h-9 w-full items-center justify-center rounded-[0.75rem] bg-foreground/15 text-[14px] font-bold">
+          <p className="mt-1.5 flex h-9 w-full items-center justify-center rounded-[0.75rem] bg-muted text-[13px] font-semibold text-muted-foreground">
             {t("settings.single.cta")}
           </p>
           <p className="mt-1 text-center text-[10px] leading-snug opacity-80">
