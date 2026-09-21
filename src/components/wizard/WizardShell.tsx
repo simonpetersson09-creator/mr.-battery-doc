@@ -20,6 +20,10 @@ interface WizardShellProps {
   nextBlockedReason?: string | null;
   /** Optional full-width action rendered below the back/next row (e.g. PDF report). */
   footerExtra?: ReactNode;
+  /** Replaces the "Back" button (e.g. "Edit inputs" on a purchased result). */
+  backSlot?: ReactNode;
+  /** Small note rendered under the back/restart row. */
+  navNote?: ReactNode;
   /** Replaces the "Next" button on the last step. */
   footerAction?: ReactNode;
   /** Tighter card spacing and page padding for dense steps. */
@@ -43,6 +47,8 @@ export function WizardShell({
   nextBlockedReason,
   footerAction,
   footerExtra,
+  backSlot,
+  navNote,
   compact,
   cardFlow,
   titleClassName,
@@ -119,10 +125,12 @@ export function WizardShell({
             </div>
           ) : null}
           {/* Row 1: Tillbaka + Börja om. Row 2: Nästa/Beräkna, full width. */}
-          <div className="flex gap-2">
-            <Button asChild variant="outline" className={`h-10 flex-1 rounded-[0.75rem] text-[15px] font-semibold${navButtonClassName ? ` ${navButtonClassName}` : ""}`}>
-              <Link to={prev}>{t("common.back")}</Link>
-            </Button>
+          <div className="flex gap-2 [&>*]:h-10 [&>*]:flex-1">
+            {backSlot ?? (
+              <Button asChild variant="outline" className={`h-10 flex-1 rounded-[0.75rem] text-[15px] font-semibold${navButtonClassName ? ` ${navButtonClassName}` : ""}`}>
+                <Link to={prev}>{t("common.back")}</Link>
+              </Button>
+            )}
             <Button
               variant="outline"
               className={`h-10 flex-1 rounded-[0.75rem] text-[15px] font-semibold${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
@@ -131,6 +139,7 @@ export function WizardShell({
               {t("common.restart")}
             </Button>
           </div>
+          {navNote ? <div className="mt-1.5">{navNote}</div> : null}
           {footerAction ? (
             <div className="mt-2 [&>*]:w-full">{footerAction}</div>
           ) : next ? (

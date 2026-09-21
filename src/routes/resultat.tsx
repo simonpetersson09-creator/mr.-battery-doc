@@ -1,5 +1,5 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { ChevronDown, FileText } from "lucide-react";
+import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
+import { ChevronDown, FileText, Pencil } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { buildSnapshot, snapshotOutcome } from "@/lib/history/snapshot";
 import { loadSnapshot, saveSnapshot } from "@/lib/history/store";
@@ -8,9 +8,11 @@ import { SectionCard } from "@/components/wizard/fields";
 import { Button } from "@/components/ui/button";
 import { CountUpValue } from "@/components/CountUp";
 import {
+  clearCalculationCache,
   getCalculation,
   getDerivedAnalyses,
 } from "@/lib/access/calculationCache";
+import { adjustmentCreditsRemaining } from "@/lib/access/entitlements";
 import { useAccess } from "@/state/access";
 import { buildResultPresentation } from "@/lib/battery-app/resultPresentation";
 import {
@@ -84,7 +86,8 @@ const pct = (v: number) => `${nf(v, 0)} %`;
 
 function ResultStep() {
   const t = useT();
-  const { state: liveState } = useWizard();
+  const { state: liveState, update: updateWizard } = useWizard();
+  const navigate = useNavigate();
   const access = useAccess();
   /**
    * HISTORY MODE. `?calc=<id>` renders a stored snapshot of an already purchased
@@ -350,6 +353,34 @@ function ResultStep() {
     downloads/share sheets for the same calculation.
   */
   const pdfEnabled = pdfAllowed && !pdfBusy;
+  /*
+    A purchased result is final: plain "Back" into the wizard is misleading, so it is
+    replaced by an explicit "Edit inputs" action with the remaining adjustment count.
+    Re-running unchanged inputs still costs nothing — only a changed calculation does.
+  */
+  const adjustmentCredits = adjustmentCreditsRemaining(access.entitlements);
+  const editInputs = (
+    <Button
+      type="button"
+      variant="outline"
+      className="h-10 flex-1 rounded-[0.75rem] text-[15px] font-semibold"
+      onClick={() => {
+        clearCalculationCache();
+        if (snapshot) updateWizard(() => snapshot.wizard);
+        void navigate({ to: "/nat" });
+      }}
+    >
+      <Pencil className="size-3.5 shrink-0" />
+      {t("history.edit")}
+    </Button>
+  );
+  const editNote =
+    access.premiumActive || adjustmentCredits <= 0 ? null : (
+      <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
+        {t("history.adjustmentsLeft", { count: adjustmentCredits })}
+      </p>
+    );
+
   const pdfReport = (
     <Button
       type="button"
@@ -385,6 +416,8 @@ function ResultStep() {
       introClassName="mt-1 text-[11px] leading-relaxed"
       navButtonClassName="text-[15px]"
       footerExtra={pdfReport}
+      backSlot={editInputs}
+      navNote={editNote}
       compact
     >
       
