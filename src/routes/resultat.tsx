@@ -374,12 +374,13 @@ function ResultStep() {
       {t("history.edit")}
     </Button>
   );
-  const editNote =
-    access.premiumActive || adjustmentCredits <= 0 ? null : (
-      <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
-        {t("history.adjustmentsLeft", { count: adjustmentCredits })}
-      </p>
-    );
+  const editNote = (
+    <p className="text-center text-[12px] font-medium leading-relaxed text-muted-foreground">
+      {access.premiumActive
+        ? t("history.adjustmentsUnlimited")
+        : t("history.adjustmentsLeft", { count: adjustmentCredits })}
+    </p>
+  );
 
   const pdfReport = (
     <Button
