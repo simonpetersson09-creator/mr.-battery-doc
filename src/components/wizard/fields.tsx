@@ -86,7 +86,7 @@ export function SectionCard({
           {children}
         </fieldset>
       ) : null}
-      <CardFlowFooter />
+      <CardFlowFooter canConfirm={canConfirm} />
     </section>
   );
 }

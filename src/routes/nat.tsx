@@ -80,7 +80,7 @@ function GridStep() {
       </SectionCard>
 
       {areaOptions.length > 0 ? (
-        <SectionCard compact icon={<MapPin />} title={t("network.area.title")} description={t("network.area.description")}>
+        <SectionCard compact icon={<MapPin />} title={t("network.area.title")} description={t("network.area.description")} canConfirm={!!state.grid.marketArea && !fieldError.marketArea}>
           <Select
             value={state.grid.marketArea ?? ""}
             onValueChange={(v) =>
@@ -107,7 +107,7 @@ function GridStep() {
         </SectionCard>
       ) : null}
 
-      <SectionCard compact icon={<ShieldCheck />} title={t("network.fuse.title")} description={t("network.fuse.description")}>
+      <SectionCard compact icon={<ShieldCheck />} title={t("network.fuse.title")} description={t("network.fuse.description")} canConfirm={!fieldError.mainFuseA}>
         <Select
           value={state.grid.mainFuseManual ? "custom" : String(state.grid.mainFuseA)}
           onValueChange={(v) =>
@@ -159,7 +159,7 @@ function GridStep() {
         ) : null}
       </SectionCard>
 
-      <SectionCard compact icon={<PlugZap />} title={t("network.values.title")} description={t("network.values.description")}>
+      <SectionCard compact icon={<PlugZap />} title={t("network.values.title")} description={t("network.values.description")} canConfirm={state.grid.gridValuesConfirmed}>
         <dl className="grid grid-cols-2 gap-1.5">
           <Value label={t("network.values.voltage")} value={`${country.grid.voltage} V`} />
           <Value
