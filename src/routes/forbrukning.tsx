@@ -202,8 +202,8 @@ function ProfilePicker({ error }: { error: string | null }) {
         <SelectContent>
           {PROFILE_CATALOG.map((p) => (
             <SelectItem key={p.id} value={p.id}>
-              <span className="font-medium">{p.name}</span>
-              <span className="text-muted-foreground"> — {p.description}</span>
+              <span className="block font-medium">{p.name}</span>
+              <span className="block text-muted-foreground">{p.description}</span>
             </SelectItem>
           ))}
         </SelectContent>
