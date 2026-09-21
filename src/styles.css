@@ -770,3 +770,22 @@ html[data-native="true"] .pt-safe {
     animation: none;
   }
 }
+
+@keyframes profile-bar-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+.profile-bar {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: profile-bar-grow 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .profile-bar {
+    animation: none;
+  }
+}
