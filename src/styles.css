@@ -675,12 +675,6 @@ html[data-native="true"] {
 html[data-native="true"] * {
   -webkit-text-size-adjust: 100%;
 }
-/* The native iOS view already starts below the status bar. Adding the CSS safe
-   area here reserves the same space twice and leaves a blank band above logos. */
-html[data-native="true"] .pt-safe {
-  padding-top: 0;
-}
-
 /* Logo: gentle float (option 3). Paused when the user prefers reduced motion. */
 @keyframes logo-float {
   0%,
