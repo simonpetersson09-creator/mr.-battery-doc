@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Check, ChevronDown } from "lucide-react";
 import type { ReactNode } from "react";
 import { WIZARD_STEPS } from "./steps";
 import { CardFlow } from "./cardFlow";
