@@ -48,13 +48,30 @@ export function CardFlow({ children, className }: { children: ReactNode; classNa
   const refs = useRef<Array<HTMLDivElement | null>>([]);
 
   const confirm = (index: number) => {
-    setDone((prev) => new Set(prev).add(index));
-    const next = index + 1;
-    setActive((a) => (next > a ? next : a));
-    if (next < items.length) {
+    const wasDone = done.has(index);
+    setDone((prev) => {
+      const next = new Set(prev);
+      if (wasDone) {
+        next.delete(index); // unlock — back to editing
+      } else {
+        next.add(index); // confirm — lock this card
+      }
+      return next;
+    });
+    if (wasDone) {
+      // unlocking: bring the card back into view so the user can edit
       requestAnimationFrame(() => {
-        refs.current[next]?.scrollIntoView({ behavior: "smooth", block: "center" });
+        refs.current[index]?.scrollIntoView({ behavior: "smooth", block: "center" });
       });
+    } else {
+      // confirming: advance to the next card
+      const nxt = index + 1;
+      setActive((a) => (nxt > a ? nxt : a));
+      if (nxt < items.length) {
+        requestAnimationFrame(() => {
+          refs.current[nxt]?.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+      }
     }
   };
 
@@ -80,6 +97,18 @@ export function CardFlow({ children, className }: { children: ReactNode; classNa
       </div>
     </FlowContext.Provider>
   );
+}
+
+/**
+ * True when the current card is confirmed/locked. SectionCard uses this to
+ * disable its inputs until the user presses "Klar" again to reopen it.
+ * Returns false outside a CardFlow.
+ */
+export function useCardLocked(): boolean {
+  const flow = useContext(FlowContext);
+  const index = useContext(CardIndexContext);
+  if (!flow || index === null) return false;
+  return flow.done.has(index);
 }
 
 /**
