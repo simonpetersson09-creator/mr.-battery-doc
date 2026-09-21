@@ -138,6 +138,7 @@ function EconomyStep() {
         compact
         icon={<Coins className="size-4" />}
         title={t("economics.prices.title")}
+        canConfirm={noSolar || (!fieldError.importPrice && !fieldError.exportPrice && !fieldError.demandCharge)}
         action={
           noSolar ? (
             <span className="rounded-full bg-secondary px-2 py-0.5 ui-control-text-sm font-semibold text-muted-foreground">
