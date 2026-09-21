@@ -704,34 +704,6 @@ function ResultStep() {
             ) : null}
             {ancillaryNote ? (
               <p className="mt-1.5 text-center text-[11px] leading-relaxed">{ancillaryNote}</p>
-            ) : s.fcr.enabled ? (
-              <div className="mt-1.5">
-                <AncillaryDetails
-                  rows={[
-                    ...(p.fcrMonetizedPowerKw !== null
-                      ? [
-                          {
-                            label: t("results.benefit.ancillaryPower"),
-                            value: kw(p.fcrMonetizedPowerKw, 1),
-                          },
-                        ]
-                      : []),
-                    {
-                      label: t("results.benefit.ancillaryMarket"),
-                      value: moneyPerYear(ce.ancillaryMarketValueSek),
-                    },
-                    {
-                      label: t("results.benefit.ancillaryShare"),
-                      value: `${nf(ce.customerAncillaryShare * 100, 0)} %`,
-                    },
-                  ]}
-                  hints={[
-                    t("results.benefit.ancillaryShareHint"),
-                    t("results.benefit.ancillaryNote"),
-                  ]}
-                  toggleLabel={t("results.benefit.showCalculation")}
-                />
-              </div>
             ) : null}
             {/* Share of the ANNUAL BENEFIT per engine component. Presentation only. */}
             <BenefitDistribution
