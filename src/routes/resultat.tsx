@@ -723,6 +723,35 @@ function ResultStep() {
               moneyPerYear={moneyPerYear}
               nf={nf}
             />
+            {s.fcr.enabled && !ancillaryNote ? (
+              <div className="mt-2">
+                <AncillaryDetails
+                  rows={[
+                    ...(p.fcrMonetizedPowerKw !== null
+                      ? [
+                          {
+                            label: t("results.benefit.ancillaryPower"),
+                            value: kw(p.fcrMonetizedPowerKw, 1),
+                          },
+                        ]
+                      : []),
+                    {
+                      label: t("results.benefit.ancillaryMarket"),
+                      value: moneyPerYear(ce.ancillaryMarketValueSek),
+                    },
+                    {
+                      label: t("results.benefit.ancillaryShare"),
+                      value: `${nf(ce.customerAncillaryShare * 100, 0)} %`,
+                    },
+                  ]}
+                  hints={[
+                    t("results.benefit.ancillaryShareHint"),
+                    t("results.benefit.ancillaryNote"),
+                  ]}
+                  toggleLabel={t("results.benefit.showCalculation")}
+                />
+              </div>
+            ) : null}
           </>
         )}
       </SectionCard>
