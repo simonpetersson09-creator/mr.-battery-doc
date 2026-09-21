@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, Check, ChevronDown } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { WIZARD_STEPS } from "./steps";
 import { CardFlow, clearFlowMemory } from "./cardFlow";
@@ -150,16 +150,8 @@ export function WizardShell({
                   </span>
                 );
                 return (
-                  <div className="relative mt-2">
-                    {pageDone ? (
-                      <div
-                        className="next-arrow pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2"
-                        aria-hidden="true"
-                      >
-                        <ChevronDown className="size-5 text-[var(--brand-yellow-cta)]" />
-                      </div>
-                    ) : null}
-                    {nextDisabled || !allCardsDone ? (
+                  <div className="mt-2">
+                     {nextDisabled || !allCardsDone ? (
                       <Button
                         variant="cta"
                         className={`h-10 w-full rounded-[0.75rem] text-[15px] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
