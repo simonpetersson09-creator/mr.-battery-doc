@@ -50,12 +50,12 @@ export function HighlightedSlider({
         aria-label={ariaLabel}
         onValueChange={onValueChange}
       />
-      {/* green tick marks at the common-range boundaries — painted on
+      {/* amber tick marks at the common-range boundaries — painted on
           top of the slider so they stay visible even under the filled track. */}
       {[leftPct, rightPct].map((pct, i) => (
         <span
           key={i}
-          className="pointer-events-none absolute top-1/2 z-10 h-3 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/70"
+          className="pointer-events-none absolute top-1/2 z-10 h-3 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-600/80"
           style={{ left: `${pct}%` }}
         />
       ))}
