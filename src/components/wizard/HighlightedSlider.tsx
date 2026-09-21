@@ -43,18 +43,6 @@ export function HighlightedSlider({
           {label}
         </span>
       ) : null}
-      {/* green triangle markers at the common-range boundaries */}
-      {[leftPct, rightPct].map((pct, i) => (
-        <span
-          key={i}
-          className="pointer-events-none absolute top-0 -translate-x-1/2"
-          style={{ left: `${pct}%` }}
-        >
-          <svg width="8" height="5" viewBox="0 0 8 5" fill="none" aria-hidden="true">
-            <path d="M4 5L0 0H8L4 5Z" fill="#10b981" fillOpacity="0.7" />
-          </svg>
-        </span>
-      ))}
       <Slider
         value={value}
         min={min}
@@ -62,6 +50,19 @@ export function HighlightedSlider({
         aria-label={ariaLabel}
         onValueChange={onValueChange}
       />
+      {/* green triangle markers at the common-range boundaries — painted on
+          top of the slider so they stay visible even under the filled track. */}
+      {[leftPct, rightPct].map((pct, i) => (
+        <span
+          key={i}
+          className="pointer-events-none absolute top-0 z-10 -translate-x-1/2"
+          style={{ left: `${pct}%` }}
+        >
+          <svg width="8" height="5" viewBox="0 0 8 5" fill="none" aria-hidden="true">
+            <path d="M4 5L0 0H8L4 5Z" fill="#10b981" fillOpacity="0.7" />
+          </svg>
+        </span>
+      ))}
     </div>
   );
 }
