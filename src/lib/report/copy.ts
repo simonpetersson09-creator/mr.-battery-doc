@@ -46,6 +46,12 @@ export interface ReportCopy {
     peak: string;
     shifted: string;
     peakLower: string;
+    /** Page 1 (consumer report): recommendation headline and the value split. */
+    recommendedBattery: string;
+    paybackLabel: string;
+    valueSplit: string;
+    shiftedSolar: string;
+    ancillaryShareNote: string;
   };
 
   benefit: {
@@ -60,6 +66,9 @@ export interface ReportCopy {
     ancillaryHint: string;
     none: string;
     note: string;
+    /** Page 2 (consumer report). */
+    historicalBox: string;
+    shareOfTotal: string;
   };
 
   ancillary: {
@@ -84,6 +93,9 @@ export interface ReportCopy {
     customerValue: string;
     priceBasis: string;
     priceBasisValue: string;
+    /** Page 5 (consumer report). */
+    nominalPower: string;
+    historicalWarning: string;
     noPriceData: string;
     note: string;
   };
@@ -133,6 +145,11 @@ export interface ReportCopy {
     yours: string;
     higher: string;
     balance: string;
+    /** Page 3 (consumer report): no internal thresholds or algorithm wording. */
+    consumerExplanation: string;
+    recommendedLabel: string;
+    powerTitle: string;
+    powerAncillaryExplanation: string;
   };
 
   energy: {
@@ -141,6 +158,7 @@ export interface ReportCopy {
     pv: string;
     importBefore: string;
     importAfter: string;
+    exportLabel: string;
     exportBefore: string;
     exportAfter: string;
     selfConsumptionBefore: string;
@@ -175,6 +193,13 @@ export interface ReportCopy {
     explanation: string;
     notAQuote: string;
     unavailable: string;
+    /** Page 6 (consumer report). */
+    headline: string;
+    paybackText: string;
+    ancillaryDependencyTitle: string;
+    withAncillary: string;
+    withoutAncillary: string;
+    dependencyNote: string;
   };
 
   assumptions: {
@@ -208,6 +233,20 @@ export interface ReportCopy {
   risks: { title: string; text: string; items: string[] };
   installer: { title: string; items: string[] };
   faq: { title: string; items: { q: string; a: string }[] };
+
+  /** Page 8 (consumer report): "Viktigt att veta" wraps risks, checklist and this. */
+  about: { pageTitle: string; title: string; items: string[] };
+
+  /**
+   * Short term explanations, printed where the term is actually used instead of in a
+   * separate FAQ at the end of the report.
+   */
+  terms: {
+    kwKwh: string;
+    selfConsumption: string;
+    selfSufficiency: string;
+    peakShaving: string;
+  };
 }
 
 const sv: ReportCopy = {
@@ -241,10 +280,10 @@ const sv: ReportCopy = {
   },
 
   summary: {
-    title: "Sammanfattning",
+    title: "Din batterirekommendation",
     capacity: "Batterikapacitet",
     power: "Batterieffekt",
-    benefit: "Beräknad nytta",
+    benefit: "Beräknat ekonomiskt värde år 1",
     maxInvestment: "Maxinvestering vid vald återbetalningstid",
     improvements: "Så förbättras fastigheten",
     selfConsumption: "Egenanvändning",
@@ -253,20 +292,32 @@ const sv: ReportCopy = {
     peak: "Effekttopp",
     shifted: "flyttad solel",
     peakLower: "lägre effekttopp",
+    recommendedBattery: "Rekommenderat batteri",
+    paybackLabel: "Vald återbetalningstid",
+    valueSplit: "Så fördelas det ekonomiska värdet",
+    shiftedSolar: "Flyttad solel",
+    ancillaryShareNote:
+      "Av det beräknade ekonomiska värdet kommer {value} från stödtjänster baserat på historiska marknadspriser.",
   },
 
   benefit: {
-    title: "Beräknad nytta",
-    total: "Total beräknad nytta",
+    title: "Varifrån kommer värdet?",
+    total: "Beräknat ekonomiskt värde år 1",
     energy: "Flyttad solel och minskat elköp",
-    energyHint: "Lagrad solel används när den behövs.",
-    energyNoSolarHint: "Batteriet minskar elköp under dyra timmar.",
+    energyHint:
+      "Batteriet lagrar överskottsproduktion och använder energin när fastigheten behöver den.",
+    energyNoSolarHint:
+      "Batteriet laddas när elen är billigare och används när fastigheten behöver den.",
     peak: "Peak shaving",
-    peakHint: "Kapar effekttoppar och minskar effektavgiften.",
+    peakHint:
+      "Batteriet kan kapa effekttoppar och därmed minska kostnaden där effektavgift används.",
     ancillary: "Stödtjänster",
-    ancillaryHint: "Beräknad ersättning från valda stödtjänster.",
+    ancillaryHint:
+      "Beräknad ersättning från vald stödtjänst baserad på historiska marknadspriser och kalkylens antaganden.",
     none: "Beräkningen ger ingen mätbar ekonomisk nytta med dina nuvarande förutsättningar.",
     note: "Kalkylen avser år 1. Rapporten innehåller ingen flerårsprognos, eftersom beräkningen inte modellerar framtida pris- eller degraderingsutveckling.",
+    historicalBox: "Historisk beräkning – inte garanterad framtida intäkt.",
+    shareOfTotal: "av totalen",
   },
 
   ancillary: {
@@ -274,7 +325,7 @@ const sv: ReportCopy = {
     product: "Vald stödtjänst",
     offered: "Erbjuden effekt",
     reservable: "Fysiskt reserverbar effekt (medel)",
-    technicalTitle: "Tekniska detaljer",
+    technicalTitle: "Tekniskt underlag",
     technicalNote:
       "Fysiskt reserverbar effekt är ett separat genomsnittligt reservabilitetsmått och inte den effekt som ersättningen beräknas på.",
     held: "Hållen effekt (medel)",
@@ -292,6 +343,9 @@ const sv: ReportCopy = {
     customerValue: "Beräknad ersättning till dig",
     priceBasis: "Prisunderlag",
     priceBasisValue: "Historiska marknadspriser",
+    nominalPower: "Batteriets nominella effekt",
+    historicalWarning:
+      "Historisk beräkning – inte garanterad framtida intäkt. Faktisk ersättning beror bland annat på framtida marknadspriser, tillgänglighet, aggregatoravtal och marknadsregler.",
     noPriceData:
       "Ekonomiskt värde kan inte beräknas för den här marknaden eftersom verifierat prisunderlag saknas. Effekt och tillgänglighet är beräknade, men ingen intäkt redovisas.",
     note: "Deltagande förutsätter normalt aggregator, förkvalificering och godkänd anläggning. Faktisk ersättning beror på avtal, marknadstillträde och villkor.",
@@ -420,6 +474,12 @@ const sv: ReportCopy = {
     higher: "Större",
     balance:
       "Mittenalternativet är den storlek beräkningen ger bäst balans mellan batteristorlek och beräknad nytta. Det är inte ett påstående om att det är objektivt bäst i alla avseenden.",
+    consumerExplanation:
+      "Mr. Battery Doc simulerar flera batteristorlekar utifrån fastighetens förbrukning, solproduktion och valda användningsområden. Den rekommenderade storleken ger i detta fall en bra balans mellan batteristorlek och beräknad nytta. Ett större batteri ger begränsad ytterligare nytta och rekommenderas därför inte.",
+    recommendedLabel: "Rekommenderat",
+    powerTitle: "Batteriets effekt: {value}",
+    powerAncillaryExplanation:
+      "Cirka {value} behövs för fastighetens energihantering. Den högre rekommenderade effekten möjliggör större kapacitet för vald stödtjänst.",
   },
 
   energy: {
@@ -428,6 +488,7 @@ const sv: ReportCopy = {
     pv: "Solproduktion",
     importBefore: "Nätimport utan batteri",
     importAfter: "Nätimport med batteri",
+    exportLabel: "Export till nätet",
     exportBefore: "Export utan batteri",
     exportAfter: "Export med batteri",
     selfConsumptionBefore: "Egenanvändning utan batteri",
@@ -461,15 +522,23 @@ const sv: ReportCopy = {
     scenarios: "Maxinvestering vid olika återbetalningstider",
     yourChoice: "Ditt val",
     explanation:
-      "För att nå den valda återbetalningstiden bör den totala investeringen vara högst cirka detta belopp enligt kalkylens antaganden.",
+      "Maxinvesteringen är inte ett uppskattat marknadspris eller en offert. Den visar vilken investeringsnivå som motsvarar vald återbetalningstid utifrån kalkylens beräknade ekonomiska värde.",
     notAQuote:
-      "Beloppet är inte ett uppskattat marknadspris och inte en offert. Det är enbart en följd av den beräknade årliga nyttan och din valda återbetalningstid.",
+      "Beloppet är inte ett uppskattat marknadspris och inte en offert. Det är enbart en följd av det beräknade ekonomiska värdet och din valda återbetalningstid.",
     unavailable:
-      "Maxinvestering kan inte beräknas eftersom beräkningen inte ger någon positiv årlig nytta.",
+      "Maxinvestering kan inte beräknas eftersom beräkningen inte ger något positivt ekonomiskt värde.",
+    headline: "Din riktpunkt för offert",
+    paybackText:
+      "För vald återbetalningstid på {years} ger kalkylen en maximal investering på cirka {amount}.",
+    ancillaryDependencyTitle: "Med och utan stödtjänster",
+    withAncillary: "Ekonomiskt värde med vald stödtjänst",
+    withoutAncillary: "Ekonomiskt värde exklusive stödtjänster",
+    dependencyNote:
+      "Jämförelsen visar hur stor del av kalkylen som är beroende av den beräknade stödtjänstersättningen.",
   },
 
   assumptions: {
-    title: "Viktigaste kalkylantaganden",
+    title: "Dina förutsättningar och kalkylantaganden",
     property: "Fastigheten",
     battery: "Batteriet",
     economy: "Ekonomi",
@@ -578,6 +647,30 @@ const sv: ReportCopy = {
       },
     ],
   },
+
+  about: {
+    pageTitle: "Viktigt att veta",
+    title: "Om rapporten",
+    items: [
+      "Rapporten är ett beslutsunderlag och ska kompletteras med offert och installatörens bedömning på plats.",
+      "Rapporten är inte en offert och säger ingenting om vad ett batteri kostar på marknaden.",
+      "Resultatet är en beräkning utifrån dina uppgifter och kalkylens antaganden, inte en garanti.",
+      "Kalkylen avser år 1.",
+      "Ingen framtida prisutveckling ingår i beräkningen.",
+      "Ingen framtida degradering av batteriet ingår i beräkningen.",
+    ],
+  },
+
+  terms: {
+    kwKwh:
+      "kW är effekt, alltså hur mycket batteriet kan ladda eller ladda ur samtidigt. kWh är energi, alltså hur mycket som kan lagras.",
+    selfConsumption:
+      "Egenanvändning är den andel av solelen som används i fastigheten i stället för att matas ut på nätet.",
+    selfSufficiency:
+      "Självförsörjning är den andel av fastighetens elanvändning som täcks av egen el i stället för av köpt el.",
+    peakShaving:
+      "Peak shaving innebär att batteriet kapar de högsta effekttopparna, vilket kan minska effektavgiften.",
+  },
 };
 
 const en: ReportCopy = {
@@ -611,10 +704,10 @@ const en: ReportCopy = {
   },
 
   summary: {
-    title: "Summary",
+    title: "Your battery recommendation",
     capacity: "Battery capacity",
     power: "Battery power",
-    benefit: "Estimated benefit",
+    benefit: "Estimated economic value, year 1",
     maxInvestment: "Maximum investment at your chosen payback time",
     improvements: "How the property improves",
     selfConsumption: "Self-consumption",
@@ -623,20 +716,32 @@ const en: ReportCopy = {
     peak: "Peak power",
     shifted: "solar shifted",
     peakLower: "lower peak",
+    recommendedBattery: "Recommended battery",
+    paybackLabel: "Chosen payback time",
+    valueSplit: "How the economic value is distributed",
+    shiftedSolar: "Shifted solar",
+    ancillaryShareNote:
+      "Of the estimated economic value, {value} comes from ancillary services based on historical market prices.",
   },
 
   benefit: {
-    title: "Estimated benefit",
-    total: "Total estimated benefit",
+    title: "Where does the value come from?",
+    total: "Estimated economic value, year 1",
     energy: "Shifted solar and reduced electricity purchase",
-    energyHint: "Stored solar is used when it is needed.",
-    energyNoSolarHint: "The battery reduces purchases during expensive hours.",
+    energyHint:
+      "The battery stores surplus production and uses the energy when the property needs it.",
+    energyNoSolarHint:
+      "The battery charges when electricity is cheaper and is used when the property needs it.",
     peak: "Peak shaving",
-    peakHint: "Cuts peak power and reduces the demand charge.",
+    peakHint:
+      "The battery can cut peak power and thereby reduce the cost where a demand charge applies.",
     ancillary: "Ancillary services",
-    ancillaryHint: "Estimated compensation from the selected services.",
+    ancillaryHint:
+      "Estimated compensation from the selected service, based on historical market prices and the assumptions of the calculation.",
     none: "The calculation shows no measurable economic benefit with your current inputs.",
     note: "The calculation covers year 1. The report contains no multi-year forecast, because the calculation does not model future prices or degradation.",
+    historicalBox: "Historical calculation – not a guaranteed future income.",
+    shareOfTotal: "of the total",
   },
 
   ancillary: {
@@ -644,7 +749,7 @@ const en: ReportCopy = {
     product: "Selected service",
     offered: "Offered power",
     reservable: "Physically reservable power (average)",
-    technicalTitle: "Technical details",
+    technicalTitle: "Technical basis",
     technicalNote:
       "Physically reservable power is a separate average reservability measure, not the power the compensation is calculated from.",
     held: "Held power (average)",
@@ -662,6 +767,9 @@ const en: ReportCopy = {
     customerValue: "Estimated compensation to you",
     priceBasis: "Price basis",
     priceBasisValue: "Historical market prices",
+    nominalPower: "Nominal battery power",
+    historicalWarning:
+      "Historical calculation – not a guaranteed future income. Actual compensation depends on future market prices, availability, aggregator agreements and market rules, among other factors.",
     noPriceData:
       "No economic value can be calculated for this market because verified price data is missing. Power and availability are calculated, but no revenue is reported.",
     note: "Participation normally requires an aggregator, prequalification and an approved installation. Actual compensation depends on contract, market access and terms.",
@@ -790,6 +898,12 @@ const en: ReportCopy = {
     higher: "Larger",
     balance:
       "The middle alternative is the size the calculation finds the best balance between battery size and estimated benefit. It is not a claim that it is objectively best in every respect.",
+    consumerExplanation:
+      "Mr. Battery Doc simulates several battery sizes based on the property's consumption, solar production and selected uses. In this case the recommended size gives a good balance between battery size and estimated benefit. A larger battery adds limited further benefit and is therefore not recommended.",
+    recommendedLabel: "Recommended",
+    powerTitle: "Battery power: {value}",
+    powerAncillaryExplanation:
+      "About {value} is needed for the property's energy handling. The higher recommended power enables more capacity for the selected ancillary service.",
   },
 
   energy: {
@@ -798,6 +912,7 @@ const en: ReportCopy = {
     pv: "Solar production",
     importBefore: "Grid import without battery",
     importAfter: "Grid import with battery",
+    exportLabel: "Grid export",
     exportBefore: "Export without battery",
     exportAfter: "Export with battery",
     selfConsumptionBefore: "Self-consumption without battery",
@@ -831,15 +946,23 @@ const en: ReportCopy = {
     scenarios: "Maximum investment at different payback times",
     yourChoice: "Your choice",
     explanation:
-      "To reach the chosen payback time, the total investment should be at most approximately this amount according to the assumptions of the calculation.",
+      "The maximum investment is not an estimated market price or a quote. It shows the investment level that matches your chosen payback time, based on the economic value the calculation produces.",
     notAQuote:
-      "The amount is not an estimated market price and not a quote. It only follows from the calculated annual benefit and your chosen payback time.",
+      "The amount is not an estimated market price and not a quote. It only follows from the estimated economic value and your chosen payback time.",
     unavailable:
-      "Maximum investment cannot be calculated because the calculation shows no positive annual benefit.",
+      "Maximum investment cannot be calculated because the calculation shows no positive economic value.",
+    headline: "Your reference point for a quote",
+    paybackText:
+      "For a chosen payback time of {years}, the calculation gives a maximum investment of approximately {amount}.",
+    ancillaryDependencyTitle: "With and without ancillary services",
+    withAncillary: "Economic value with the selected ancillary service",
+    withoutAncillary: "Economic value excluding ancillary services",
+    dependencyNote:
+      "The comparison shows how much of the calculation depends on the estimated ancillary compensation.",
   },
 
   assumptions: {
-    title: "Key calculation assumptions",
+    title: "Your inputs and calculation assumptions",
     property: "The property",
     battery: "The battery",
     economy: "Economy",
@@ -947,6 +1070,30 @@ const en: ReportCopy = {
         a: "No. The report is decision support and should be complemented with a quote and an on-site assessment.",
       },
     ],
+  },
+
+  about: {
+    pageTitle: "Important to know",
+    title: "About this report",
+    items: [
+      "The report is decision support and should be complemented with a quote and an on-site assessment.",
+      "The report is not a quote and says nothing about what a battery costs on the market.",
+      "The result is a calculation based on your inputs and the assumptions of the calculation, not a guarantee.",
+      "The calculation covers year 1.",
+      "No future price development is included in the calculation.",
+      "No future battery degradation is included in the calculation.",
+    ],
+  },
+
+  terms: {
+    kwKwh:
+      "kW is power, how much the battery can charge or discharge at once. kWh is energy, how much it can store.",
+    selfConsumption:
+      "Self-consumption is the share of solar production used in the property instead of exported to the grid.",
+    selfSufficiency:
+      "Self-sufficiency is the share of the property's electricity use covered by own electricity instead of purchased electricity.",
+    peakShaving:
+      "Peak shaving means the battery cuts the highest peaks, which can reduce the demand charge.",
   },
 };
 

@@ -322,6 +322,73 @@ function panel(stack: Node[], fill: string, bottom: number): Node {
   };
 }
 
+/**
+ * Value split: one row per benefit component with amount, share and a short bar.
+ * The bar length mirrors the share the model already computed; a component without a
+ * share (not priced, or negative) simply gets no bar.
+ */
+function distribution(block: Extract<ReportBlock, { kind: "distribution" }>): Node {
+  const BAR_W = CONTENT_W - 24;
+  return {
+    stack: block.items.map((item) => {
+      const pct = item.sharePct === null ? 0 : Math.max(0, Math.min(100, item.sharePct));
+      return panel(
+        [
+          {
+            columns: [
+              { width: "*", text: item.label, fontSize: 10, bold: true },
+              {
+                width: "auto",
+                text: item.value,
+                fontSize: 10,
+                bold: true,
+                alignment: "right",
+              },
+            ],
+            margin: [0, 0, 0, 6],
+          },
+          {
+            canvas: [
+              { type: "rect", x: 0, y: 0, w: BAR_W, h: 6, r: 3, color: REPORT_COLORS.page },
+              ...(pct > 0
+                ? [
+                    {
+                      type: "rect",
+                      x: 0,
+                      y: 0,
+                      w: Math.max(4, (BAR_W * pct) / 100),
+                      h: 6,
+                      r: 3,
+                      color: REPORT_COLORS.primary,
+                    },
+                  ]
+                : []),
+            ],
+            margin: [0, 0, 0, 5],
+          },
+          ...(item.share
+            ? [{ text: item.share, fontSize: 8.5, color: REPORT_COLORS.muted }]
+            : []),
+          ...(item.hint
+            ? [
+                {
+                  text: item.hint,
+                  fontSize: 9,
+                  lineHeight: 1.35,
+                  color: REPORT_COLORS.muted,
+                  margin: [0, 4, 0, 0],
+                },
+              ]
+            : []),
+        ],
+        REPORT_COLORS.zebra,
+        9,
+      );
+    }),
+    margin: [0, 0, 0, 4],
+  };
+}
+
 function renderBlock(model: ReportModel, block: ReportBlock): Node {
   switch (block.kind) {
     case "cards":
@@ -334,6 +401,8 @@ function renderBlock(model: ReportModel, block: ReportBlock): Node {
       return beforeAfter(block);
     case "alternatives":
       return alternatives(block);
+    case "distribution":
+      return distribution(block);
     case "hero":
       return hero(block);
     case "subheading":
@@ -439,16 +508,23 @@ export function buildDocDefinition(model: ReportModel): Record<string, unknown> 
   ];
 
   let first = true;
+  let firstNode = true;
   for (const section of model.sections) {
+    const hardBreak = section.pageBreak && !firstNode;
     if (section.title) {
       const [title, rule] = sectionTitle(section.title, first || section.pageBreak);
-      content.push({ ...title, ...(section.pageBreak ? { headlineLevel: 1 } : {}) });
+      content.push({ ...title, ...(hardBreak ? { pageBreak: "before" } : {}) });
       content.push(rule as Node);
       first = false;
-    } else if (section.pageBreak) {
-      content.push({ text: "", headlineLevel: 1 });
+      firstNode = false;
+    } else if (hardBreak) {
+      content.push({ text: "", pageBreak: "before" });
+      firstNode = false;
     }
-    for (const block of section.blocks) content.push(sanitizeGlyphs(renderBlock(model, block)));
+    for (const block of section.blocks) {
+      content.push(sanitizeGlyphs(renderBlock(model, block)));
+      firstNode = false;
+    }
   }
 
   return {
