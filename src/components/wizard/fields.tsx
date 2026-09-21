@@ -70,6 +70,7 @@ export function SectionCard({
       {children ? (
         <div className={title || description ? (compact ? "mt-1.5 space-y-1.5" : "mt-3 space-y-3") : compact ? "space-y-1.5" : "space-y-3"}>{children}</div>
       ) : null}
+      <CardFlowFooter />
     </section>
   );
 }
