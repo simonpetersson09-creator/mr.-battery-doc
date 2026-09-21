@@ -72,7 +72,7 @@ export function SectionCard({
       {children ? (
         <fieldset
           disabled={locked}
-          inert={locked ? "" : undefined}
+          inert={locked || undefined}
           aria-disabled={locked || undefined}
           className={
             (title || description ? (compact ? "mt-1.5 space-y-1.5" : "mt-3 space-y-3") : compact ? "space-y-1.5" : "space-y-3") +
