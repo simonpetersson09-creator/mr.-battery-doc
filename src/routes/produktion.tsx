@@ -123,7 +123,7 @@ function ProductionStep() {
   );
 
   const annualCard = (
-    <SectionCard compact icon={<SunMedium />} title={t("production.plant.annual")}>
+    <SectionCard compact icon={<SunMedium />} title={t("production.plant.annual")} canConfirm={choice === "annual" ? p.annualKwh !== null && !fieldError.annualKwh : !fieldError.monthlyKwh}>
       {choice === "annual" ? (
         <NumberField
           label={t("production.plant.annual")}
@@ -142,7 +142,7 @@ function ProductionStep() {
   );
 
   const plantCard = (
-    <SectionCard compact icon={<Zap />} title={t("production.plant.title")}>
+    <SectionCard compact icon={<Zap />} title={t("production.plant.title")} canConfirm={p.dcKwp !== null && p.acKw !== null && !fieldError.dcKwp && !fieldError.acKw}>
       <div className="grid grid-cols-2 gap-2.5">
         <NumberField
           label={t("production.plant.dcKwpShort")}
@@ -247,6 +247,7 @@ function ProductionStep() {
               compact
               icon={<CalendarRange />}
               title={t("production.monthly.monthsTitle")}
+              canConfirm={!fieldError.monthlyKwh && p.monthlyKwh.every((v) => typeof v === "number" && Number.isFinite(v))}
             >
               <MonthGrid
                 values={p.monthlyKwh}

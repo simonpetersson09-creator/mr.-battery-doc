@@ -131,7 +131,7 @@ function ConsumptionStep() {
       </SectionCard>
 
       {c.mode === "annual" ? (
-        <SectionCard compact icon={<Gauge />} title={t("consumption.annual.title")}>
+        <SectionCard compact icon={<Gauge />} title={t("consumption.annual.title")} canConfirm={c.annualKwh !== null && !fieldError.annualKwh}>
           <NumberField
             label={t("consumption.annual.label")}
             unit={t("units.kwhPerYear")}
@@ -160,7 +160,7 @@ function ConsumptionStep() {
             />
           </SectionCard>
           {!importOpen && hasImported ? (
-            <SectionCard compact icon={<CalendarRange />} title={t("consumption.monthly.monthsTitle")}>
+            <SectionCard compact icon={<CalendarRange />} title={t("consumption.monthly.monthsTitle")} canConfirm={!fieldError.monthlyKwh && c.monthlyKwh.every((v) => typeof v === "number" && Number.isFinite(v))}>
               <MonthGrid
                 values={c.monthlyKwh}
                 onChange={(i, v) =>
@@ -188,7 +188,7 @@ function ProfilePicker({ error }: { error: string | null }) {
     ? getProfile(state.consumption.profileId)
     : null;
   return (
-    <SectionCard compact icon={<Activity />} title={t("consumption.profile.title")}>
+    <SectionCard compact icon={<Activity />} title={t("consumption.profile.title")} canConfirm={!!selected && !error}>
       <Select
         value={state.consumption.profileId ?? ""}
         onValueChange={(v) =>
