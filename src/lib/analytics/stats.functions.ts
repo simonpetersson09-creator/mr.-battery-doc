@@ -79,7 +79,6 @@ export const loadUsageStats = createServerFn({ method: "POST" })
     days: Math.min(Math.max(Number(input?.days ?? 30) || 30, 1), 365),
   }))
   .handler(async ({ data }): Promise<{ ok: false } | { ok: true; stats: StatsResult }> => {
-    if (!import.meta.env.DEV) return { ok: false };
     const expected = process.env["ANALYTICS_PIN"] ?? "";
     if (!expected || data.pin.length !== expected.length || data.pin !== expected) {
       // Slow down brute-force guessing of a 4-digit code.
