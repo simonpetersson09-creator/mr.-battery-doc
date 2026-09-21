@@ -137,6 +137,7 @@ function ConsumptionStep() {
             value={c.annualKwh}
             placeholder={t("consumption.annual.placeholder")}
             compact
+            dense
             error={fieldError.annualKwh}
             reminder={t("validation.reminder")}
             onChange={(v) =>
