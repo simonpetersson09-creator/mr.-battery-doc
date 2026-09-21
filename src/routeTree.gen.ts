@@ -19,6 +19,7 @@ import { Route as InstallningarRouteImport } from './routes/installningar'
 import { Route as NatRouteImport } from './routes/nat'
 import { Route as ProduktionRouteImport } from './routes/produktion'
 import { Route as ResultatRouteImport } from './routes/resultat'
+import { Route as StatistikRouteImport } from './routes/statistik'
 import { Route as ApiPublicExtractMonthlyRouteImport } from './routes/api/public/extract-monthly'
 import { Route as ApiPublicVerifyPurchaseRouteImport } from './routes/api/public/verify-purchase'
 
@@ -72,6 +73,11 @@ const ResultatRoute = ResultatRouteImport.update({
   path: '/resultat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StatistikRoute = StatistikRouteImport.update({
+  id: '/statistik',
+  path: '/statistik',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicExtractMonthlyRoute = ApiPublicExtractMonthlyRouteImport.update({
   id: '/api/public/extract-monthly',
   path: '/api/public/extract-monthly',
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/nat': typeof NatRoute
   '/produktion': typeof ProduktionRoute
   '/resultat': typeof ResultatRoute
+  '/statistik': typeof StatistikRoute
   '/api/public/extract-monthly': typeof ApiPublicExtractMonthlyRoute
   '/api/public/verify-purchase': typeof ApiPublicVerifyPurchaseRoute
 }
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/nat': typeof NatRoute
   '/produktion': typeof ProduktionRoute
   '/resultat': typeof ResultatRoute
+  '/statistik': typeof StatistikRoute
   '/api/public/extract-monthly': typeof ApiPublicExtractMonthlyRoute
   '/api/public/verify-purchase': typeof ApiPublicVerifyPurchaseRoute
 }
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/nat': typeof NatRoute
   '/produktion': typeof ProduktionRoute
   '/resultat': typeof ResultatRoute
+  '/statistik': typeof StatistikRoute
   '/api/public/extract-monthly': typeof ApiPublicExtractMonthlyRoute
   '/api/public/verify-purchase': typeof ApiPublicVerifyPurchaseRoute
 }
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/nat'
     | '/produktion'
     | '/resultat'
+    | '/statistik'
     | '/api/public/extract-monthly'
     | '/api/public/verify-purchase'
   fileRoutesByTo: FileRoutesByTo
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/nat'
     | '/produktion'
     | '/resultat'
+    | '/statistik'
     | '/api/public/extract-monthly'
     | '/api/public/verify-purchase'
   id:
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/nat'
     | '/produktion'
     | '/resultat'
+    | '/statistik'
     | '/api/public/extract-monthly'
     | '/api/public/verify-purchase'
   fileRoutesById: FileRoutesById
@@ -182,6 +194,7 @@ export interface RootRouteChildren {
   NatRoute: typeof NatRoute
   ProduktionRoute: typeof ProduktionRoute
   ResultatRoute: typeof ResultatRoute
+  StatistikRoute: typeof StatistikRoute
   ApiPublicExtractMonthlyRoute: typeof ApiPublicExtractMonthlyRoute
   ApiPublicVerifyPurchaseRoute: typeof ApiPublicVerifyPurchaseRoute
 }
@@ -258,6 +271,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResultatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/statistik': {
+      id: '/statistik'
+      path: '/statistik'
+      fullPath: '/statistik'
+      preLoaderRoute: typeof StatistikRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/extract-monthly': {
       id: '/api/public/extract-monthly'
       path: '/api/public/extract-monthly'
@@ -286,6 +306,7 @@ const rootRouteChildren: RootRouteChildren = {
   NatRoute: NatRoute,
   ProduktionRoute: ProduktionRoute,
   ResultatRoute: ResultatRoute,
+  StatistikRoute: StatistikRoute,
   ApiPublicExtractMonthlyRoute: ApiPublicExtractMonthlyRoute,
   ApiPublicVerifyPurchaseRoute: ApiPublicVerifyPurchaseRoute,
 }
