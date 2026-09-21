@@ -12,6 +12,8 @@ export interface ReportCopy {
   created: string;
   perYear: string;
   reportIdLabel: string;
+  pageLabel: string;
+  ofLabel: string;
   engineVersionLabel: string;
   notAvailable: string;
   cannotBeCalculated: string;
@@ -267,12 +269,14 @@ const sv: ReportCopy = {
   created: "Skapad",
   perYear: "/år",
   reportIdLabel: "Rapport-ID",
+  pageLabel: "Sida",
+  ofLabel: "av",
   engineVersionLabel: "Beräkningsversion",
   notAvailable: "Uppgift saknas",
   cannotBeCalculated: "Kan inte beräknas",
   before: "Utan batteri",
   after: "Med batteri",
-  tagline: "Ett smartare sätt att använda din el",
+  tagline: "Ett smartare sätt att använda din solel",
   footerTagline: "Bättre beslut för en ljusare framtid",
 
   source: {
@@ -294,7 +298,7 @@ const sv: ReportCopy = {
   },
 
   summary: {
-    title: "Din batterirekommendation",
+    title: "Sammanfattning",
     capacity: "Batterikapacitet",
     power: "Batterieffekt",
     benefit: "Beräknat ekonomiskt värde år 1",
@@ -316,7 +320,7 @@ const sv: ReportCopy = {
     improvementsSubtitle:
       "Batteriet gör att du använder mer av din egen el och minskar ditt elköp.",
     selfConsumptionHint: "Andel av solelen som används direkt i fastigheten.",
-    selfSufficiencyHint: "Andel av fastighetens elanvändning som täcks av egen el.",
+    selfSufficiencyHint: "Andel av elanvändningen som täcks av egen el.",
     gridImportHint: "El som köps från elnätet.",
     shiftedSolarHint:
       "Mer av din egen solproduktion används i fastigheten i stället för att matas ut på nätet.",
@@ -703,6 +707,8 @@ const en: ReportCopy = {
   created: "Created",
   perYear: "/yr",
   reportIdLabel: "Report ID",
+  pageLabel: "Page",
+  ofLabel: "of",
   engineVersionLabel: "Calculation version",
   notAvailable: "Not available",
   cannotBeCalculated: "Cannot be calculated",
@@ -730,7 +736,7 @@ const en: ReportCopy = {
   },
 
   summary: {
-    title: "Your battery recommendation",
+    title: "Summary",
     capacity: "Battery capacity",
     power: "Battery power",
     benefit: "Estimated economic value, year 1",
@@ -752,7 +758,7 @@ const en: ReportCopy = {
     improvementsSubtitle:
       "The battery lets you use more of your own electricity and buy less from the grid.",
     selfConsumptionHint: "Share of the solar electricity used directly in the property.",
-    selfSufficiencyHint: "Share of the property's electricity use covered by your own electricity.",
+    selfSufficiencyHint: "Share of electricity use covered by your own electricity.",
     gridImportHint: "Electricity bought from the grid.",
     shiftedSolarHint:
       "More of your own solar production is used in the property instead of being exported to the grid.",
