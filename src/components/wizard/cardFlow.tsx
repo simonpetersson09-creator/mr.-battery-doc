@@ -42,24 +42,44 @@ function flatten(children: ReactNode): ReactNode[] {
   return out;
 }
 
+/**
+ * Session memory of confirmed cards, keyed by step path. Survives in-app
+ * navigation (leaving a step and coming back) without touching the persisted
+ * wizard schema. "Börja om" reloads the page, which clears it too.
+ */
+const flowMemory = new Map<string, number[]>();
+
 export function CardFlow({
   children,
   className,
   onProgress,
+  flowId,
 }: {
   children: ReactNode;
   className?: string;
   /** Reports confirmed/total card counts so the page footer can mirror them. */
   onProgress?: (progress: { done: number; total: number }) => void;
+  /** Stable id (step path) used to restore confirmed cards on return visits. */
+  flowId?: string;
 }) {
   const items = flatten(children);
-  const [active, setActive] = useState(0);
-  const [done, setDone] = useState<Set<number>>(() => new Set());
+  const [active, setActive] = useState(() => {
+    if (!flowId) return 0;
+    const restored = new Set(flowMemory.get(flowId) ?? []);
+    for (let i = 0; i < items.length; i++) if (!restored.has(i)) return i;
+    return Math.max(0, items.length - 1);
+  });
+  const [done, setDone] = useState<Set<number>>(() => {
+    if (!flowId) return new Set();
+    // Ignore stale indices if the card count changed since the last visit.
+    return new Set((flowMemory.get(flowId) ?? []).filter((i) => i < items.length));
+  });
   const refs = useRef<Array<HTMLDivElement | null>>([]);
 
   useEffect(() => {
+    if (flowId) flowMemory.set(flowId, [...done]);
     onProgress?.({ done: done.size, total: items.length });
-  }, [done, items.length, onProgress]);
+  }, [done, items.length, onProgress, flowId]);
 
   const confirm = (index: number) => {
     const wasDone = done.has(index);
