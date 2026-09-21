@@ -681,4 +681,13 @@ export const en = {
       p3: "History and settings are stored only in the device's local storage and are deleted if the app is removed.",
     },
   },
+  adjustment: {
+    title: "Adjustment left",
+    body: "You have {{count}} adjustments left from your latest purchase. They expire in {{time}}.",
+    continue: "Continue",
+    hours: "hours",
+    minutes: "minutes",
+    and: "and",
+    lessThanMinute: "less than a minute",
+  },
 } as const;
