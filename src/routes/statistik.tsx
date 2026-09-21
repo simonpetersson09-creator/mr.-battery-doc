@@ -5,7 +5,7 @@
  * get stuck and how many buy a report. All data is anonymous; the PIN is
  * verified on the server, never in the browser.
  */
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Delete, Loader2, Lock, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -22,6 +22,9 @@ export const Route = createFileRoute("/statistik")({
       { name: "robots", content: "noindex" },
     ],
   }),
+  beforeLoad: () => {
+    if (!import.meta.env.DEV) throw redirect({ to: "/" });
+  },
   component: StatsPage,
 });
 
