@@ -1,6 +1,6 @@
 import { getCalculation } from "@/lib/access/calculationCache";
-import { defaultWizardState } from "@/state/wizard";
-const s: any = JSON.parse(JSON.stringify(defaultWizardState));
+import { createInitialState } from "@/state/wizard";
+const s: any = JSON.parse(JSON.stringify(createInitialState("SE")));
 s.grid.mainFuseA = 200;
 s.consumption.mode = "annual";
 s.consumption.annualKwh = 0;
