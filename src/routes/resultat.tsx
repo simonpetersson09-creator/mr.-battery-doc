@@ -1096,7 +1096,7 @@ function BenefitDistribution({
       </div>
       <div className="mt-2 flex items-baseline justify-between gap-3 border-t border-foreground/10 pt-1.5 text-[12px] font-semibold">
         <span>{totalLabel}</span>
-        <span className="tabular-nums">{money(breakdown.totalCustomerBenefitSek)}</span>
+        <span className="tabular-nums"><CountUpValue value={breakdown.totalCustomerBenefitSek} format={(v) => money(v)} /></span>
       </div>
     </div>
   );
