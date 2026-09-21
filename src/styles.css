@@ -150,6 +150,8 @@
   --warning-foreground: var(--brand-black);
   --toggle-on: oklch(0.6 0.11 155);
   --toggle-off: oklch(0.62 0.1 28);
+  --done-fill: oklch(0.82 0.07 152);
+  --done-foreground: var(--brand-black);
 
   --border: oklch(0.912 0.008 95);
   --input: oklch(0.912 0.008 95);
@@ -211,6 +213,8 @@ html[data-native="true"] {
   --warning-foreground: var(--brand-black);
   --toggle-on: oklch(0.64 0.11 155);
   --toggle-off: oklch(0.66 0.1 28);
+  --done-fill: oklch(0.52 0.07 152);
+  --done-foreground: oklch(0.985 0.004 95);
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 16%);
   --ring: var(--brand-yellow);
