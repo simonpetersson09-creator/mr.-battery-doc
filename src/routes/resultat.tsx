@@ -1031,8 +1031,8 @@ function BeforeAfter({
   after,
 }: {
   label: string;
-  before: string;
-  after: string;
+  before: React.ReactNode;
+  after: React.ReactNode;
 }) {
   return (
     <div className="flex items-center justify-between gap-4 text-[12px] font-medium">
