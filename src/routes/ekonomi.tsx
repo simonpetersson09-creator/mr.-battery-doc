@@ -73,6 +73,8 @@ function EconomyStep() {
   const validity = economyValidity.ok ? paybackValidity : economyValidity;
 
   return (
+    <>
+    <SimulatingOverlay active={calculating} done={calcDone} />
     <WizardShell
       compact
       cardFlow
