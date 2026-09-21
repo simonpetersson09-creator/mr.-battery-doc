@@ -1139,7 +1139,19 @@ const en: ReportCopy = {
   },
 };
 
-/** Swedish is the source language; every other UI language falls back to English. */
+/** Swedish is the source language; unknown languages fall back to English. */
 export function getReportCopy(language: string): ReportCopy {
-  return language === "sv" ? sv : en;
+  switch (language) {
+    case "sv":
+      return sv;
+    case "da":
+      return da;
+    case "fi":
+      return fiCopy;
+    case "de":
+      return deCopy;
+    default:
+      return en;
+  }
 }
+
