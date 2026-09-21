@@ -11,6 +11,7 @@ export const fi = {
     restart: "Aloita alusta",
     locked: "Lukittu",
     step: "Vaihe {{current}} / {{total}}",
+    mostCommon: "Yleisin",
   },
   language: {
     title: "Kieli",
@@ -133,7 +134,7 @@ export const fi = {
       monthsTitle: "Tuodut kuukausitiedot",
     },
     profile: {
-      title: "Milloin käytät eniten sähköä?",
+      title: "Milloin käytät eniten sähköä? (päiväprofiili)",
       placeholder: "Valitse profiili",
       chartCaption: "Tyypillinen arkipäivä",
       chartPeaks: "Huiput",

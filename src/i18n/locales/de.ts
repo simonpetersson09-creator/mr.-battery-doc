@@ -11,6 +11,7 @@ export const de = {
     restart: "Neu beginnen",
     locked: "Gesperrt",
     step: "Schritt {{current}} von {{total}}",
+    mostCommon: "Am häufigsten",
   },
   language: {
     title: "Sprache",
@@ -135,7 +136,7 @@ export const de = {
       monthsTitle: "Importierte monatliche Daten",
     },
     profile: {
-      title: "Wann verbrauchen Sie am meisten Strom?",
+      title: "Wann verbrauchen Sie am meisten Strom? (Tagesprofil)",
       placeholder: "Profil wählen",
       chartCaption: "Typischer Werktag",
       chartPeaks: "Spitzen",
