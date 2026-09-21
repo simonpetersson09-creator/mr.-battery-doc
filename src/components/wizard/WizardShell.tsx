@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Check } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { markStepEntered, track } from "@/lib/analytics/track";
 import { WIZARD_STEPS } from "./steps";
 import { CardFlow, clearFlowMemory } from "./cardFlow";
 import { useWizard } from "@/state/wizard";
