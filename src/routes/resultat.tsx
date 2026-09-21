@@ -108,7 +108,6 @@ function ResultStep() {
   const money = (v: number | null) => (v === null ? "—" : formatMoney(v, countryCode, 0));
   const moneyPerYear = (v: number | null) =>
     v === null ? "—" : `${formatMoney(v, countryCode, 0)}${t("units.perYear")}`;
-  const navigate = useNavigate();
   /*
     Single integration point: wizard -> adapter -> frozen Battery Engine.
     The calculation ran when the user left step 5; this reads the cached outcome
