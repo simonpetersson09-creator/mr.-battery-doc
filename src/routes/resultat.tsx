@@ -709,7 +709,7 @@ function ResultStep() {
                       ? t("results.benefit.energyHintSolar")
                       : t("results.benefit.energyHintNoSolar")
                   }
-                  value={moneyPerYear(s.economy.energyBenefitSek)}
+                  value={<CountUpValue value={s.economy.energyBenefitSek} format={(v) => moneyPerYear(v)} />}
                 />
               ) : null}
               {p.showDemandSavingRow ? (
