@@ -50,18 +50,14 @@ export function HighlightedSlider({
         aria-label={ariaLabel}
         onValueChange={onValueChange}
       />
-      {/* green triangle markers at the common-range boundaries — painted on
+      {/* green tick marks at the common-range boundaries — painted on
           top of the slider so they stay visible even under the filled track. */}
       {[leftPct, rightPct].map((pct, i) => (
         <span
           key={i}
-          className="pointer-events-none absolute top-0 z-10 -translate-x-1/2"
+          className="pointer-events-none absolute top-1/2 z-10 h-3 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/70"
           style={{ left: `${pct}%` }}
-        >
-          <svg width="8" height="5" viewBox="0 0 8 5" fill="none" aria-hidden="true">
-            <path d="M4 5L0 0H8L4 5Z" fill="#10b981" fillOpacity="0.7" />
-          </svg>
-        </span>
+        />
       ))}
     </div>
   );
