@@ -71,6 +71,9 @@ function AnimatedStats({ t }: { t: ReturnType<typeof useT> }) {
 
 function Welcome() {
   const t = useT();
+  useEffect(() => {
+    track("app_open", { once: true });
+  }, []);
   return (
     <div className="app-shell surface-sun min-h-dvh max-w-md flex flex-col px-5 pt-safe pb-safe">
       <div className="flex flex-1 flex-col items-center justify-center text-center">
