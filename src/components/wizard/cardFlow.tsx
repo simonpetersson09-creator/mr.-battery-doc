@@ -81,10 +81,22 @@ export function CardFlow({
   });
   const refs = useRef<Array<HTMLDivElement | null>>([]);
 
+  // The visible cards can change while the user edits (e.g. choosing "no solar"
+  // removes the cards below). Drop confirmations that no longer point at a card
+  // so the page counter can still reach done === total.
+  useEffect(() => {
+    setDone((prev) => {
+      const next = new Set([...prev].filter((i) => i < items.length));
+      return next.size === prev.size ? prev : next;
+    });
+    setActive((a) => Math.min(a, Math.max(0, items.length - 1)));
+  }, [items.length]);
+
   useEffect(() => {
     if (flowId) flowMemory.set(flowId, [...done]);
     onProgress?.({ done: done.size, total: items.length });
   }, [done, items.length, onProgress, flowId]);
+
 
   const confirm = (index: number) => {
     const wasDone = done.has(index);
