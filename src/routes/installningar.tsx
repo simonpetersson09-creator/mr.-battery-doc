@@ -249,7 +249,7 @@ function SettingsPage() {
         </section>
 
         {/* Action rows */}
-        <div className="mt-2 space-y-1.5">
+        <div className="mt-1.5 space-y-1.5">
           <button
             type="button"
             className="flex w-full items-center gap-3 rounded-[1rem] border border-border bg-card px-3 py-2.5 text-left"
