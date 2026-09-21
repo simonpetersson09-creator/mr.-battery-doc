@@ -818,7 +818,7 @@ function ResultStep() {
                         ) : null}
                       </span>
                       <span className="shrink-0 font-semibold tabular-nums">
-                        {money((maxInvestment / targetYears) * y)}
+                        <CountUpValue value={(maxInvestment / targetYears) * y} format={(v) => money(v)} />
                       </span>
                     </div>
                   );
