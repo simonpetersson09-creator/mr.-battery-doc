@@ -71,7 +71,7 @@ function Welcome() {
   const t = useT();
   return (
     <div className="app-shell surface-sun min-h-dvh max-w-md flex flex-col px-5 pt-safe pb-safe">
-      <div className="flex flex-1 flex-col items-center justify-start pt-1 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center text-center">
         <h1 className="sr-only">Mr. Battery Doc</h1>
         <img
           src={logo}
@@ -109,8 +109,9 @@ function Welcome() {
         </ul>
 
         <AnimatedStats t={t} />
+      </div>
 
-        <div className="mt-6 flex w-full items-stretch gap-2">
+      <div className="flex w-full items-stretch gap-2 pt-6">
           <Button
             asChild
             variant="secondary"
@@ -131,8 +132,7 @@ function Welcome() {
               <ArrowRight className="size-4" />
             </Link>
           </Button>
-          <LanguageSelect />
-        </div>
+        <LanguageSelect />
       </div>
     </div>
   );
