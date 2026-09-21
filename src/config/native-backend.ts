@@ -19,8 +19,15 @@ import { isNativePlatform } from "@/lib/platform/runtime";
 
 const configured = (import.meta.env["VITE_NATIVE_BACKEND_URL"] as string | undefined) ?? "";
 
+/**
+ * Published origin the native app talks to when no override is configured. Without
+ * this default an iOS build silently had no backend at all and the monthly import
+ * could never complete.
+ */
+const PUBLISHED_BACKEND_URL = "https://battery-buddy-wizard.lovable.app";
+
 /** Published HTTPS origin used by native builds. Empty string = not configured yet. */
-export const NATIVE_BACKEND_URL = configured.replace(/\/+$/, "");
+export const NATIVE_BACKEND_URL = (configured || PUBLISHED_BACKEND_URL).replace(/\/+$/, "");
 
 export function isNativeBackendConfigured(): boolean {
   return /^https:\/\//i.test(NATIVE_BACKEND_URL);
