@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Check } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { DecimalInput } from "./DecimalInput";
+import { CardFlowFooter } from "./cardFlow";
 
 /**
  * Short inline error shown right below the field it belongs to.
@@ -70,6 +71,7 @@ export function SectionCard({
       {children ? (
         <div className={title || description ? (compact ? "mt-1.5 space-y-1.5" : "mt-3 space-y-3") : compact ? "space-y-1.5" : "space-y-3"}>{children}</div>
       ) : null}
+      <CardFlowFooter />
     </section>
   );
 }

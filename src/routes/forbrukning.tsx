@@ -89,6 +89,7 @@ function ConsumptionStep() {
       nextDisabled={!validity.ok}
       nextBlockedReason={validity.message}
       compact
+      cardFlow
     >
       <SectionCard compact icon={<ListChecks />} title={t("consumption.modeTitle")}>
         <Select
