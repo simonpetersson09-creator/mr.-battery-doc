@@ -41,6 +41,7 @@ import { currentLanguage, formatNumber, useT } from "@/i18n";
 import { reserveProductName } from "@/i18n/labels";
 import { PDF_REPORT_AVAILABLE, generatePdfReport } from "@/lib/report/pdfReport";
 import { scheduleAppReview } from "@/lib/rating/inAppReview";
+import { track } from "@/lib/analytics/track";
 import { useWizard } from "@/state/wizard";
 
 const RESULT_CARD_TITLE_CLASS = "font-display text-[14px] font-semibold";
