@@ -17,6 +17,10 @@ export interface ReportCopy {
   cannotBeCalculated: string;
   before: string;
   after: string;
+  /** Brand line in the report header. */
+  tagline: string;
+  /** Brand line in the page footer. */
+  footerTagline: string;
 
   source: {
     user: string;
@@ -52,6 +56,14 @@ export interface ReportCopy {
     valueSplit: string;
     shiftedSolar: string;
     ancillaryShareNote: string;
+    subtitle: string;
+    improvementsSubtitle: string;
+    selfConsumptionHint: string;
+    selfSufficiencyHint: string;
+    gridImportHint: string;
+    shiftedSolarHint: string;
+    percentagePoints: string;
+    perYearLong: string;
   };
 
   benefit: {
@@ -260,6 +272,8 @@ const sv: ReportCopy = {
   cannotBeCalculated: "Kan inte beräknas",
   before: "Utan batteri",
   after: "Med batteri",
+  tagline: "Ett smartare sätt att använda din el",
+  footerTagline: "Bättre beslut för en ljusare framtid",
 
   source: {
     user: "Ditt värde",
@@ -298,6 +312,16 @@ const sv: ReportCopy = {
     shiftedSolar: "Flyttad solel",
     ancillaryShareNote:
       "Av det beräknade ekonomiska värdet kommer {value} från stödtjänster baserat på historiska marknadspriser.",
+    subtitle: "Rekommenderat batteri och beräknat värde för din fastighet",
+    improvementsSubtitle:
+      "Batteriet gör att du använder mer av din egen el och minskar ditt elköp.",
+    selfConsumptionHint: "Andel av solelen som används direkt i fastigheten.",
+    selfSufficiencyHint: "Andel av fastighetens elanvändning som täcks av egen el.",
+    gridImportHint: "El som köps från elnätet.",
+    shiftedSolarHint:
+      "Mer av din egen solproduktion används i fastigheten i stället för att matas ut på nätet.",
+    percentagePoints: "procentenheter",
+    perYearLong: "per år",
   },
 
   benefit: {
@@ -684,6 +708,8 @@ const en: ReportCopy = {
   cannotBeCalculated: "Cannot be calculated",
   before: "Without battery",
   after: "With battery",
+  tagline: "A smarter way to use your electricity",
+  footerTagline: "Better decisions for a brighter future",
 
   source: {
     user: "Your value",
@@ -722,6 +748,16 @@ const en: ReportCopy = {
     shiftedSolar: "Shifted solar",
     ancillaryShareNote:
       "Of the estimated economic value, {value} comes from ancillary services based on historical market prices.",
+    subtitle: "Recommended battery and estimated value for your property",
+    improvementsSubtitle:
+      "The battery lets you use more of your own electricity and buy less from the grid.",
+    selfConsumptionHint: "Share of the solar electricity used directly in the property.",
+    selfSufficiencyHint: "Share of the property's electricity use covered by your own electricity.",
+    gridImportHint: "Electricity bought from the grid.",
+    shiftedSolarHint:
+      "More of your own solar production is used in the property instead of being exported to the grid.",
+    percentagePoints: "percentage points",
+    perYearLong: "per year",
   },
 
   benefit: {

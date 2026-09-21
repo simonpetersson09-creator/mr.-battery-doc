@@ -45,10 +45,31 @@ export interface ReportRow {
   hint?: string;
 }
 
+/** Line icon drawn in the small round yellow container of a card. */
+export type ReportIcon =
+  | "battery"
+  | "bolt"
+  | "coin"
+  | "chart"
+  | "house"
+  | "leaf"
+  | "grid"
+  | "flow";
+
 export interface ReportBeforeAfterRow {
   label: string;
   before: string;
   after: string;
+  /** Short consumer explanation under the label. */
+  hint?: string;
+  /** Change between before and after, already formatted (e.g. "+23 procentenheter"). */
+  delta?: string;
+  /** True when the change is an improvement; rendered in green. */
+  improved?: boolean;
+  icon?: ReportIcon;
+  /** 0-100 values for the progress indicator, when the row is a share. */
+  beforePct?: number;
+  afterPct?: number;
 }
 
 export interface ReportAlternativeItem {
@@ -60,11 +81,9 @@ export interface ReportAlternativeItem {
 }
 
 export type ReportBlock =
-  | { kind: "cards"; items: { label: string; value: string }[] }
   | {
-      kind: "keyFigures";
-      primary: { label: string; value: string };
-      secondary: { label: string; value: string }[];
+      kind: "cards";
+      items: { label: string; value: string; sub?: string; icon?: ReportIcon }[];
     }
   | { kind: "rows"; rows: ReportRow[] }
   | { kind: "beforeAfter"; rows: ReportBeforeAfterRow[] }
@@ -74,8 +93,15 @@ export type ReportBlock =
       kind: "distribution";
       items: { label: string; value: string; share: string; sharePct: number | null; hint?: string }[];
     }
-  | { kind: "hero"; label: string; value: string }
-  | { kind: "subheading"; text: string }
+  | {
+      kind: "hero";
+      label: string;
+      value: string;
+      hint?: string;
+      icon?: ReportIcon;
+      tone?: "yellow" | "green";
+    }
+  | { kind: "subheading"; text: string; hint?: string }
   | { kind: "text"; text: string }
   | { kind: "note"; text: string }
   | { kind: "list"; items: string[] }
@@ -85,6 +111,8 @@ export type ReportBlock =
 export interface ReportSection {
   id: string;
   title: string | null;
+  /** Short grey line under the section title. */
+  subtitle?: string;
   /** Start the section on a new page. */
   pageBreak: boolean;
   blocks: ReportBlock[];
