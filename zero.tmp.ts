@@ -10,3 +10,5 @@ s.strategies = { ...s.strategies, solarSelfConsumption: false, peakShaving: fals
 s.economy = { ...s.economy, paybackYears: 10 };
 const r: any = getCalculation(s);
 console.log(JSON.stringify({ ok: r.ok, cap: r.result?.recommendation?.capacityKWh, kw: r.result?.recommendation?.recommendedPowerKw }, null, 1));
+console.log(Object.keys(r));
+console.log(JSON.stringify(r).slice(0,1200));
