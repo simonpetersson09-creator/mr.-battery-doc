@@ -685,7 +685,9 @@ function ResultStep() {
         ) : (
           <>
             <p className="text-center text-[26px] font-extrabold tracking-tight tabular-nums">
-              {money(ce.totalCustomerBenefitSek)}
+              {ce.totalCustomerBenefitSek === null
+                ? money(null)
+                : <CountUpValue value={ce.totalCustomerBenefitSek} format={(v) => money(v)} />}
               <span className="ml-1 text-[11px] font-semibold">{t("units.perYear")}</span>
             </p>
             {/* MODEL RULE: never present a non-positive benefit as an economic advantage. */}
