@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { track } from "@/lib/analytics/track";
 import { ArrowRight, BatteryFull, LineChart, PiggyBank, Settings, Zap, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LanguageSelect } from "@/components/LanguageSelect";
@@ -127,7 +129,7 @@ function Welcome() {
             variant="cta"
             className="h-12 flex-1 rounded-[0.875rem] font-bold shadow-cta"
           >
-            <Link to="/nat">
+            <Link to="/nat" onClick={() => track("wizard_start")}>
               {t("intro.cta")}
               <ArrowRight className="size-4" />
             </Link>
