@@ -193,7 +193,12 @@ export function WizardShell({
                         variant="cta"
                         className={`h-10 w-full rounded-[0.75rem] text-[15px] font-bold shadow-cta${pageDone ? " bg-[var(--done-fill)] text-[var(--done-foreground)] hover:bg-[var(--done-fill)]" : ""}${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
                       >
-                        <Link to={next}>
+                        <Link
+                          to={next}
+                          onClick={() =>
+                            track("step_next", { step: stepPath, withDuration: true })
+                          }
+                        >
                           {badge}
                           {nextLabel ?? t("common.next")}
                           <Check className="size-4" />
