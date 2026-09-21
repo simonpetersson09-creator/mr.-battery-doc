@@ -168,11 +168,11 @@ export function CardFlowFooter({ canConfirm = true }: { canConfirm?: boolean }) 
   const blocked = !isDone && !canConfirm;
 
   return (
-    <>
+    <div className="mt-1 flex items-center justify-end gap-2">
       {/* Nudge arrow: only on the active, unconfirmed, confirmable card */}
       {isActive && !isDone && !blocked ? (
-        <div className="next-arrow mt-1 flex justify-center" aria-hidden="true">
-          <ChevronDown className="size-5 text-[var(--brand-yellow-cta)]" />
+        <div className="next-arrow flex items-center" aria-hidden="true">
+          <ChevronDown className="size-4 text-[var(--brand-yellow-cta)]" />
         </div>
       ) : null}
       <button
@@ -183,25 +183,25 @@ export function CardFlowFooter({ canConfirm = true }: { canConfirm?: boolean }) 
           if (!blocked) flow.confirm(index);
         }}
         className={
-           "mt-1 flex h-9 w-full items-center justify-center gap-1.5 rounded-[0.75rem] text-[14px] font-bold transition-colors duration-300 ease-out active:scale-[0.99] motion-reduce:transition-none " +
-           (isDone
-              ? "bg-[var(--done-fill)] text-[var(--done-foreground)]"
-              : "bg-[var(--brand-yellow-cta)] text-[var(--brand-black)]") +
-           (blocked ? " cursor-not-allowed opacity-45" : "")
-         }
+          "flex h-8 items-center justify-center gap-1.5 rounded-[0.625rem] px-4 text-[13px] font-bold transition-colors duration-300 ease-out active:scale-[0.99] motion-reduce:transition-none " +
+          (isDone
+            ? "bg-[var(--done-fill)] text-[var(--done-foreground)]"
+            : "bg-[var(--brand-yellow-cta)] text-[var(--brand-black)]") +
+          (blocked ? " cursor-not-allowed opacity-45" : "")
+        }
       >
         {isDone ? (
           <>
             {t("common.done")}
-            <Check className="size-4" />
+            <Check className="size-3.5" />
           </>
         ) : (
           <>
             {t("common.next")}
-            {isLast ? <Check className="size-4" /> : <ArrowRight className="size-4" />}
+            {isLast ? <Check className="size-3.5" /> : <ArrowRight className="size-3.5" />}
           </>
         )}
       </button>
-    </>
+    </div>
   );
 }
