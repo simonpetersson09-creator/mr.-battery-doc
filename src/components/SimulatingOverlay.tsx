@@ -36,7 +36,7 @@ export function SimulatingOverlay({ active, done }: SimulatingOverlayProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--app-bg)] motion-reduce:hidden"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--background)] motion-reduce:hidden"
       role="status"
       aria-live="polite"
       aria-label={t("common.calculating")}
