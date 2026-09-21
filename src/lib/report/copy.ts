@@ -272,6 +272,8 @@ const sv: ReportCopy = {
   cannotBeCalculated: "Kan inte beräknas",
   before: "Utan batteri",
   after: "Med batteri",
+  tagline: "Ett smartare sätt att använda din el",
+  footerTagline: "Bättre beslut för en ljusare framtid",
 
   source: {
     user: "Ditt värde",
@@ -310,6 +312,16 @@ const sv: ReportCopy = {
     shiftedSolar: "Flyttad solel",
     ancillaryShareNote:
       "Av det beräknade ekonomiska värdet kommer {value} från stödtjänster baserat på historiska marknadspriser.",
+    subtitle: "Rekommenderat batteri och beräknat värde för din fastighet",
+    improvementsSubtitle:
+      "Batteriet gör att du använder mer av din egen el och minskar ditt elköp.",
+    selfConsumptionHint: "Andel av solelen som används direkt i fastigheten.",
+    selfSufficiencyHint: "Andel av fastighetens elanvändning som täcks av egen el.",
+    gridImportHint: "El som köps från elnätet.",
+    shiftedSolarHint:
+      "Mer av din egen solproduktion används i fastigheten i stället för att matas ut på nätet.",
+    percentagePoints: "procentenheter",
+    perYearLong: "per år",
   },
 
   benefit: {
