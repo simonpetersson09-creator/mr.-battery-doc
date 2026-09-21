@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { SimulatingOverlay } from "@/components/SimulatingOverlay";
 import { getCalculation, getDerivedAnalyses } from "@/lib/access/calculationCache";
 import { destinationAfterStep5 } from "@/lib/access/flow";
 import { useAccess } from "@/state/access";
