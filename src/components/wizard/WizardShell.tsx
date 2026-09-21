@@ -67,7 +67,11 @@ export function WizardShell({
         <StepIndicator stepIndex={stepIndex} />
 
         <section className="mt-2">
-          <div className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}>{children}</div>
+          {cardFlow ? (
+            <CardFlow className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}>{children}</CardFlow>
+          ) : (
+            <div className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}>{children}</div>
+          )}
         </section>
 
         <nav className="pb-safe mt-auto pt-4" aria-label="Wizard navigation">

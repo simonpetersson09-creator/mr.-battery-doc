@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Check } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { DecimalInput } from "./DecimalInput";
+import { CardFlowFooter } from "./cardFlow";
 
 /**
  * Short inline error shown right below the field it belongs to.
