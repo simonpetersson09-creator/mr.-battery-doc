@@ -233,6 +233,7 @@ function ProfileShapeChart({ profileId }: { profileId: string }) {
   return (
     <figure className="mt-2 space-y-2" aria-label={t("consumption.profile.chartCaption")}>
       <svg
+        key={profileId}
         viewBox={`0 0 ${width} ${chartH + labelH}`}
         className="h-28 w-full"
         role="img"
@@ -261,7 +262,8 @@ function ProfileShapeChart({ profileId }: { profileId: string }) {
               width={barW}
               height={h}
               rx={barW / 2}
-              className={peak ? "fill-accent" : "fill-muted-foreground/25"}
+              className={`profile-bar ${peak ? "fill-accent" : "fill-muted-foreground/25"}`}
+              style={{ animationDelay: `${i * 28}ms` }}
             />
           );
         })}
