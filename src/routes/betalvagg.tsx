@@ -100,14 +100,19 @@ function Paywall() {
     setError(null);
     setNotice(null);
     setBusy(key);
+    track("purchase_start", { detail: key, country: state.grid.country });
     try {
       const res = await access.purchase(key, calc.id);
       if (res.status === "purchased") {
+        track("purchase_success", { detail: key, country: state.grid.country });
         void navigate({ to: "/resultat" });
         return;
       }
       // Cancelling is not an error — the user simply stays on the paywall.
-      if (res.status === "cancelled") return;
+      if (res.status === "cancelled") {
+        track("purchase_cancel", { detail: key, country: state.grid.country });
+        return;
+      }
       if (res.status === "pending") {
         setNotice("pending");
         return;
@@ -118,6 +123,7 @@ function Paywall() {
         setNotice("unresolved");
         return;
       }
+      track("purchase_error", { detail: `${key}:${res.code}`, country: state.grid.country });
       setError(res.code);
     } finally {
       setBusy(null);
