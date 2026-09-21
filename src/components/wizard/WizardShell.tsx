@@ -42,6 +42,7 @@ export function WizardShell({
   footerAction,
   footerExtra,
   compact,
+  cardFlow,
   titleClassName,
   eyebrowClassName,
   introClassName,
