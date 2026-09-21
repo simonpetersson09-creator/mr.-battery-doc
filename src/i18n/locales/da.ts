@@ -681,4 +681,13 @@ export const da = {
       p3: "Historik og indstillinger gemmes kun i enhedens lokale lager og slettes, hvis appen fjernes.",
     },
   },
+  adjustment: {
+    title: "Justering tilbage",
+    body: "Du har {{count}} justeringer tilbage fra dit seneste køb. De udløber om {{time}}.",
+    continue: "Fortsæt",
+    hours: "timer",
+    minutes: "minutter",
+    and: "og",
+    lessThanMinute: "mindre end et minut",
+  },
 } as const;

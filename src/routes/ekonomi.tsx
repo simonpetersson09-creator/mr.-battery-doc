@@ -3,7 +3,10 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { SimulatingOverlay } from "@/components/SimulatingOverlay";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { getCalculation, getDerivedAnalyses } from "@/lib/access/calculationCache";
+import { calculationId } from "@/lib/access/calculationId";
+import { adjustmentCreditsRemaining, hasAdjustmentCredit } from "@/lib/access/entitlements";
 import { destinationAfterStep5 } from "@/lib/access/flow";
 import { useAccess } from "@/state/access";
 import { Coins, HandCoins, Timer } from "lucide-react";
@@ -55,6 +58,8 @@ function EconomyStep() {
   const [calculating, setCalculating] = useState(false);
   /** Snaps the progress ring to 100 % before navigating away. */
   const [calcDone, setCalcDone] = useState(false);
+  /** Shows the adjustment-credit info before spending a credit. */
+  const [showAdjustmentDialog, setShowAdjustmentDialog] = useState(false);
   const country = getCountry(state.grid.country);
   /* CURRENCY STAYS COUNTRY-DRIVEN — the UI language never changes it. */
   const unit = country.economy.currencyLabel;
@@ -71,6 +76,64 @@ function EconomyStep() {
   const fieldError = economyFieldErrors(state);
   const paybackValidity = validatePaybackStep(state);
   const validity = economyValidity.ok ? paybackValidity : economyValidity;
+
+  /** Runs the simulation once, then navigates. Shared by the direct path and the
+   *  adjustment-credit confirmation dialog. */
+  const startCalculation = () => {
+    // The simulation blocks the main thread for seconds on a phone. Painting
+    // the "calculating" label BEFORE it starts is the whole point of the
+    // deferral — the inputs, the engine and the flow rule are unchanged.
+    setCalculating(true);
+    setCalcDone(false);
+    const run = () => {
+      try {
+        const calc = getCalculation(state);
+        // Same comparison layers the result page shows — computed here so the
+        // result page renders immediately instead of freezing on arrival.
+        getDerivedAnalyses(state);
+        const dest = destinationAfterStep5({
+          calculationStatus: calc.outcome.status,
+          entitlements: access.entitlements,
+          calculationId: calc.id,
+        });
+        // Adjustment-credit path: an otherwise locked "ok" calculation that
+        // the flow rule let through because credits remain. Spend exactly
+        // one credit and unlock this calculation before navigating.
+        if (
+          dest === "/resultat" &&
+          calc.outcome.status === "ok" &&
+          !access.canOpenResult(calc.id)
+        ) {
+          access.consumeAdjustment(calc.id);
+        }
+        // Let the ring visibly reach 100 % before leaving the page.
+        setCalcDone(true);
+        window.setTimeout(() => void navigate({ to: dest }), 480);
+      } catch {
+        setCalculating(false);
+        setCalcDone(false);
+      }
+    };
+    requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(run, 0)));
+  };
+
+  /** Formats the remaining time until adjustment credits expire. */
+  const formatRemainingTime = (): string => {
+    const expiresISO = access.entitlements.adjustmentCreditsExpiresISO;
+    if (!expiresISO) return t("adjustment.lessThanMinute");
+    const ms = Date.parse(expiresISO) - Date.now();
+    if (ms <= 0) return t("adjustment.lessThanMinute");
+    const totalMinutes = Math.floor(ms / 60000);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    if (hours <= 0 && minutes <= 0) return t("adjustment.lessThanMinute");
+    if (hours <= 0) return `${minutes} ${t("adjustment.minutes")}`;
+    if (minutes <= 0) return `${hours} ${t("adjustment.hours")}`;
+    return `${hours} ${t("adjustment.hours")} ${t("adjustment.and")} ${minutes} ${t("adjustment.minutes")}`;
+  };
+
+  const remainingCredits = adjustmentCreditsRemaining(access.entitlements);
+
 
   return (
     <>
@@ -97,41 +160,14 @@ function EconomyStep() {
           aria-busy={calculating}
           onClick={() => {
             if (!validity.ok || calculating) return;
-            // The simulation blocks the main thread for seconds on a phone. Painting
-            // the "calculating" label BEFORE it starts is the whole point of the
-            // deferral — the inputs, the engine and the flow rule are unchanged.
-            setCalculating(true);
-            setCalcDone(false);
-            const run = () => {
-              try {
-                const calc = getCalculation(state);
-                // Same comparison layers the result page shows — computed here so the
-                // result page renders immediately instead of freezing on arrival.
-                getDerivedAnalyses(state);
-                const dest = destinationAfterStep5({
-                  calculationStatus: calc.outcome.status,
-                  entitlements: access.entitlements,
-                  calculationId: calc.id,
-                });
-                // Adjustment-credit path: an otherwise locked "ok" calculation that
-                // the flow rule let through because credits remain. Spend exactly
-                // one credit and unlock this calculation before navigating.
-                if (
-                  dest === "/resultat" &&
-                  calc.outcome.status === "ok" &&
-                  !access.canOpenResult(calc.id)
-                ) {
-                  access.consumeAdjustment(calc.id);
-                }
-                // Let the ring visibly reach 100 % before leaving the page.
-                setCalcDone(true);
-                window.setTimeout(() => void navigate({ to: dest }), 480);
-              } catch {
-                setCalculating(false);
-                setCalcDone(false);
-              }
-            };
-            requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(run, 0)));
+            // If this calculation is not yet unlocked but the user still has
+            // adjustment credits, show a short info box before spending one.
+            const calcId = calculationId(state);
+            if (hasAdjustmentCredit(access.entitlements, calcId)) {
+              setShowAdjustmentDialog(true);
+              return;
+            }
+            startCalculation();
           }}
         >
           {calculating ? (
@@ -290,6 +326,39 @@ function EconomyStep() {
         <p className="ui-help mt-1.5 text-pretty">{t("payback.guide")}</p>
       </SectionCard>
     </WizardShell>
+
+      <Dialog open={showAdjustmentDialog} onOpenChange={setShowAdjustmentDialog}>
+        <DialogContent className="max-w-sm rounded-[1rem] p-6">
+          <DialogHeader>
+            <DialogTitle className="text-center">{t("adjustment.title")}</DialogTitle>
+            <DialogDescription className="text-center text-[15px] leading-relaxed">
+              {t("adjustment.body", {
+                count: remainingCredits,
+                time: formatRemainingTime(),
+              })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-row gap-2 sm:gap-2">
+            <Button
+              variant="outline"
+              className="h-10 flex-1 rounded-[0.75rem]"
+              onClick={() => setShowAdjustmentDialog(false)}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="cta"
+              className="h-10 flex-1 rounded-[0.75rem] font-bold"
+              onClick={() => {
+                setShowAdjustmentDialog(false);
+                startCalculation();
+              }}
+            >
+              {t("adjustment.continue")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

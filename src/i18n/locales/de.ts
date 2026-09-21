@@ -688,4 +688,13 @@ export const de = {
       p3: "Verlauf und Einstellungen werden nur im lokalen Speicher des Geräts gespeichert und beim Löschen der App entfernt.",
     },
   },
+  adjustment: {
+    title: "Anpassung verbleibend",
+    body: "Sie haben {{count}} Anpassungen von Ihrem letzten Kauf übrig. Sie verfallen in {{time}}.",
+    continue: "Weiter",
+    hours: "Stunden",
+    minutes: "Minuten",
+    and: "und",
+    lessThanMinute: "weniger als eine Minute",
+  },
 } as const;

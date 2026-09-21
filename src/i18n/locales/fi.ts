@@ -676,4 +676,13 @@ export const fi = {
       p3: "Historia ja asetukset tallennetaan vain laitteen paikalliseen muistiin ja poistuvat, jos sovellus poistetaan.",
     },
   },
+  adjustment: {
+    title: "Justaus jäljellä",
+    body: "Sinulla on {{count}} justausta jäljellä viimeisimmästä ostosta. Ne vanhenevat {{time}} kuluttua.",
+    continue: "Jatka",
+    hours: "tuntia",
+    minutes: "minuuttia",
+    and: "ja",
+    lessThanMinute: "alle minuutti",
+  },
 } as const;

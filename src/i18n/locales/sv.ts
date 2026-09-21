@@ -682,6 +682,15 @@ export const sv = {
       p3: "Historik och inställningar sparas endast i enhetens lokala lagring och raderas om appen tas bort.",
     },
   },
+  adjustment: {
+    title: "Justering kvar",
+    body: "Du har {{count}} justeringar kvar från ditt senaste köp. De löper ut om {{time}}.",
+    continue: "Fortsätt",
+    hours: "timmar",
+    minutes: "minuter",
+    and: "och",
+    lessThanMinute: "mindre än en minut",
+  },
 } as const;
 
 export type TranslationSchema = typeof sv;
