@@ -70,10 +70,10 @@ export function consumptionFieldErrors(s: WizardState): FieldErrors<ConsumptionF
   if (c.mode === "monthly") {
     const months = completeMonths(c.monthlyKwh);
     if (!months) monthly = t("validation.months");
-    else if (months.reduce((a, b) => a + b, 0) <= 0) monthly = t("validation.monthsZero");
+    else if (months.some((m) => m < 0)) monthly = t("validation.monthsZero");
   } else {
     annual = msg(
-      typeof c.annualKwh !== "number" || !Number.isFinite(c.annualKwh) || c.annualKwh <= 0,
+      typeof c.annualKwh !== "number" || !Number.isFinite(c.annualKwh) || c.annualKwh < 0,
       "validation.annualConsumption",
     );
   }
