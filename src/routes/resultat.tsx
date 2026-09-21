@@ -716,7 +716,7 @@ function ResultStep() {
                 <BenefitRow
                   label={t("results.benefit.peak")}
                   hint={t("results.benefit.peakHint")}
-                  value={moneyPerYear(s.economy.demandCostSavingSek)}
+                  value={<CountUpValue value={s.economy.demandCostSavingSek} format={(v) => moneyPerYear(v)} />}
                 />
               ) : null}
               {ancillaryNote ? (
