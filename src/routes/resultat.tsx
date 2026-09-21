@@ -350,6 +350,34 @@ function ResultStep() {
     downloads/share sheets for the same calculation.
   */
   const pdfEnabled = pdfAllowed && !pdfBusy;
+  /*
+    A purchased result is final: plain "Back" into the wizard is misleading, so it is
+    replaced by an explicit "Edit inputs" action with the remaining adjustment count.
+    Re-running unchanged inputs still costs nothing — only a changed calculation does.
+  */
+  const adjustmentCredits = adjustmentCreditsRemaining(access.entitlements);
+  const editInputs = (
+    <Button
+      type="button"
+      variant="outline"
+      className="h-10 flex-1 rounded-[0.75rem] text-[15px] font-semibold"
+      onClick={() => {
+        clearCalculationCache();
+        if (snapshot) updateWizard(() => snapshot.wizard);
+        void navigate({ to: "/nat" });
+      }}
+    >
+      <Pencil className="size-3.5 shrink-0" />
+      {t("history.edit")}
+    </Button>
+  );
+  const editNote =
+    access.premiumActive || adjustmentCredits <= 0 ? null : (
+      <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
+        {t("history.adjustmentsLeft", { count: adjustmentCredits })}
+      </p>
+    );
+
   const pdfReport = (
     <Button
       type="button"
