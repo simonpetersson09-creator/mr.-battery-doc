@@ -6,6 +6,10 @@
  * i18n rule (FALLBACK_LANGUAGE = "en"). No value, number or unit is produced here.
  */
 
+import { da } from "./copy.da";
+import { fi as fiCopy } from "./copy.fi";
+import { de as deCopy } from "./copy.de";
+
 export interface ReportCopy {
   title: string;
   brand: string;
