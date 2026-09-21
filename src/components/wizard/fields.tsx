@@ -29,6 +29,7 @@ export function SectionCard({
   titleClassName,
   descriptionClassName,
   centerTitle,
+  canConfirm = true,
 }: {
   title?: string;
   description?: string;
@@ -43,6 +44,8 @@ export function SectionCard({
   descriptionClassName?: string;
   /** Center the title/description block (used by the result page). */
   centerTitle?: boolean;
+  /** False while any field in the card shows a warning — blocks the card's Next button. */
+  canConfirm?: boolean;
 }) {
   const locked = useCardLocked();
   return (

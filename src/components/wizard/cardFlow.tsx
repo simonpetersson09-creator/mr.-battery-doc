@@ -185,8 +185,9 @@ export function CardFlowFooter({ canConfirm = true }: { canConfirm?: boolean }) 
         className={
            "mt-1 flex h-9 w-full items-center justify-center gap-1.5 rounded-[0.75rem] text-[14px] font-bold transition-colors duration-300 ease-out active:scale-[0.99] motion-reduce:transition-none " +
            (isDone
-             ? "bg-[var(--done-fill)] text-[var(--done-foreground)]"
-             : "bg-[var(--brand-yellow-cta)] text-[var(--brand-black)]")
+              ? "bg-[var(--done-fill)] text-[var(--done-foreground)]"
+              : "bg-[var(--brand-yellow-cta)] text-[var(--brand-black)]") +
+           (blocked ? " cursor-not-allowed opacity-45" : "")
          }
       >
         {isDone ? (
