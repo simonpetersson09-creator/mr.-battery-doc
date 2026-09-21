@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import type { ReactNode } from "react";
 import { WIZARD_STEPS } from "./steps";
+import { CardFlow } from "./cardFlow";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/i18n";
 import logo from "@/assets/mr-battery-doc-logo.png";
@@ -21,6 +22,8 @@ interface WizardShellProps {
   footerAction?: ReactNode;
   /** Tighter card spacing and page padding for dense steps. */
   compact?: boolean;
+  /** One-card-at-a-time flow: each card gets its own confirm button. */
+  cardFlow?: boolean;
   /** Optional page-local typography overrides; defaults keep every other page unchanged. */
   titleClassName?: string;
   eyebrowClassName?: string;
