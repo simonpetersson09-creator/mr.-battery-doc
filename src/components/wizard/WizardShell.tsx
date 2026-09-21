@@ -191,7 +191,7 @@ export function WizardShell({
                       <Button
                         asChild
                         variant="cta"
-                        className={`h-10 w-full rounded-[0.75rem] text-[15px] font-bold shadow-cta${pageDone ? " bg-[var(--done-fill)] text-[var(--done-foreground)] hover:bg-[var(--done-fill)]" : ""}${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
+                        className={`h-10 w-full rounded-[0.75rem] text-[15px] font-bold${pageDone ? " bg-[var(--done-fill)] text-[var(--done-foreground)] shadow-none hover:bg-[var(--done-fill)]" : " shadow-cta"}${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
                       >
                         <Link
                           to={next}
