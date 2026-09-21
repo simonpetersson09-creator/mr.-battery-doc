@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Check } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { markStepEntered, track } from "@/lib/analytics/track";
 import { WIZARD_STEPS } from "./steps";
 import { CardFlow, clearFlowMemory } from "./cardFlow";
 import { useWizard } from "@/state/wizard";
@@ -64,6 +65,21 @@ export function WizardShell({
   // Both back affordances follow the wizard's own step order.
   const prev = stepIndex > 0 ? WIZARD_STEPS[stepIndex - 1]!.path : "/";
   const next = stepIndex < WIZARD_STEPS.length - 1 ? WIZARD_STEPS[stepIndex + 1]!.path : null;
+  const stepPath = WIZARD_STEPS[stepIndex]?.path ?? String(stepIndex);
+
+  // Anonymous usage tracking: which step the user reached, and what stopped them.
+  useEffect(() => {
+    markStepEntered();
+    track("step_view", { step: stepPath, once: true });
+  }, [stepPath]);
+  useEffect(() => {
+    if (!nextBlockedReason) return;
+    const id = window.setTimeout(() => {
+      track("step_blocked", { step: stepPath, detail: nextBlockedReason });
+    }, 4000);
+    return () => window.clearTimeout(id);
+  }, [nextBlockedReason, stepPath]);
+
 
   return (
     <div className="app-shell surface-sun">
@@ -177,7 +193,12 @@ export function WizardShell({
                         variant="cta"
                         className={`h-10 w-full rounded-[0.75rem] text-[15px] font-bold shadow-cta${pageDone ? " bg-[var(--done-fill)] text-[var(--done-foreground)] hover:bg-[var(--done-fill)]" : ""}${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
                       >
-                        <Link to={next}>
+                        <Link
+                          to={next}
+                          onClick={() =>
+                            track("step_next", { step: stepPath, withDuration: true })
+                          }
+                        >
                           {badge}
                           {nextLabel ?? t("common.next")}
                           <Check className="size-4" />

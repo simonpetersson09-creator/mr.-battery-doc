@@ -41,6 +41,7 @@ import { currentLanguage, formatNumber, useT } from "@/i18n";
 import { reserveProductName } from "@/i18n/labels";
 import { PDF_REPORT_AVAILABLE, generatePdfReport } from "@/lib/report/pdfReport";
 import { scheduleAppReview } from "@/lib/rating/inAppReview";
+import { track } from "@/lib/analytics/track";
 import { useWizard } from "@/state/wizard";
 
 const RESULT_CARD_TITLE_CLASS = "font-display text-[14px] font-semibold";
@@ -108,6 +109,9 @@ function ResultStep() {
    * the economics layer).
    */
   const countryCode = state.grid.country;
+  useEffect(() => {
+    track("result_view", { country: countryCode, detail: historyId ? "history" : "new" });
+  }, [countryCode, historyId]);
   const money = (v: number | null) => (v === null ? "—" : formatMoney(v, countryCode, 0));
   const moneyPerYear = (v: number | null) =>
     v === null ? "—" : `${formatMoney(v, countryCode, 0)}${t("units.perYear")}`;
@@ -391,6 +395,7 @@ function ResultStep() {
       aria-disabled={!pdfEnabled}
       onClick={() => {
         if (!pdfEnabled) return;
+        track("pdf_download", { country: countryCode });
         setPdfBusy(true);
         void generatePdfReport({
           outcome,

@@ -19,6 +19,7 @@ import type { ProductKey } from "@/lib/access/products";
 import type { PurchaseErrorCode, StoreProduct } from "@/lib/access/purchaseGateway";
 import { useAccess } from "@/state/access";
 import { useWizard } from "@/state/wizard";
+import { track } from "@/lib/analytics/track";
 import logo from "@/assets/mr-battery-doc-logo.png";
 
 export const Route = createFileRoute("/betalvagg")({
@@ -59,6 +60,11 @@ function Paywall() {
   // Reads the already finished calculation. Same inputs => cache hit => no re-run.
   const calc = useMemo(() => getCalculation(state), [state]);
 
+  // Anonymous conversion tracking: seen paywall vs. started/finished purchase.
+  useEffect(() => {
+    track("paywall_view", { country: state.grid.country, once: true });
+  }, [state.grid.country]);
+
   const [products, setProducts] = useState<StoreProduct[] | null>(null);
   // Lets the user ask the App Store for prices again after a transient failure,
   // instead of being stuck with permanently disabled purchase buttons.
@@ -94,14 +100,19 @@ function Paywall() {
     setError(null);
     setNotice(null);
     setBusy(key);
+    track("purchase_start", { detail: key, country: state.grid.country });
     try {
       const res = await access.purchase(key, calc.id);
       if (res.status === "purchased") {
+        track("purchase_success", { detail: key, country: state.grid.country });
         void navigate({ to: "/resultat" });
         return;
       }
       // Cancelling is not an error — the user simply stays on the paywall.
-      if (res.status === "cancelled") return;
+      if (res.status === "cancelled") {
+        track("purchase_cancel", { detail: key, country: state.grid.country });
+        return;
+      }
       if (res.status === "pending") {
         setNotice("pending");
         return;
@@ -112,6 +123,7 @@ function Paywall() {
         setNotice("unresolved");
         return;
       }
+      track("purchase_error", { detail: `${key}:${res.code}`, country: state.grid.country });
       setError(res.code);
     } finally {
       setBusy(null);

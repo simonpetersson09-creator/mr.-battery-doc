@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { track } from "@/lib/analytics/track";
 import { ArrowRight, BatteryFull, LineChart, PiggyBank, Settings, Zap, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LanguageSelect } from "@/components/LanguageSelect";
@@ -69,6 +71,9 @@ function AnimatedStats({ t }: { t: ReturnType<typeof useT> }) {
 
 function Welcome() {
   const t = useT();
+  useEffect(() => {
+    track("app_open", { once: true });
+  }, []);
   return (
     <div className="app-shell surface-sun min-h-dvh max-w-md flex flex-col px-5 pt-safe pb-safe">
       <div className="flex flex-1 flex-col items-center justify-center text-center">
@@ -127,7 +132,7 @@ function Welcome() {
             variant="cta"
             className="h-12 flex-1 rounded-[0.875rem] font-bold shadow-cta"
           >
-            <Link to="/nat">
+            <Link to="/nat" onClick={() => track("wizard_start")}>
               {t("intro.cta")}
               <ArrowRight className="size-4" />
             </Link>
