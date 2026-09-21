@@ -326,6 +326,39 @@ function EconomyStep() {
         <p className="ui-help mt-1.5 text-pretty">{t("payback.guide")}</p>
       </SectionCard>
     </WizardShell>
+
+      <Dialog open={showAdjustmentDialog} onOpenChange={setShowAdjustmentDialog}>
+        <DialogContent className="max-w-sm rounded-[1rem] p-6">
+          <DialogHeader>
+            <DialogTitle className="text-center">{t("adjustment.title")}</DialogTitle>
+            <DialogDescription className="text-center text-[15px] leading-relaxed">
+              {t("adjustment.body", {
+                count: remainingCredits,
+                time: formatRemainingTime(),
+              })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-row gap-2 sm:gap-2">
+            <Button
+              variant="outline"
+              className="h-10 flex-1 rounded-[0.75rem]"
+              onClick={() => setShowAdjustmentDialog(false)}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="cta"
+              className="h-10 flex-1 rounded-[0.75rem] font-bold"
+              onClick={() => {
+                setShowAdjustmentDialog(false);
+                startCalculation();
+              }}
+            >
+              {t("adjustment.continue")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
