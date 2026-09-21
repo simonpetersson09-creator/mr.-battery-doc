@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check, ChevronDown } from "lucide-react";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { WIZARD_STEPS } from "./steps";
 import { CardFlow } from "./cardFlow";
 import { Button } from "@/components/ui/button";
@@ -49,6 +49,7 @@ export function WizardShell({
   navButtonClassName,
 }: WizardShellProps) {
   const t = useT();
+  const [flowProgress, setFlowProgress] = useState<{ done: number; total: number } | null>(null);
   // Both back affordances follow the wizard's own step order.
   const prev = stepIndex > 0 ? WIZARD_STEPS[stepIndex - 1]!.path : "/";
   const next = stepIndex < WIZARD_STEPS.length - 1 ? WIZARD_STEPS[stepIndex + 1]!.path : null;
@@ -72,7 +73,12 @@ export function WizardShell({
 
         <section className="mt-2">
           {cardFlow ? (
-            <CardFlow className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}>{children}</CardFlow>
+            <CardFlow
+              className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}
+              onProgress={setFlowProgress}
+            >
+              {children}
+            </CardFlow>
           ) : (
             <div className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}>{children}</div>
           )}
@@ -87,22 +93,31 @@ export function WizardShell({
               footerAction
             ) : next ? (
               (() => {
-                const totalNextSteps = WIZARD_STEPS.length - 1;
-                const counter = `${stepIndex + 1}/${totalNextSteps}`;
-                const pageDone = !nextDisabled;
+                // On card-flow pages the badge mirrors confirmed/total cards on
+                // this page; elsewhere it keeps the wizard step counter.
+                const counter = cardFlow && flowProgress
+                  ? `${flowProgress.done}/${flowProgress.total}`
+                  : `${stepIndex + 1}/${WIZARD_STEPS.length - 1}`;
+                // The nudge arrow only appears once every card on the page is
+                // confirmed and the step's own inputs are valid.
+                const allCardsDone = !cardFlow || (flowProgress !== null && flowProgress.done === flowProgress.total);
+                const pageDone = !nextDisabled && allCardsDone;
                 const badge = (
                   <span className="rounded-full bg-foreground/15 px-1.5 py-0.5 text-[10px] font-bold leading-none tabular-nums">
                     {counter}
                   </span>
                 );
                 return (
-                  <div className="flex flex-[2] flex-col">
+                  <div className="relative flex-[2]">
                     {pageDone ? (
-                      <div className="next-arrow mb-0.5 flex justify-center" aria-hidden="true">
+                      <div
+                        className="next-arrow pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2"
+                        aria-hidden="true"
+                      >
                         <ChevronDown className="size-5 text-[var(--brand-yellow-cta)]" />
                       </div>
                     ) : null}
-                    {nextDisabled ? (
+                    {nextDisabled || !allCardsDone ? (
                       <Button
                         variant="cta"
                         className={`h-10 w-full rounded-[0.75rem] text-[15px] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
