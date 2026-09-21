@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { ArrowRight, Check, ChevronDown } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, ChevronRight } from "lucide-react";
 import { useT } from "@/i18n";
 
 /**
@@ -168,11 +168,11 @@ export function CardFlowFooter({ canConfirm = true }: { canConfirm?: boolean }) 
   const blocked = !isDone && !canConfirm;
 
   return (
-    <div className="mt-1 flex items-center justify-end gap-2">
+    <div className="mt-2 flex items-center justify-end gap-1.5">
       {/* Nudge arrow: only on the active, unconfirmed, confirmable card */}
       {isActive && !isDone && !blocked ? (
         <div className="next-arrow flex items-center" aria-hidden="true">
-          <ChevronDown className="size-4 text-[var(--brand-yellow-cta)]" />
+          <ChevronRight className="size-4 text-[var(--brand-yellow-cta)]" />
         </div>
       ) : null}
       <button

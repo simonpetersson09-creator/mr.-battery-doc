@@ -797,11 +797,11 @@ html[data-native="true"] .pt-safe {
 @keyframes next-arrow-bounce {
   0%,
   100% {
-    transform: translateY(0);
+    transform: translateX(0);
     opacity: 0.7;
   }
   50% {
-    transform: translateY(4px);
+    transform: translateX(4px);
     opacity: 1;
   }
 }
