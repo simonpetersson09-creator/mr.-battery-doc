@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check, ChevronDown } from "lucide-react";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { WIZARD_STEPS } from "./steps";
 import { CardFlow } from "./cardFlow";
 import { Button } from "@/components/ui/button";
@@ -72,7 +72,12 @@ export function WizardShell({
 
         <section className="mt-2">
           {cardFlow ? (
-            <CardFlow className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}>{children}</CardFlow>
+            <CardFlow
+              className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}
+              onProgress={setFlowProgress}
+            >
+              {children}
+            </CardFlow>
           ) : (
             <div className={compact ? "mt-3 space-y-2" : "mt-4 space-y-3"}>{children}</div>
           )}
