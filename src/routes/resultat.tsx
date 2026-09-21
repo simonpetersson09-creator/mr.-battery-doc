@@ -704,8 +704,27 @@ function ResultStep() {
             ) : null}
             {ancillaryNote ? (
               <p className="mt-1.5 text-center text-[11px] leading-relaxed">{ancillaryNote}</p>
-            ) : s.fcr.enabled ? (
-              <div className="mt-1.5">
+            ) : null}
+            {/* Share of the ANNUAL BENEFIT per engine component. Presentation only. */}
+            <BenefitDistribution
+              breakdown={benefitBreakdown(ce)}
+              label={(key) =>
+                key === "energy"
+                  ? p.hasSolar
+                    ? t("results.benefit.energyWithSolar")
+                    : t("results.benefit.energyNoSolar")
+                  : key === "peak"
+                    ? t("results.benefit.peak")
+                    : t("results.benefit.ancillaryTitle")
+              }
+              title={t("results.breakdown.title")}
+              totalLabel={t("results.breakdown.total")}
+              money={money}
+              moneyPerYear={moneyPerYear}
+              nf={nf}
+            />
+            {s.fcr.enabled && !ancillaryNote ? (
+              <div className="mt-2">
                 <AncillaryDetails
                   rows={[
                     ...(p.fcrMonetizedPowerKw !== null
@@ -733,24 +752,6 @@ function ResultStep() {
                 />
               </div>
             ) : null}
-            {/* Share of the ANNUAL BENEFIT per engine component. Presentation only. */}
-            <BenefitDistribution
-              breakdown={benefitBreakdown(ce)}
-              label={(key) =>
-                key === "energy"
-                  ? p.hasSolar
-                    ? t("results.benefit.energyWithSolar")
-                    : t("results.benefit.energyNoSolar")
-                  : key === "peak"
-                    ? t("results.benefit.peak")
-                    : t("results.benefit.ancillaryTitle")
-              }
-              title={t("results.breakdown.title")}
-              totalLabel={t("results.breakdown.total")}
-              money={money}
-              moneyPerYear={moneyPerYear}
-              nf={nf}
-            />
           </>
         )}
       </SectionCard>
@@ -964,21 +965,27 @@ function AncillaryDetails({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex w-full items-center justify-between gap-2 py-1 text-left text-[14px] font-medium text-foreground/75 transition-colors hover:text-foreground"
+        className="flex w-full items-center justify-between gap-2 py-1 text-left text-[12px] font-medium text-foreground/70 transition-colors hover:text-foreground"
       >
         <span>{toggleLabel}</span>
         <ChevronDown
-          className={`size-4 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`size-3.5 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
           aria-hidden="true"
         />
       </button>
       {open ? (
-        <div className="space-y-1 border-t border-foreground/10 pt-2">
+        <div className="space-y-1 border-t border-foreground/10 pt-1.5">
           {rows.map((row) => (
-            <Row key={row.label} label={row.label} value={row.value} />
+            <div
+              key={row.label}
+              className="flex items-baseline justify-between gap-4 text-[12px] font-medium"
+            >
+              <span className="min-w-0 text-muted-foreground">{row.label}</span>
+              <span className="shrink-0 font-semibold tabular-nums">{row.value}</span>
+            </div>
           ))}
           {hints.map((hint) => (
-            <p key={hint} className="text-[11px] leading-relaxed">
+            <p key={hint} className="text-[10px] leading-relaxed">
               {hint}
             </p>
           ))}
