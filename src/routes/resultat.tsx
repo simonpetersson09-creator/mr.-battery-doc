@@ -466,7 +466,7 @@ function ResultStep() {
                       {main ? (
                         <CountUpValue value={alt.capacityKWh} format={(v) => nf(v)} />
                       ) : (
-                        nf(alt.capacityKWh)
+                        <CountUpValue value={alt.capacityKWh} format={(v) => nf(v)} duration={900} />
                       )}
                     </span>
                     <span
@@ -495,8 +495,14 @@ function ResultStep() {
                           value={alt.customerBenefitSek}
                           format={(v) => moneyPerYear(v)}
                         />
+                      ) : alt.customerBenefitSek === null ? (
+                        moneyPerYear(null)
                       ) : (
-                        moneyPerYear(alt.customerBenefitSek)
+                        <CountUpValue
+                          value={alt.customerBenefitSek}
+                          format={(v) => moneyPerYear(v)}
+                          duration={900}
+                        />
                       )}
                     </p>
                   </div>
@@ -558,29 +564,29 @@ function ResultStep() {
               {p.showSelfConsumption ? (
                 <BeforeAfter
                   label={t("results.energy.selfConsumption")}
-                  before={pct(e.selfConsumptionBeforePct)}
-                  after={pct(e.selfConsumptionAfterPct)}
+                  before={<CountUpValue value={e.selfConsumptionBeforePct} format={(v) => pct(v)} />}
+                  after={<CountUpValue value={e.selfConsumptionAfterPct} format={(v) => pct(v)} />}
                 />
               ) : null}
               {p.showSelfSufficiency ? (
                 <BeforeAfter
                   label={t("results.energy.selfSufficiency")}
-                  before={pct(e.selfSufficiencyBeforePct)}
-                  after={pct(e.selfSufficiencyAfterPct)}
+                  before={<CountUpValue value={e.selfSufficiencyBeforePct} format={(v) => pct(v)} />}
+                  after={<CountUpValue value={e.selfSufficiencyAfterPct} format={(v) => pct(v)} />}
                 />
               ) : null}
               {p.showImport ? (
                 <BeforeAfter
                   label={t("results.energy.gridImport")}
-                  before={kwh(e.importBeforeKWh)}
-                  after={kwh(e.importAfterKWh)}
+                  before={<CountUpValue value={e.importBeforeKWh} format={(v) => kwh(v)} />}
+                  after={<CountUpValue value={e.importAfterKWh} format={(v) => kwh(v)} />}
                 />
               ) : null}
               {p.showPeakSection ? (
                 <BeforeAfter
                   label={t("results.power.peak")}
-                  before={kw(g.importPeakBeforeKw)}
-                  after={kw(g.importPeakAfterKw)}
+                  before={<CountUpValue value={g.importPeakBeforeKw} format={(v) => kw(v)} />}
+                  after={<CountUpValue value={g.importPeakAfterKw} format={(v) => kw(v)} />}
                 />
               ) : null}
               {e.recoveredCurtailmentKWh > 0 ? (
@@ -638,7 +644,7 @@ function ResultStep() {
               <BenefitRow
                 label={t("results.benefit.ancillaryTitle")}
                 hint={t("results.benefit.ancillaryCustomerHint")}
-                value={moneyPerYear(ancillaryBest.ancillaryCustomerValueSek)}
+                value={<CountUpValue value={ancillaryBest.ancillaryCustomerValueSek ?? 0} format={(v) => moneyPerYear(v)} />}
               />
               <AncillaryDetails
                 rows={[
@@ -709,14 +715,14 @@ function ResultStep() {
                       ? t("results.benefit.energyHintSolar")
                       : t("results.benefit.energyHintNoSolar")
                   }
-                  value={moneyPerYear(s.economy.energyBenefitSek)}
+                  value={<CountUpValue value={s.economy.energyBenefitSek} format={(v) => moneyPerYear(v)} />}
                 />
               ) : null}
               {p.showDemandSavingRow ? (
                 <BenefitRow
                   label={t("results.benefit.peak")}
                   hint={t("results.benefit.peakHint")}
-                  value={moneyPerYear(s.economy.demandCostSavingSek)}
+                  value={s.economy.demandCostSavingSek === null ? moneyPerYear(null) : <CountUpValue value={s.economy.demandCostSavingSek} format={(v) => moneyPerYear(v)} />}
                 />
               ) : null}
               {ancillaryNote ? (
@@ -727,7 +733,7 @@ function ResultStep() {
                   <BenefitRow
                     label={t("results.benefit.ancillaryTitle")}
                     hint={t("results.benefit.ancillaryCustomerHint")}
-                    value={moneyPerYear(ce.ancillaryCustomerValueSek)}
+                    value={ce.ancillaryCustomerValueSek === null ? moneyPerYear(null) : <CountUpValue value={ce.ancillaryCustomerValueSek} format={(v) => moneyPerYear(v)} />}
                   />
                   {/* Background only: how that figure was derived. Collapsed by default. */}
                   <AncillaryDetails
@@ -818,7 +824,7 @@ function ResultStep() {
                         ) : null}
                       </span>
                       <span className="shrink-0 font-semibold tabular-nums">
-                        {money((maxInvestment / targetYears) * y)}
+                        <CountUpValue value={(maxInvestment / targetYears) * y} format={(v) => money(v)} />
                       </span>
                     </div>
                   );
@@ -1013,7 +1019,7 @@ function AncillaryDetails({
   );
 }
 
-function BenefitRow({ label, hint, value }: { label: string; hint: string; value: string }) {
+function BenefitRow({ label, hint, value }: { label: string; hint: string; value: React.ReactNode }) {
   return (
     <div>
       <div className="flex items-baseline justify-between gap-4 text-[14px] font-medium">
@@ -1031,8 +1037,8 @@ function BeforeAfter({
   after,
 }: {
   label: string;
-  before: string;
-  after: string;
+  before: React.ReactNode;
+  after: React.ReactNode;
 }) {
   return (
     <div className="flex items-center justify-between gap-4 text-[12px] font-medium">
@@ -1088,7 +1094,7 @@ function BenefitDistribution({
                 {label(c.key)}
               </span>
               <span className="font-semibold tabular-nums">
-                {moneyPerYear(c.sek)}
+                <CountUpValue value={c.sek} format={(v) => moneyPerYear(v)} />
                 {c.sharePct === null ? "" : ` \u00b7 ${nf(c.sharePct, 0)} %`}
               </span>
             </div>
@@ -1096,7 +1102,7 @@ function BenefitDistribution({
       </div>
       <div className="mt-2 flex items-baseline justify-between gap-3 border-t border-foreground/10 pt-1.5 text-[12px] font-semibold">
         <span>{totalLabel}</span>
-        <span className="tabular-nums">{money(breakdown.totalCustomerBenefitSek)}</span>
+        <span className="tabular-nums">{breakdown.totalCustomerBenefitSek === null ? money(null) : <CountUpValue value={breakdown.totalCustomerBenefitSek} format={(v) => money(v)} />}</span>
       </div>
     </div>
   );
