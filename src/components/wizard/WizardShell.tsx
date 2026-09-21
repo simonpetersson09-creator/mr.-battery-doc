@@ -145,7 +145,7 @@ export function WizardShell({
                   </span>
                 );
                 return (
-                  <div className="relative flex-[2]">
+                  <div className="relative mt-2">
                     {pageDone ? (
                       <div
                         className="next-arrow pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2"
@@ -185,12 +185,11 @@ export function WizardShell({
               <Button
                 asChild
                 variant="cta"
-                className={`h-10 flex-[2] rounded-[0.75rem] text-[15px] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
+                className={`mt-2 h-10 w-full rounded-[0.75rem] text-[15px] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
               >
                 <Link to="/">{t("common.done")}</Link>
               </Button>
             )}
-          </div>
           {footerExtra ? <div className="mt-2">{footerExtra}</div> : null}
         </nav>
       </main>
