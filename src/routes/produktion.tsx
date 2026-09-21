@@ -129,6 +129,7 @@ function ProductionStep() {
           value={p.annualKwh}
           placeholder={t("errors.egValue", { value: "14000" })}
           compact
+          dense
           error={fieldError.annualKwh}
           reminder={t("validation.reminder")}
           onChange={(v) => update((s) => ({ ...s, production: { ...s.production, annualKwh: v } }))}
