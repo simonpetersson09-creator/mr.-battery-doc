@@ -1013,7 +1013,7 @@ function AncillaryDetails({
   );
 }
 
-function BenefitRow({ label, hint, value }: { label: string; hint: string; value: string }) {
+function BenefitRow({ label, hint, value }: { label: string; hint: string; value: React.ReactNode }) {
   return (
     <div>
       <div className="flex items-baseline justify-between gap-4 text-[14px] font-medium">
