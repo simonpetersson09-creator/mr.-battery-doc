@@ -154,7 +154,7 @@ export function useCardLocked(): boolean {
  * Rendered by SectionCard when it sits inside a CardFlow. Outside the flow this
  * returns null, so every other page keeps its current layout.
  */
-export function CardFlowFooter() {
+export function CardFlowFooter({ canConfirm = true }: { canConfirm?: boolean }) {
   const flow = useContext(FlowContext);
   const index = useContext(CardIndexContext);
   const t = useT();
@@ -163,18 +163,25 @@ export function CardFlowFooter() {
   const isDone = flow.done.has(index);
   const isLast = index === flow.total - 1;
   const isActive = flow.active === index;
+  /* A card showing a validation warning can't be confirmed — the button stays
+     disabled until the field is fixed. Confirmed cards can always be reopened. */
+  const blocked = !isDone && !canConfirm;
 
   return (
     <>
-      {/* Nudge arrow: only on the active card that hasn't been confirmed yet */}
-      {isActive && !isDone ? (
+      {/* Nudge arrow: only on the active, unconfirmed, confirmable card */}
+      {isActive && !isDone && !blocked ? (
         <div className="next-arrow mt-1 flex justify-center" aria-hidden="true">
           <ChevronDown className="size-5 text-[var(--brand-yellow-cta)]" />
         </div>
       ) : null}
       <button
         type="button"
-        onClick={() => flow.confirm(index)}
+        disabled={blocked}
+        aria-disabled={blocked}
+        onClick={() => {
+          if (!blocked) flow.confirm(index);
+        }}
         className={
            "mt-1 flex h-9 w-full items-center justify-center gap-1.5 rounded-[0.75rem] text-[14px] font-bold transition-colors duration-300 ease-out active:scale-[0.99] motion-reduce:transition-none " +
            (isDone
