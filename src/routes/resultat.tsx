@@ -1,5 +1,5 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { ChevronDown, FileText } from "lucide-react";
+import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
+import { ChevronDown, FileText, Pencil } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { buildSnapshot, snapshotOutcome } from "@/lib/history/snapshot";
 import { loadSnapshot, saveSnapshot } from "@/lib/history/store";
@@ -8,9 +8,11 @@ import { SectionCard } from "@/components/wizard/fields";
 import { Button } from "@/components/ui/button";
 import { CountUpValue } from "@/components/CountUp";
 import {
+  clearCalculationCache,
   getCalculation,
   getDerivedAnalyses,
 } from "@/lib/access/calculationCache";
+import { adjustmentCreditsRemaining } from "@/lib/access/entitlements";
 import { useAccess } from "@/state/access";
 import { buildResultPresentation } from "@/lib/battery-app/resultPresentation";
 import {
@@ -84,7 +86,8 @@ const pct = (v: number) => `${nf(v, 0)} %`;
 
 function ResultStep() {
   const t = useT();
-  const { state: liveState } = useWizard();
+  const { state: liveState, update: updateWizard } = useWizard();
+  const navigate = useNavigate();
   const access = useAccess();
   /**
    * HISTORY MODE. `?calc=<id>` renders a stored snapshot of an already purchased
