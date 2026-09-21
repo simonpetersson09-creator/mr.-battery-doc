@@ -653,6 +653,7 @@ export const de = {
     title: "Verlauf",
     subtitle: "Ihre bereits gekauften Batterieberechnungen.",
     adjustmentsLeft: "Sie haben noch {{count}} Anpassungen aus Ihrem letzten Kauf.",
+    adjustmentsUnlimited: "Unbegrenzte Anpassungen mit Premium.",
     itemTitle: "Batterieberechnung",
     benefit: "Berechneter Nutzen {{value}}",
     open: "Ergebnis öffnen",

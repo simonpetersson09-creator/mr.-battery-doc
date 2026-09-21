@@ -646,6 +646,7 @@ export const en = {
     title: "History",
     subtitle: "Your previously purchased battery calculations.",
     adjustmentsLeft: "You have {{count}} adjustments left from your latest purchase.",
+    adjustmentsUnlimited: "Unlimited adjustments with Premium.",
     itemTitle: "Battery calculation",
     benefit: "Estimated benefit {{value}}",
     open: "Open result",

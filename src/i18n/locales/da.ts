@@ -646,6 +646,7 @@ export const da = {
     title: "Historik",
     subtitle: "Dine tidligere købte batteriberegninger.",
     adjustmentsLeft: "Du har {{count}} justeringer tilbage fra dit seneste køb.",
+    adjustmentsUnlimited: "Ubegrænsede justeringer med Premium.",
     itemTitle: "Batteriberegning",
     benefit: "Beregnet gevinst {{value}}",
     open: "Åbn resultat",

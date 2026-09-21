@@ -647,6 +647,7 @@ export const sv = {
     title: "Historik",
     subtitle: "Dina tidigare köpta batteriberäkningar.",
     adjustmentsLeft: "Du har {{count}} justeringar kvar från ditt senaste köp.",
+    adjustmentsUnlimited: "Obegränsade justeringar med Premium.",
     itemTitle: "Batteriberäkning",
     benefit: "Beräknad nytta {{value}}",
     open: "Öppna resultat",
