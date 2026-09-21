@@ -404,7 +404,14 @@ function ResultStep() {
           targetPaybackYears: targetYears,
           alternatives: shownAlternatives,
           ancillaryScenario,
-        }).finally(() => setPdfBusy(false));
+        })
+          .then(() => {
+            // A saved report is the strongest positive moment in the app, so we
+            // ask for the App Store rating here too. Eligibility (native only,
+            // once per version, 30-day gap) is enforced in scheduleAppReview.
+            scheduleAppReview();
+          })
+          .finally(() => setPdfBusy(false));
       }}
     >
       <FileText className="size-4" />
