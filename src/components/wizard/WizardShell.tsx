@@ -86,13 +86,49 @@ export function WizardShell({
         </section>
 
         <nav className="pb-safe mt-auto pt-4" aria-label="Wizard navigation">
+          {confirmReset ? (
+            <div className="mb-2 rounded-[1rem] border border-border bg-card px-3 py-2">
+              <p className="text-[13px] font-semibold leading-snug">{t("settings.reset.confirm")}</p>
+              <div className="mt-2 flex gap-2">
+                <Button
+                  variant="outline"
+                  className="h-9 flex-1 rounded-[0.75rem] text-[13px] font-semibold"
+                  onClick={() => setConfirmReset(false)}
+                >
+                  {t("common.cancel")}
+                </Button>
+                <Button
+                  variant="cta"
+                  className="h-9 flex-1 rounded-[0.75rem] text-[14px] font-bold"
+                  onClick={() => {
+                    clearCalculationCache();
+                    clearFlowMemory();
+                    reset();
+                    setConfirmReset(false);
+                    void navigate({ to: "/" });
+                  }}
+                >
+                  {t("common.restart")}
+                </Button>
+              </div>
+            </div>
+          ) : null}
+          {/* Row 1: Tillbaka + Börja om. Row 2: Nästa/Beräkna, full width. */}
           <div className="flex gap-2">
             <Button asChild variant="outline" className={`h-10 flex-1 rounded-[0.75rem] text-[15px] font-semibold${navButtonClassName ? ` ${navButtonClassName}` : ""}`}>
               <Link to={prev}>{t("common.back")}</Link>
             </Button>
-            {footerAction ? (
-              footerAction
-            ) : next ? (
+            <Button
+              variant="outline"
+              className={`h-10 flex-1 rounded-[0.75rem] text-[15px] font-semibold${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
+              onClick={() => setConfirmReset(true)}
+            >
+              {t("common.restart")}
+            </Button>
+          </div>
+          {footerAction ? (
+            <div className="mt-2 [&>*]:w-full">{footerAction}</div>
+          ) : next ? (
               (() => {
                 // On card-flow pages the badge mirrors confirmed/total cards on
                 // this page; elsewhere it keeps the wizard step counter.
