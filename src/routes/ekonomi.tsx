@@ -99,6 +99,7 @@ function EconomyStep() {
             // the "calculating" label BEFORE it starts is the whole point of the
             // deferral — the inputs, the engine and the flow rule are unchanged.
             setCalculating(true);
+            setCalcDone(false);
             const run = () => {
               try {
                 const calc = getCalculation(state);
@@ -120,9 +121,12 @@ function EconomyStep() {
                 ) {
                   access.consumeAdjustment(calc.id);
                 }
-                void navigate({ to: dest });
-              } finally {
+                // Let the ring visibly reach 100 % before leaving the page.
+                setCalcDone(true);
+                window.setTimeout(() => void navigate({ to: dest }), 480);
+              } catch {
                 setCalculating(false);
+                setCalcDone(false);
               }
             };
             requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(run, 0)));
