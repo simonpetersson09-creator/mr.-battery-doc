@@ -29,7 +29,9 @@ const OVERRIDE_KEY = "mr-battery-doc:dev:force-test-panel";
 
 /** Preview hosts (never the published App Store or production web build). */
 function isPreviewHost(hostname: string): boolean {
-  if (hostname === "localhost" || hostname === "127.0.0.1") return true;
+  // NOT localhost/127.0.0.1: the shipped iOS app (Capacitor) also runs on
+  // localhost, so treating it as a preview host would enable test purchases
+  // in App Store builds. Local development is covered by import.meta.env.DEV.
   if (hostname.includes("preview--")) return true;
   if (hostname.endsWith("-dev.lovable.app")) return true;
   if (hostname.endsWith(".lovableproject.com")) return true;
@@ -39,17 +41,21 @@ function isPreviewHost(hostname: string): boolean {
 export function isDevBuild(): boolean {
   if (import.meta.env.DEV === true) return true;
   if (typeof window === "undefined") return false;
+  if (isPreviewHost(window.location.hostname)) return true;
+  // The ?devtest=1 override exists so test mode can be enabled on a preview
+  // host that the hostname check misses. It must NEVER work on the published
+  // site or in the app: a stored override would otherwise grant permanent
+  // free test purchases in production.
   try {
     const search = window.location.search + window.location.hash;
-    if (/[?&#]devtest=1/.test(search)) {
+    if (/[?&#]devtest=1/.test(search) && isPreviewHost(window.location.hostname)) {
       localStorage.setItem(OVERRIDE_KEY, "1");
       return true;
     }
-    if (localStorage.getItem(OVERRIDE_KEY) === "1") return true;
   } catch {
     /* storage unavailable */
   }
-  return isPreviewHost(window.location.hostname);
+  return false;
 }
 
 export type PurchaseScenario =
