@@ -201,11 +201,14 @@ function ProfilePicker({ error }: { error: string | null }) {
         <SelectTrigger className="ui-control">
           <SelectValue placeholder={t("consumption.profile.placeholder")}>{selected ? selected.name : null}</SelectValue>
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent
+          className="max-h-[min(38dvh,264px)]"
+          collisionPadding={{ top: 64, bottom: 16 }}
+        >
           {PROFILE_CATALOG.map((p) => (
-            <SelectItem key={p.id} value={p.id}>
-              <span className="block font-medium">{p.name}</span>
-              <span className="block text-muted-foreground">{p.description}</span>
+            <SelectItem key={p.id} value={p.id} className="py-2">
+              <span className="block truncate text-sm font-medium leading-tight">{p.name}</span>
+              <span className="block truncate text-xs leading-tight text-muted-foreground">{p.description}</span>
             </SelectItem>
           ))}
         </SelectContent>
