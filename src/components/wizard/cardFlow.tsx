@@ -41,11 +41,24 @@ function flatten(children: ReactNode): ReactNode[] {
   return out;
 }
 
-export function CardFlow({ children, className }: { children: ReactNode; className?: string }) {
+export function CardFlow({
+  children,
+  className,
+  onProgress,
+}: {
+  children: ReactNode;
+  className?: string;
+  /** Reports confirmed/total card counts so the page footer can mirror them. */
+  onProgress?: (progress: { done: number; total: number }) => void;
+}) {
   const items = flatten(children);
   const [active, setActive] = useState(0);
   const [done, setDone] = useState<Set<number>>(() => new Set());
   const refs = useRef<Array<HTMLDivElement | null>>([]);
+
+  useEffect(() => {
+    onProgress?.({ done: done.size, total: items.length });
+  }, [done, items.length, onProgress]);
 
   const confirm = (index: number) => {
     const wasDone = done.has(index);
