@@ -47,11 +47,9 @@ export function isDevBuild(): boolean {
   // site or in the app: a stored override would otherwise grant permanent
   // free test purchases in production.
   try {
-    const search = window.location.search + window.location.hash;
-    if (/[?&#]devtest=1/.test(search) && isPreviewHost(window.location.hostname)) {
-      localStorage.setItem(OVERRIDE_KEY, "1");
-      return true;
-    }
+    // Clear any override stored by an earlier build, then ignore the flag
+    // entirely outside preview hosts.
+    localStorage.removeItem(OVERRIDE_KEY);
   } catch {
     /* storage unavailable */
   }
