@@ -17,6 +17,10 @@ export interface ReportCopy {
   cannotBeCalculated: string;
   before: string;
   after: string;
+  /** Brand line in the report header. */
+  tagline: string;
+  /** Brand line in the page footer. */
+  footerTagline: string;
 
   source: {
     user: string;
@@ -52,6 +56,14 @@ export interface ReportCopy {
     valueSplit: string;
     shiftedSolar: string;
     ancillaryShareNote: string;
+    subtitle: string;
+    improvementsSubtitle: string;
+    selfConsumptionHint: string;
+    selfSufficiencyHint: string;
+    gridImportHint: string;
+    shiftedSolarHint: string;
+    percentagePoints: string;
+    perYearLong: string;
   };
 
   benefit: {
