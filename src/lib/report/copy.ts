@@ -708,6 +708,8 @@ const en: ReportCopy = {
   cannotBeCalculated: "Cannot be calculated",
   before: "Without battery",
   after: "With battery",
+  tagline: "A smarter way to use your electricity",
+  footerTagline: "Better decisions for a brighter future",
 
   source: {
     user: "Your value",
@@ -746,6 +748,16 @@ const en: ReportCopy = {
     shiftedSolar: "Shifted solar",
     ancillaryShareNote:
       "Of the estimated economic value, {value} comes from ancillary services based on historical market prices.",
+    subtitle: "Recommended battery and estimated value for your property",
+    improvementsSubtitle:
+      "The battery lets you use more of your own electricity and buy less from the grid.",
+    selfConsumptionHint: "Share of the solar electricity used directly in the property.",
+    selfSufficiencyHint: "Share of the property's electricity use covered by your own electricity.",
+    gridImportHint: "Electricity bought from the grid.",
+    shiftedSolarHint:
+      "More of your own solar production is used in the property instead of being exported to the grid.",
+    percentagePoints: "percentage points",
+    perYearLong: "per year",
   },
 
   benefit: {
