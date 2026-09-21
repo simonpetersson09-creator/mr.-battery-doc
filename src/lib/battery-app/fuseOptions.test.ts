@@ -14,20 +14,20 @@ const FOUR: CountryCode[] = ["SE", "FI", "DK", "DE"];
 
 describe("country specific main fuse options", () => {
   it("A. Sweden lists the Swedish sizes", () => {
-    expect(fuseOptions("SE")).toEqual([16, 20, 25, 35, 50, 63, 80, 100, 125, 160, 200]);
+    expect(fuseOptions("SE")).toEqual([16, 20, 25, 35, 50, 63, 80, 100, 125, 160, 200, 400]);
   });
 
   it("B. Finland keeps its own primary list and still allows 16/20 A", () => {
-    expect(COUNTRIES.FI.grid.commonMainFuses).toEqual([25, 35, 50, 63, 80, 100, 125, 160, 200]);
-    expect(fuseOptions("FI")).toEqual([16, 20, 25, 35, 50, 63, 80, 100, 125, 160, 200]);
+    expect(COUNTRIES.FI.grid.commonMainFuses).toEqual([25, 35, 50, 63, 80, 100, 125, 160, 200, 400]);
+    expect(fuseOptions("FI")).toEqual([16, 20, 25, 35, 50, 63, 80, 100, 125, 160, 200, 400]);
   });
 
   it("C. Denmark lists the Danish sizes", () => {
-    expect(fuseOptions("DK")).toEqual([16, 20, 25, 32, 35, 40, 50, 63, 80, 100]);
+    expect(fuseOptions("DK")).toEqual([16, 20, 25, 32, 35, 40, 50, 63, 80, 100, 400]);
   });
 
   it("D. Germany lists the German sizes", () => {
-    expect(fuseOptions("DE")).toEqual([16, 20, 25, 32, 35, 40, 50, 63, 80, 100]);
+    expect(fuseOptions("DE")).toEqual([16, 20, 25, 32, 35, 40, 50, 63, 80, 100, 400]);
   });
 
   it("E. DK1 and DK2 share one fuse list (price area never changes fuses)", () => {
