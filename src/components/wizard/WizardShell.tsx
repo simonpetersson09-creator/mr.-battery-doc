@@ -65,6 +65,21 @@ export function WizardShell({
   // Both back affordances follow the wizard's own step order.
   const prev = stepIndex > 0 ? WIZARD_STEPS[stepIndex - 1]!.path : "/";
   const next = stepIndex < WIZARD_STEPS.length - 1 ? WIZARD_STEPS[stepIndex + 1]!.path : null;
+  const stepPath = WIZARD_STEPS[stepIndex]?.path ?? String(stepIndex);
+
+  // Anonymous usage tracking: which step the user reached, and what stopped them.
+  useEffect(() => {
+    markStepEntered();
+    track("step_view", { step: stepPath, once: true });
+  }, [stepPath]);
+  useEffect(() => {
+    if (!nextBlockedReason) return;
+    const id = window.setTimeout(() => {
+      track("step_blocked", { step: stepPath, detail: nextBlockedReason });
+    }, 4000);
+    return () => window.clearTimeout(id);
+  }, [nextBlockedReason, stepPath]);
+
 
   return (
     <div className="app-shell surface-sun">
