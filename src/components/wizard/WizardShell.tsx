@@ -1,8 +1,10 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Check, ChevronDown } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { WIZARD_STEPS } from "./steps";
-import { CardFlow } from "./cardFlow";
+import { CardFlow, clearFlowMemory } from "./cardFlow";
+import { useWizard } from "@/state/wizard";
+import { clearCalculationCache } from "@/lib/access/calculationCache";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/i18n";
 import logo from "@/assets/mr-battery-doc-logo.png";
@@ -49,6 +51,9 @@ export function WizardShell({
   navButtonClassName,
 }: WizardShellProps) {
   const t = useT();
+  const { reset } = useWizard();
+  const navigate = useNavigate();
+  const [confirmReset, setConfirmReset] = useState(false);
   const [flowProgress, setFlowProgress] = useState<{ done: number; total: number } | null>(null);
   // Both back affordances follow the wizard's own step order.
   const prev = stepIndex > 0 ? WIZARD_STEPS[stepIndex - 1]!.path : "/";

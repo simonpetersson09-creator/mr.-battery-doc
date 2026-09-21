@@ -313,6 +313,7 @@ function SettingsPage() {
                   className="h-9 flex-1 rounded-[0.75rem] text-[14px] font-bold"
                   onClick={() => {
                     clearCalculationCache();
+                    clearFlowMemory();
                     reset();
                     setConfirmReset(false);
                     void navigate({ to: "/" });

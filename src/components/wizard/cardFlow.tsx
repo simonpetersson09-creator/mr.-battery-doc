@@ -49,6 +49,11 @@ function flatten(children: ReactNode): ReactNode[] {
  */
 const flowMemory = new Map<string, number[]>();
 
+/** Clears all remembered card confirmations (used by "Börja om"). */
+export function clearFlowMemory() {
+  flowMemory.clear();
+}
+
 export function CardFlow({
   children,
   className,
