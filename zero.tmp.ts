@@ -1,0 +1,12 @@
+import { getCalculation } from "@/lib/access/calculationCache";
+import { defaultWizardState } from "@/state/wizard";
+const s: any = JSON.parse(JSON.stringify(defaultWizardState));
+s.grid.mainFuseA = 200;
+s.consumption.mode = "annual";
+s.consumption.annualKwh = 0;
+s.consumption.profileId = "normal";
+s.production.none = true;
+s.strategies = { ...s.strategies, solarSelfConsumption: false, peakShaving: false, ancillary: true };
+s.economy = { ...s.economy, paybackYears: 10 };
+const r: any = getCalculation(s);
+console.log(JSON.stringify({ ok: r.ok, cap: r.result?.recommendation?.capacityKWh, kw: r.result?.recommendation?.recommendedPowerKw }, null, 1));
