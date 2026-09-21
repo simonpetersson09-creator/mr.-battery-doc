@@ -72,9 +72,12 @@ export function SectionCard({
       {children ? (
         <fieldset
           disabled={locked}
+          inert={locked || undefined}
+          aria-disabled={locked || undefined}
           className={
             (title || description ? (compact ? "mt-1.5 space-y-1.5" : "mt-3 space-y-3") : compact ? "space-y-1.5" : "space-y-3") +
-            " border-0 p-0 m-0"
+            " border-0 p-0 m-0" +
+            (locked ? " pointer-events-none select-none opacity-60" : "")
           }
         >
           {children}
