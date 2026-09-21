@@ -391,6 +391,7 @@ function ResultStep() {
       aria-disabled={!pdfEnabled}
       onClick={() => {
         if (!pdfEnabled) return;
+        track("pdf_download", { country: countryCode });
         setPdfBusy(true);
         void generatePdfReport({
           outcome,
