@@ -35,7 +35,6 @@ export const fi = {
   },
   units: {
     perYear: "/v",
-    perYearShort: "kr/v",
     kwhPerYear: "kWh/v",
     perKwh: "{{currency}}/kWh",
     perKwMonth: "{{currency}}/kW/kk",
