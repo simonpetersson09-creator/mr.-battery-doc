@@ -25,11 +25,32 @@ function failure(errorCode: string, error: string): ExtractionResponse {
   return { series: [], selfConsumptionPct: null, notes: [], error, errorCode };
 }
 
+/** Resolves with a readable failure instead of hanging when a call never answers. */
+function withDeadline(
+  work: Promise<ExtractionResponse>,
+  ms: number,
+): Promise<ExtractionResponse> {
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (value: ExtractionResponse) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve(value);
+    };
+    const timer = setTimeout(() => finish(failure("unreadable", "Timed out.")), ms);
+    void work.then(finish, () => finish(failure("unreadable", "Document could not be read.")));
+  });
+}
+
 export async function extractMonthlyDocument(
   input: ExtractMonthlyInput,
 ): Promise<ExtractionResponse> {
   if (!isNativePlatform()) {
-    return extractMonthlyFromDocument({ data: input });
+    return withDeadline(
+      Promise.resolve().then(() => extractMonthlyFromDocument({ data: input })),
+      NATIVE_TIMEOUT_MS,
+    );
   }
 
   const url = apiUrl(IMPORT_EXTRACT_PATH);
