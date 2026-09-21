@@ -1088,7 +1088,7 @@ function BenefitDistribution({
                 {label(c.key)}
               </span>
               <span className="font-semibold tabular-nums">
-                {moneyPerYear(c.sek)}
+                <CountUpValue value={c.sek} format={(v) => moneyPerYear(v)} />
                 {c.sharePct === null ? "" : ` \u00b7 ${nf(c.sharePct, 0)} %`}
               </span>
             </div>
