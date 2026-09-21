@@ -126,21 +126,21 @@ function HistoryPage() {
                     })}
                   </p>
 
-                  <div className="mt-2.5 flex gap-2">
+                  <div className="mt-2.5 space-y-2">
                     <button
                       type="button"
                       disabled={!entry.openable}
-                      className="flex h-9 flex-[2] items-center justify-center gap-1 rounded-[0.75rem] bg-foreground px-3 text-[13px] font-semibold text-background disabled:opacity-50"
+                      className="flex h-9 w-full items-center justify-center gap-1 rounded-[0.75rem] bg-foreground px-3 text-[13px] font-semibold text-background disabled:opacity-50"
                       onClick={() =>
                         void navigate({ to: "/resultat", search: { calc: entry.calculationId } })
                       }
                     >
-                      {t("history.open")}
-                      <ChevronRight className="size-4" />
+                      <span className="truncate">{t("history.open")}</span>
+                      <ChevronRight className="size-4 shrink-0" />
                     </button>
                     <button
                       type="button"
-                      className="flex h-9 flex-1 items-center justify-center gap-1 rounded-[0.75rem] border border-border px-3 text-[13px] font-semibold"
+                      className="flex min-h-9 w-full items-center justify-center gap-1.5 rounded-[0.75rem] border border-border px-3 py-1.5 text-center text-[13px] font-semibold leading-tight"
                       onClick={() => {
                         /* Wizard inputs are restored from the snapshot; the old
                            result stays untouched in the history. */
@@ -149,9 +149,18 @@ function HistoryPage() {
                         void navigate({ to: "/nat" });
                       }}
                     >
-                      <Pencil className="size-3.5" />
-                      {t("history.edit")}
+                      <Pencil className="size-3.5 shrink-0" />
+                      <span>{t("history.edit")}</span>
                     </button>
+                    {(() => {
+                      const credits = adjustmentCreditsRemaining(access.entitlements);
+                      if (access.premiumActive || credits <= 0) return null;
+                      return (
+                        <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
+                          {t("history.adjustmentsLeft", { count: credits })}
+                        </p>
+                      );
+                    })()}
                   </div>
 
                   {entry.openable ? null : (
