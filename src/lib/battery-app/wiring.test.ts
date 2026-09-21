@@ -204,8 +204,8 @@ describe("Nästa is blocked on invalid input", () => {
 });
 
 describe("restart clears the wizard", () => {
-  it("the result page calls reset() and navigates home", () => {
-    const page = read("src/routes/resultat.tsx");
+  it("the settings page calls reset() and navigates home", () => {
+    const page = read("src/routes/installningar.tsx");
     expect(page).toMatch(/reset\(\)/);
     expect(page).toMatch(/navigate\(\{ to: "\/" \}\)/);
   });
