@@ -495,8 +495,14 @@ function ResultStep() {
                           value={alt.customerBenefitSek}
                           format={(v) => moneyPerYear(v)}
                         />
+                      ) : alt.customerBenefitSek === null ? (
+                        moneyPerYear(null)
                       ) : (
-                        moneyPerYear(alt.customerBenefitSek)
+                        <CountUpValue
+                          value={alt.customerBenefitSek}
+                          format={(v) => moneyPerYear(v)}
+                          duration={900}
+                        />
                       )}
                     </p>
                   </div>
