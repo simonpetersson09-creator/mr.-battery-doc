@@ -22,8 +22,12 @@ export const Route = createFileRoute("/statistik")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: StatsPage,
+  component: import.meta.env.DEV ? StatsPage : NotFound,
 });
+
+function NotFound() {
+  return null;
+}
 
 const PIN_KEY = "mr-battery-doc:stats:pin:v1";
 const RANGES = [7, 30, 90] as const;
