@@ -290,5 +290,6 @@ function EconomyStep() {
         <p className="ui-help mt-1.5 text-pretty">{t("payback.guide")}</p>
       </SectionCard>
     </WizardShell>
+    </>
   );
 }
