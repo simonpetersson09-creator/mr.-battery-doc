@@ -22,6 +22,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { clearCalculationCache } from "@/lib/access/calculationCache";
+import { clearFlowMemory } from "@/components/wizard/cardFlow";
 import { useWizard } from "@/state/wizard";
 import { lazy, Suspense, useEffect, useState } from "react";
 import type { ProductKey } from "@/lib/access/products";
@@ -313,6 +314,7 @@ function SettingsPage() {
                   className="h-9 flex-1 rounded-[0.75rem] text-[14px] font-bold"
                   onClick={() => {
                     clearCalculationCache();
+                    clearFlowMemory();
                     reset();
                     setConfirmReset(false);
                     void navigate({ to: "/" });

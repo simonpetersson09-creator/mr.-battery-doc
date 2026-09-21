@@ -1,8 +1,10 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Check, ChevronDown } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { WIZARD_STEPS } from "./steps";
-import { CardFlow } from "./cardFlow";
+import { CardFlow, clearFlowMemory } from "./cardFlow";
+import { useWizard } from "@/state/wizard";
+import { clearCalculationCache } from "@/lib/access/calculationCache";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/i18n";
 import logo from "@/assets/mr-battery-doc-logo.png";
@@ -49,6 +51,9 @@ export function WizardShell({
   navButtonClassName,
 }: WizardShellProps) {
   const t = useT();
+  const { reset } = useWizard();
+  const navigate = useNavigate();
+  const [confirmReset, setConfirmReset] = useState(false);
   const [flowProgress, setFlowProgress] = useState<{ done: number; total: number } | null>(null);
   // Both back affordances follow the wizard's own step order.
   const prev = stepIndex > 0 ? WIZARD_STEPS[stepIndex - 1]!.path : "/";
@@ -86,13 +91,49 @@ export function WizardShell({
         </section>
 
         <nav className="pb-safe mt-auto pt-4" aria-label="Wizard navigation">
+          {confirmReset ? (
+            <div className="mb-2 rounded-[1rem] border border-border bg-card px-3 py-2">
+              <p className="text-[13px] font-semibold leading-snug">{t("settings.reset.confirm")}</p>
+              <div className="mt-2 flex gap-2">
+                <Button
+                  variant="outline"
+                  className="h-9 flex-1 rounded-[0.75rem] text-[13px] font-semibold"
+                  onClick={() => setConfirmReset(false)}
+                >
+                  {t("common.cancel")}
+                </Button>
+                <Button
+                  variant="cta"
+                  className="h-9 flex-1 rounded-[0.75rem] text-[14px] font-bold"
+                  onClick={() => {
+                    clearCalculationCache();
+                    clearFlowMemory();
+                    reset();
+                    setConfirmReset(false);
+                    void navigate({ to: "/" });
+                  }}
+                >
+                  {t("common.restart")}
+                </Button>
+              </div>
+            </div>
+          ) : null}
+          {/* Row 1: Tillbaka + Börja om. Row 2: Nästa/Beräkna, full width. */}
           <div className="flex gap-2">
             <Button asChild variant="outline" className={`h-10 flex-1 rounded-[0.75rem] text-[15px] font-semibold${navButtonClassName ? ` ${navButtonClassName}` : ""}`}>
               <Link to={prev}>{t("common.back")}</Link>
             </Button>
-            {footerAction ? (
-              footerAction
-            ) : next ? (
+            <Button
+              variant="outline"
+              className={`h-10 flex-1 rounded-[0.75rem] text-[15px] font-semibold${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
+              onClick={() => setConfirmReset(true)}
+            >
+              {t("common.restart")}
+            </Button>
+          </div>
+          {footerAction ? (
+            <div className="mt-2 [&>*]:w-full">{footerAction}</div>
+          ) : next ? (
               (() => {
                 // On card-flow pages the badge mirrors confirmed/total cards on
                 // this page; elsewhere it keeps the wizard step counter.
@@ -109,7 +150,7 @@ export function WizardShell({
                   </span>
                 );
                 return (
-                  <div className="relative flex-[2]">
+                  <div className="relative mt-2">
                     {pageDone ? (
                       <div
                         className="next-arrow pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2"
@@ -149,12 +190,11 @@ export function WizardShell({
               <Button
                 asChild
                 variant="cta"
-                className={`h-10 flex-[2] rounded-[0.75rem] text-[15px] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
+                className={`mt-2 h-10 w-full rounded-[0.75rem] text-[15px] font-bold shadow-cta${navButtonClassName ? ` ${navButtonClassName}` : ""}`}
               >
                 <Link to="/">{t("common.done")}</Link>
               </Button>
             )}
-          </div>
           {footerExtra ? <div className="mt-2">{footerExtra}</div> : null}
         </nav>
       </main>
