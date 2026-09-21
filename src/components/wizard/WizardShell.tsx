@@ -47,6 +47,8 @@ export function WizardShell({
   nextBlockedReason,
   footerAction,
   footerExtra,
+  backSlot,
+  navNote,
   compact,
   cardFlow,
   titleClassName,
