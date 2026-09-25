@@ -13,7 +13,7 @@
     "build:native": "node scripts/build-native.mjs",
     "sync:ios": "node scripts/build-native.mjs && cap sync ios",
     "open:ios": "cap open ios",
-    "add:android": "node scripts/build-native.mjs && cap add android",
+    "add:android": "node scripts/sync-android.mjs",
     "sync:android": "node scripts/sync-android.mjs",
     "open:android": "cap open android"
   },
@@ -103,6 +103,7 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^15.15.0",
     "nitro": "3.0.260603-beta",
+    "pngjs": "^7.0.0",
     "prettier": "^3.7.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",

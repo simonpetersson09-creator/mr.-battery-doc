@@ -75,10 +75,12 @@ console.log(
   `[build:native] OK -> capacitor-www (index.html + ${js.length} js, ${css.length} css, ${(size / 1e6).toFixed(1)} MB total)`,
 );
 
-// Sync the app icon into the Xcode project on every native build/sync.
-try {
-  const { execFileSync } = await import("node:child_process");
-  execFileSync(process.execPath, ["scripts/sync-ios-icon.mjs"], { stdio: "inherit" });
-} catch (e) {
-  console.warn("[build:native] icon sync skipped:", e?.message ?? e);
+// Android sync explicitly skips this so it never writes to the Xcode project.
+if (process.env["SKIP_IOS_ICON_SYNC"] !== "1") {
+  try {
+    const { execFileSync } = await import("node:child_process");
+    execFileSync(process.execPath, ["scripts/sync-ios-icon.mjs"], { stdio: "inherit" });
+  } catch (e) {
+    console.warn("[build:native] icon sync skipped:", e?.message ?? e);
+  }
 }
