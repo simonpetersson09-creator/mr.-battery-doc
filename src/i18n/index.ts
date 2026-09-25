@@ -16,6 +16,7 @@ import { en } from "./locales/en";
 import { de } from "./locales/de";
 import { da } from "./locales/da";
 import { fi } from "./locales/fi";
+import { applyPlatformCopy } from "./platformCopy";
 
 export const SUPPORTED_LANGUAGES = ["sv", "en", "de", "da", "fi"] as const;
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
@@ -127,6 +128,8 @@ if (import.meta.hot) {
     i18next.emit("languageChanged", i18next.language);
   });
 }
+
+applyPlatformCopy(i18next);
 
 export const i18n = i18next;
 

@@ -33,6 +33,20 @@ export function isIOS(): boolean {
   return platformName() === "ios";
 }
 
+export function isAndroid(): boolean {
+  return platformName() === "android";
+}
+
+/** Which app store handles purchases on this device. "none" = web/browser. */
+export type AppStoreKind = "apple" | "google" | "none";
+
+export function currentAppStore(): AppStoreKind {
+  if (!isNativePlatform()) return "none";
+  if (isIOS()) return "apple";
+  if (isAndroid()) return "google";
+  return "none";
+}
+
 /**
  * Opens an external URL. Inside the native WebView a plain in-app navigation would
  * replace the app with the web page (or dead-end the router), so we force the
@@ -54,3 +68,14 @@ export const APPLE_STANDARD_EULA_URL =
 
 /** Apple's subscription management sheet. */
 export const MANAGE_SUBSCRIPTION_URL = "https://apps.apple.com/account/subscriptions";
+
+/** Android package name — identical to the iOS Bundle Identifier. */
+export const ANDROID_PACKAGE_NAME = "se.shiningdays.mrbatterydoc";
+
+/** Google Play's subscription management page for this app. */
+export const GOOGLE_PLAY_MANAGE_SUBSCRIPTION_URL = `https://play.google.com/store/account/subscriptions?package=${ANDROID_PACKAGE_NAME}`;
+
+/** Platform-specific subscription management URL (Apple everywhere except Android). */
+export function manageSubscriptionUrl(): string {
+  return isAndroid() ? GOOGLE_PLAY_MANAGE_SUBSCRIPTION_URL : MANAGE_SUBSCRIPTION_URL;
+}

@@ -12,8 +12,8 @@
  *    server-verified purchase has been stored
  *  - nothing runs in the browser: initialisation is refused off native iOS
  */
-import { isIOS, isNativePlatform } from "@/lib/platform/runtime";
-import { PRODUCT_IDS, PRODUCT_TYPES, type ProductKey } from "../products";
+import { isAndroid, isIOS, isNativePlatform } from "@/lib/platform/runtime";
+import { GOOGLE_PLAY_BILLING_ENABLED, PRODUCT_IDS, PRODUCT_TYPES, type ProductKey } from "../products";
 import { registerNativePurchasePlugin, type NativePurchasePlugin } from "../gateways/native";
 
 /* Minimal structural typing of the plugin's global — we never import its module
@@ -55,7 +55,7 @@ interface CdvStore {
 }
 interface CdvNamespace {
   store: CdvStore;
-  Platform: { APPLE_APPSTORE: string };
+  Platform: { APPLE_APPSTORE: string; GOOGLE_PLAY?: string };
   ProductType: { CONSUMABLE: string; PAID_SUBSCRIPTION: string };
   LogLevel?: { QUIET: number };
 }
@@ -128,7 +128,11 @@ function mapPluginError(
   return { status: "failed", code, message };
 }
 
-export function createCdvPurchaseAdapter(ns: CdvNamespace): NativePurchasePlugin {
+export function createCdvPurchaseAdapter(
+  ns: CdvNamespace,
+  /** Store platform; defaults to Apple so the existing iOS path is unchanged. */
+  platform: string = ns.Platform.APPLE_APPSTORE,
+): NativePurchasePlugin {
   const store = ns.store;
   let initialized: Promise<void> | null = null;
   const productListeners = new Set<() => void>();
@@ -169,7 +173,7 @@ export function createCdvPurchaseAdapter(ns: CdvNamespace): NativePurchasePlugin
     initialized = (async () => {
       for (const key of Object.keys(PRODUCT_IDS) as ProductKey[]) {
         store.register([
-          { id: PRODUCT_IDS[key], type: productTypeFor(key, ns), platform: ns.Platform.APPLE_APPSTORE },
+          { id: PRODUCT_IDS[key], type: productTypeFor(key, ns), platform },
         ]);
       }
       const events = store.when();
@@ -192,7 +196,7 @@ export function createCdvPurchaseAdapter(ns: CdvNamespace): NativePurchasePlugin
       store.error(() => {
         /* individual calls surface their own errors */
       });
-      const errors = await store.initialize([{ platform: ns.Platform.APPLE_APPSTORE }]);
+      const errors = await store.initialize([{ platform }]);
       if (Array.isArray(errors) && errors.length > 0) {
         const first = errors[0] as { code?: unknown; message?: unknown } | undefined;
         throw Object.assign(new Error(String(first?.message ?? "StoreKit initialization failed")), {
@@ -210,7 +214,7 @@ export function createCdvPurchaseAdapter(ns: CdvNamespace): NativePurchasePlugin
   function loadedProducts(productIds: string[]): Array<{ productId: string; displayPrice: string }> {
     const out: Array<{ productId: string; displayPrice: string }> = [];
     for (const id of productIds) {
-      const p = store.get(id, ns.Platform.APPLE_APPSTORE);
+      const p = store.get(id, platform);
       const price = p?.pricing?.price ?? p?.offers?.[0]?.pricingPhases?.[0]?.price;
       if (p && price) out.push({ productId: id, displayPrice: price });
     }
@@ -274,7 +278,7 @@ export function createCdvPurchaseAdapter(ns: CdvNamespace): NativePurchasePlugin
       } catch (err) {
         return mapPluginError(err);
       }
-      const product = store.get(productId, ns.Platform.APPLE_APPSTORE);
+      const product = store.get(productId, platform);
       if (!product) return { status: "failed" as const, code: "PRODUCT_UNAVAILABLE" };
 
       const transaction = new Promise<CdvTransaction | null>((resolve) => {
@@ -387,4 +391,25 @@ export function initNativeStoreKit(): boolean {
   if (!ns?.store) return false;
   registerNativePurchasePlugin(createCdvPurchaseAdapter(ns));
   return true;
+}
+
+/**
+ * Registers the Google Play Billing adapter — native Android only, and only once
+ * GOOGLE_PLAY_BILLING_ENABLED is switched on (after server-side Google Play
+ * verification exists). Until then Android keeps the non-purchasing gateway.
+ */
+export function initNativeGooglePlay(): boolean {
+  if (!GOOGLE_PLAY_BILLING_ENABLED) return false;
+  if (!isNativePlatform() || !isAndroid()) return false;
+  const ns = cdv();
+  const platform = ns?.Platform.GOOGLE_PLAY;
+  if (!ns?.store || !platform) return false;
+  registerNativePurchasePlugin(createCdvPurchaseAdapter(ns, platform));
+  return true;
+}
+
+/** Registers the adapter for whichever store this device uses. */
+export function initNativeStore(): boolean {
+  if (isAndroid()) return initNativeGooglePlay();
+  return initNativeStoreKit();
 }

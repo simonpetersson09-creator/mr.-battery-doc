@@ -141,6 +141,14 @@ function RootComponent() {
     if (isNativePlatform()) {
       root.dataset["native"] = "true";
       root.dataset["platform"] = platformName();
+      if (platformName() === "android") {
+        // Safety net: re-apply Google Play wording once the native bridge is surely present.
+        void import("../i18n/platformCopy").then(async ({ applyPlatformCopy }) => {
+          const { i18n } = await import("../i18n");
+          applyPlatformCopy(i18n);
+          void i18n.changeLanguage(i18n.language);
+        });
+      }
       /* Native only: focusing a field must never zoom the WebView, because the
          user has no way to pinch back out inside the app shell. The web build
          keeps its accessible, zoomable viewport. */
@@ -194,7 +202,7 @@ function RootComponent() {
     };
   }, [router]);
 
-  // Native iOS only: register the StoreKit adapter before the access layer runs
+  // Native only: register the store adapter (StoreKit on iOS, Google Play on Android) before the access layer runs
   // its recovery pass. A no-op in the browser, where purchases do not exist.
   useEffect(() => {
     if (!isNativePlatform()) return;
@@ -203,13 +211,13 @@ function RootComponent() {
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
     let removeBridgeListeners: (() => void) | undefined;
     void (async () => {
-      const { initNativeStoreKit } = await import("@/lib/access/storekit/cdvPurchase");
+      const { initNativeStore } = await import("@/lib/access/storekit/cdvPurchase");
       if (cancelled) return;
       // The plugin's global appears once the Cordova bridge has loaded.
       let attempts = 0;
       const tryInit = () => {
         if (cancelled || registered) return;
-        registered = initNativeStoreKit();
+        registered = initNativeStore();
         if (registered) return;
         // Keep covering slow TestFlight cold starts instead of permanently
         // falling back to the web gateway after only five seconds.

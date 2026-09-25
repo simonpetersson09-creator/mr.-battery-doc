@@ -1,11 +1,11 @@
 /**
  * "Manage subscription".
  *
- * Native iOS: Apple's own management sheet when the StoreKit adapter exposes it,
- * otherwise the system subscriptions URL. Web: the normal Apple web page — never
- * a fake native navigation.
+ * Native: the store's own management sheet when the adapter exposes it
+ * (Apple on iOS, Google Play on Android), otherwise the store's subscriptions
+ * URL. Web: Apple's web page as before — never a fake native navigation.
  */
-import { MANAGE_SUBSCRIPTION_URL, openExternalUrl } from "@/lib/platform/runtime";
+import { manageSubscriptionUrl, openExternalUrl } from "@/lib/platform/runtime";
 import { nativePurchasePlugin } from "./gateways/native";
 
 /** How the request was handled, so the UI can explain itself instead of doing nothing. */
@@ -21,7 +21,6 @@ export async function openManageSubscription(): Promise<ManageSubscriptionResult
       /* fall through to the URL */
     }
   }
-  // Web/development: Apple's own page. Never a fake in-app navigation.
-  openExternalUrl(MANAGE_SUBSCRIPTION_URL);
+  openExternalUrl(manageSubscriptionUrl());
   return "external";
 }

@@ -12,13 +12,17 @@
     "format": "prettier --write .",
     "build:native": "node scripts/build-native.mjs",
     "sync:ios": "node scripts/build-native.mjs && cap sync ios",
-    "open:ios": "cap open ios"
+    "open:ios": "cap open ios",
+    "add:android": "node scripts/build-native.mjs && cap add android",
+    "sync:android": "node scripts/sync-android.mjs",
+    "open:android": "cap open android"
   },
   "overrides": {
     "rolldown": "1.2.1"
   },
   "dependencies": {
     "@capacitor-community/in-app-review": "^8.0.0",
+    "@capacitor/android": "^8.5.1",
     "@capacitor/camera": "^8.2.4",
     "@capacitor/core": "^8.5.1",
     "@capacitor/filesystem": "^8.1.3",
