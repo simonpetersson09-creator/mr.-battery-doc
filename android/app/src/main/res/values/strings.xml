@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Mr. Battery Doc</string>
+    <string name="title_activity_main">Mr. Battery Doc</string>
+    <string name="package_name">se.shiningdays.mrbatterydoc</string>
+    <string name="custom_url_scheme">se.shiningdays.mrbatterydoc</string>
+</resources>
