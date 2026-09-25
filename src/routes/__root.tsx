@@ -141,6 +141,14 @@ function RootComponent() {
     if (isNativePlatform()) {
       root.dataset["native"] = "true";
       root.dataset["platform"] = platformName();
+      if (platformName() === "android") {
+        // Safety net: re-apply Google Play wording once the native bridge is surely present.
+        void import("../i18n/platformCopy").then(async ({ applyPlatformCopy }) => {
+          const { i18n } = await import("../i18n");
+          applyPlatformCopy(i18n);
+          void i18n.changeLanguage(i18n.language);
+        });
+      }
       /* Native only: focusing a field must never zoom the WebView, because the
          user has no way to pinch back out inside the app shell. The web build
          keeps its accessible, zoomable viewport. */
