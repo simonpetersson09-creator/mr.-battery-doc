@@ -52,6 +52,29 @@ export const PREMIUM_SUBSCRIPTION_GROUP = "Mr Battery Doc Premium";
 
 export const PRODUCTS_CONFIGURED = APP_STORE_CONNECT_CONFIRMED;
 
+/* ------------------------------------------------------------------------- *
+ * GOOGLE PLAY (Android) — PLACEHOLDER CONFIGURATION.
+ *
+ * The Apple ids above are untouched. Google Play uses the same product id
+ * strings (they are valid Play product ids), so every platform-independent
+ * lookup (`productKeyForId`, entitlement rules) keeps working unchanged.
+ * Create them in Play Console with exactly these ids:
+ *   - singleReport -> in-app product (one-time, consumed after delivery)
+ *   - premiumYear  -> subscription with one auto-renewing yearly base plan
+ * ------------------------------------------------------------------------- */
+export const GOOGLE_PLAY_PRODUCT_IDS: Record<ProductKey, string> = { ...PRODUCT_IDS };
+
+/** Base plan id of the yearly Premium subscription in Play Console (placeholder). */
+export const GOOGLE_PLAY_PREMIUM_BASE_PLAN_ID = "yearly";
+
+/**
+ * Master switch for Google Play purchases. Stays false until server-side Google
+ * Play verification exists: without it no Android purchase could ever be
+ * verified, so the Android app keeps purchasing disabled instead of charging a
+ * customer who then gets nothing.
+ */
+export const GOOGLE_PLAY_BILLING_ENABLED = false;
+
 export function productKeyForId(productId: string): ProductKey | null {
   const hit = (Object.keys(PRODUCT_IDS) as ProductKey[]).find(
     (key) => PRODUCT_IDS[key] === productId,
