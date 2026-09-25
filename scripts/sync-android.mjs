@@ -7,3 +7,4 @@ import { existsSync } from "node:fs";
 execSync("node scripts/build-native.mjs", { stdio: "inherit" });
 if (!existsSync("android")) execSync("npx cap add android", { stdio: "inherit" });
 execSync("npx cap sync android", { stdio: "inherit" });
+execSync("node scripts/sync-android-icon.mjs", { stdio: "inherit" });
