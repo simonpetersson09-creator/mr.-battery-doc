@@ -194,7 +194,7 @@ function RootComponent() {
     };
   }, [router]);
 
-  // Native iOS only: register the StoreKit adapter before the access layer runs
+  // Native only: register the store adapter (StoreKit on iOS, Google Play on Android) before the access layer runs
   // its recovery pass. A no-op in the browser, where purchases do not exist.
   useEffect(() => {
     if (!isNativePlatform()) return;
@@ -203,13 +203,13 @@ function RootComponent() {
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
     let removeBridgeListeners: (() => void) | undefined;
     void (async () => {
-      const { initNativeStoreKit } = await import("@/lib/access/storekit/cdvPurchase");
+      const { initNativeStore } = await import("@/lib/access/storekit/cdvPurchase");
       if (cancelled) return;
       // The plugin's global appears once the Cordova bridge has loaded.
       let attempts = 0;
       const tryInit = () => {
         if (cancelled || registered) return;
-        registered = initNativeStoreKit();
+        registered = initNativeStore();
         if (registered) return;
         // Keep covering slow TestFlight cold starts instead of permanently
         // falling back to the web gateway after only five seconds.

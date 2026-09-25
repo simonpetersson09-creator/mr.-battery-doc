@@ -12,8 +12,8 @@
  *    server-verified purchase has been stored
  *  - nothing runs in the browser: initialisation is refused off native iOS
  */
-import { isIOS, isNativePlatform } from "@/lib/platform/runtime";
-import { PRODUCT_IDS, PRODUCT_TYPES, type ProductKey } from "../products";
+import { isAndroid, isIOS, isNativePlatform } from "@/lib/platform/runtime";
+import { GOOGLE_PLAY_BILLING_ENABLED, PRODUCT_IDS, PRODUCT_TYPES, type ProductKey } from "../products";
 import { registerNativePurchasePlugin, type NativePurchasePlugin } from "../gateways/native";
 
 /* Minimal structural typing of the plugin's global — we never import its module
@@ -391,4 +391,25 @@ export function initNativeStoreKit(): boolean {
   if (!ns?.store) return false;
   registerNativePurchasePlugin(createCdvPurchaseAdapter(ns));
   return true;
+}
+
+/**
+ * Registers the Google Play Billing adapter — native Android only, and only once
+ * GOOGLE_PLAY_BILLING_ENABLED is switched on (after server-side Google Play
+ * verification exists). Until then Android keeps the non-purchasing gateway.
+ */
+export function initNativeGooglePlay(): boolean {
+  if (!GOOGLE_PLAY_BILLING_ENABLED) return false;
+  if (!isNativePlatform() || !isAndroid()) return false;
+  const ns = cdv();
+  const platform = ns?.Platform.GOOGLE_PLAY;
+  if (!ns?.store || !platform) return false;
+  registerNativePurchasePlugin(createCdvPurchaseAdapter(ns, platform));
+  return true;
+}
+
+/** Registers the adapter for whichever store this device uses. */
+export function initNativeStore(): boolean {
+  if (isAndroid()) return initNativeGooglePlay();
+  return initNativeStoreKit();
 }
