@@ -86,32 +86,6 @@ const extractDarkArtwork = (input) => {
   return output;
 };
 
-const removeDarkArtwork = (input) => {
-  const output = new PNG({ width: input.width, height: input.height });
-  input.data.copy(output.data);
-  for (let y = 0; y < input.height; y += 1) {
-    let lastBrightX = 0;
-    for (let x = 0; x < input.width; x += 1) {
-      const offset = (y * input.width + x) * 4;
-      const brightest = Math.max(input.data[offset], input.data[offset + 1], input.data[offset + 2]);
-      if (brightest >= 210) {
-        lastBrightX = x;
-        continue;
-      }
-      let nextBrightX = x + 1;
-      while (nextBrightX < input.width) {
-        const nextOffset = (y * input.width + nextBrightX) * 4;
-        if (Math.max(input.data[nextOffset], input.data[nextOffset + 1], input.data[nextOffset + 2]) >= 210) break;
-        nextBrightX += 1;
-      }
-      const sampleX = x - lastBrightX <= nextBrightX - x ? lastBrightX : Math.min(nextBrightX, input.width - 1);
-      const sampleOffset = (y * input.width + sampleX) * 4;
-      for (let channel = 0; channel < 4; channel += 1) output.data[offset + channel] = input.data[sampleOffset + channel];
-    }
-  }
-  return output;
-};
-
 const centerOnTransparentCanvas = (input, size) => {
   const output = new PNG({ width: size, height: size });
   const offsetX = Math.floor((size - input.width) / 2);
@@ -131,7 +105,6 @@ const writePng = (path, image) => {
   writeFileSync(path, PNG.sync.write(image, { colorType: 6 }));
 };
 
-const adaptiveBackground = removeDarkArtwork(source);
 const adaptiveArtwork = extractDarkArtwork(source);
 
 for (const [density, scale] of Object.entries(densities)) {
@@ -140,7 +113,6 @@ for (const [density, scale] of Object.entries(densities)) {
   const adaptiveSize = Math.round(108 * scale);
   writePng(join(dir, "ic_launcher.png"), resize(source, legacySize, legacySize));
   writePng(join(dir, "ic_launcher_round.png"), circularCrop(resize(source, legacySize, legacySize)));
-  writePng(join(dir, "ic_launcher_background.png"), resize(adaptiveBackground, adaptiveSize, adaptiveSize));
   const foregroundArtwork = resize(adaptiveArtwork, Math.round(adaptiveSize * 0.76), Math.round(adaptiveSize * 0.76));
   writePng(join(dir, "ic_launcher_foreground.png"), centerOnTransparentCanvas(foregroundArtwork, adaptiveSize));
 }
@@ -148,7 +120,6 @@ for (const [density, scale] of Object.entries(densities)) {
 for (const obsolete of [
   join(resDir, "drawable", "ic_launcher_background.xml"),
   join(resDir, "drawable-v24", "ic_launcher_foreground.xml"),
-  join(resDir, "values", "ic_launcher_background.xml"),
 ]) {
   rmSync(obsolete, { force: true });
 }
