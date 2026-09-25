@@ -72,6 +72,34 @@ const circularCrop = (input) => {
   return input;
 };
 
+const extractDarkArtwork = (input) => {
+  const output = new PNG({ width: input.width, height: input.height });
+  for (let pixel = 0; pixel < input.width * input.height; pixel += 1) {
+    const offset = pixel * 4;
+    const brightest = Math.max(input.data[offset], input.data[offset + 1], input.data[offset + 2]);
+    const alpha = Math.max(0, Math.min(255, (210 - brightest) * 6));
+    output.data[offset] = 0;
+    output.data[offset + 1] = 0;
+    output.data[offset + 2] = 0;
+    output.data[offset + 3] = alpha;
+  }
+  return output;
+};
+
+const centerOnTransparentCanvas = (input, size) => {
+  const output = new PNG({ width: size, height: size });
+  const offsetX = Math.floor((size - input.width) / 2);
+  const offsetY = Math.floor((size - input.height) / 2);
+  for (let y = 0; y < input.height; y += 1) {
+    for (let x = 0; x < input.width; x += 1) {
+      const sourceOffset = (y * input.width + x) * 4;
+      const targetOffset = ((y + offsetY) * size + x + offsetX) * 4;
+      input.data.copy(output.data, targetOffset, sourceOffset, sourceOffset + 4);
+    }
+  }
+  return output;
+};
+
 const writePng = (path, image) => {
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, PNG.sync.write(image, { colorType: 6 }));
@@ -83,12 +111,15 @@ for (const [density, scale] of Object.entries(densities)) {
   const adaptiveSize = Math.round(108 * scale);
   writePng(join(dir, "ic_launcher.png"), resize(source, legacySize, legacySize));
   writePng(join(dir, "ic_launcher_round.png"), circularCrop(resize(source, legacySize, legacySize)));
-  writePng(join(dir, "ic_launcher_foreground.png"), resize(source, adaptiveSize, adaptiveSize));
+  writePng(join(dir, "ic_launcher_background.png"), resize(source, adaptiveSize, adaptiveSize));
+  const foregroundArtwork = resize(extractDarkArtwork(source), Math.round(adaptiveSize * 0.76), Math.round(adaptiveSize * 0.76));
+  writePng(join(dir, "ic_launcher_foreground.png"), centerOnTransparentCanvas(foregroundArtwork, adaptiveSize));
 }
 
 for (const obsolete of [
   join(resDir, "drawable", "ic_launcher_background.xml"),
   join(resDir, "drawable-v24", "ic_launcher_foreground.xml"),
+  join(resDir, "values", "ic_launcher_background.xml"),
 ]) {
   rmSync(obsolete, { force: true });
 }
