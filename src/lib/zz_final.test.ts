@@ -24,7 +24,7 @@ it("final", () => {
         site:{voltageV:400,phases:3,mainFuseA:250,country:cc as any,marketArea:null},
         consumption:{annualKWh:20000,profile:"normal"}, production:{enabled:true,annualKWh:10000,kWp:10},
         strategies:{selfConsumption:true,reduceImport:true,peakShaving:true,fcrDUp:true,optimiseFcrReservation:true},
-        economy:{peakDemandChargeSekPerKwMonth:null,customerAncillaryShare:0.75,eurSekRate:localUnitsPerEur(cc as any)},
+        economy:{peakDemandChargeSekPerKwMonth:null,customerAncillaryShare:0.75,eurSekRate:localUnitsPerEur(cc as any),importEnergyPriceSekPerKWh:0.30*localUnitsPerEur(cc as any),exportEnergyValueSekPerKWh:0.05*localUnitsPerEur(cc as any)},
         battery:{fixedCapacityKWh:c,fixedPowerKw:p},
       } as any);
       const s = r.diagnostics.simulation, a = s.ancillary, cfg = r.diagnostics.config;
