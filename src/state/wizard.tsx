@@ -11,6 +11,7 @@ import {
   countryCurrency,
   DEFAULT_COUNTRY,
   getCountry,
+  defaultConnectionId,
   defaultPhases,
   isListedFuse,
   resolvePhaseOption,
@@ -55,6 +56,11 @@ export interface WizardState {
      * the country's default (3-phase). Only countries with a phase choice (NL) expose it.
      */
     phases?: PhaseCount;
+    /**
+     * Connection id ("1x230", "3x230", "3x400"). Optional for older saved cases; needed
+     * where a country has two 3-phase systems (BE). Kept in sync with `phases`.
+     */
+    connectionId?: string;
     mainFuseManual: boolean;
     /** User has confirmed the auto-derived grid values are correct. */
     gridValuesConfirmed: boolean;
@@ -150,10 +156,10 @@ function coerceSupportedModes(s: WizardState): WizardState {
   // `preferences` at all, and a corrupt one must never reach the UI.
   next.grid = { ...next.grid, countryTouched: next.grid?.countryTouched ?? false };
   // A phase choice that is not valid for the stored country falls back to its default.
-  next.grid = {
-    ...next.grid,
-    phases: resolvePhaseOption(next.grid.country, next.grid.phases ?? null).phases,
-  };
+  {
+    const conn = resolvePhaseOption(next.grid.country, next.grid.connectionId ?? next.grid.phases ?? null);
+    next.grid = { ...next.grid, phases: conn.phases, connectionId: conn.id };
+  }
   next.preferences = {
     customerAncillaryShare: clampCustomerAncillaryShare(
       next.preferences?.customerAncillaryShare ?? DEFAULT_CUSTOMER_ANCILLARY_SHARE,
@@ -176,6 +182,7 @@ export function createInitialState(country: CountryCode = DEFAULT_COUNTRY): Wiza
       marketArea: null,
       mainFuseA: getCountry(country).grid.defaultMainFuse,
       phases: defaultPhases(country),
+      connectionId: defaultConnectionId(country),
       mainFuseManual: false,
       gridValuesConfirmed: false,
       countryTouched: false,
@@ -307,6 +314,7 @@ function applyCountry(s: WizardState, code: CountryCode, touched: boolean): Wiza
             mainFuseA: s.grid.mainFuseA,
             // Connection type: the new country's default (3-phase everywhere today).
             phases: defaultPhases(code),
+            connectionId: defaultConnectionId(code),
             mainFuseManual:
               s.grid.mainFuseManual || !isListedFuse(code, s.grid.mainFuseA, defaultPhases(code)),
 
