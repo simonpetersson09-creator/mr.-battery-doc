@@ -2,7 +2,7 @@ import { it, vi } from "vitest";
 const rec: any = { soc: null, held: null };
 vi.mock("@/lib/lab/dispatch", async (orig) => {
   const m: any = await orig();
-  return { ...m, dispatch: (a: any) => { const o = m.dispatch(a); rec.soc = o.socSeries; rec.held = o.ancillaryReservedPowerKwByHour; return o; } };
+  return { ...m, dispatch: (a: any) => { const o = m.dispatch(a); (rec.runs ??= []).push({ soc: o.socSeries, held: o.ancillaryReservedPowerKwByHour }); return o; } };
 });
 import { runBatteryEngine } from "@/lib/battery-engine";
 import { fcrPriceSeriesForCountry } from "@/lib/lab/ancillary/prices";
@@ -14,6 +14,7 @@ import { writeFileSync } from "fs";
 it("final", () => {
   const out: string[] = [];
   out.push("COUNTRIES " + Object.keys(COUNTRIES).join(","));
+  rec.runs = [];
   for (const cc of ["AT","CH","BE","FR","CZ","SI","DE"]) {
     const ser: any = fcrPriceSeriesForCountry(cc as any);
     const prof: any = marketProfileForPriceArea(cc as any);
@@ -27,6 +28,10 @@ it("final", () => {
         battery:{fixedCapacityKWh:c,fixedPowerKw:p},
       } as any);
       const s = r.diagnostics.simulation, a = s.ancillary, cfg = r.diagnostics.config;
+      const runs = rec.runs; rec.runs = [];
+      const target = a.avgReservedPowerUpKw * 8760;
+      const m = [...runs].reverse().find((x: any) => Math.abs(x.held.reduce((t: number, v: number) => t + v, 0) - target) < 1e-6 && Math.abs(x.soc[8759] - s.socEndKWh) < 1e-6);
+      rec.soc = m?.soc ?? [NaN]; rec.held = m?.held ?? [];
       const soc = rec.soc!; const smin = Math.min(...soc), smax = Math.max(...soc);
       const lo = cfg.battery.minSocPct/100*c, hi = cfg.battery.maxSocPct/100*c;
       const held: number[] = rec.held;
