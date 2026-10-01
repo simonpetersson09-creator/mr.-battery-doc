@@ -36,7 +36,7 @@ import type {
 import type { ProductKey } from "@/lib/access/products";
 import { recoverTransactions } from "@/lib/access/recovery";
 import { clearIntent, createIntent, readIntent, writeIntent } from "@/lib/access/purchaseIntent";
-import { productKeyForId } from "@/lib/access/products";
+import { PRODUCT_IDS, productKeyForId } from "@/lib/access/products";
 import { verifyPurchaseOutcome, verifyUnfinishedTransactions, type Verifier } from "@/lib/access/verifyFlow";
 import { verifyPurchaseWithServer } from "@/lib/access/serverVerification";
 import { devVerifyPurchase, purchaseTestModeEnabled } from "@/lib/access/devTestMode";
@@ -233,14 +233,31 @@ export function AccessProvider({
     inFlight.current = true;
     setPurchaseInFlight(true);
     try {
-      const result = await resolved.restore();
+      let result = await resolved.restore();
+      // Google Play: a restored subscription counts only once our backend has
+      // verified its purchase token (and supplied the real expiry).
+      if (result.status === "restored" && result.purchaseToken && resolved.requiresServerVerification) {
+        const verdict = await verify({
+          key: "premiumYear",
+          productId: PRODUCT_IDS.premiumYear,
+          transactionId: result.purchaseToken.slice(0, 200),
+          platform: "google_play",
+          purchaseToken: result.purchaseToken,
+        }).catch(() => ({ status: "unavailable" as const }));
+        result =
+          verdict.status === "verified"
+            ? { status: "restored", premiumExpiresISO: verdict.premiumExpiresISO }
+            : verdict.status === "invalid"
+              ? { status: "nothing" }
+              : { status: "failed", code: "network" };
+      }
       setEntitlements((e) => applyRestore(e, result));
       return result;
     } finally {
       inFlight.current = false;
       setPurchaseInFlight(false);
     }
-  }, [resolved]);
+  }, [resolved, verify]);
 
   const consumeAdjustment = useCallback((calculationId: string) => {
     setEntitlements((e) => {

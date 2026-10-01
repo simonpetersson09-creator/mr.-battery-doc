@@ -25,6 +25,8 @@ export interface UnfinishedTransaction {
   /** Explicit StoreKit verification result. Anything but `true` grants nothing. */
   verified?: boolean;
   expiresISO?: string | null;
+  /** Google Play purchase token (Android only). */
+  purchaseToken?: string;
 }
 
 export interface RecoveryOutcome {

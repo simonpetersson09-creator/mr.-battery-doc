@@ -54,6 +54,7 @@ export async function verifyPurchaseOutcome(
     transactionId: result.transactionId,
     originalTransactionId: result.originalTransactionId ?? null,
     ...(key === "singleReport" ? { calculationId } : {}),
+    ...(result.purchaseToken ? { platform: "google_play" as const, purchaseToken: result.purchaseToken } : {}),
   });
 
   if (verdict.status === "verified") {
@@ -98,6 +99,7 @@ export async function verifyUnfinishedTransactions(
         productId: tx.productId,
         transactionId: tx.transactionId,
         ...(key === "singleReport" ? { calculationId: intentCalculationId } : {}),
+        ...(tx.purchaseToken ? { platform: "google_play" as const, purchaseToken: tx.purchaseToken } : {}),
       });
     } catch {
       verdict = { status: "unavailable" };

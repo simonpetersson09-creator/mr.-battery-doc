@@ -23,6 +23,10 @@ export interface VerificationRequest {
   calculationId?: string;
   /** StoreKit 2 signed transaction (JWS). Never a receipt secret. */
   signedTransaction?: string;
+  /** Omitted for Apple (unchanged iOS contract). */
+  platform?: "app_store" | "google_play";
+  /** Google Play purchase token — Android only. */
+  purchaseToken?: string;
 }
 
 export type VerificationResult =

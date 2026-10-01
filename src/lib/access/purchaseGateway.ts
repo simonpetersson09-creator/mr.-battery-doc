@@ -36,6 +36,8 @@ export type PurchaseResult =
       transactionId?: string;
       productId?: string;
       originalTransactionId?: string | null;
+      /** Google Play purchase token — Android only, verified by our backend. */
+      purchaseToken?: string;
     }
   | { status: "cancelled" }
   | { status: "pending" }
@@ -44,7 +46,7 @@ export type PurchaseResult =
   | { status: "failed"; code: PurchaseErrorCode };
 
 export type RestoreResult =
-  | { status: "restored"; premiumExpiresISO: string | null }
+  | { status: "restored"; premiumExpiresISO: string | null; purchaseToken?: string }
   | { status: "nothing" }
   | { status: "failed"; code: PurchaseErrorCode };
 
