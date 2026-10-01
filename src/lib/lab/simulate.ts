@@ -136,27 +136,37 @@ function dispatchCyclicYear(
     const win = resolveWindow(cfg.battery, cfg.strategies, cfg.flex, capacityKWh, powerKw);
     const solved = solveAncillarySoc(win, plan);
     if (solved !== null) {
-      const solvedRun = run({ ...cfg.battery, initialSocPct: solved.socPct });
+      /**
+       * With storage management the dispatch holds a pure reserve at the lower edge of
+       * the fully-backed band (the coordinated floor), so that edge — not the band
+       * midpoint — is the cyclic fixed point. Starting there avoids a multi-year
+       * self-discharge drift from the midpoint down to the floor.
+       */
+      const startPct =
+plan.reserveMode === "symmetric" && capacityKWh > 0
+          ? (solved.bandLowKWh / capacityKWh) * 100
+          : solved.socPct;
+      const solvedRun = run({ ...cfg.battery, initialSocPct: startPct });
       if (isDegenerateEnergyWork(solvedRun)) {
         /**
          * Without storage management (upward / up-and-down products) the solved SOC is
-         * returned as before. With symmetric storage management the dispatch steers the
-         * SOC itself, so a solved SOC that is not a fixed point (clamped to the hourly
-         * reservation window) continues with the ordinary fixed-point iteration below.
+         * returned as before (converged flag stays honest). With symmetric storage
+         * management a solved SOC that is not a fixed point continues with the ordinary
+         * fixed-point iteration below.
          */
         if (delta(solvedRun) <= tolerance || plan.reserveMode !== "symmetric")
           return {
             result: solvedRun,
             iterations: 2,
             converged: delta(solvedRun) <= tolerance,
-            ancillarySocPct: solved.socPct,
+            ancillarySocPct: startPct,
           };
         /**
          * The solved SOC is not a fixed point of the dispatch (e.g. storage management
          * clamps it to the hourly reservation window). Continue with the ordinary
          * fixed-point iteration from there; convergence is still judged on |ΔSOC|.
          */
-        battery = { ...cfg.battery, initialSocPct: solved.socPct };
+        battery = { ...cfg.battery, initialSocPct: startPct };
         current = solvedRun;
         best = solvedRun;
         iterations = 2;

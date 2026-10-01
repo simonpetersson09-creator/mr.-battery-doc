@@ -250,19 +250,32 @@ export function capSymmetricPlanToBatteryPower(
   chargeKw: number,
   dischargeKw: number,
 ): AncillaryPlan | null {
+  // Symmetric FCR only. Extending this to the Nordic up-and-down pair is technically
+  // ready (same formula) but changes verified SE/FI/DK2 results — awaiting a decision.
   if (!plan || plan.reserveMode !== "symmetric") return plan;
-  const share = Math.max(0, plan.nemPowerSharePct) / 100;
-  const ceilingKw = Math.max(0, Math.min(chargeKw, dischargeKw)) / (1 + share);
-  const offered = Math.max(plan.upPowerKw, plan.downPowerKw);
-  if (offered <= ceilingKw + 1e-9) return plan;
-  const f = offered > 0 ? ceilingKw / offered : 0;
+  /**
+   * Same NEM power rule as nem.ts, applied to the PLAN so offered = holdable power:
+   *   discharge side: U + s*D <= Pdischarge,   charge side: D + s*U <= Pcharge.
+   * For the symmetric product (U = D) this is rating / (1 + s); the share s is read from
+   * the plan (market profile), never hardcoded.
+   */
+  const s = Math.max(0, plan.nemPowerSharePct) / 100;
+  const U = Math.max(0, plan.upPowerKw);
+  const D = Math.max(0, plan.downPowerKw);
+  const pDis = Math.max(0, dischargeKw);
+  const pCh = Math.max(0, chargeKw);
+  let f = 1;
+  if (U + s * D > 1e-12) f = Math.min(f, pDis / (U + s * D));
+  if (D + s * U > 1e-12) f = Math.min(f, pCh / (D + s * U));
+  f = Math.max(0, f);
+  if (f >= 1 - 1e-12) return plan;
   return {
     ...plan,
     upPowerKw: plan.upPowerKw * f,
     downPowerKw: plan.downPowerKw * f,
     upEnergyKWh: plan.upEnergyKWh * f,
     downEnergyKWh: plan.downEnergyKWh * f,
-    active: plan.active && ceilingKw > 0,
+    active: plan.active && f > 0,
   };
 }
 
