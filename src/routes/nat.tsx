@@ -53,7 +53,7 @@ function GridStep() {
   const validity = validateGridStep(state);
   const fieldError = gridFieldErrors(state);
   const areaOptions = marketAreaOptions(state.grid.country);
-  const phases = state.grid.phases ?? null;
+  const phases = state.grid.connectionId ?? state.grid.phases ?? null;
   const connection = resolvePhaseOption(state.grid.country, phases);
 
   return (
@@ -117,11 +117,11 @@ function GridStep() {
       {hasPhaseChoice(state.grid.country) ? (
         <SectionCard compact icon={<Cable />} title={t("network.phase.title")} description={t("network.phase.description")}>
           <Select
-            value={String(connection.phases)}
+            value={connection.id}
             onValueChange={(v) =>
               update((s) => {
-                const next = Number(v) as PhaseCount;
-                const o = resolvePhaseOption(s.grid.country, next);
+                const o = resolvePhaseOption(s.grid.country, v);
+                const next = o.id;
                 // Keep a listed fuse when it exists for the new connection type,
                 // otherwise use that connection's default size.
                 const keep = isListedFuse(s.grid.country, s.grid.mainFuseA, next);
@@ -129,7 +129,8 @@ function GridStep() {
                   ...s,
                   grid: {
                     ...s.grid,
-                    phases: next,
+                    phases: o.phases,
+                    connectionId: o.id,
                     mainFuseA: keep || s.grid.mainFuseManual ? s.grid.mainFuseA : o.defaultMainFuse,
                     gridValuesConfirmed: false,
                   },
@@ -144,7 +145,7 @@ function GridStep() {
             </SelectTrigger>
             <SelectContent>
               {phaseOptions(state.grid.country).map((o) => (
-                <SelectItem key={o.phases} value={String(o.phases)}>
+                <SelectItem key={o.id} value={o.id}>
                   {t("units.phases", { count: o.phases })} {o.voltage} V
                 </SelectItem>
               ))}
@@ -196,7 +197,7 @@ function GridStep() {
                 ...s,
                 grid: {
                   ...s.grid,
-                  mainFuseA: v ?? defaultFuseA(s.grid.country, s.grid.phases ?? null),
+                  mainFuseA: v ?? defaultFuseA(s.grid.country, s.grid.connectionId ?? s.grid.phases ?? null),
                   mainFuseManual: true,
                 },
               }))
