@@ -14,7 +14,7 @@ import {
   defaultConnectionId,
   defaultPhases,
   isListedFuse,
-  resolvePhaseOption,
+  gridConnectionSelector, resolvePhaseOption,
   type CountryCode,
   type PhaseCount,
 } from "@/lib/country-config";
@@ -157,7 +157,7 @@ function coerceSupportedModes(s: WizardState): WizardState {
   next.grid = { ...next.grid, countryTouched: next.grid?.countryTouched ?? false };
   // A phase choice that is not valid for the stored country falls back to its default.
   {
-    const conn = resolvePhaseOption(next.grid.country, next.grid.connectionId ?? next.grid.phases ?? null);
+    const conn = resolvePhaseOption(next.grid.country, gridConnectionSelector(next.grid));
     next.grid = { ...next.grid, phases: conn.phases, connectionId: conn.id };
   }
   next.preferences = {

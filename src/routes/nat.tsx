@@ -17,7 +17,7 @@ import {
   hasPhaseChoice,
   isListedFuse,
   phaseOptions,
-  resolvePhaseOption,
+  gridConnectionSelector, resolvePhaseOption,
   type CountryCode,
 } from "@/lib/country-config";
 import { marketAreaOptions, type MarketArea } from "@/lib/reserve-market";
@@ -52,7 +52,7 @@ function GridStep() {
   const validity = validateGridStep(state);
   const fieldError = gridFieldErrors(state);
   const areaOptions = marketAreaOptions(state.grid.country);
-  const phases = state.grid.connectionId ?? state.grid.phases ?? null;
+  const phases = gridConnectionSelector(state.grid);
   const connection = resolvePhaseOption(state.grid.country, phases);
 
   return (
@@ -196,7 +196,7 @@ function GridStep() {
                 ...s,
                 grid: {
                   ...s.grid,
-                  mainFuseA: v ?? defaultFuseA(s.grid.country, s.grid.connectionId ?? s.grid.phases ?? null),
+                  mainFuseA: v ?? defaultFuseA(s.grid.country, gridConnectionSelector(s.grid)),
                   mainFuseManual: true,
                 },
               }))

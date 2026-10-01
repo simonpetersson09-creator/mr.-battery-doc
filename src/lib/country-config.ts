@@ -467,6 +467,23 @@ export function resolvePhaseOption(code: CountryCode, sel?: ConnectionSelector):
 }
 
 /**
+ * Connection selector from stored grid state. The id is used only while it agrees with
+ * the stored phase count, so a state that only updates `phases` (older code/cases) is
+ * never overridden by a stale id.
+ */
+export function gridConnectionSelector(grid: {
+  country: CountryCode;
+  phases?: PhaseCount | null;
+  connectionId?: string | null;
+}): ConnectionSelector {
+  if (grid.connectionId) {
+    const o = phaseOptions(grid.country).find((x) => x.id === grid.connectionId);
+    if (o && (grid.phases == null || o.phases === grid.phases)) return o.id;
+  }
+  return grid.phases ?? null;
+}
+
+/**
  * ONE shared grid engine for every country: theoretical connection power from the main
  * fuse, using the connection's own voltage/phases.
  *

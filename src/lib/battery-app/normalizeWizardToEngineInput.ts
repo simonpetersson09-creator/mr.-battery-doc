@@ -17,7 +17,7 @@ import type {
   EngineStrategyInput,
 } from "@/lib/battery-engine";
 import { isKnownProfile } from "@/lib/consumption-profiles";
-import { getCountry, resolvePhaseOption } from "@/lib/country-config";
+import { getCountry, gridConnectionSelector, resolvePhaseOption } from "@/lib/country-config";
 import { isPendingAncillaryCountry } from "@/lib/lab/ancillary/countryMarkets";
 import { getLoadProfile } from "@/lib/battery-engine";
 import { spreadAnnual } from "@/lib/lab/defaults";
@@ -45,7 +45,7 @@ export function normalizeWizardToEngineInput(
   /* ---------------- site / grid ---------------- */
   // Connection type: the chosen one when the country offers a choice (NL), else the
   // country's default 3-phase 400 V. Unchanged for SE/FI/DK/DE.
-  const connection = resolvePhaseOption(state.grid.country, state.grid.connectionId ?? state.grid.phases ?? null);
+  const connection = resolvePhaseOption(state.grid.country, gridConnectionSelector(state.grid));
   const site: EngineSiteInput = {
     voltageV: connection.voltage,
     phases: connection.phases,
