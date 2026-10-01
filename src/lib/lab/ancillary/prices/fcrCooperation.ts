@@ -43,7 +43,7 @@ export const FCR_COOPERATION_SOURCE_FILES: Record<FcrCooperationCountry, string>
 };
 
 /**
- * Imported 4-hour block prices (EUR/MW per block). NL is deliberately absent: its file
+ * Imported 4-hour block prices (EUR/MW per block), one array per country.
  * contains a second auction (TENDER_NUMBER 2) with its own prices on 2025-10-28/29, so
  * the block price is ambiguous and nothing is imported until that is decided.
  */
