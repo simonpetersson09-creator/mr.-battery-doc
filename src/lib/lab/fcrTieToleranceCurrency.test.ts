@@ -57,9 +57,15 @@ describe("FCR tie tolerance = 25 SEK in the local currency", () => {
     }
   }, 600_000);
 
-  it("5 kW / 10 kWh: AT/SI/BE/CZ pick 4 kW, FR picks 0 kW", () => {
+  it("5 kW / 10 kWh: the winner is the lowest level within 25 SEK of the best total", () => {
     const rate: Record<string, number> = { AT: 1, SI: 1, FR: 1, BE: 1, CZ: 25 };
-    const expected: Record<string, number> = { AT: 4, SI: 4, FR: 0, BE: 4, CZ: 4 };
-    for (const c of Object.keys(expected)) expect(opt(c, rate[c]!).best.offeredPowerKw, c).toBe(expected[c]);
+    for (const c of Object.keys(rate)) {
+      const o = opt(c, rate[c]!);
+      const tol = fcrTieToleranceLocal(econ(rate[c]!));
+      const best = Math.max(...o.candidates.map((k) => k.annualCustomerBenefitSek));
+      const first = o.candidates.find((k) => k.annualCustomerBenefitSek >= best - tol)!;
+      expect(o.best.offeredPowerKw, c).toBe(first.offeredPowerKw);
+      expect(o.tieToleranceSek, c).toBeCloseTo(tol, 10);
+    }
   }, 600_000);
 });

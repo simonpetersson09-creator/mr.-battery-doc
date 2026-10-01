@@ -43,6 +43,14 @@ export interface AncillarySocSolution {
   coverage: number;
   /** True when several SOC levels are equally good and the midpoint was taken. */
   tie: boolean;
+  /**
+   * Fully-backed WORKING BAND, kWh: every SOC inside [bandLowKWh, bandHighKWh] backs both
+   * offered directions with the same (best) coverage. Storage management only acts when
+   * the SOC leaves this band — it never chases the exact midpoint. Collapses to socKWh
+   * when the directions cannot both be fully backed.
+   */
+  bandLowKWh: number;
+  bandHighKWh: number;
 }
 
 function clamp(v: number, lo: number, hi: number): number {
@@ -95,16 +103,22 @@ export function solveAncillarySoc(
 
   let soc: number;
   let tie = false;
+  let bandLow: number;
+  let bandHigh: number;
   if (upNeedKWh <= 0 && downRoomKWh <= 0) {
     // Nothing is offered that needs energy: every level is equal, take the midpoint.
     soc = (lo + hi) / 2;
     tie = true;
+    bandLow = lo;
+    bandHigh = hi;
   } else if (upFull <= downFull + 1e-12) {
     // Both directions can be fully backed at the same time -> interval of maximisers.
     const a = clamp(upFull, lo, hi);
     const b = clamp(downFull, lo, hi);
     soc = (a + b) / 2;
     tie = b > a + 1e-12;
+    bandLow = a;
+    bandHigh = Math.max(a, b);
   } else {
     /**
      * The two directions cannot both be fully backed. The worst-direction objective is
@@ -118,6 +132,8 @@ export function solveAncillarySoc(
         ? (serviceFloor * downRoomKWh + serviceCeil * upNeedKWh) / denom
         : (lo + hi) / 2;
     soc = clamp(soc, lo, hi);
+    bandLow = soc;
+    bandHigh = soc;
   }
 
   return {
@@ -127,5 +143,7 @@ export function solveAncillarySoc(
     windowCeilKWh: hi,
     coverage: worst(soc),
     tie,
+    bandLowKWh: bandLow,
+    bandHighKWh: bandHigh,
   };
 }
