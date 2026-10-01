@@ -25,8 +25,16 @@ export type PhaseCount = 1 | 3;
 
 /** One selectable connection type with its own voltage and fuse list. */
 export interface PhaseOption {
+  /**
+   * Stable id of the connection type, e.g. "3x400", "3x230", "1x230". Needed because a
+   * country can offer two 3-phase systems (Belgium: 3x230 V and 3x400 V).
+   */
+  id: string;
   phases: PhaseCount;
-  /** 400 V line-to-line for 3-phase, 230 V phase-to-neutral for 1-phase. */
+  /**
+   * 3-phase: line-to-line voltage (400 V, or 230 V for Belgian IT/TT 3x230 networks).
+   * 1-phase: 230 V phase-to-neutral.
+   */
   voltage: number;
   fuses: number[];
   defaultMainFuse: number;
@@ -78,6 +86,11 @@ export interface EconomyDefaults {
   eurSekRate: number;
   /** Set true once verified DSO-specific tariffs exist for the country */
   demandChargeVerified: boolean;
+  /**
+   * false = import/export prices are neutral placeholders (0) because verified values
+   * have not been supplied yet. Absent = existing defaults.
+   */
+  economyVerified?: boolean;
 }
 
 export interface CountryConfig {
@@ -89,6 +102,69 @@ export interface CountryConfig {
   economy: EconomyDefaults;
 }
 
+
+/**
+ * GENERIC AMPERE SELECTOR for countries without verified country-specific fuse steps
+ * (BE/FR/CZ/SI). A deliberately broad list — not a claim about local standard sizes; any
+ * other value can still be entered manually ("Annan").
+ */
+export const GENERIC_FUSE_STEPS: number[] = [10, 13, 16, 20, 25, 32, 35, 40, 50, 63, 80, 100, 125, 160, 200];
+
+type ConnectionId = "1x230" | "3x230" | "3x400";
+const CONNECTION_SPECS: Record<ConnectionId, { phases: PhaseCount; voltage: number; defaultMainFuse: number }> = {
+  "1x230": { phases: 1, voltage: 230, defaultMainFuse: 32 },
+  "3x230": { phases: 3, voltage: 230, defaultMainFuse: 25 },
+  "3x400": { phases: 3, voltage: 400, defaultMainFuse: 25 },
+};
+
+/**
+ * Country with an explicit electrical-system list, the generic ampere selector and
+ * NEUTRAL economy (all prices 0 = "not yet supplied", always user-editable). Nothing is
+ * copied from another country. First connection in `connections` = default.
+ */
+function newCountry(
+  code: "BE" | "FR" | "CZ" | "SI",
+  name: string,
+  flag: string,
+  locale: string,
+  defaultConnection: ConnectionId,
+  connections: ConnectionId[],
+): CountryConfig {
+  const ordered = [defaultConnection, ...connections.filter((c) => c !== defaultConnection)];
+  const options: PhaseOption[] = ordered.map((id) => ({
+    id,
+    ...CONNECTION_SPECS[id],
+    fuses: [...GENERIC_FUSE_STEPS],
+  }));
+  const def = options[0]!;
+  return {
+    code,
+    name,
+    flag,
+    locale,
+    grid: {
+      voltage: def.voltage,
+      phases: def.phases,
+      frequency: 50,
+      commonMainFuses: [...GENERIC_FUSE_STEPS],
+      defaultMainFuse: def.defaultMainFuse,
+      // Grid-code references not yet verified for these countries.
+      standards: [],
+      phaseOptions: options,
+    },
+    economy: {
+      currency: currencyForCountry(code),
+      currencyLabel: CURRENCY_SUFFIX[currencyForCountry(code)],
+      // NEUTRAL placeholders: verified tariffs not supplied yet. Never copied from SE.
+      importPrice: 0,
+      exportPrice: 0,
+      demandCharge: 0,
+      eurSekRate: localUnitsPerEur(code),
+      demandChargeVerified: false,
+      economyVerified: false,
+    },
+  };
+}
 
 export const COUNTRIES: Record<CountryCode, CountryConfig> = {
   SE: {
@@ -225,8 +301,8 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       defaultMainFuse: 25,
       standards: ["NEN 1010"],
       phaseOptions: [
-        { phases: 3, voltage: 400, fuses: [25, 35, 50, 63, 80], defaultMainFuse: 25 },
-        { phases: 1, voltage: 230, fuses: [25, 35, 40], defaultMainFuse: 35 },
+        { id: "3x400", phases: 3, voltage: 400, fuses: [25, 35, 50, 63, 80], defaultMainFuse: 25 },
+        { id: "1x230", phases: 1, voltage: 230, fuses: [25, 35, 40], defaultMainFuse: 35 },
       ],
     },
     economy: {
@@ -290,6 +366,10 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       demandChargeVerified: false,
     },
   },
+  BE: newCountry("BE", "Belgien", "🇧🇪", "nl-BE", "3x400", ["1x230", "3x230", "3x400"]),
+  FR: newCountry("FR", "Frankrike", "🇫🇷", "fr-FR", "1x230", ["1x230", "3x400"]),
+  CZ: newCountry("CZ", "Tjeckien", "🇨🇿", "cs-CZ", "3x400", ["3x400", "1x230"]),
+  SI: newCountry("SI", "Slovenien", "🇸🇮", "sl-SI", "3x400", ["3x400", "1x230"]),
 };
 
 export const COUNTRY_LIST = Object.values(COUNTRIES);
@@ -298,7 +378,9 @@ export const COUNTRY_LIST = Object.values(COUNTRIES);
  * Countries released in v1. Economy defaults are stored in each country's OWN currency;
  * the engine is currency agnostic and only needs the local-units-per-EUR rate.
  */
-export const SUPPORTED_COUNTRY_CODES: CountryCode[] = ["SE", "FI", "DK", "DE", "NL", "AT", "CH"];
+export const SUPPORTED_COUNTRY_CODES: CountryCode[] = [
+  "SE", "FI", "DK", "DE", "NL", "AT", "CH", "BE", "FR", "CZ", "SI",
+];
 
 export const SUPPORTED_COUNTRY_LIST = SUPPORTED_COUNTRY_CODES.map((c) => COUNTRIES[c]);
 
@@ -343,6 +425,7 @@ export function phaseOptions(code: CountryCode): PhaseOption[] {
   if (g.phaseOptions?.length) return g.phaseOptions;
   return [
     {
+      id: `${g.phases === 1 ? 1 : 3}x${g.voltage}`,
       phases: g.phases === 1 ? 1 : 3,
       voltage: g.voltage,
       fuses: fuseOptionsFor(g),
@@ -362,29 +445,45 @@ export function defaultPhases(code: CountryCode): PhaseCount {
 }
 
 /** The connection type in effect: the chosen one if valid for the country, else the default. */
-export function resolvePhaseOption(code: CountryCode, phases?: PhaseCount | null): PhaseOption {
+/** The default connection id for a country. */
+export function defaultConnectionId(code: CountryCode): string {
+  return phaseOptions(code)[0]!.id;
+}
+
+/**
+ * A connection selector: a connection id ("3x230") or, for older saved states, just
+ * the phase count. Ids win; a phase count picks the first option with that count.
+ */
+export type ConnectionSelector = PhaseCount | string | null | undefined;
+
+/** The connection type in effect: the chosen one if valid for the country, else the default. */
+export function resolvePhaseOption(code: CountryCode, sel?: ConnectionSelector): PhaseOption {
   const opts = phaseOptions(code);
-  return opts.find((o) => o.phases === phases) ?? opts[0]!;
+  if (typeof sel === "string") {
+    const byId = opts.find((o) => o.id === sel);
+    if (byId) return byId;
+  }
+  return opts.find((o) => o.phases === sel) ?? opts[0]!;
 }
 
 /**
  * ONE shared grid engine for every country: theoretical connection power from the main
  * fuse, using the connection's own voltage/phases.
  *
- *   3-phase: P = sqrt(3) x 400 V x A / 1000
+ *   3-phase: P = sqrt(3) x U x A / 1000   (U = 400 V, or 230 V for Belgian 3x230)
  *   1-phase: P = 230 V x A / 1000
  */
 export function theoreticalGridPowerKw(
   mainFuseA: number,
   code: CountryCode,
-  phases?: PhaseCount | null,
+  phases?: ConnectionSelector,
 ): number {
   const o = resolvePhaseOption(code, phases);
   return computeFuseKw(mainFuseA, o.voltage, o.phases);
 }
 
 /** Short technical label, e.g. "3-fas 400 V" (localized). */
-export function gridStandardLabel(code: CountryCode, phases?: PhaseCount | null): string {
+export function gridStandardLabel(code: CountryCode, phases?: ConnectionSelector): string {
   const o = resolvePhaseOption(code, phases);
   return `${t("units.phases", { count: o.phases })} ${o.voltage} V`;
 }
@@ -398,7 +497,7 @@ function fuseOptionsFor(g: GridDefaults): number[] {
  * The full list of selectable main fuse ratings for a country (and connection type),
  * ascending. The UI never hardcodes fuse arrays — this is the single source of truth.
  */
-export function fuseOptions(code: CountryCode, phases?: PhaseCount | null): number[] {
+export function fuseOptions(code: CountryCode, phases?: ConnectionSelector): number[] {
   const g = getCountry(code).grid;
   if (g.phaseOptions?.length) {
     return [...resolvePhaseOption(code, phases).fuses].sort((a, b) => a - b);
@@ -407,13 +506,13 @@ export function fuseOptions(code: CountryCode, phases?: PhaseCount | null): numb
 }
 
 /** The default main fuse rating (A) for the country and connection type. */
-export function defaultFuseA(code: CountryCode, phases?: PhaseCount | null): number {
+export function defaultFuseA(code: CountryCode, phases?: ConnectionSelector): number {
   const g = getCountry(code).grid;
   if (g.phaseOptions?.length) return resolvePhaseOption(code, phases).defaultMainFuse;
   return g.defaultMainFuse;
 }
 
 /** True when the value is one of the predefined options. */
-export function isListedFuse(code: CountryCode, amps: number, phases?: PhaseCount | null): boolean {
+export function isListedFuse(code: CountryCode, amps: number, phases?: ConnectionSelector): boolean {
   return fuseOptions(code, phases).includes(amps);
 }
