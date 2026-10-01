@@ -654,7 +654,9 @@ export function optimizeFcrReservation(
     const gross = economy.fcr.grossSek;
     return {
       fraction,
-      offeredPowerKw,
+      // The plan clips a symmetric bid to (rating / (1 + NEM share)); report what was
+      // actually offered, never the unclipped candidate.
+      offeredPowerKw: round2(r.ancillary.reservedPowerUpKw),
       avgHeldPowerKw: economy.fcr.avgHeldPowerKw,
       reservedHours: economy.fcr.reservedHours,
       availabilityPct: economy.fcr.availabilityPct,

@@ -235,6 +235,38 @@ export function ancillaryPlan(cfg: AncillaryConfig): AncillaryPlan | null {
 }
 
 /**
+ * SYMMETRIC FCR POWER CEILING IN THE PLAN (shared by every symmetric market).
+ *
+ * The symmetric product sells ONE capacity C in both directions and the energy-management
+ * (NEM / Speichermanagement) share s must stay available on top of it, so
+ *   (1 + s) * C <= min(P_charge, P_discharge).
+ * The plan is clipped to that ceiling BEFORE dispatch, so the offered power, the reserved
+ * power and the reserved endurance energy (C * enduranceHours) never describe more than
+ * the battery can actually hold. Upward and up-and-down plans are returned unchanged
+ * (their NEM rule is bid-aware and applied per hour in the dispatch).
+ */
+export function capSymmetricPlanToBatteryPower(
+  plan: AncillaryPlan | null,
+  chargeKw: number,
+  dischargeKw: number,
+): AncillaryPlan | null {
+  if (!plan || plan.reserveMode !== "symmetric") return plan;
+  const share = Math.max(0, plan.nemPowerSharePct) / 100;
+  const ceilingKw = Math.max(0, Math.min(chargeKw, dischargeKw)) / (1 + share);
+  const offered = Math.max(plan.upPowerKw, plan.downPowerKw);
+  if (offered <= ceilingKw + 1e-9) return plan;
+  const f = offered > 0 ? ceilingKw / offered : 0;
+  return {
+    ...plan,
+    upPowerKw: plan.upPowerKw * f,
+    downPowerKw: plan.downPowerKw * f,
+    upEnergyKWh: plan.upEnergyKWh * f,
+    downEnergyKWh: plan.downEnergyKWh * f,
+    active: plan.active && ceilingKw > 0,
+  };
+}
+
+/**
  * Legacy flex-shaped reservation (kept for the older flexibility strategy and for
  * tests). The dispatch now uses `ancillaryPlan` for directional reservations.
  */

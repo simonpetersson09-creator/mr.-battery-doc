@@ -106,14 +106,18 @@ describe("reserve mode routing", () => {
 });
 
 describe("symmetric FCR is bounded by the weaker direction", () => {
-  it("never holds more than the upward product with the same offer", () => {
+  /**
+   * Changed with symmetric storage management: the symmetric product now steers its own
+   * SOC back to the working point (the upward product has no such duty), so the two no
+   * longer share a SOC path and "symmetric <= upward" is not a valid comparison anymore.
+   * The invariant that remains is the hourly ceiling: never above the offer and never
+   * above rating / (1 + NEM share) — the plan the engine builds is clipped to it.
+   */
+  it("never holds more than the offer in any hour", () => {
     for (const fuse of [16, 25, 63]) {
-      const up = dispatch(args({ mode: "upward", offeredKw: 6, fuseA: fuse }));
       const sym = dispatch(args({ mode: "symmetric", offeredKw: 6, fuseA: fuse }));
-      expect(held(sym)).toBeLessThanOrEqual(held(up) + 1e-9);
-      expect(sym.ancillaryAvailabilityPct).toBeLessThanOrEqual(
-        up.ancillaryAvailabilityPct + 1e-9,
-      );
+      for (const kw of sym.ancillaryReservedPowerKwByHour) expect(kw).toBeLessThanOrEqual(6 + 1e-9);
+      expect(sym.tallies.storageManagementChargeKWh).toBeGreaterThan(0);
     }
   });
 
@@ -140,8 +144,13 @@ describe("symmetric FCR is bounded by the weaker direction", () => {
     expect(held(out)).toBeCloseTo(0, 6);
   });
 
-  it("A: a full battery is limited by DOWN (no free room to absorb)", () => {
-    const g = dispatch(
+  /**
+   * Changed with symmetric storage management: a full battery is no longer left at
+   * 100 % — storage management discharges it into the household load towards the
+   * working point, which restores the room the DOWN direction needs.
+   */
+  it("A: storage management moves a full battery back towards its working point", () => {
+    const out = dispatch(
       args({
         mode: "symmetric",
         offeredKw: 8,
@@ -150,10 +159,10 @@ describe("symmetric FCR is bounded by the weaker direction", () => {
         initialSocPct: 100,
         idle: true,
       }),
-    ).fcrGate;
-    expect(g.reservableDownAvgKw).toBeLessThan(g.reservableUpAvgKw);
-    expect(g.reservableDownAvgKw).toBeCloseTo(0, 6);
-    expect(g.limitingDirection).toBe("down");
+    );
+    expect(out.tallies.storageManagementDischargeKWh).toBeGreaterThan(0);
+    expect(out.tallies.socEnd).toBeLessThan(out.tallies.socStart);
+    expect(out.fcrGate.reservableDownAvgKw).toBeGreaterThan(0);
   });
 
   it("B: an empty battery is limited by UP (no stored energy to deliver)", () => {

@@ -628,6 +628,14 @@ export interface SimResult {
     readyHours: number;
     availabilityPct: number;
     readinessChargeKWh: number;
+    /** AC energy charged by symmetric-FCR storage management (PV + grid), kWh. */
+    storageManagementChargeKWh: number;
+    /** AC energy discharged (to the household load) by storage management, kWh. */
+    storageManagementDischargeKWh: number;
+    /** Grid part of the storage-management charge, kWh (priced as normal import). */
+    storageManagementGridChargeKWh: number;
+    /** Storage-management SOC target, kWh. Null when no symmetric reserve is active. */
+    storageManagementTargetSocKWh: number | null;
     wholeYearSimplification: boolean;
     activationSimulated: boolean;
     grossKr: number | null;

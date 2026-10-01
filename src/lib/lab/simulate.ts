@@ -1,5 +1,6 @@
 import {
   ancillaryPlan,
+  capSymmetricPlanToBatteryPower,
   computeAncillary,
   computeFcrRevenue,
   fcrPriceSeriesForCountry,
@@ -72,8 +73,12 @@ type DispatchResult = ReturnType<typeof dispatch>;
 function isDegenerateEnergyWork(r: DispatchResult): boolean {
   const t = r.tallies;
   const eps = 1e-6;
-  const ordinaryCharge = t.chargedKWh - t.ancillaryReadinessChargeKWh;
-  return t.dischargedKWh <= eps && ordinaryCharge <= eps;
+  // Readiness charging and FCR storage management keep the reserve, they are not
+  // ordinary energy work.
+  const ordinaryCharge =
+    t.chargedKWh - t.ancillaryReadinessChargeKWh - t.storageManagementChargeKWh;
+  const ordinaryDischarge = t.dischargedKWh - t.storageManagementDischargeKWh;
+  return ordinaryDischarge <= eps && ordinaryCharge <= eps;
 }
 
 function dispatchCyclicYear(
@@ -133,12 +138,28 @@ function dispatchCyclicYear(
     if (solved !== null) {
       const solvedRun = run({ ...cfg.battery, initialSocPct: solved.socPct });
       if (isDegenerateEnergyWork(solvedRun)) {
-        return {
-          result: solvedRun,
-          iterations: 2,
-          converged: delta(solvedRun) <= tolerance,
-          ancillarySocPct: solved.socPct,
-        };
+        /**
+         * Without storage management (upward / up-and-down products) the solved SOC is
+         * returned as before. With symmetric storage management the dispatch steers the
+         * SOC itself, so a solved SOC that is not a fixed point (clamped to the hourly
+         * reservation window) continues with the ordinary fixed-point iteration below.
+         */
+        if (delta(solvedRun) <= tolerance || plan.reserveMode !== "symmetric")
+          return {
+            result: solvedRun,
+            iterations: 2,
+            converged: delta(solvedRun) <= tolerance,
+            ancillarySocPct: solved.socPct,
+          };
+        /**
+         * The solved SOC is not a fixed point of the dispatch (e.g. storage management
+         * clamps it to the hourly reservation window). Continue with the ordinary
+         * fixed-point iteration from there; convergence is still judged on |ΔSOC|.
+         */
+        battery = { ...cfg.battery, initialSocPct: solved.socPct };
+        current = solvedRun;
+        best = solvedRun;
+        iterations = 2;
       }
     }
   }
@@ -179,7 +200,9 @@ export function simulate(
 ): SimResult {
   const limits = computeGridLimits(cfg.grid);
   const base = baseline(series, limits);
-  const plan = cfg.strategies.ancillaryServices ? ancillaryPlan(cfg.ancillary) : null;
+  const rawPlan = cfg.strategies.ancillaryServices ? ancillaryPlan(cfg.ancillary) : null;
+  const planWin = resolveWindow(cfg.battery, cfg.strategies, cfg.flex, capacityKWh, powerKw);
+  const plan = capSymmetricPlanToBatteryPower(rawPlan, planWin.chargeKw, planWin.dischargeKw);
   const cyclic = dispatchCyclicYear(
     cfg,
     series,
@@ -459,6 +482,10 @@ export function simulate(
       readyHours: t.ancillaryReadyHours,
       availabilityPct: d.ancillaryAvailabilityPct,
       readinessChargeKWh: t.ancillaryReadinessChargeKWh,
+      storageManagementChargeKWh: t.storageManagementChargeKWh,
+      storageManagementDischargeKWh: t.storageManagementDischargeKWh,
+      storageManagementGridChargeKWh: t.storageManagementGridChargeKWh,
+      storageManagementTargetSocKWh: d.storageManagementTargetSocKWh,
       wholeYearSimplification: plan?.wholeYear ?? false,
       activationSimulated: false,
       grossKr: ancillaryOutcome?.grossKr ?? null,
