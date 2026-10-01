@@ -62,6 +62,20 @@ export interface CountryAncillaryMarket {
   products: AncillaryProductParams[];
 }
 
+/**
+ * Country-specific endurance requirement (hours) for each country's own SYMMETRIC FCR
+ * product. This is the value that becomes `requirements.enduranceHours` of the country's
+ * FCR service when its market profile gets services. Never another country's value.
+ */
+export const FCR_ENDURANCE_HOURS: Readonly<Record<PendingAncillaryCountry, number>> = {
+  AT: 0.5,
+  CH: 0.25,
+  BE: 25 / 60,
+  FR: 0.5,
+  CZ: 0.5,
+  SI: 0.25,
+};
+
 export const PENDING_ANCILLARY_MARKETS: Record<PendingAncillaryCountry, CountryAncillaryMarket> = {
   AT: { country: "AT", tso: "APG", synchronousArea: "continental", products: [] },
   CH: { country: "CH", tso: "Swissgrid", synchronousArea: "continental", products: [] },
