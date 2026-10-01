@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Globe, MapPin, ShieldCheck, PlugZap } from "lucide-react";
+import { Globe, MapPin, ShieldCheck, PlugZap, Cable } from "lucide-react";
 import { WizardShell } from "@/components/wizard/WizardShell";
 import { FieldError, NumberField, SectionCard } from "@/components/wizard/fields";
 import {
@@ -14,7 +14,12 @@ import {
   defaultFuseA,
   fuseOptions,
   getCountry,
+  hasPhaseChoice,
+  isListedFuse,
+  phaseOptions,
+  resolvePhaseOption,
   type CountryCode,
+  type PhaseCount,
 } from "@/lib/country-config";
 import { marketAreaOptions, type MarketArea } from "@/lib/reserve-market";
 import { gridFieldErrors, validateGridStep } from "@/lib/battery-app/stepValidation";
@@ -48,6 +53,8 @@ function GridStep() {
   const validity = validateGridStep(state);
   const fieldError = gridFieldErrors(state);
   const areaOptions = marketAreaOptions(state.grid.country);
+  const phases = state.grid.phases ?? null;
+  const connection = resolvePhaseOption(state.grid.country, phases);
 
   return (
     <WizardShell
@@ -107,6 +114,45 @@ function GridStep() {
         </SectionCard>
       ) : null}
 
+      {hasPhaseChoice(state.grid.country) ? (
+        <SectionCard compact icon={<Cable />} title={t("network.phase.title")} description={t("network.phase.description")}>
+          <Select
+            value={String(connection.phases)}
+            onValueChange={(v) =>
+              update((s) => {
+                const next = Number(v) as PhaseCount;
+                const o = resolvePhaseOption(s.grid.country, next);
+                // Keep a listed fuse when it exists for the new connection type,
+                // otherwise use that connection's default size.
+                const keep = isListedFuse(s.grid.country, s.grid.mainFuseA, next);
+                return {
+                  ...s,
+                  grid: {
+                    ...s.grid,
+                    phases: next,
+                    mainFuseA: keep || s.grid.mainFuseManual ? s.grid.mainFuseA : o.defaultMainFuse,
+                    gridValuesConfirmed: false,
+                  },
+                };
+              })
+            }
+          >
+            <SelectTrigger className="ui-control">
+              <SelectValue>
+                {t("units.phases", { count: connection.phases })} {connection.voltage} V
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {phaseOptions(state.grid.country).map((o) => (
+                <SelectItem key={o.phases} value={String(o.phases)}>
+                  {t("units.phases", { count: o.phases })} {o.voltage} V
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </SectionCard>
+      ) : null}
+
       <SectionCard compact icon={<ShieldCheck />} title={t("network.fuse.title")} description={t("network.fuse.description")} canConfirm={!fieldError.mainFuseA}>
         <Select
           value={state.grid.mainFuseManual ? "custom" : String(state.grid.mainFuseA)}
@@ -128,7 +174,7 @@ function GridStep() {
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            {fuseOptions(state.grid.country).map((a) => (
+            {fuseOptions(state.grid.country, phases).map((a) => (
               <SelectItem key={a} value={String(a)}>
                 {a} A
               </SelectItem>
@@ -150,7 +196,7 @@ function GridStep() {
                 ...s,
                 grid: {
                   ...s.grid,
-                  mainFuseA: v ?? defaultFuseA(s.grid.country),
+                  mainFuseA: v ?? defaultFuseA(s.grid.country, s.grid.phases ?? null),
                   mainFuseManual: true,
                 },
               }))
@@ -161,10 +207,10 @@ function GridStep() {
 
       <SectionCard compact icon={<PlugZap />} title={t("network.values.title")} description={t("network.values.description")} canConfirm={state.grid.gridValuesConfirmed}>
         <dl className="grid grid-cols-2 gap-1.5">
-          <Value label={t("network.values.voltage")} value={`${country.grid.voltage} V`} />
+          <Value label={t("network.values.voltage")} value={`${connection.voltage} V`} />
           <Value
             label={t("network.values.phases")}
-            value={t("units.phases", { count: country.grid.phases })}
+            value={t("units.phases", { count: connection.phases })}
           />
           <Value label={t("network.values.frequency")} value={`${country.grid.frequency} Hz`} />
           <Value label={t("network.values.currency")} value={country.economy.currency} />

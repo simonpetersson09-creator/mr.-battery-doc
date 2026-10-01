@@ -30,6 +30,8 @@ const LANGUAGE_COUNTRY: Partial<Record<Language, CountryCode>> = {
   de: "DE",
   da: "DK",
   fi: "FI",
+  // German keeps suggesting Germany; Austria/Switzerland are picked in the country list.
+  nl: "NL",
 };
 
 export function LanguageSelect({ pill = false }: { pill?: boolean }) {
