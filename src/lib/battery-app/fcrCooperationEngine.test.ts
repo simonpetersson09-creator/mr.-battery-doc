@@ -90,9 +90,14 @@ describe("FCR Cooperation countries on the existing symmetric engine", () => {
           expect({ ...svc.requirements, enduranceHours: 0 }).toEqual({ ...de.requirements, enduranceHours: 0 });
         });
         const lab = toLabConfig(engineCase(c, true));
-        const plan = ancillaryPlan(lab.ancillary);
+        expect(lab.ancillary.enabled).toBe(true);
+        const plan = ancillaryPlan({ ...lab.ancillary, offeredPowerKw: 10 });
         expect(plan).not.toBeNull();
         expect(plan!.reserveMode).toBe("symmetric");
+        // Reserved energy per direction = offered kW x the country's endurance.
+        expect(plan!.upEnergyKWh).toBeCloseTo(10 * ENDURANCE[c], 8);
+        expect(plan!.downEnergyKWh).toBeCloseTo(10 * ENDURANCE[c], 8);
+        expect(plan!.nemPowerSharePct).toBe(25);
       });
 
       it("uses its own 8760-hour series, never another country's", () => {
