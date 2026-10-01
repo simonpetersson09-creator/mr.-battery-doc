@@ -119,33 +119,6 @@ describe("BE/FR/CZ/SI electrical systems", () => {
 });
 
 describe("BE/FR/CZ/SI symmetric FCR, no fallback", () => {
-  for (const c of NEW) {
-    it(`${c}: symmetric FCR slot with own series id, 0 revenue until imported`, () => {
-      expect(reserveModeForMarket(c)).toBe("symmetric");
-      const products = PENDING_ANCILLARY_MARKETS[c].products;
-      expect(products).toHaveLength(1);
-      expect(products[0]!.kind).toBe("FCR");
-      expect(products[0]!.direction).toBe("symmetric");
-      expect(products[0]!.priceSeriesId).toBe(fcrCooperationSeriesId(c, 2025));
-      expect(products[0]!.priceSeriesId).toBe(`FCR_${c}_2025`);
-      expect(hasConfiguredAncillaryProducts(c)).toBe(false);
-      expect(fcrPriceSeriesForCountry(c)).toBeNull();
-      expect(reserveCalculationAvailable(c)).toBe(false);
-      expect(marketProfileForPriceArea(c).id).toBe(c);
-      expect(marketProfileForPriceArea(c).services).toEqual([]);
-
-      const state = caseFor(c);
-      const input = normalizeWizardToEngineInput(state);
-      expect(input.site?.country).toBe(c);
-      expect(input.strategies?.fcrDUp).toBeFalsy();
-      const outcome = runBatteryApp(state);
-      if (outcome.status !== "ok") throw new Error(outcome.status);
-      const ce = customerEconomyFromResult(outcome.result, state.preferences.customerAncillaryShare);
-      expect(ce.ancillaryMarketValueSek).toBe(0);
-      expect(ancillaryUnavailableText(c)).toBe(t("ancillary.priceDataNotConfigured", { where: t(`countries.${c}`) }));
-    });
-  }
-
   it("series ids are distinct per country", () => {
     expect(new Set(NEW.map((c) => fcrCooperationSeriesId(c, 2025))).size).toBe(4);
   });

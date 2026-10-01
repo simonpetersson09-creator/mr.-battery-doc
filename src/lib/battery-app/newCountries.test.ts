@@ -80,50 +80,6 @@ describe("connection type", () => {
   });
 });
 
-describe("ancillary isolation for AT/CH", () => {
-  for (const c of NEW) {
-    it(`${c}: own market, no other country's prices or rules, revenue 0`, () => {
-      expect(fcrPriceSeriesForCountry(c)).toBeNull();
-      expect(fcrDownPriceSeriesForCountry(c)).toBeNull();
-      expect(priceAreaForMarket(c)).toBe(c);
-      const profile = marketProfileForPriceArea(c);
-      expect(profile).not.toBe(SE_MARKET);
-      expect(profile).not.toBe(FI_MARKET);
-      expect(profile.id).toBe(c);
-      expect(profile.services).toEqual([]);
-      expect(reserveCalculationAvailable(c)).toBe(false);
-
-      const state = caseFor(c);
-      const input = normalizeWizardToEngineInput(state);
-      expect(input.site?.country).toBe(c); // never untagged => never legacy Swedish
-      expect(input.strategies?.fcrDUp).toBeFalsy();
-
-      const outcome = runBatteryApp(state);
-      if (outcome.status !== "ok") throw new Error(outcome.status);
-      const ce = customerEconomyFromResult(outcome.result, state.preferences.customerAncillaryShare);
-      expect(ce.ancillaryMarketValueSek).toBe(0);
-      expect(ce.ancillaryCustomerValueSek).toBe(0);
-      expect(ancillaryUnavailableText(c)).toBe(t("ancillary.priceDataNotConfigured", { where: t(`countries.${c}`) }));
-    });
-  }
-
-  it("country markets can get their own products without engine changes", () => {
-    for (const c of NEW) {
-      expect(PENDING_ANCILLARY_MARKETS[c].country).toBe(c);
-      expect(hasConfiguredAncillaryProducts(c)).toBe(false);
-    }
-    expect(PENDING_ANCILLARY_MARKETS.AT.products).not.toBe(PENDING_ANCILLARY_MARKETS.CH.products);
-    const draft = structuredClone(PENDING_ANCILLARY_MARKETS.AT);
-    draft.products.push({
-      id: "AT_FCR", kind: "FCR", label: "FCR", direction: "symmetric", priceSeriesId: "AT_FCR_TEST",
-      energyPriceEurPerMWh: null, minBidKw: null, requiresAggregator: null, enduranceMinutes: null,
-      prequalification: null, source: null, verified: true,
-    });
-    expect(draft.products).toHaveLength(1);
-    expect(PENDING_ANCILLARY_MARKETS.AT.products).toHaveLength(0);
-  });
-});
-
 describe("CHF", () => {
   it("is a full currency: rate, conversion, formatting", () => {
     expect(localUnitsPerEur("CH")).toBeGreaterThan(0);

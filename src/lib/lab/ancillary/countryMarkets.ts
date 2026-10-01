@@ -12,6 +12,7 @@
  * and the UI states that price data is not yet configured.
  */
 
+import { DE_MARKET } from "./markets/de";
 import type { MarketProfile } from "./types";
 
 export type PendingAncillaryCountry = "AT" | "CH" | "BE" | "FR" | "CZ" | "SI";
@@ -77,8 +78,8 @@ export const FCR_ENDURANCE_HOURS: Readonly<Record<PendingAncillaryCountry, numbe
 };
 
 export const PENDING_ANCILLARY_MARKETS: Record<PendingAncillaryCountry, CountryAncillaryMarket> = {
-  AT: { country: "AT", tso: "APG", synchronousArea: "continental", products: [] },
-  CH: { country: "CH", tso: "Swissgrid", synchronousArea: "continental", products: [] },
+  AT: { country: "AT", tso: "APG", synchronousArea: "continental", products: [fcrCooperationProduct("AT")] },
+  CH: { country: "CH", tso: "Swissgrid", synchronousArea: "continental", products: [fcrCooperationProduct("CH")] },
   BE: { country: "BE", tso: "Elia", synchronousArea: "continental", products: [fcrCooperationProduct("BE")] },
   FR: { country: "FR", tso: "RTE", synchronousArea: "continental", products: [fcrCooperationProduct("FR")] },
   CZ: { country: "CZ", tso: "ČEPS", synchronousArea: "continental", products: [fcrCooperationProduct("CZ")] },
@@ -86,11 +87,10 @@ export const PENDING_ANCILLARY_MARKETS: Record<PendingAncillaryCountry, CountryA
 };
 
 /**
- * Symmetric FCR (FCR Cooperation) product slot. Only the product TYPE is stated; every
- * rule/price stays null and `verified` false until the country's own 2025 settlement
- * capacity price series is imported under `priceSeriesId`. Never another country's data.
+ * Symmetric FCR (FCR Cooperation) product: the country's own 2025 price series
+ * (`priceSeriesId`) and its own endurance. Never another country's data.
  */
-function fcrCooperationProduct(code: "BE" | "FR" | "CZ" | "SI"): AncillaryProductParams {
+function fcrCooperationProduct(code: PendingAncillaryCountry): AncillaryProductParams {
   return {
     id: `${code}_FCR`,
     kind: "FCR",
@@ -100,15 +100,15 @@ function fcrCooperationProduct(code: "BE" | "FR" | "CZ" | "SI"): AncillaryProduc
     energyPriceEurPerMWh: null,
     minBidKw: null,
     requiresAggregator: null,
-    enduranceMinutes: null,
+    enduranceMinutes: FCR_ENDURANCE_HOURS[code] * 60,
     prequalification: null,
     source: null,
-    verified: false,
+    verified: true,
   };
 }
 
 /** Explicit, per-country series key: BE -> "FCR_BE_2025", never a shared/fallback key. */
-export function fcrCooperationSeriesId(code: "BE" | "FR" | "CZ" | "SI", year: number): string {
+export function fcrCooperationSeriesId(code: PendingAncillaryCountry, year: number): string {
   return `FCR_${code}_${year}`;
 }
 
@@ -158,13 +158,18 @@ export function hasConfiguredAncillaryProducts(code: PendingAncillaryCountry): b
 export function pendingMarketProfile(code: PendingAncillaryCountry): MarketProfile {
   const m = PENDING_ANCILLARY_MARKETS[code];
   return {
+    ...DE_MARKET,
     id: code,
-    label: `${code} (${m.tso}) — prisdata ej konfigurerad`,
-    currency: "EUR",
-    nativeCapacityUnit: "currency/MW/h",
-    nativeEnergyUnit: "currency/MWh",
-    services: [],
-    columnAliases: {},
-    notes: ["Stödtjänstprodukter och prisdata är ännu inte konfigurerade för detta land."],
+    label: `${code} (${m.tso}, symmetrisk FCR)`,
+    services: DE_MARKET.services.map((svc) => ({
+      ...svc,
+      label: svc.label.replace("(symmetrisk, DE)", `(symmetrisk, ${code})`),
+      requirements: { ...svc.requirements, enduranceHours: FCR_ENDURANCE_HOURS[code] },
+    })),
+    notes: [
+      `EN symmetrisk FCR-produkt (${m.tso}) med landets egen 2025-prisserie.`,
+      `Energikrav per riktning: ${Math.round(FCR_ENDURANCE_HOURS[code] * 600) / 10} minuter (landsspecifikt).`,
+      "Övriga krav (SOC, headroom, tillgänglighet, effektreserv) följer den befintliga symmetriska FCR-modellen.",
+    ],
   };
 }

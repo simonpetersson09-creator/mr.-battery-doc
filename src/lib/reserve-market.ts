@@ -106,6 +106,29 @@ const DE: ReserveMarketConfig = {
   marketLabel: "Regelleistung / ÜNB (FCR, symmetrisk)",
 };
 
+
+/** FCR Cooperation countries: own market identity, same symmetric FCR model as DE. */
+function symmetricFcr(country: "AT" | "CH" | "BE" | "FR" | "CZ" | "SI", tso: string): ReserveMarketConfig {
+  return {
+    country,
+    marketArea: null,
+    synchronousArea: "continental",
+    product: "FCR",
+    physics: "symmetric",
+    datasetId: `FCR_${country}_2025`,
+    priceArea: country,
+    productLabel: "FCR",
+    marketLabel: `${tso} (FCR, symmetrisk)`,
+  };
+}
+
+const AT: ReserveMarketConfig = symmetricFcr("AT", "APG");
+const CH: ReserveMarketConfig = symmetricFcr("CH", "Swissgrid");
+const BE: ReserveMarketConfig = symmetricFcr("BE", "Elia");
+const FR: ReserveMarketConfig = symmetricFcr("FR", "RTE");
+const CZ: ReserveMarketConfig = symmetricFcr("CZ", "ČEPS");
+const SI: ReserveMarketConfig = symmetricFcr("SI", "ELES");
+
 /** Countries where the customer must pick a geographic area on step 1. */
 export function requiresMarketArea(code: CountryCode): boolean {
   return code === "DK";
@@ -140,6 +163,18 @@ export function reserveMarketConfig(
       return FI;
     case "DE":
       return DE;
+    case "AT":
+      return AT;
+    case "CH":
+      return CH;
+    case "BE":
+      return BE;
+    case "FR":
+      return FR;
+    case "CZ":
+      return CZ;
+    case "SI":
+      return SI;
     case "DK":
       if (area === "DK1") return DK1;
       if (area === "DK2") return DK2;
