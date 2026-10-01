@@ -847,7 +847,7 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
             : copy.notAvailable,
           source: "user",
         },
-        { label: copy.assumptions.connection, value: gridStandardLabel(country), source: "default" },
+        { label: copy.assumptions.connection, value: gridStandardLabel(country, input.site?.phases === 1 ? 1 : 3), source: "default" },
       ],
     },
     { kind: "subheading", text: copy.assumptions.battery },

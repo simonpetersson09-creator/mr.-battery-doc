@@ -17,9 +17,11 @@
  * price datasets (all EUR/MW/h) reusable by every market.
  */
 
-export type Currency = "SEK" | "EUR" | "DKK" | "NOK";
+import { t } from "@/i18n";
 
-export type CurrencyCountry = "SE" | "NO" | "FI" | "DK" | "DE";
+export type Currency = "SEK" | "EUR" | "DKK" | "NOK" | "CHF";
+
+export type CurrencyCountry = "SE" | "NO" | "FI" | "DK" | "DE" | "NL" | "AT" | "CH";
 
 /** Country -> the currency its customers see and enter values in. Source of truth. */
 export const CURRENCY_BY_COUNTRY: Record<CurrencyCountry, Currency> = {
@@ -28,6 +30,9 @@ export const CURRENCY_BY_COUNTRY: Record<CurrencyCountry, Currency> = {
   FI: "EUR",
   DK: "DKK",
   DE: "EUR",
+  NL: "EUR",
+  AT: "EUR",
+  CH: "CHF",
 };
 
 /**
@@ -40,6 +45,8 @@ export const DEFAULT_RATES_PER_EUR: Record<Currency, number> = {
   SEK: 11.3,
   DKK: 7.46,
   NOK: 11.6,
+  // Planning assumption in the same central table as the other rates (no live feed).
+  CHF: 0.94,
 };
 
 export function currencyForCountry(code: CurrencyCountry): Currency {
@@ -75,6 +82,7 @@ export const CURRENCY_SUFFIX: Record<Currency, string> = {
   NOK: "kr",
   DKK: "DKK",
   EUR: "€",
+  CHF: "CHF",
 };
 
 const LOCALE_BY_CURRENCY: Record<Currency, string> = {
@@ -82,6 +90,7 @@ const LOCALE_BY_CURRENCY: Record<Currency, string> = {
   NOK: "nb-NO",
   DKK: "da-DK",
   EUR: "de-DE",
+  CHF: "de-CH",
 };
 
 /** Formats a money amount with the correct locale and currency symbol. */
@@ -104,11 +113,11 @@ export function formatCurrency(
     .replace(/\u00a0/g, " ");
 }
 
-/** "1 234 kr/år" / "1.234 €/år" — the per-year form used across the result page. */
+/** "1 234 kr/år" / "1.234 €/Jahr" — the per-year form (suffix from i18n) used across the result page. */
 export function formatPerYear(
   value: number,
   currency: Currency,
   opts: { locale?: string; digits?: number } = {},
 ): string {
-  return `${formatCurrency(value, currency, opts)}/år`;
+  return `${formatCurrency(value, currency, opts)}${t("units.perYear")}`;
 }

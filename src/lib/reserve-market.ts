@@ -10,6 +10,7 @@
  */
 
 import type { CountryCode } from "@/lib/country-config";
+import { t } from "@/i18n";
 import {
   hasVerifiedFcrPrices,
   type FcrMarketArea,
@@ -165,7 +166,7 @@ export function reserveCalculationAvailable(
 }
 
 /**
- * Customer-facing product name for a market. Falls back to the neutral "stödtjänster"
+ * Customer-facing product name for a market. Falls back to the localized neutral generic name
  * when no market is resolved (e.g. Denmark before DK1/DK2 is picked) so no UI can ever
  * show a Nordic product name for a continental market, or vice versa.
  */
@@ -173,5 +174,5 @@ export function reserveProductLabel(
   code: CountryCode,
   area: MarketArea | null = null,
 ): string {
-  return reserveMarketConfig(code, area)?.productLabel ?? "stödtjänster";
+  return reserveMarketConfig(code, area)?.productLabel ?? t("reserveProduct.generic");
 }

@@ -30,7 +30,7 @@ export {
 };
 export type { FcrPriceSeries };
 
-export type FcrPriceCountry = "SE" | "FI" | "DK" | "DE";
+export type FcrPriceCountry = "SE" | "FI" | "DK" | "DE" | "NL" | "AT" | "CH";
 
 /**
  * Market area key. Today one area per country, but Denmark (and later others) may need
@@ -49,6 +49,7 @@ const SERIES_BY_AREA: Partial<Record<FcrMarketArea, FcrPriceSeries>> = {
   // DK2 runs the Nordic UPWARD product (FCR-D up) and has its own verified series.
   DK2: FCR_D_UP_DK2_2025,
   // DK utan valt område: inget dataset — vi gissar aldrig elområde.
+  // NL/AT/CH: egna marknader, ännu ingen verifierad prisserie — aldrig en annan marknads.
 };
 
 /**

@@ -16,8 +16,21 @@ import {
   type Currency,
 } from "@/lib/currency";
 import { computeFuseKw } from "@/lib/battery-engine";
+import { t } from "@/i18n";
 
-export type CountryCode = "SE" | "NO" | "FI" | "DK" | "DE";
+export type CountryCode = "SE" | "NO" | "FI" | "DK" | "DE" | "NL" | "AT" | "CH";
+
+/** Connection type. 3 = three-phase 400 V (every country), 1 = single-phase 230 V. */
+export type PhaseCount = 1 | 3;
+
+/** One selectable connection type with its own voltage and fuse list. */
+export interface PhaseOption {
+  phases: PhaseCount;
+  /** 400 V line-to-line for 3-phase, 230 V phase-to-neutral for 1-phase. */
+  voltage: number;
+  fuses: number[];
+  defaultMainFuse: number;
+}
 
 export interface GridDefaults {
   /** Nominal phase-to-phase voltage (V) */
@@ -35,6 +48,11 @@ export interface GridDefaults {
   defaultMainFuse: number;
   /** Grid standards relevant for battery/inverter connection */
   standards: string[];
+  /**
+   * Optional: countries where the customer may choose between connection types
+   * (e.g. NL: 1-phase 230 V or 3-phase 400 V). Absent = only the 3-phase default above.
+   */
+  phaseOptions?: PhaseOption[];
 }
 
 export interface EconomyDefaults {
@@ -194,6 +212,84 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       demandChargeVerified: false,
     },
   },
+  NL: {
+    code: "NL",
+    name: "Nederländerna",
+    flag: "🇳🇱",
+    locale: "nl-NL",
+    grid: {
+      voltage: 400,
+      phases: 3,
+      frequency: 50,
+      commonMainFuses: [25, 35, 50, 63, 80],
+      defaultMainFuse: 25,
+      standards: ["NEN 1010"],
+      phaseOptions: [
+        { phases: 3, voltage: 400, fuses: [25, 35, 50, 63, 80], defaultMainFuse: 25 },
+        { phases: 1, voltage: 230, fuses: [25, 35, 40], defaultMainFuse: 35 },
+      ],
+    },
+    economy: {
+      // Nederländska värden i EUR. Köpt el inkl. skatt/moms. Exportersättningen är
+      // ingen modell av salderingen — 0 som utgångsläge, alltid användarredigerbar.
+      currency: currencyForCountry("NL"),
+      currencyLabel: CURRENCY_SUFFIX[currencyForCountry("NL")],
+      importPrice: 0.244,
+      exportPrice: 0,
+      demandCharge: 0,
+      eurSekRate: localUnitsPerEur("NL"),
+      demandChargeVerified: false,
+    },
+  },
+  AT: {
+    code: "AT",
+    name: "Österrike",
+    flag: "🇦🇹",
+    locale: "de-AT",
+    grid: {
+      voltage: 400,
+      phases: 3,
+      frequency: 50,
+      commonMainFuses: [16, 20, 25, 32, 35, 40, 50, 63, 80, 100],
+      defaultMainFuse: 25,
+      standards: ["OVE E 8101:2025"],
+    },
+    economy: {
+      // Österrikiska värden i EUR. Köpt el inkl. skatt/moms. Ingen garanterad
+      // exportersättning — 0 som utgångsläge, alltid användarredigerbar.
+      currency: currencyForCountry("AT"),
+      currencyLabel: CURRENCY_SUFFIX[currencyForCountry("AT")],
+      importPrice: 0.293,
+      exportPrice: 0,
+      demandCharge: 0,
+      eurSekRate: localUnitsPerEur("AT"),
+      demandChargeVerified: false,
+    },
+  },
+  CH: {
+    code: "CH",
+    name: "Schweiz",
+    flag: "🇨🇭",
+    locale: "de-CH",
+    grid: {
+      voltage: 400,
+      phases: 3,
+      frequency: 50,
+      commonMainFuses: [16, 20, 25, 32, 40, 50, 63, 80, 100],
+      defaultMainFuse: 25,
+      standards: ["NIN 2025 / SN 411000"],
+    },
+    economy: {
+      // Schweiziska värden i CHF. Exportvärdet är ett redigerbart utgångsläge.
+      currency: currencyForCountry("CH"),
+      currencyLabel: CURRENCY_SUFFIX[currencyForCountry("CH")],
+      importPrice: 0.277,
+      exportPrice: 0.06,
+      demandCharge: 0,
+      eurSekRate: localUnitsPerEur("CH"),
+      demandChargeVerified: false,
+    },
+  },
 };
 
 export const COUNTRY_LIST = Object.values(COUNTRIES);
@@ -202,7 +298,7 @@ export const COUNTRY_LIST = Object.values(COUNTRIES);
  * Countries released in v1. Economy defaults are stored in each country's OWN currency;
  * the engine is currency agnostic and only needs the local-units-per-EUR rate.
  */
-export const SUPPORTED_COUNTRY_CODES: CountryCode[] = ["SE", "FI", "DK", "DE"];
+export const SUPPORTED_COUNTRY_CODES: CountryCode[] = ["SE", "FI", "DK", "DE", "NL", "AT", "CH"];
 
 export const SUPPORTED_COUNTRY_LIST = SUPPORTED_COUNTRY_CODES.map((c) => COUNTRIES[c]);
 
@@ -238,45 +334,86 @@ export function formatMoney(value: number, code: CountryCode, digits = 2): strin
 
 /** "1 234 kr/år" in the country's own currency and locale. */
 export function formatMoneyPerYear(value: number, code: CountryCode, digits = 0): string {
-  return `${formatMoney(value, code, digits)}/år`;
+  return `${formatMoney(value, code, digits)}${t("units.perYear")}`;
+}
+
+/** Selectable connection types for a country. Countries without a choice get 3-phase only. */
+export function phaseOptions(code: CountryCode): PhaseOption[] {
+  const g = getCountry(code).grid;
+  if (g.phaseOptions?.length) return g.phaseOptions;
+  return [
+    {
+      phases: g.phases === 1 ? 1 : 3,
+      voltage: g.voltage,
+      fuses: fuseOptionsFor(g),
+      defaultMainFuse: g.defaultMainFuse,
+    },
+  ];
+}
+
+/** True when the customer can choose between connection types in this country. */
+export function hasPhaseChoice(code: CountryCode): boolean {
+  return phaseOptions(code).length > 1;
+}
+
+/** The country's default connection type (first option = 3-phase everywhere today). */
+export function defaultPhases(code: CountryCode): PhaseCount {
+  return phaseOptions(code)[0]!.phases;
+}
+
+/** The connection type in effect: the chosen one if valid for the country, else the default. */
+export function resolvePhaseOption(code: CountryCode, phases?: PhaseCount | null): PhaseOption {
+  const opts = phaseOptions(code);
+  return opts.find((o) => o.phases === phases) ?? opts[0]!;
 }
 
 /**
  * ONE shared grid engine for every country: theoretical connection power from the main
- * fuse, using the country's own voltage/phases. No 400 V assumption is duplicated
- * anywhere — a future country with a different standard only needs a COUNTRIES entry.
+ * fuse, using the connection's own voltage/phases.
  *
- *   3-phase: P = sqrt(3) x U x A / 1000
+ *   3-phase: P = sqrt(3) x 400 V x A / 1000
+ *   1-phase: P = 230 V x A / 1000
  */
-export function theoreticalGridPowerKw(mainFuseA: number, code: CountryCode): number {
-  const c = getCountry(code);
-  return computeFuseKw(mainFuseA, c.grid.voltage, c.grid.phases);
+export function theoreticalGridPowerKw(
+  mainFuseA: number,
+  code: CountryCode,
+  phases?: PhaseCount | null,
+): number {
+  const o = resolvePhaseOption(code, phases);
+  return computeFuseKw(mainFuseA, o.voltage, o.phases);
 }
 
-/** Short technical label, e.g. "3-fas 400 V". */
-export function gridStandardLabel(code: CountryCode): string {
-  const c = getCountry(code);
-  return `${c.grid.phases}-fas ${c.grid.voltage} V`;
+/** Short technical label, e.g. "3-fas 400 V" (localized). */
+export function gridStandardLabel(code: CountryCode, phases?: PhaseCount | null): string {
+  const o = resolvePhaseOption(code, phases);
+  return `${t("units.phases", { count: o.phases })} ${o.voltage} V`;
 }
 
-
-/**
- * The full list of selectable main fuse ratings for a country, ascending.
- * Common ratings plus the country's less common but valid ones. The UI never
- * hardcodes fuse arrays — this is the single source of truth.
- */
-export function fuseOptions(code: CountryCode): number[] {
-  const g = getCountry(code).grid;
+function fuseOptionsFor(g: GridDefaults): number[] {
   const all = [...g.commonMainFuses, ...(g.additionalMainFuses ?? [])];
   return Array.from(new Set(all)).sort((a, b) => a - b);
 }
 
-/** The country's default main fuse rating (A). */
-export function defaultFuseA(code: CountryCode): number {
-  return getCountry(code).grid.defaultMainFuse;
+/**
+ * The full list of selectable main fuse ratings for a country (and connection type),
+ * ascending. The UI never hardcodes fuse arrays — this is the single source of truth.
+ */
+export function fuseOptions(code: CountryCode, phases?: PhaseCount | null): number[] {
+  const g = getCountry(code).grid;
+  if (g.phaseOptions?.length) {
+    return [...resolvePhaseOption(code, phases).fuses].sort((a, b) => a - b);
+  }
+  return fuseOptionsFor(g);
 }
 
-/** True when the value is one of the country's predefined options. */
-export function isListedFuse(code: CountryCode, amps: number): boolean {
-  return fuseOptions(code).includes(amps);
+/** The default main fuse rating (A) for the country and connection type. */
+export function defaultFuseA(code: CountryCode, phases?: PhaseCount | null): number {
+  const g = getCountry(code).grid;
+  if (g.phaseOptions?.length) return resolvePhaseOption(code, phases).defaultMainFuse;
+  return g.defaultMainFuse;
+}
+
+/** True when the value is one of the predefined options. */
+export function isListedFuse(code: CountryCode, amps: number, phases?: PhaseCount | null): boolean {
+  return fuseOptions(code, phases).includes(amps);
 }

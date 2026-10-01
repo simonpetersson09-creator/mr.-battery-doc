@@ -25,6 +25,9 @@ export const da = {
     FI: "Finland",
     DK: "Danmark",
     DE: "Tyskland",
+    NL: "Holland",
+    AT: "Østrig",
+    CH: "Schweiz",
   },
   marketAreas: {
     DK1: "DK1 – Vestdanmark",
@@ -86,6 +89,10 @@ export const da = {
     footnote: "Tager cirka tre minutter. Dine svar gemmes undervejs.",
   },
   network: {
+    phase: {
+      title: "Tilslutning",
+      description: "Vælg om ejendommen har 1-faset eller 3-faset tilslutning.",
+    },
     title: "ElNet og hovedsikring",
     intro:
       "Start med at vælge land. Så sættes de rigtige netværdier og standardpriser automatisk.",
@@ -467,6 +474,8 @@ export const da = {
       "Battery Doc er et beregnings- og beslutningsværktøj og erstatter ikke tilbud, teknisk projektering eller aftalevilkår.",
   },
   ancillary: {
+    priceDataNotConfigured:
+      "Systemydelser for {{where}}: prisdata er endnu ikke konfigureret. Indtægten regnes som 0 – ingen andre landes priser bruges.",
     unavailableSymmetric:
       "{{where}} bruger symmetrisk FCR. Markedet er konfigureret, men beregningen er endnu ikke tilgængelig – ingen indtægt antages.",
     unavailableNoData:

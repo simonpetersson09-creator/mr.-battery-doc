@@ -25,6 +25,9 @@ export const en = {
     FI: "Finland",
     DK: "Denmark",
     DE: "Germany",
+    NL: "Netherlands",
+    AT: "Austria",
+    CH: "Switzerland",
   },
   marketAreas: {
     DK1: "DK1 – Western Denmark",
@@ -86,6 +89,10 @@ export const en = {
     footnote: "Takes about three minutes. Your answers are saved as you go.",
   },
   network: {
+    phase: {
+      title: "Connection",
+      description: "Choose whether the property has a single-phase or three-phase connection.",
+    },
     title: "Grid and main fuse",
     intro:
       "Start by choosing a country. The right grid values and standard prices are then set automatically.",
@@ -467,6 +474,8 @@ export const en = {
       "Battery Doc is a calculation and decision support tool and does not replace a quote, technical design or contract terms.",
   },
   ancillary: {
+    priceDataNotConfigured:
+      "Grid services for {{where}}: price data is not configured yet. Grid service revenue is counted as 0 – no other country's prices are used.",
     unavailableSymmetric:
       "{{where}} uses symmetric FCR. The market is configured but the calculation is not available yet – no revenue is assumed.",
     unavailableNoData:

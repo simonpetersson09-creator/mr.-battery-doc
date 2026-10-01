@@ -24,6 +24,9 @@ export const fi = {
     FI: "Suomi",
     DK: "Tanska",
     DE: "Saksa",
+    NL: "Alankomaat",
+    AT: "Itävalta",
+    CH: "Sveitsi",
   },
   marketAreas: {
     DK1: "DK1 – Länsi-Tanska",
@@ -85,6 +88,10 @@ export const fi = {
     footnote: "Kestää noin kolme minuuttia. Vastauksesi tallentuvat matkan varrella.",
   },
   network: {
+    phase: {
+      title: "Liittymä",
+      description: "Valitse, onko kiinteistössä 1-vaiheinen vai 3-vaiheinen liittymä.",
+    },
     title: "Sähköverkko ja pääsulake",
     intro: "Valitse ensin maa. Silloin verkkoarvot ja oletushinnat asetetaan automaattisesti.",
     country: { title: "Maa", description: "Missä kiinteistö sijaitsee?" },
@@ -462,6 +469,8 @@ export const fi = {
       "Battery Doc on laskenta- ja päätöksenteon tuki eikä korvaa tarjousta, teknistä suunnittelua tai sopimusehtoja.",
   },
   ancillary: {
+    priceDataNotConfigured:
+      "Reservimarkkinat, {{where}}: hintatietoja ei ole vielä määritetty. Tuotoksi lasketaan 0 – muiden maiden hintoja ei käytetä.",
     unavailableSymmetric:
       "{{where}} käyttää symmetristä FCR:ää. Markkina on määritetty, mutta laskenta ei ole vielä käytettävissä – tuottoa ei oleteta.",
     unavailableNoData:

@@ -17,7 +17,8 @@ import type {
   EngineStrategyInput,
 } from "@/lib/battery-engine";
 import { isKnownProfile } from "@/lib/consumption-profiles";
-import { getCountry } from "@/lib/country-config";
+import { getCountry, resolvePhaseOption } from "@/lib/country-config";
+import { isPendingAncillaryCountry } from "@/lib/lab/ancillary/countryMarkets";
 import { getLoadProfile } from "@/lib/battery-engine";
 import { spreadAnnual } from "@/lib/lab/defaults";
 import type { WizardState } from "@/state/wizard";
@@ -42,18 +43,25 @@ export function normalizeWizardToEngineInput(
   const country = getCountry(state.grid.country);
 
   /* ---------------- site / grid ---------------- */
+  // Connection type: the chosen one when the country offers a choice (NL), else the
+  // country's default 3-phase 400 V. Unchanged for SE/FI/DK/DE.
+  const connection = resolvePhaseOption(state.grid.country, state.grid.phases ?? null);
   const site: EngineSiteInput = {
-    voltageV: country.grid.voltage,
-    phases: country.grid.phases,
+    voltageV: connection.voltage,
+    phases: connection.phases,
     mainFuseA: state.grid.mainFuseA,
   };
   // The country tag is the single source of truth for which historical FCR-D up market
   // and price dataset the engine uses (SE, FI, DK, DE). Grid physics stays shared.
+  // NL/AT/CH are tagged too, so they can NEVER fall back to the legacy Swedish default.
   if (
     state.grid.country === "SE" ||
     state.grid.country === "FI" ||
     state.grid.country === "DK" ||
-    state.grid.country === "DE"
+    state.grid.country === "DE" ||
+    state.grid.country === "NL" ||
+    state.grid.country === "AT" ||
+    state.grid.country === "CH"
   )
     site.country = state.grid.country;
   // Denmark alone needs an explicit price area (DK1 = symmetric FCR, DK2 = FCR-D up).
@@ -115,7 +123,9 @@ export function normalizeWizardToEngineInput(
     reduceImport: state.strategies.reducedGridImport,
     peakShaving: state.strategies.peakShaving,
   };
-  if (state.strategies.fcrDUp) {
+  // Markets without configured ancillary products/prices (NL/AT/CH today) never run a
+  // reserve: no rules are borrowed from another country and the revenue is 0.
+  if (state.strategies.fcrDUp && !isPendingAncillaryCountry(state.grid.country)) {
     strategies.fcrDUp = true;
     strategies.optimiseFcrReservation = true;
   }

@@ -3,6 +3,7 @@ import { DE_MARKET } from "./markets/de";
 import { DK1_MARKET } from "./markets/dk1";
 import { FI_MARKET } from "./markets/fi";
 import { MARKETS, SE_MARKET } from "./markets/se";
+import { isPendingAncillaryCountry, pendingMarketProfile } from "./countryMarkets";
 import type { FcrMarketArea } from "./prices";
 import type {
   AncillaryConfig,
@@ -18,6 +19,7 @@ export * from "./ingest";
 export * from "./revenue";
 export * from "./fcrEconomics";
 export * from "./prices";
+export * from "./countryMarkets";
 export { MARKETS, SE_MARKET, FI_MARKET };
 
 /**
@@ -37,10 +39,13 @@ export const ACTIVE_DOWN_SERVICE_KEY = "FCR-D-down";
  * to the Nordic upward product only for DK2.
  */
 export function reserveModeForMarket(
-  country: "SE" | "FI" | "DK" | "DE" | undefined,
+  country: "SE" | "FI" | "DK" | "DE" | "NL" | "AT" | "CH" | undefined,
   marketArea?: "DK1" | "DK2" | null,
 ): ReserveMode {
   if (country === "DE") return "symmetric";
+  // Continental markets without configured products: symmetric physics placeholder only;
+  // their market profile has no services, so nothing is reserved or paid.
+  if (isPendingAncillaryCountry(country)) return "symmetric";
   /**
    * DK2 is part of the SAME Nordic FCR market as Sweden and shares its 2025 price series,
    * so it runs FCR-D upp + FCR-D ned as well. DK1 stays on the continental symmetric
@@ -60,7 +65,7 @@ export function reserveModeForMarket(
 
 /** Price/market area used for the historical dataset lookup. */
 export function priceAreaForMarket(
-  country: "SE" | "FI" | "DK" | "DE" | undefined,
+  country: "SE" | "FI" | "DK" | "DE" | "NL" | "AT" | "CH" | undefined,
   marketArea?: "DK1" | "DK2" | null,
 ): FcrMarketArea {
   if (country === "DK" && (marketArea === "DK1" || marketArea === "DK2")) return marketArea;
@@ -80,7 +85,8 @@ export const ALL_HOURS_OF_DAY = Array.from({ length: 24 }, (_, i) => i);
 export const ALL_MONTHS_OF_YEAR = Array.from({ length: 12 }, (_, i) => i + 1);
 
 export function marketProfile(id: MarketId): MarketProfile {
-  return MARKETS[id] ?? SE_MARKET;
+  if (isPendingAncillaryCountry(id)) return pendingMarketProfile(id);
+  return MARKETS[id as keyof typeof MARKETS] ?? SE_MARKET;
 }
 
 /**
@@ -89,6 +95,8 @@ export function marketProfile(id: MarketId): MarketProfile {
  * behaviour for saved cases created before the country was tracked).
  */
 export function marketProfileForPriceArea(area: FcrMarketArea | undefined): MarketProfile {
+  // NL/AT/CH answer for their OWN (still empty) rule set — never the Swedish fallback.
+  if (isPendingAncillaryCountry(area)) return pendingMarketProfile(area);
   if (area === "FI") return FI_MARKET;
   /**
    * DE and DK1 are CONTINENTAL symmetric FCR, not Nordic FCR-D, and each answers for its

@@ -11,8 +11,11 @@ import {
   countryCurrency,
   DEFAULT_COUNTRY,
   getCountry,
+  defaultPhases,
   isListedFuse,
+  resolvePhaseOption,
   type CountryCode,
+  type PhaseCount,
 } from "@/lib/country-config";
 import type { Currency } from "@/lib/currency";
 import type { ProfileId } from "@/lib/consumption-profiles";
@@ -47,6 +50,11 @@ export interface WizardState {
     /** Geographic market area, only used by countries that need one (DK1/DK2). */
     marketArea: MarketArea | null;
     mainFuseA: number;
+    /**
+     * Connection type. Optional for backward compatibility with saved cases: missing =
+     * the country's default (3-phase). Only countries with a phase choice (NL) expose it.
+     */
+    phases?: PhaseCount;
     mainFuseManual: boolean;
     /** User has confirmed the auto-derived grid values are correct. */
     gridValuesConfirmed: boolean;
@@ -141,6 +149,11 @@ function coerceSupportedModes(s: WizardState): WizardState {
   // Old persisted states (before the customer-share / payback step) have no
   // `preferences` at all, and a corrupt one must never reach the UI.
   next.grid = { ...next.grid, countryTouched: next.grid?.countryTouched ?? false };
+  // A phase choice that is not valid for the stored country falls back to its default.
+  next.grid = {
+    ...next.grid,
+    phases: resolvePhaseOption(next.grid.country, next.grid.phases ?? null).phases,
+  };
   next.preferences = {
     customerAncillaryShare: clampCustomerAncillaryShare(
       next.preferences?.customerAncillaryShare ?? DEFAULT_CUSTOMER_ANCILLARY_SHARE,
@@ -162,6 +175,7 @@ export function createInitialState(country: CountryCode = DEFAULT_COUNTRY): Wiza
       country,
       marketArea: null,
       mainFuseA: getCountry(country).grid.defaultMainFuse,
+      phases: defaultPhases(country),
       mainFuseManual: false,
       gridValuesConfirmed: false,
       countryTouched: false,
@@ -291,8 +305,10 @@ function applyCountry(s: WizardState, code: CountryCode, touched: boolean): Wiza
             // If the value is not one of the new country's predefined options it simply
             // becomes a manual ("Annan") value; the physics is identical either way.
             mainFuseA: s.grid.mainFuseA,
+            // Connection type: the new country's default (3-phase everywhere today).
+            phases: defaultPhases(code),
             mainFuseManual:
-              s.grid.mainFuseManual || !isListedFuse(code, s.grid.mainFuseA),
+              s.grid.mainFuseManual || !isListedFuse(code, s.grid.mainFuseA, defaultPhases(code)),
 
             gridValuesConfirmed: false,
             countryTouched: touched || s.grid.countryTouched,

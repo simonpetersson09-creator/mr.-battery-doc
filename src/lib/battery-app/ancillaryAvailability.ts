@@ -9,6 +9,7 @@
 import { t } from "@/i18n";
 import { countryName } from "@/i18n/labels";
 import { type CountryCode } from "@/lib/country-config";
+import { isPendingAncillaryCountry } from "@/lib/lab/ancillary/countryMarkets";
 import {
   reserveCalculationAvailable,
   reserveMarketConfig,
@@ -28,6 +29,10 @@ export function ancillaryUnavailableText(
   area: MarketArea | null = null,
 ): string | null {
   if (ancillaryDataAvailable(code, area)) return null;
+  // Own market exists, but its products/prices are not configured yet -> revenue 0.
+  if (isPendingAncillaryCountry(code)) {
+    return t("ancillary.priceDataNotConfigured", { where: countryName(code) });
+  }
   const cfg = reserveMarketConfig(code, area);
   const where = area ? `${countryName(code)} ${area}` : countryName(code);
   if (cfg && cfg.physics === "symmetric") {
