@@ -442,7 +442,7 @@ export const da = {
     basePowerForEnergy: "Grundeffekt til energistyring",
     ancillaryRaisedNote: "Den højere anbefalede effekt kommer fra dimensioneringen til systemydelser.",
     potentialTitle: "Potentiale for systemydelser",
-    potentialNote: "Højere installeret effekt kan øge den beregnede nytte fra systemydelser. For denne nettilslutning kan modellen teste produkttrin op til {max} kW.",
+    potentialNote: "Højere installeret effekt kan øge den beregnede nytte fra systemydelser. For denne nettilslutning kan modellen teste produkttrin op til {{max}} kW.",
     potentialColumn: "Yderligere beregnet årlig nytte",
     heldPower: "Effekt reserveret til systemydelser",
     cRate: "C-rate",

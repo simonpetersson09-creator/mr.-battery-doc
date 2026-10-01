@@ -446,7 +446,7 @@ export const de = {
     basePowerForEnergy: "Grundleistung für Energiemanagement",
     ancillaryRaisedNote: "Die höhere empfohlene Leistung ergibt sich aus der Auslegung für Systemdienstleistungen.",
     potentialTitle: "Potenzial für Systemdienstleistungen",
-    potentialNote: "Eine höhere installierte Leistung kann den berechneten Nutzen aus Systemdienstleistungen erhöhen. Für diesen Netzanschluss kann das Modell Produktstufen bis {max} kW testen.",
+    potentialNote: "Eine höhere installierte Leistung kann den berechneten Nutzen aus Systemdienstleistungen erhöhen. Für diesen Netzanschluss kann das Modell Produktstufen bis {{max}} kW testen.",
     potentialColumn: "Zusätzlicher berechneter Jahresnutzen",
     heldPower: "Für Systemdienstleistungen reservierte Leistung",
     cRate: "C-Rate",
