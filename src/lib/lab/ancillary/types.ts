@@ -16,7 +16,7 @@ import type { FcrMarketArea } from "./prices";
  *    directions with separate SOC/headroom requirements.
  */
 
-export type MarketId = "SE" | "FI" | "NL" | "AT" | "CH";
+export type MarketId = "SE" | "FI" | "NL" | "AT" | "CH" | "BE" | "FR" | "CZ" | "SI";
 
 /** What the payment is for. */
 export type PaymentKind = "capacity" | "activated-energy";

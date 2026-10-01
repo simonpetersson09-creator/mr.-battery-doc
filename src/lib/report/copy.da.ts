@@ -314,6 +314,7 @@ export const da: ReportCopy = {
     consumptionProfile: "Forbrugsprofil",
     fuse: "Hovedsikring",
     connection: "Tilslutning",
+    gridPowerLimit: "Maks. tilslutningseffekt",
     capacity: "Kapacitet",
     power: "Effekt",
     efficiency: "Virkningsgrad tur-retur",

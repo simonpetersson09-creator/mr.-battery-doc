@@ -17,7 +17,7 @@ import type {
   EngineStrategyInput,
 } from "@/lib/battery-engine";
 import { isKnownProfile } from "@/lib/consumption-profiles";
-import { getCountry, resolvePhaseOption } from "@/lib/country-config";
+import { getCountry, gridConnectionSelector, resolvePhaseOption } from "@/lib/country-config";
 import { isPendingAncillaryCountry } from "@/lib/lab/ancillary/countryMarkets";
 import { getLoadProfile } from "@/lib/battery-engine";
 import { spreadAnnual } from "@/lib/lab/defaults";
@@ -45,7 +45,7 @@ export function normalizeWizardToEngineInput(
   /* ---------------- site / grid ---------------- */
   // Connection type: the chosen one when the country offers a choice (NL), else the
   // country's default 3-phase 400 V. Unchanged for SE/FI/DK/DE.
-  const connection = resolvePhaseOption(state.grid.country, state.grid.phases ?? null);
+  const connection = resolvePhaseOption(state.grid.country, gridConnectionSelector(state.grid));
   const site: EngineSiteInput = {
     voltageV: connection.voltage,
     phases: connection.phases,
@@ -61,7 +61,11 @@ export function normalizeWizardToEngineInput(
     state.grid.country === "DE" ||
     state.grid.country === "NL" ||
     state.grid.country === "AT" ||
-    state.grid.country === "CH"
+    state.grid.country === "CH" ||
+    state.grid.country === "BE" ||
+    state.grid.country === "FR" ||
+    state.grid.country === "CZ" ||
+    state.grid.country === "SI"
   )
     site.country = state.grid.country;
   // Denmark alone needs an explicit price area (DK1 = symmetric FCR, DK2 = FCR-D up).

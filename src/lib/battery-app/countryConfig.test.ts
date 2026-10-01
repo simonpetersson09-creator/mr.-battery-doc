@@ -18,7 +18,7 @@ const FOUR: CountryCode[] = ["SE", "FI", "DK", "DE"];
 
 describe("country grid config", () => {
   it("ships the four original countries plus NL, AT and CH", () => {
-    expect(SUPPORTED_COUNTRY_CODES).toEqual([...FOUR, "NL", "AT", "CH"]);
+    expect(SUPPORTED_COUNTRY_CODES).toEqual([...FOUR, "NL", "AT", "CH", "BE", "FR", "CZ", "SI"]);
   });
 
   it("uses 3-phase 400 V / 50 Hz for all four", () => {

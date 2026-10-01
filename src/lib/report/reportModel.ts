@@ -1,3 +1,4 @@
+import { computeFuseKw } from "@/lib/battery-engine";
 /**
  * REPORT MODEL — the PDF report's only data layer.
  *
@@ -847,7 +848,15 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
             : copy.notAvailable,
           source: "user",
         },
-        { label: copy.assumptions.connection, value: gridStandardLabel(country, input.site?.phases === 1 ? 1 : 3), source: "default" },
+        { label: copy.assumptions.connection, value: gridStandardLabel(country, isFiniteNumber(input.site?.voltageV) ? `${input.site?.phases === 1 ? 1 : 3}x${input.site?.voltageV}` : input.site?.phases === 1 ? 1 : 3), source: "default" },
+        {
+          label: copy.assumptions.gridPowerLimit,
+          value:
+            isFiniteNumber(input.site?.mainFuseA) && isFiniteNumber(input.site?.voltageV)
+              ? kw(computeFuseKw(input.site?.mainFuseA as number, input.site?.voltageV as number, input.site?.phases === 1 ? 1 : 3), 1)
+              : copy.notAvailable,
+          source: "calculated",
+        },
       ],
     },
     { kind: "subheading", text: copy.assumptions.battery },

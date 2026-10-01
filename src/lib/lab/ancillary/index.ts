@@ -39,7 +39,7 @@ export const ACTIVE_DOWN_SERVICE_KEY = "FCR-D-down";
  * to the Nordic upward product only for DK2.
  */
 export function reserveModeForMarket(
-  country: "SE" | "FI" | "DK" | "DE" | "NL" | "AT" | "CH" | undefined,
+  country: "SE" | "FI" | "DK" | "DE" | "NL" | "AT" | "CH" | "BE" | "FR" | "CZ" | "SI" | undefined,
   marketArea?: "DK1" | "DK2" | null,
 ): ReserveMode {
   if (country === "DE") return "symmetric";
@@ -65,7 +65,7 @@ export function reserveModeForMarket(
 
 /** Price/market area used for the historical dataset lookup. */
 export function priceAreaForMarket(
-  country: "SE" | "FI" | "DK" | "DE" | "NL" | "AT" | "CH" | undefined,
+  country: "SE" | "FI" | "DK" | "DE" | "NL" | "AT" | "CH" | "BE" | "FR" | "CZ" | "SI" | undefined,
   marketArea?: "DK1" | "DK2" | null,
 ): FcrMarketArea {
   if (country === "DK" && (marketArea === "DK1" || marketArea === "DK2")) return marketArea;

@@ -314,6 +314,7 @@ export const nl: ReportCopy = {
     consumptionProfile: "Verbruiksprofiel",
     fuse: "Hoofdzekering",
     connection: "Aansluiting",
+    gridPowerLimit: "Max. aansluitvermogen",
     capacity: "Capaciteit",
     power: "Vermogen",
     efficiency: "Round-trip efficiëntie",

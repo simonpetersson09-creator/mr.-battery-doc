@@ -28,6 +28,10 @@ export const da = {
     NL: "Holland",
     AT: "Østrig",
     CH: "Schweiz",
+    BE: "Belgien",
+    FR: "Frankrig",
+    CZ: "Tjekkiet",
+    SI: "Slovenien",
   },
   marketAreas: {
     DK1: "DK1 – Vestdanmark",
