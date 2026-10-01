@@ -27,6 +27,10 @@ export const fi = {
     NL: "Alankomaat",
     AT: "Itävalta",
     CH: "Sveitsi",
+    BE: "Belgia",
+    FR: "Ranska",
+    CZ: "Tšekki",
+    SI: "Slovenia",
   },
   marketAreas: {
     DK1: "DK1 – Länsi-Tanska",
