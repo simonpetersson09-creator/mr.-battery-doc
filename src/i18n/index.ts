@@ -16,10 +16,9 @@ import { en } from "./locales/en";
 import { de } from "./locales/de";
 import { da } from "./locales/da";
 import { fi } from "./locales/fi";
-import { nl } from "./locales/nl";
 import { applyPlatformCopy } from "./platformCopy";
 
-export const SUPPORTED_LANGUAGES = ["sv", "en", "de", "da", "fi", "nl"] as const;
+export const SUPPORTED_LANGUAGES = ["sv", "en", "de", "da", "fi"] as const;
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
 
 /** Fallback used for any missing key, in any language. */
@@ -35,7 +34,6 @@ export const LANGUAGE_NAMES: Record<Language, string> = {
   de: "Deutsch",
   da: "Dansk",
   fi: "Suomi",
-  nl: "Nederlands",
 };
 
 /** Country flag emoji shown beside each language — presentation only. */
@@ -45,7 +43,6 @@ export const LANGUAGE_FLAGS: Record<Language, string> = {
   de: "🇩🇪",
   da: "🇩🇰",
   fi: "🇫🇮",
-  nl: "🇳🇱",
 };
 
 /** Number locale — presentation only. Currency stays country-driven. */
@@ -55,7 +52,6 @@ const NUMBER_LOCALE: Record<Language, string> = {
   de: "de-DE",
   da: "da-DK",
   fi: "fi-FI",
-  nl: "nl-NL",
 };
 
 export function isSupportedLanguage(v: unknown): v is Language {
@@ -100,7 +96,6 @@ export const translationResources: Record<Language, Record<string, unknown>> = {
   de,
   da,
   fi,
-  nl,
 };
 
 if (!i18next.isInitialized) {

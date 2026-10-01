@@ -62,7 +62,7 @@ const CASES: Array<[(typeof NEW)[number], string, number, number]> = [
 
 describe("BE/FR/CZ/SI electrical systems", () => {
   it("are supported with currency and locale", () => {
-    expect(SUPPORTED_COUNTRY_CODES).toEqual(["SE", "FI", "DK", "DE", "NL", "AT", "CH", "BE", "FR", "CZ", "SI"]);
+    expect(SUPPORTED_COUNTRY_CODES).toEqual(["SE", "FI", "DK", "DE", "AT", "CH", "BE", "FR", "CZ", "SI"]);
     expect(COUNTRIES.BE.economy.currency).toBe("EUR");
     expect(COUNTRIES.FR.locale).toBe("fr-FR");
     expect(COUNTRIES.CZ.economy.currency).toBe("CZK");
@@ -167,7 +167,7 @@ describe("BE/FR/CZ/SI symmetric FCR, no fallback", () => {
 
 describe("saved cases and reports", () => {
   it("old saved case without connectionId still resolves", () => {
-    expect(resolvePhaseOption("NL", 1).id).toBe("1x230");
+    expect(resolvePhaseOption("FR", 3).id).toBe("3x400");
     expect(resolvePhaseOption("SE", null).id).toBe("3x400");
     expect(resolvePhaseOption("BE", "bogus").id).toBe("3x400");
   });

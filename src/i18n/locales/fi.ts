@@ -24,7 +24,6 @@ export const fi = {
     FI: "Suomi",
     DK: "Tanska",
     DE: "Saksa",
-    NL: "Alankomaat",
     AT: "Itävalta",
     CH: "Sveitsi",
     BE: "Belgia",

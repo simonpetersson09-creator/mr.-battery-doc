@@ -25,7 +25,6 @@ export const da = {
     FI: "Finland",
     DK: "Danmark",
     DE: "Tyskland",
-    NL: "Holland",
     AT: "Østrig",
     CH: "Schweiz",
     BE: "Belgien",

@@ -30,12 +30,11 @@ import { FCR_CZ_2025_BLOCKS_EUR_PER_MW } from "./fcrCoopCZ2025";
 import { FCR_FR_2025_BLOCKS_EUR_PER_MW } from "./fcrCoopFR2025";
 import { FCR_SI_2025_BLOCKS_EUR_PER_MW } from "./fcrCoopSI2025";
 
-export type FcrCooperationCountry = "AT" | "NL" | "CH" | "BE" | "FR" | "CZ" | "SI";
+export type FcrCooperationCountry = "AT" | "CH" | "BE" | "FR" | "CZ" | "SI";
 
 /** Source file per country — explicit, never derived. */
 export const FCR_COOPERATION_SOURCE_FILES: Record<FcrCooperationCountry, string> = {
   AT: "FCR_2025_Austria.xlsx",
-  NL: "FCR_2025_Netherlands.xlsx",
   CH: "FCR_2025_Switzerland.xlsx",
   BE: "FCR_2025_Belgium.xlsx",
   FR: "FCR_2025_France.xlsx",
@@ -44,9 +43,7 @@ export const FCR_COOPERATION_SOURCE_FILES: Record<FcrCooperationCountry, string>
 };
 
 /**
- * Imported 4-hour block prices (EUR/MW per block). NL is deliberately absent: its file
- * contains a second auction (TENDER_NUMBER 2) with its own prices on 2025-10-28/29, so
- * the block price is ambiguous and nothing is imported until that is decided.
+ * Imported 4-hour block prices (EUR/MW per block), one array per country.
  */
 const BLOCKS: Partial<Record<FcrCooperationCountry, readonly number[]>> = {
   AT: FCR_AT_2025_BLOCKS_EUR_PER_MW,
@@ -99,6 +96,6 @@ export function fcrCooperationSeries(code: FcrCooperationCountry): FcrPriceSerie
 
 /** Lookup by explicit series id ("FCR_BE_2025"); unknown/unimported ids return null. */
 export function fcrCooperationSeriesById(id: string): FcrPriceSeries | null {
-  const m = /^FCR_(AT|NL|CH|BE|FR|CZ|SI)_2025$/.exec(id);
+  const m = /^FCR_(AT|CH|BE|FR|CZ|SI)_2025$/.exec(id);
   return m ? fcrCooperationSeries(m[1] as FcrCooperationCountry) : null;
 }

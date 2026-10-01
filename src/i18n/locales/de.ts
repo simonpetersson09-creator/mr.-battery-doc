@@ -25,7 +25,6 @@ export const de = {
     FI: "Finnland",
     DK: "Dänemark",
     DE: "Deutschland",
-    NL: "Niederlande",
     AT: "Österreich",
     CH: "Schweiz",
     BE: "Belgien",

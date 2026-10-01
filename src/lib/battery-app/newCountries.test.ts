@@ -1,7 +1,7 @@
 /**
- * NL / AT / CH — country rollout safety net.
- * Covers currency, locale, NL phase choice, ancillary isolation (no fallback to any
- * other country's prices or rules), CHF through calculation + PDF, and Dutch app/PDF.
+ * AT / CH — country rollout safety net (the Netherlands and Dutch were removed).
+ * Covers currency, locale, ancillary isolation (no fallback to any other country's
+ * prices or rules) and CHF through calculation + PDF.
  */
 import { describe, expect, it } from "vitest";
 import { i18n, SUPPORTED_LANGUAGES, t } from "@/i18n";
@@ -36,7 +36,7 @@ import { getReportCopy } from "@/lib/report/copy";
 import { buildReportModel, collectReportText } from "@/lib/report/reportModel";
 import { createInitialState, type WizardState } from "@/state/wizard";
 
-const NEW = ["NL", "AT", "CH"] as const;
+const NEW = ["AT", "CH"] as const;
 
 function caseFor(country: WizardState["grid"]["country"], patch?: (s: WizardState) => void) {
   const s = structuredClone(createInitialState(country));
@@ -50,62 +50,37 @@ function caseFor(country: WizardState["grid"]["country"], patch?: (s: WizardStat
   return s;
 }
 
-describe("seven countries", () => {
-  it("lists all seven, with currency and locale per country", () => {
-    expect(SUPPORTED_COUNTRY_CODES.slice(0, 7)).toEqual(["SE", "FI", "DK", "DE", "NL", "AT", "CH"]);
+describe("six countries", () => {
+  it("lists the first six, with currency and locale per country", () => {
+    expect(SUPPORTED_COUNTRY_CODES.slice(0, 6)).toEqual(["SE", "FI", "DK", "DE", "AT", "CH"]);
     const expected = {
       SE: ["SEK", "sv-SE"], FI: ["EUR", "fi-FI"], DK: ["DKK", "da-DK"], DE: ["EUR", "de-DE"],
-      NL: ["EUR", "nl-NL"], AT: ["EUR", "de-AT"], CH: ["CHF", "de-CH"],
+      AT: ["EUR", "de-AT"], CH: ["CHF", "de-CH"],
     } as const;
-    for (const c of SUPPORTED_COUNTRY_CODES.slice(0, 7)) {
+    for (const c of SUPPORTED_COUNTRY_CODES.slice(0, 6)) {
       expect(getCountry(c).economy.currency).toBe(expected[c as keyof typeof expected][0]);
       expect(getCountry(c).locale).toBe(expected[c as keyof typeof expected][1]);
     }
   });
 
-  it("uses the requested defaults for NL/AT/CH", () => {
-    expect(COUNTRIES.NL.economy.importPrice).toBe(0.244);
+  it("uses the requested defaults for AT/CH", () => {
     expect(COUNTRIES.AT.economy.importPrice).toBe(0.293);
     expect(COUNTRIES.CH.economy.importPrice).toBe(0.277);
     expect(COUNTRIES.CH.economy.exportPrice).toBe(0.06);
     for (const c of NEW) expect(COUNTRIES[c].economy.demandCharge).toBe(0);
-    expect(COUNTRIES.NL.grid.standards).toEqual(["NEN 1010"]);
     expect(COUNTRIES.AT.grid.standards).toEqual(["OVE E 8101:2025"]);
     expect(COUNTRIES.CH.grid.standards).toEqual(["NIN 2025 / SN 411000"]);
   });
 });
 
-describe("NL connection type", () => {
-  it("offers 1-phase and 3-phase, default 3 x 25 A", () => {
-    expect(hasPhaseChoice("NL")).toBe(true);
-    expect(hasPhaseChoice("AT")).toBe(false);
-    expect(hasPhaseChoice("SE")).toBe(false);
-    expect(createInitialState("NL").grid.phases).toBe(3);
-    expect(defaultFuseA("NL", 3)).toBe(25);
-    expect(fuseOptions("NL", 3)).toEqual(expect.arrayContaining([25, 35, 50, 63, 80]));
-    expect(fuseOptions("NL", 1)).toContain(35);
-  });
-
-  it("3-phase: P = sqrt(3) x 400 x A; 1-phase: P = 230 x A", () => {
-    expect(theoreticalGridPowerKw(25, "NL", 3)).toBeCloseTo(17.32, 2);
-    expect(theoreticalGridPowerKw(35, "NL", 1)).toBeCloseTo(8.05, 2);
-    expect(gridStandardLabel("NL", 1)).toContain("230 V");
-  });
-
-  it("passes the chosen connection to the engine", () => {
-    const one = normalizeWizardToEngineInput(caseFor("NL", (s) => { s.grid.phases = 1; s.grid.mainFuseA = 35; }));
-    expect(one.site).toMatchObject({ phases: 1, voltageV: 230, mainFuseA: 35, country: "NL" });
-    const three = normalizeWizardToEngineInput(caseFor("NL"));
-    expect(three.site).toMatchObject({ phases: 3, voltageV: 400, mainFuseA: 25, country: "NL" });
-  });
-
-  it("other countries ignore a stray phase value and stay 3-phase 400 V", () => {
+describe("connection type", () => {
+  it("countries without a phase choice ignore a stray phase value and stay 3-phase 400 V", () => {
     const s = caseFor("SE", (x) => { x.grid.phases = 1; });
     expect(normalizeWizardToEngineInput(s).site).toMatchObject({ phases: 3, voltageV: 400 });
   });
 });
 
-describe("ancillary isolation for NL/AT/CH", () => {
+describe("ancillary isolation for AT/CH", () => {
   for (const c of NEW) {
     it(`${c}: own market, no other country's prices or rules, revenue 0`, () => {
       expect(fcrPriceSeriesForCountry(c)).toBeNull();
@@ -137,15 +112,15 @@ describe("ancillary isolation for NL/AT/CH", () => {
       expect(PENDING_ANCILLARY_MARKETS[c].country).toBe(c);
       expect(hasConfiguredAncillaryProducts(c)).toBe(false);
     }
-    expect(PENDING_ANCILLARY_MARKETS.NL.products).not.toBe(PENDING_ANCILLARY_MARKETS.AT.products);
-    const draft = structuredClone(PENDING_ANCILLARY_MARKETS.NL);
+    expect(PENDING_ANCILLARY_MARKETS.AT.products).not.toBe(PENDING_ANCILLARY_MARKETS.CH.products);
+    const draft = structuredClone(PENDING_ANCILLARY_MARKETS.AT);
     draft.products.push({
-      id: "NL_FCR", kind: "FCR", label: "FCR", direction: "symmetric", priceSeriesId: "NL_FCR_TEST",
+      id: "AT_FCR", kind: "FCR", label: "FCR", direction: "symmetric", priceSeriesId: "AT_FCR_TEST",
       energyPriceEurPerMWh: null, minBidKw: null, requiresAggregator: null, enduranceMinutes: null,
       prequalification: null, source: null, verified: true,
     });
     expect(draft.products).toHaveLength(1);
-    expect(PENDING_ANCILLARY_MARKETS.NL.products).toHaveLength(0);
+    expect(PENDING_ANCILLARY_MARKETS.AT.products).toHaveLength(0);
   });
 });
 
@@ -176,33 +151,14 @@ describe("CHF", () => {
   });
 });
 
-describe("Dutch", () => {
-  it("is a supported app language with its own strings", () => {
-    expect(SUPPORTED_LANGUAGES).toContain("nl");
-    void i18n.changeLanguage("nl");
-    try {
-      expect(t("countries.NL")).toBe("Nederland");
-      expect(t("common.next")).not.toBe(i18n.getFixedT("en")("common.next"));
-    } finally {
-      void i18n.changeLanguage("sv");
-    }
+describe("Netherlands and Dutch removed", () => {
+  it("NL is not a country and nl is not a language", () => {
+    expect(SUPPORTED_COUNTRY_CODES as readonly string[]).not.toContain("NL");
+    expect(SUPPORTED_LANGUAGES as readonly string[]).not.toContain("nl");
+    expect(getReportCopy("nl")).toBe(getReportCopy("en"));
   });
 
-  it("has its own PDF copy and produces a Dutch report", () => {
-    expect(getReportCopy("nl")).not.toBe(getReportCopy("en"));
-    const state = caseFor("NL");
-    const outcome = runBatteryApp(state);
-    if (outcome.status !== "ok") throw new Error(outcome.status);
-    const model = buildReportModel({
-      outcome, language: "nl",
-      customerEconomy: customerEconomyFromResult(outcome.result, state.preferences.customerAncillaryShare),
-      targetPaybackYears: 10, alternatives: [], now: new Date(2026, 9, 1), reportId: "MBD-TEST-NL",
-    });
-    expect(model.title).toBe(getReportCopy("nl").title);
-    expect(collectReportText(model).join("\n")).toContain("€");
-  });
-
-  it("names NL/AT/CH in every supported language", () => {
+  it("names AT/CH in every supported language", () => {
     for (const lng of SUPPORTED_LANGUAGES) {
       const tl = i18n.getFixedT(lng);
       for (const c of NEW) expect(tl(`countries.${c}`)).not.toBe(`countries.${c}`);

@@ -18,7 +18,7 @@ import {
 import { computeFuseKw } from "@/lib/battery-engine";
 import { t } from "@/i18n";
 
-export type CountryCode = "SE" | "NO" | "FI" | "DK" | "DE" | "NL" | "AT" | "CH" | "BE" | "FR" | "CZ" | "SI";
+export type CountryCode = "SE" | "NO" | "FI" | "DK" | "DE" | "AT" | "CH" | "BE" | "FR" | "CZ" | "SI";
 
 /** Connection type. 3 = three-phase 400 V (every country), 1 = single-phase 230 V. */
 export type PhaseCount = 1 | 3;
@@ -58,7 +58,7 @@ export interface GridDefaults {
   standards: string[];
   /**
    * Optional: countries where the customer may choose between connection types
-   * (e.g. NL: 1-phase 230 V or 3-phase 400 V). Absent = only the 3-phase default above.
+   * (e.g. FR: 1-phase 230 V or 3-phase 400 V). Absent = only the 3-phase default above.
    */
   phaseOptions?: PhaseOption[];
 }
@@ -288,35 +288,6 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       demandChargeVerified: false,
     },
   },
-  NL: {
-    code: "NL",
-    name: "Nederländerna",
-    flag: "🇳🇱",
-    locale: "nl-NL",
-    grid: {
-      voltage: 400,
-      phases: 3,
-      frequency: 50,
-      commonMainFuses: [25, 35, 50, 63, 80],
-      defaultMainFuse: 25,
-      standards: ["NEN 1010"],
-      phaseOptions: [
-        { id: "3x400", phases: 3, voltage: 400, fuses: [25, 35, 50, 63, 80], defaultMainFuse: 25 },
-        { id: "1x230", phases: 1, voltage: 230, fuses: [25, 35, 40], defaultMainFuse: 35 },
-      ],
-    },
-    economy: {
-      // Nederländska värden i EUR. Köpt el inkl. skatt/moms. Exportersättningen är
-      // ingen modell av salderingen — 0 som utgångsläge, alltid användarredigerbar.
-      currency: currencyForCountry("NL"),
-      currencyLabel: CURRENCY_SUFFIX[currencyForCountry("NL")],
-      importPrice: 0.244,
-      exportPrice: 0,
-      demandCharge: 0,
-      eurSekRate: localUnitsPerEur("NL"),
-      demandChargeVerified: false,
-    },
-  },
   AT: {
     code: "AT",
     name: "Österrike",
@@ -379,7 +350,7 @@ export const COUNTRY_LIST = Object.values(COUNTRIES);
  * the engine is currency agnostic and only needs the local-units-per-EUR rate.
  */
 export const SUPPORTED_COUNTRY_CODES: CountryCode[] = [
-  "SE", "FI", "DK", "DE", "NL", "AT", "CH", "BE", "FR", "CZ", "SI",
+  "SE", "FI", "DK", "DE", "AT", "CH", "BE", "FR", "CZ", "SI",
 ];
 
 export const SUPPORTED_COUNTRY_LIST = SUPPORTED_COUNTRY_CODES.map((c) => COUNTRIES[c]);

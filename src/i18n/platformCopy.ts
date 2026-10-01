@@ -19,7 +19,7 @@ type Overrides = {
   legal: { terms: { p2: string }; privacy: { p2: string } };
 };
 
-export const ANDROID_OVERRIDES: Record<"sv" | "en" | "da" | "fi" | "de" | "nl", Overrides> = {
+export const ANDROID_OVERRIDES: Record<"sv" | "en" | "da" | "fi" | "de", Overrides> = {
   sv: {
     errors: {
       importFilesDenied: "Filer är inte tillåtna. Tillåt åtkomst i telefonens inställningar för att välja underlag.",
@@ -118,26 +118,6 @@ export const ANDROID_OVERRIDES: Record<"sv" | "en" | "da" | "fi" | "de" | "nl", 
     legal: {
       terms: { p2: "Der Kauf eines Berichts schaltet die jeweilige Berechnung frei. Premium bietet unbegrenzte Berechnungen während der Abolaufzeit. Käufe werden von Google Play abgewickelt; Erstattungen richten sich nach den Google-Play-Bedingungen." },
       privacy: { p2: "Käufe werden über Google Play verifiziert. Wir erhalten oder speichern niemals Zahlungsdaten." },
-    },
-  },
-  nl: {
-    errors: {
-      importFilesDenied: "Toegang tot bestanden staat uit. Sta toegang toe in de instellingen van je telefoon om een document te kiezen.",
-      importCameraDenied: "Toegang tot de camera staat uit. Sta de camera toe in de instellingen van je telefoon om een document te fotograferen.",
-      importPhotosDenied: "Toegang tot foto's staat uit. Sta toegang toe in de instellingen van je telefoon om een document te kiezen.",
-    },
-    paywall: {
-      premium: { renewal: "{{price}}. Het abonnement wordt automatisch verlengd, tenzij je het opzegt volgens de voorwaarden van Google Play." },
-      priceUnavailable: "De prijs komt van Google Play.",
-      manageWeb: "Abonnementen beheer je via Google Play.",
-      errors: {
-        network: "Geen verbinding met Google Play. Controleer je netwerk en probeer het opnieuw.",
-        notSupported: "Aankopen zijn nog niet beschikbaar in de Android-app.",
-      },
-    },
-    legal: {
-      terms: { p2: "Met de aankoop van een rapport ontgrendel je die specifieke berekening. Premium geeft onbeperkt berekeningen tijdens de abonnementsperiode. Aankopen worden afgehandeld door Google Play en eventuele terugbetalingen volgen de voorwaarden van Google Play." },
-      privacy: { p2: "Aankopen worden geverifieerd via Google Play. We ontvangen of bewaren nooit betaalgegevens." },
     },
   },
 };

@@ -57,9 +57,8 @@ describe("FCR Cooperation 2025 import", () => {
     );
   });
 
-  it("NL (ambiguous second auction) and unknown ids give null, never a fallback", () => {
-    expect(fcrCooperationSeries("NL")).toBeNull();
-    expect(fcrCooperationSeriesById("FCR_NL_2025")).toBeNull();
+  it("unknown ids give null, never a fallback", () => {
+        expect(fcrCooperationSeriesById("FCR_XX_2025")).toBeNull();
     expect(fcrCooperationSeriesById("FCR_DE_2025")).toBeNull();
     expect(fcrCooperationSeriesById("FCR_AT_2024")).toBeNull();
   });

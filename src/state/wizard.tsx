@@ -15,6 +15,7 @@ import {
   defaultPhases,
   isListedFuse,
   gridConnectionSelector, resolvePhaseOption,
+  COUNTRIES,
   type CountryCode,
   type PhaseCount,
 } from "@/lib/country-config";
@@ -53,7 +54,7 @@ export interface WizardState {
     mainFuseA: number;
     /**
      * Connection type. Optional for backward compatibility with saved cases: missing =
-     * the country's default (3-phase). Only countries with a phase choice (NL) expose it.
+     * the country's default (3-phase). Only countries with a phase choice (e.g. FR) expose it.
      */
     phases?: PhaseCount;
     /**
@@ -240,7 +241,10 @@ export function WizardProvider({ children }: { children: ReactNode }) {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as WizardState;
-        setState((current) =>
+        // A case saved for a country that is no longer offered starts over.
+        if (parsed.grid?.country && !(parsed.grid.country in COUNTRIES)) {
+          localStorage.removeItem(STORAGE_KEY);
+        } else setState((current) =>
           coerceSupportedModes({
             ...current,
             ...parsed,

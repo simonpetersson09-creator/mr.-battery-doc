@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getReportCopy } from "./copy";
 
-const LANGS = ["sv", "en", "da", "fi", "de", "nl"] as const;
+const LANGS = ["sv", "en", "da", "fi", "de"] as const;
 
 /** Every leaf string path of an object, so structures can be compared exactly. */
 function paths(value: unknown, prefix = ""): string[] {
@@ -47,7 +47,7 @@ describe("report copy translations", () => {
   });
 
   it("each language has its own copy object", () => {
-    for (const lang of ["en", "da", "fi", "de", "nl"] as const) {
+    for (const lang of ["en", "da", "fi", "de"] as const) {
       expect(getReportCopy(lang)).not.toBe(getReportCopy("sv"));
     }
   });

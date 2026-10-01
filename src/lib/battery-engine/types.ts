@@ -42,7 +42,7 @@ import type {
 
 export type { SelfConsumptionCalibration } from "../lab/types";
 
-export type CountryCode = "SE" | "FI" | "DK" | "DE" | "NL" | "AT" | "CH" | "BE" | "FR" | "CZ" | "SI";
+export type CountryCode = "SE" | "FI" | "DK" | "DE" | "AT" | "CH" | "BE" | "FR" | "CZ" | "SI";
 
 /* ============================ INPUT ============================ */
 

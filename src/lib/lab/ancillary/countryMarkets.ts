@@ -14,10 +14,9 @@
 
 import type { MarketProfile } from "./types";
 
-export type PendingAncillaryCountry = "NL" | "AT" | "CH" | "BE" | "FR" | "CZ" | "SI";
+export type PendingAncillaryCountry = "AT" | "CH" | "BE" | "FR" | "CZ" | "SI";
 
 export const PENDING_ANCILLARY_COUNTRIES: readonly PendingAncillaryCountry[] = [
-  "NL",
   "AT",
   "CH",
   "BE",
@@ -64,7 +63,6 @@ export interface CountryAncillaryMarket {
 }
 
 export const PENDING_ANCILLARY_MARKETS: Record<PendingAncillaryCountry, CountryAncillaryMarket> = {
-  NL: { country: "NL", tso: "TenneT", synchronousArea: "continental", products: [] },
   AT: { country: "AT", tso: "APG", synchronousArea: "continental", products: [] },
   CH: { country: "CH", tso: "Swissgrid", synchronousArea: "continental", products: [] },
   BE: { country: "BE", tso: "Elia", synchronousArea: "continental", products: [fcrCooperationProduct("BE")] },
