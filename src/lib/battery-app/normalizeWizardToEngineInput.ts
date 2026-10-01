@@ -18,7 +18,6 @@ import type {
 } from "@/lib/battery-engine";
 import { isKnownProfile } from "@/lib/consumption-profiles";
 import { getCountry, gridConnectionSelector, resolvePhaseOption } from "@/lib/country-config";
-import { isPendingAncillaryCountry } from "@/lib/lab/ancillary/countryMarkets";
 import { getLoadProfile } from "@/lib/battery-engine";
 import { spreadAnnual } from "@/lib/lab/defaults";
 import type { WizardState } from "@/state/wizard";
@@ -126,9 +125,7 @@ export function normalizeWizardToEngineInput(
     reduceImport: state.strategies.reducedGridImport,
     peakShaving: state.strategies.peakShaving,
   };
-  // Markets without configured ancillary products/prices (AT/CH today) never run a
-  // reserve: no rules are borrowed from another country and the revenue is 0.
-  if (state.strategies.fcrDUp && !isPendingAncillaryCountry(state.grid.country)) {
+  if (state.strategies.fcrDUp) {
     strategies.fcrDUp = true;
     strategies.optimiseFcrReservation = true;
   }

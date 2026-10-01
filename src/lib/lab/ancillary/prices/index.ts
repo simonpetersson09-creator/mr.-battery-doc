@@ -18,6 +18,7 @@ import { FCR_D_UP_DK2_2025 } from "./fcrDUpDK2_2025";
 import { FCR_D_UP_SE_2025 } from "./fcrDUpSE2025";
 import { FCR_D_DOWN_SE_2025 } from "./fcrDDownSE2025";
 import type { FcrPriceSeries } from "./fcrDUpSE2025";
+import { fcrCooperationSeries } from "./fcrCooperation";
 
 export {
   FCR_D_DOWN_FI_2025,
@@ -49,7 +50,13 @@ const SERIES_BY_AREA: Partial<Record<FcrMarketArea, FcrPriceSeries>> = {
   // DK2 runs the Nordic UPWARD product (FCR-D up) and has its own verified series.
   DK2: FCR_D_UP_DK2_2025,
   // DK utan valt område: inget dataset — vi gissar aldrig elområde.
-  // AT/CH: egna marknader, ännu ingen verifierad prisserie — aldrig en annan marknads.
+  // FCR Cooperation (symmetric): each country only its OWN imported 2025 series.
+  AT: fcrCooperationSeries("AT")!,
+  CH: fcrCooperationSeries("CH")!,
+  BE: fcrCooperationSeries("BE")!,
+  FR: fcrCooperationSeries("FR")!,
+  CZ: fcrCooperationSeries("CZ")!,
+  SI: fcrCooperationSeries("SI")!,
 };
 
 /**
