@@ -240,7 +240,10 @@ export function WizardProvider({ children }: { children: ReactNode }) {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as WizardState;
-        setState((current) =>
+        // A case saved for a country that is no longer offered starts over.
+        if (parsed.grid?.country && !(parsed.grid.country in COUNTRIES)) {
+          localStorage.removeItem(STORAGE_KEY);
+        } else setState((current) =>
           coerceSupportedModes({
             ...current,
             ...parsed,
