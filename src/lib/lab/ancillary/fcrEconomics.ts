@@ -224,10 +224,15 @@ export function computeFcrRevenue(input: FcrRevenueInput): FcrRevenueResult {
 
   const assumptions = [
     `${FCR_HISTORICAL_LABEL} (${series.timestampFrom} – ${series.timestampTo}). Historiskt utfall, inte en prognos.`,
-    "Priset är gemensamt för hela Sverige. Inga separata SE1–SE4-priser används; SE1–SE4 i källan är upphandlade volymer, inte priser.",
+    // Market-specific wording: the Swedish source note only applies to the Swedish series.
+    series.market === "Sweden"
+      ? "Priset är gemensamt för hela Sverige. Inga separata SE1–SE4-priser används; SE1–SE4 i källan är upphandlade volymer, inte priser."
+      : `Prisserie: ${series.source} (${series.market}). Ingen annan marknads priser används.`,
     "Prisserien kopplas mot motorns timindex 0–8759 (fast modellår, ingen sommartid). Källans tidsstämplar är endast metadata.",
     "Intäkten räknas timme för timme på den effekt reservationen faktiskt kunde hållas — aldrig på nominellt erbjuden effekt gånger 8 760.",
-    `Valutakurs ${eurSekRate.toFixed(2)} SEK/EUR är ett ANTAGANDE, inte en del av Svenska kraftnäts FCR-data.`,
+    series.market === "Sweden"
+      ? `Valutakurs ${eurSekRate.toFixed(2)} SEK/EUR är ett ANTAGANDE, inte en del av Svenska kraftnäts FCR-data.`
+      : `Valutakurs ${eurSekRate.toFixed(2)} (lokal valuta per EUR) är ett ANTAGANDE, inte en del av källans FCR-data.`,
     "Aktivering av tjänsten simuleras inte — detta är ersättning för bokad beredskap (kapacitet).",
   ];
   if (realismGaps.length > 0)
