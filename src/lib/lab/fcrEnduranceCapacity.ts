@@ -33,12 +33,28 @@ export const MAX_RECOMMENDABLE_CAPACITY_KWH = 500;
 const FLOAT_TOL = 1e-9;
 
 /**
- * Plateau resolution in kW. Purely numerical: consecutive capacity steps can differ by a few
- * 1e-8 kW of held reserve from accumulated floating-point dispatch residue, which is many
- * orders of magnitude below the resolution of a real reserve bid. 1 W is treated as "the same
- * held reserve". This is NOT a percentage target of the plateau.
+ * PLATEAU TOLERANCE (relative, with a small absolute floor).
+ *
+ * A larger capacity is only selected when it buys a MATERIAL increase in held reserve.
+ * Storage management compensates self-discharge with real energy, and that compensation
+ * grows with the battery size, so the held average drifts by a few watts across the
+ * ladder (measured: ~0.002 kW between 50 and 500 kWh at 40 kW). That is not usable
+ * reserve and must not move the sizing.
+ *
+ *   tolerance(direction) = max(PLATEAU_ABS_FLOOR_KW, PLATEAU_REL_TOL * plateau(direction))
+ *
+ *  - 0.25 % of the plateau: far below any real bid granularity (reserve bids are traded
+ *    in 0.1 MW / 1 MW steps; aggregators pool kW-level units), yet two orders of magnitude
+ *    above the watt-level drift. A genuine energy-limited shortfall is typically several
+ *    percent of the plateau and is therefore never hidden.
+ *  - 0.005 kW absolute floor: covers float residue when the plateau itself is tiny.
+ * Not a revenue margin and not the 95 % base-power rule (which is unchanged).
  */
-const PLATEAU_RESOLUTION_KW = 1e-3;
+export const PLATEAU_REL_TOL = 0.0025;
+export const PLATEAU_ABS_FLOOR_KW = 0.005;
+export function plateauToleranceKw(plateauKw: number): number {
+  return Math.max(PLATEAU_ABS_FLOOR_KW, PLATEAU_REL_TOL * Math.max(0, plateauKw));
+}
 
 export interface FcrEnduranceCapacityStep {
   capacityKWh: number;
@@ -138,12 +154,12 @@ export function fcrEnduranceCapacity(args: {
   const plateauUp = top.heldPowerKw;
   const plateauDown = top.heldDownPowerKw;
 
-  // Smallest step that already reaches the plateau in BOTH directions (float tolerance only).
+  // Smallest step that already reaches the plateau in BOTH directions (material tolerance).
   const chosen =
     steps.find(
       (s) =>
-        s.heldPowerKw >= plateauUp - PLATEAU_RESOLUTION_KW &&
-        s.heldDownPowerKw >= plateauDown - PLATEAU_RESOLUTION_KW,
+        s.heldPowerKw >= plateauUp - plateauToleranceKw(plateauUp) &&
+        s.heldDownPowerKw >= plateauDown - plateauToleranceKw(plateauDown),
     ) ?? top;
 
   const raised = chosen.capacityKWh > capacityKWh + FLOAT_TOL;

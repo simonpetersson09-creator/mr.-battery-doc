@@ -8,7 +8,7 @@ import { describe, expect, it } from "vitest";
 
 import { toLabConfig, toTimeSeries } from "../battery-engine/input";
 import type { BatteryEngineInput } from "../battery-engine/types";
-import { fcrEnduranceCapacity } from "./fcrEnduranceCapacity";
+import { fcrEnduranceCapacity, plateauToleranceKw } from "./fcrEnduranceCapacity";
 
 const LOAD = [2264, 1887, 1698, 1509, 1321, 1226, 1132, 1226, 1415, 1698, 2075, 2549];
 const PV = [101, 302, 806, 1410, 1813, 2216, 2317, 2014, 1612, 906, 403, 100];
@@ -95,13 +95,30 @@ describe("fcrEnduranceCapacity — held reserve plateau", () => {
 
   it("does not add kWh to solve a grid-capped direction", () => {
     const r = run(40, 20, 25); // 25 A main fuse: the UP reserve is grid-capped from the start
-    const up = r.steps.map((s) => s.heldPowerKw);
-    // The grid-capped direction is flat across the whole ladder: more kWh buys nothing there.
+    // Flatness is only checked where energy no longer binds (from the chosen plateau
+    // step upwards); below it small capacities are genuinely energy-limited.
+    const up = r.steps.filter((s) => s.capacityKWh >= r.capacityKWh).map((s) => s.heldPowerKw);
     expect(Math.max(...up) - Math.min(...up)).toBeLessThan(0.5);
     // Any raise here comes from the DOWN direction, which is genuinely energy-limited.
     const chosen = r.steps.find((s) => s.capacityKWh === r.capacityKWh)!;
     const base = r.steps[0]!;
     if (r.raised) expect(chosen.heldDownPowerKw).toBeGreaterThan(base.heldDownPowerKw);
+  });
+
+  it("a few watts of numerical drift never drive the sizing (e.g. 50 -> 300 kWh)", () => {
+    const r = run(40, 20, 25);
+    // Measured: held reserve differs ~0.002 kW between 40 and 500 kWh (self-discharge
+    // compensation grows with size). The plateau tolerance must absorb that...
+    expect(r.capacityKWh).toBeLessThanOrEqual(50);
+    const top = r.steps.at(-1)!;
+    for (const s of r.steps.filter((x) => x.capacityKWh >= r.capacityKWh)) {
+      expect(Math.abs(top.heldPowerKw - s.heldPowerKw)).toBeLessThan(plateauToleranceKw(top.heldPowerKw));
+    }
+    // ...but a real shortfall (30 kWh: ~0.24 kW down) is still rejected.
+    const at30 = r.steps.find((s) => s.capacityKWh === 30)!;
+    expect(top.heldDownPowerKw - at30.heldDownPowerKw).toBeGreaterThan(plateauToleranceKw(top.heldDownPowerKw));
+    expect(plateauToleranceKw(20)).toBeCloseTo(0.05, 12);
+    expect(plateauToleranceKw(0)).toBe(0.005);
   });
 
   it("is inactive when ancillary services are off", () => {

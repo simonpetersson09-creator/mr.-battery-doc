@@ -82,7 +82,9 @@ describe("ancillary services and the recommended system power", () => {
     const res = runBatteryEngine(c032(true));
     const s = res.summary;
     // The simulated reserve belongs to the 60 kW system, not to the 15 kW base power.
-    expect(s.fcr.offeredPowerKw).toBeCloseTo(60, 6);
+    // FCR-D up+down keeps the market profile's 20 % NEM power share on top of the bid,
+    // so the offered (= holdable) reserve is 60 / 1.2 = 50 kW, already in the plan.
+    expect(s.fcr.offeredPowerKw).toBeCloseTo(50, 6);
     expect(s.fcr.avgHeldPowerKw ?? 0).toBeGreaterThan(40);
     const ce = customerEconomyFromResult(res, 0.75);
     const low = runBatteryEngine(c032(false));
