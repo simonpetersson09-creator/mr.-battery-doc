@@ -232,6 +232,7 @@ export interface ReportCopy {
     consumptionProfile: string;
     fuse: string;
     connection: string;
+    gridPowerLimit: string;
     capacity: string;
     power: string;
     efficiency: string;
@@ -581,6 +582,7 @@ const sv: ReportCopy = {
     consumptionProfile: "Förbrukningsprofil",
     fuse: "Huvudsäkring",
     connection: "Anslutning",
+    gridPowerLimit: "Max nätanslutningseffekt",
     capacity: "Kapacitet",
     power: "Effekt",
     efficiency: "Verkningsgrad (round trip)",
@@ -1019,6 +1021,7 @@ const en: ReportCopy = {
     consumptionProfile: "Consumption profile",
     fuse: "Main fuse",
     connection: "Connection",
+    gridPowerLimit: "Max grid connection power",
     capacity: "Capacity",
     power: "Power",
     efficiency: "Round-trip efficiency",

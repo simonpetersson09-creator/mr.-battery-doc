@@ -314,6 +314,7 @@ export const de: ReportCopy = {
     consumptionProfile: "Verbrauchsprofil",
     fuse: "Hauptsicherung",
     connection: "Anschluss",
+    gridPowerLimit: "Max. Anschlussleistung",
     capacity: "Kapazität",
     power: "Leistung",
     efficiency: "Wirkungsgrad (Round-Trip)",

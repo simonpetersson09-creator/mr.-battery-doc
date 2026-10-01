@@ -314,6 +314,7 @@ export const fi: ReportCopy = {
     consumptionProfile: "Kulutusprofiili",
     fuse: "Pääsulake",
     connection: "Liittymä",
+    gridPowerLimit: "Liittymän enimmäisteho",
     capacity: "Kapasiteetti",
     power: "Teho",
     efficiency: "Kokonaishyötysuhde",
