@@ -27,8 +27,14 @@ Run on a device/emulator from Android Studio. For Play: Build → Generate Signe
 - Store wording on Android: `src/i18n/platformCopy.ts`.
 - Manage subscription on Android opens Google Play's subscription page.
 
+## Server verification (implemented)
+- `/api/public/verify-purchase` with `platform: "google_play"` checks the purchase token via
+  Google Play Developer API for `se.shiningdays.mrbatterydoc` (`googlePlayServer.server.ts`).
+- One-time tokens are bound to one calculation in table `google_play_consumed_purchases`.
+- Consume (one-time) / acknowledge (subscription) happens only after a verified grant is stored.
+- Needs secret `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON`; without it the server answers `config-required` (no grant).
+
 ## Still missing before enabling purchases
-1. Server-side Google Play verification (Google service account) — not started.
+1. Add secret `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` and grant the service account access in Play Console.
 2. Products created and active in Play Console.
 3. Set `GOOGLE_PLAY_BILLING_ENABLED = true`.
-4. Real app icons/splash for Android (Capacitor defaults today).

@@ -53,6 +53,30 @@ export type Database = {
         }
         Relationships: []
       }
+      google_play_consumed_purchases: {
+        Row: {
+          calculation_id: string
+          created_at: string
+          order_id: string | null
+          product_id: string
+          purchase_token: string
+        }
+        Insert: {
+          calculation_id: string
+          created_at?: string
+          order_id?: string | null
+          product_id: string
+          purchase_token: string
+        }
+        Update: {
+          calculation_id?: string
+          created_at?: string
+          order_id?: string | null
+          product_id?: string
+          purchase_token?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

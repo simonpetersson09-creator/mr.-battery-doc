@@ -8,3 +8,4 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+- Google Play purchases are verified server-side by purchase token (Developer API); one-time tokens are bound to one calculation in a server-only table — prevents replay and client-asserted unlocks.

@@ -13,13 +13,18 @@
  *  - nothing runs in the browser: initialisation is refused off native iOS
  */
 import { isAndroid, isIOS, isNativePlatform } from "@/lib/platform/runtime";
-import { GOOGLE_PLAY_BILLING_ENABLED, PRODUCT_IDS, PRODUCT_TYPES, type ProductKey } from "../products";
+import {
+  GOOGLE_PLAY_BILLING_ENABLED,
+  GOOGLE_PLAY_PREMIUM_BASE_PLAN_ID,
+  PRODUCT_IDS, PRODUCT_TYPES, type ProductKey } from "../products";
 import { registerNativePurchasePlugin, type NativePurchasePlugin } from "../gateways/native";
 
 /* Minimal structural typing of the plugin's global — we never import its module
    into the web bundle. */
 interface CdvTransaction {
   transactionId: string;
+  /** Google Play: the purchase token. */
+  purchaseId?: string;
   originalTransactionId?: string;
   state?: string;
   products?: Array<{ id: string }>;
@@ -31,7 +36,7 @@ interface CdvProduct {
   id: string;
   title?: string;
   pricing?: { price?: string; currency?: string };
-  offers?: Array<{ pricingPhases?: Array<{ price?: string }>; order?: () => Promise<unknown> }>;
+  offers?: Array<{ id?: string; pricingPhases?: Array<{ price?: string }>; order?: () => Promise<unknown> }>;
   getOffer?: () => { order?: () => Promise<unknown> } | undefined;
   canPurchase?: boolean;
 }
@@ -134,6 +139,9 @@ export function createCdvPurchaseAdapter(
   platform: string = ns.Platform.APPLE_APPSTORE,
 ): NativePurchasePlugin {
   const store = ns.store;
+  const isGoogle = !!ns.Platform.GOOGLE_PLAY && platform === ns.Platform.GOOGLE_PLAY;
+  const keyForId = (id: string): ProductKey =>
+    (Object.keys(PRODUCT_IDS) as ProductKey[]).find((k) => PRODUCT_IDS[k] === id) ?? "singleReport";
   let initialized: Promise<void> | null = null;
   const productListeners = new Set<() => void>();
 
@@ -297,7 +305,11 @@ export function createCdvPurchaseAdapter(
       });
 
       try {
-        const offer = product.getOffer?.() ?? product.offers?.[0];
+        // Google Play subscriptions: order exactly the configured base plan.
+        const offer =
+          isGoogle && PRODUCT_TYPES[keyForId(productId)] === "auto-renewable-subscription"
+            ? product.offers?.find((o) => o.id === `${productId}@${GOOGLE_PLAY_PREMIUM_BASE_PLAN_ID}`)
+            : (product.getOffer?.() ?? product.offers?.[0]);
         if (!offer) {
           settleWaiting(productId, null);
           return { status: "failed" as const, code: "PRODUCT_UNAVAILABLE" };
@@ -326,6 +338,7 @@ export function createCdvPurchaseAdapter(
         originalTransactionId: t.originalTransactionId ?? null,
         productId,
         expiresISO: expiresISO(t),
+        ...(isGoogle && t.purchaseId ? { purchaseToken: t.purchaseId } : {}),
       };
     },
 
@@ -344,6 +357,8 @@ export function createCdvPurchaseAdapter(
       });
       tx.forEach(rememberTransaction);
       if (!active) return { active: false };
+      // Google Play: the token goes to our backend, which decides and supplies the expiry.
+      if (isGoogle) return active.purchaseId ? { active: true, purchaseToken: active.purchaseId } : { active: false };
       return { active: true, expiresISO: expiresISO(active) };
     },
 
@@ -363,7 +378,12 @@ export function createCdvPurchaseAdapter(
         if (!productId) continue;
         rememberTransaction(t);
         // `verified` stays undefined on purpose: only our backend may set it.
-        out.push({ transactionId: t.transactionId, productId, expiresISO: expiresISO(t) });
+        out.push({
+          transactionId: t.transactionId,
+          productId,
+          expiresISO: expiresISO(t),
+          ...(isGoogle && t.purchaseId ? { purchaseToken: t.purchaseId } : {}),
+        });
       }
       return out;
     },

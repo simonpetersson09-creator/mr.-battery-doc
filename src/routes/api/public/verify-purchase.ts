@@ -37,7 +37,12 @@ const requestSchema = z.object({
   originalTransactionId: z.string().max(200).nullish(),
   calculationId: z.string().max(200).optional(),
   signedTransaction: z.string().max(20_000).optional(),
+  platform: z.enum(["app_store", "google_play"]).optional(),
+  purchaseToken: z.string().min(1).max(4096).optional(),
 });
+
+const json = (body: unknown, headers: Record<string, string>, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers });
 
 export const Route = createFileRoute("/api/public/verify-purchase")({
   server: {
@@ -66,6 +71,10 @@ export const Route = createFileRoute("/api/public/verify-purchase")({
             status: 400,
             headers,
           });
+        }
+
+        if (parsed.data.platform === "google_play") {
+          return json(await verifyGooglePlay(parsed.data), headers);
         }
 
         // Read credentials inside the handler — env is injected per request.
@@ -116,3 +125,65 @@ export const Route = createFileRoute("/api/public/verify-purchase")({
     },
   },
 });
+
+/**
+ * Google Play: the purchase token is checked against the Google Play Developer
+ * API for package se.shiningdays.mrbatterydoc. The client's own claim is never
+ * trusted. A one-time purchase token is bound to exactly one calculation.
+ */
+async function verifyGooglePlay(data: {
+  key: "singleReport" | "premiumYear";
+  productId: string;
+  purchaseToken?: string | undefined;
+  calculationId?: string | undefined;
+}): Promise<Record<string, unknown>> {
+  const g = await import("@/lib/access/googlePlayServer.server");
+  const cfg = g.readGoogleConfig();
+  if (!cfg.ok) return { status: "config-required" };
+  const token = data.purchaseToken;
+  if (!token) return { status: "invalid", reason: "missing-token" };
+
+  if (data.key === "premiumYear") {
+    const res = await g.fetchSubscriptionPurchase(cfg.config, token);
+    if (!res.ok) return res.reason === "not-found" ? { status: "invalid", reason: "not-found" } : { status: "unavailable" };
+    const v = g.evaluateSubscription(res.body, data.productId);
+    return v.status === "verified" ? { status: "verified", premiumExpiresISO: v.premiumExpiresISO } : v;
+  }
+
+  // One-time report: needs the calculation it pays for, otherwise no opinion.
+  const calculationId = data.calculationId ?? "";
+  if (!calculationId) return { status: "unavailable" };
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const table = supabaseAdmin.from("google_play_consumed_purchases");
+  const existing = await table.select("calculation_id").eq("purchase_token", token).maybeSingle();
+  if (existing.error) return { status: "unavailable" };
+
+  const res = await g.fetchProductPurchase(cfg.config, data.productId, token);
+  if (!res.ok) return res.reason === "not-found" ? { status: "invalid", reason: "not-found" } : { status: "unavailable" };
+  const v = g.evaluateProductPurchase(res.body, data.productId, !!existing.data);
+  if (v.status !== "verified") return v;
+
+  if (existing.data) {
+    // Replay of the same delivery is fine; reuse for another calculation is not.
+    return existing.data.calculation_id === calculationId
+      ? { status: "verified", premiumExpiresISO: null }
+      : { status: "invalid", reason: "token-already-used" };
+  }
+  const ins = await supabaseAdmin.from("google_play_consumed_purchases").insert({
+    purchase_token: token,
+    product_id: data.productId,
+    order_id: v.orderId ?? null,
+    calculation_id: calculationId,
+  });
+  if (ins.error) {
+    // Lost a race: re-read and apply the same binding rule.
+    const again = await supabaseAdmin
+      .from("google_play_consumed_purchases")
+      .select("calculation_id")
+      .eq("purchase_token", token)
+      .maybeSingle();
+    if (again.data?.calculation_id === calculationId) return { status: "verified", premiumExpiresISO: null };
+    return again.data ? { status: "invalid", reason: "token-already-used" } : { status: "unavailable" };
+  }
+  return { status: "verified", premiumExpiresISO: null };
+}

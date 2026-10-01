@@ -35,12 +35,14 @@ export interface NativePurchasePlugin {
     /** StoreKit transaction reference — sent to our backend for verification. */
     transactionId?: string;
     originalTransactionId?: string | null;
+    /** Google Play purchase token (Android only). */
+    purchaseToken?: string;
     productId?: string;
     code?: string;
     message?: string;
   }>;
   /** Restores/verifies existing SUBSCRIPTION entitlements only. */
-  restorePremium(): Promise<{ active: boolean; expiresISO?: string | null }>;
+  restorePremium(): Promise<{ active: boolean; expiresISO?: string | null; purchaseToken?: string }>;
   /**
    * Transactions StoreKit still considers unfinished — a purchase that completed
    * while the app was closed, an interrupted/pending transaction, or one whose
@@ -53,6 +55,7 @@ export interface NativePurchasePlugin {
       productId: string;
       verified?: boolean;
       expiresISO?: string | null;
+      purchaseToken?: string;
     }>
   >;
   /** Acknowledges a delivered transaction so StoreKit stops replaying it. */
@@ -130,7 +133,11 @@ export function createNativeGateway(p: NativePurchasePlugin): PurchaseGateway {
       try {
         const res = await p.restorePremium();
         if (!res?.active) return { status: "nothing" };
-        return { status: "restored", premiumExpiresISO: res.expiresISO ?? null };
+        return {
+          status: "restored",
+          premiumExpiresISO: res.expiresISO ?? null,
+          ...(res.purchaseToken ? { purchaseToken: res.purchaseToken } : {}),
+        };
       } catch (err) {
         return { status: "failed", code: interpretPurchaseError(err) };
       }
@@ -159,6 +166,7 @@ export function interpretNativePurchase(
       transactionId: res.transactionId ?? "",
       productId: res.productId ?? PRODUCT_IDS[key],
       originalTransactionId: res.originalTransactionId ?? null,
+      ...(res.purchaseToken ? { purchaseToken: res.purchaseToken } : {}),
     };
   }
   return { status: "failed", code: interpretPurchaseError(res) };
