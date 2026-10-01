@@ -109,7 +109,7 @@ export function fetchSubscriptionPurchase(cfg: GoogleConfig, token: string) {
 }
 
 export type GoogleVerdict =
-  | { status: "verified"; premiumExpiresISO: string | null; orderId?: string }
+  | { status: "verified"; premiumExpiresISO: string | null; orderId?: string | undefined }
   | { status: "invalid"; reason: string }
   | { status: "unavailable" };
 

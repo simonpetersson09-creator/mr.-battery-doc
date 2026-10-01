@@ -134,8 +134,8 @@ export const Route = createFileRoute("/api/public/verify-purchase")({
 async function verifyGooglePlay(data: {
   key: "singleReport" | "premiumYear";
   productId: string;
-  purchaseToken?: string;
-  calculationId?: string;
+  purchaseToken?: string | undefined;
+  calculationId?: string | undefined;
 }): Promise<Record<string, unknown>> {
   const g = await import("@/lib/access/googlePlayServer.server");
   const cfg = g.readGoogleConfig();
