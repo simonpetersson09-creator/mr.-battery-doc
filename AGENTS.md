@@ -16,3 +16,4 @@
 - FCR Cooperation countries reuse the German symmetric market profile (`DE_MARKET` services) with only `enduranceHours` overridden from `FCR_ENDURANCE_HOURS` — one engine, no country-specific reserve logic.
 - Countries without verified tariffs use neutral 0 economy values (`economyVerified: false`) and the generic fuse-step list — never values copied from another country.
 - Symmetric FCR plans are clipped to rating / (1 + NEM share) before dispatch, and the dispatch runs storage management (charge/discharge towards the `solveAncillarySoc` working point using only power left after the FCR capacity) for symmetric products only — keeps offered = holdable power and makes pure-reserve years cyclic without touching Nordic upward/up-and-down logic.
+- FCR reservation tie tolerance is an economic amount defined in SEK and converted to the economy's currency via the central rate table before comparing candidates — the currency must never change the chosen FCR level.

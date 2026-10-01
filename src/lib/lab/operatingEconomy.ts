@@ -27,6 +27,7 @@ import {
 } from "./peakBenefit";
 import { buildSeries, simulate } from "./simulate";
 import type { LabConfig, SimResult } from "./types";
+import { DEFAULT_RATES_PER_EUR } from "@/lib/currency";
 
 export type PeakTariffSource = "default-estimate" | "user-provided";
 
@@ -536,6 +537,20 @@ export const FCR_SWEEP_FRACTIONS = [
  */
 export const FCR_TIE_TOLERANCE_SEK = 25;
 
+/**
+ * The tie tolerance expressed in the economy's OWN currency. The tolerance is an economic
+ * amount defined in SEK; candidate totals are in local currency (econ.eurSekRate = local
+ * units per 1 EUR). Convert via EUR with the app's central rate table:
+ *   local = 25 SEK / (SEK per EUR) * (local per EUR)
+ * so the currency itself can never change which FCR level is chosen.
+ */
+export function fcrTieToleranceLocal(econ: OperatingEconomyConfig): number {
+  const sekPerEur = DEFAULT_RATES_PER_EUR.SEK;
+  const localPerEur =
+    Number.isFinite(econ.eurSekRate) && econ.eurSekRate > 0 ? econ.eurSekRate : sekPerEur;
+  return (FCR_TIE_TOLERANCE_SEK / sekPerEur) * localPerEur;
+}
+
 export const FCR_OPTIMUM_LABEL =
   "Historiskt optimal FCR-D upp-reservation med 2025 års priser";
 
@@ -685,9 +700,10 @@ export function optimizeFcrReservation(
    * (energy + peak + ancillary customer value), never the highest raw FCR gross.
    * On a practical tie, the LOWEST reservation wins.
    */
+  const tieTolerance = fcrTieToleranceLocal(econ);
   const bestTotal = Math.max(...candidates.map((c) => c.annualCustomerBenefitSek));
   const best =
-    candidates.find((c) => c.annualCustomerBenefitSek >= bestTotal - FCR_TIE_TOLERANCE_SEK) ??
+    candidates.find((c) => c.annualCustomerBenefitSek >= bestTotal - tieTolerance) ??
     candidates[0]!;
 
 
@@ -707,7 +723,7 @@ export function optimizeFcrReservation(
     recommendedPowerKw: best.offeredPowerKw,
     batteryPowerKw: powerKw,
     offerablePowerKw,
-    tieToleranceSek: FCR_TIE_TOLERANCE_SEK,
+    tieToleranceSek: tieTolerance,
     recommendationText:
       best.offeredPowerKw <= 0
         ? FCR_NO_RESERVATION_TEXT
