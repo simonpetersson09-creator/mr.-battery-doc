@@ -73,7 +73,7 @@ export const GOOGLE_PLAY_PREMIUM_BASE_PLAN_ID = "yearly";
  * verified, so the Android app keeps purchasing disabled instead of charging a
  * customer who then gets nothing.
  */
-export const GOOGLE_PLAY_BILLING_ENABLED = false;
+export const GOOGLE_PLAY_BILLING_ENABLED = true;
 
 export function productKeyForId(productId: string): ProductKey | null {
   const hit = (Object.keys(PRODUCT_IDS) as ProductKey[]).find(
