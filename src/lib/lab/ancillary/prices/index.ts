@@ -30,7 +30,7 @@ export {
 };
 export type { FcrPriceSeries };
 
-export type FcrPriceCountry = "SE" | "FI" | "DK" | "DE" | "NL" | "AT" | "CH";
+export type FcrPriceCountry = "SE" | "FI" | "DK" | "DE" | "NL" | "AT" | "CH" | "BE" | "FR" | "CZ" | "SI";
 
 /**
  * Market area key. Today one area per country, but Denmark (and later others) may need

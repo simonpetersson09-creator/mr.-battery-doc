@@ -18,7 +18,7 @@ import {
 import { computeFuseKw } from "@/lib/battery-engine";
 import { t } from "@/i18n";
 
-export type CountryCode = "SE" | "NO" | "FI" | "DK" | "DE" | "NL" | "AT" | "CH";
+export type CountryCode = "SE" | "NO" | "FI" | "DK" | "DE" | "NL" | "AT" | "CH" | "BE" | "FR" | "CZ" | "SI";
 
 /** Connection type. 3 = three-phase 400 V (every country), 1 = single-phase 230 V. */
 export type PhaseCount = 1 | 3;

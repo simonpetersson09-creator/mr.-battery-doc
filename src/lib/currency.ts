@@ -19,9 +19,9 @@
 
 import { t } from "@/i18n";
 
-export type Currency = "SEK" | "EUR" | "DKK" | "NOK" | "CHF";
+export type Currency = "SEK" | "EUR" | "DKK" | "NOK" | "CHF" | "CZK";
 
-export type CurrencyCountry = "SE" | "NO" | "FI" | "DK" | "DE" | "NL" | "AT" | "CH";
+export type CurrencyCountry = "SE" | "NO" | "FI" | "DK" | "DE" | "NL" | "AT" | "CH" | "BE" | "FR" | "CZ" | "SI";
 
 /** Country -> the currency its customers see and enter values in. Source of truth. */
 export const CURRENCY_BY_COUNTRY: Record<CurrencyCountry, Currency> = {
@@ -33,6 +33,10 @@ export const CURRENCY_BY_COUNTRY: Record<CurrencyCountry, Currency> = {
   NL: "EUR",
   AT: "EUR",
   CH: "CHF",
+  BE: "EUR",
+  FR: "EUR",
+  CZ: "CZK",
+  SI: "EUR",
 };
 
 /**
@@ -47,6 +51,8 @@ export const DEFAULT_RATES_PER_EUR: Record<Currency, number> = {
   NOK: 11.6,
   // Planning assumption in the same central table as the other rates (no live feed).
   CHF: 0.94,
+  // Planning assumption (no live feed) — replace with a verified rate when available.
+  CZK: 25,
 };
 
 export function currencyForCountry(code: CurrencyCountry): Currency {
@@ -83,6 +89,7 @@ export const CURRENCY_SUFFIX: Record<Currency, string> = {
   DKK: "DKK",
   EUR: "€",
   CHF: "CHF",
+  CZK: "Kč",
 };
 
 const LOCALE_BY_CURRENCY: Record<Currency, string> = {
@@ -91,6 +98,7 @@ const LOCALE_BY_CURRENCY: Record<Currency, string> = {
   DKK: "da-DK",
   EUR: "de-DE",
   CHF: "de-CH",
+  CZK: "cs-CZ",
 };
 
 /** Formats a money amount with the correct locale and currency symbol. */
