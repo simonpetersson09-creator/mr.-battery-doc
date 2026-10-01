@@ -1,15 +1,15 @@
 import { it, vi } from "vitest";
-const rec: { soc: number[] | null } = { soc: null };
+const rec: any = { soc: null, held: null };
 vi.mock("@/lib/lab/dispatch", async (orig) => {
   const m: any = await orig();
-  return { ...m, dispatch: (a: any) => { const o = m.dispatch(a); rec.soc = o.socSeries; return o; } };
+  return { ...m, dispatch: (a: any) => { const o = m.dispatch(a); rec.soc = o.socSeries; rec.held = o.ancillaryReservedPowerKwByHour; return o; } };
 });
 import { runBatteryEngine } from "@/lib/battery-engine";
 import { fcrPriceSeriesForCountry } from "@/lib/lab/ancillary/prices";
 import { FCR_ENDURANCE_HOURS } from "@/lib/lab/ancillary/countryMarkets";
 import { reserveModeForMarket, marketProfileForPriceArea } from "@/lib/lab/ancillary";
 import { localUnitsPerEur, currencyForCountry } from "@/lib/currency";
-import { COUNTRIES } from "@/lib/countries";
+import { COUNTRIES } from "@/lib/country-config";
 import { writeFileSync } from "fs";
 it("final", () => {
   const out: string[] = [];
@@ -29,7 +29,7 @@ it("final", () => {
       const s = r.diagnostics.simulation, a = s.ancillary, cfg = r.diagnostics.config;
       const soc = rec.soc!; const smin = Math.min(...soc), smax = Math.max(...soc);
       const lo = cfg.battery.minSocPct/100*c, hi = cfg.battery.maxSocPct/100*c;
-      const held: number[] = s.ancillaryReservedPowerKwByHour ?? a.reservedPowerKwByHour ?? [];
+      const held: number[] = rec.held;
       const rate = localUnitsPerEur(cc as any);
       const recon = held.length ? held.reduce((t:number,kw:number,h:number)=>t+kw/1000*ser.pricesEurPerMw[h],0)*rate : NaN;
       const gross = r.summary.fcr.grossSek ?? 0;
