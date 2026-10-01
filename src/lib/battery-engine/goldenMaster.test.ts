@@ -75,6 +75,11 @@ const CASES: Record<string, { label: string; input: BatteryEngineInput }> = {
  *   only driver is the corrected 20 minute endurance. No physical dispatch value, energy
  *   balance, sizing, price or customer share changes.
  *
+ * FCR CANDIDATE SEARCH IN ABSOLUTE kW (coarse grid of min(cap/20, 2 kW) + local refinement
+ * instead of fixed 10 % shares of battery power): GM06 now also evaluates levels between the
+ * old 0,3 kW steps and picks 1,65 kW (lowest level within the 25 SEK tie tolerance) instead of
+ * 1,8 kW; its dispatch and economy follow. No physics, price or customer share changed.
+ *
  * Regenerated again after the MODEL CONSISTENCY FIX (cyclic year SOC + one single
  * demand-charge definition). The year now starts where it ends, so the battery can no
  * longer deliver stored energy it never charged during the simulated year:
@@ -238,26 +243,26 @@ const EXPECTED = {
     "powerKw": 3,
     "physicalPowerNeedKw": 2.5,
     "importBeforeKWh": 7126.1765,
-    "importAfterKWh": 5160.5184,
+    "importAfterKWh": 5129.6926,
     "exportBeforeKWh": 9126.1765,
-    "exportAfterKWh": 6747.7562,
-    "shiftedToLoadKWh": 2128.9316,
+    "exportAfterKWh": 6713.4135,
+    "shiftedToLoadKWh": 2160.7234,
     "recoveredCurtailmentKWh": 0,
-    "cycles": 157.6986,
-    "utilisationPct": 43.2051,
+    "cycles": 160.0536,
+    "utilisationPct": 43.8503,
     "peakBeforeKw": 5.5338,
     "peakAfterKw": 4.4872,
     "gridStatus": "none",
     "unservedKWh": 0,
     "peakReductionKw": 1.0466,
-    "demandCostSavingSek": 371.49,
+    "demandCostSavingSek": 392.5,
     "fcrEnabled": true,
-    "fcrOfferedKw": 1.8,
-    "fcrHeldKw": 1.4105,
-    "fcrGrossSek": 858.4302,
-    "fcrOptimisedKw": 1.8,
-    "energyBenefitSek": 1521.43,
-    "totalOperatingBenefitSek": 2751.35,
+    "fcrOfferedKw": 1.65,
+    "fcrHeldKw": 1.2797,
+    "fcrGrossSek": 779.7864,
+    "fcrOptimisedKw": 1.65,
+    "energyBenefitSek": 1547.07,
+    "totalOperatingBenefitSek": 2719.35,
     "balanceOk": true,
     "residualKWh": 0
   },

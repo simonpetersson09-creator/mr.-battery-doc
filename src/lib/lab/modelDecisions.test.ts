@@ -89,15 +89,15 @@ describe("A — 30 kWh must not wipe out the energy benefit for a marginal FCR g
 
   it("does not pick a full reservation that zeroes the energy benefit when a partial one is better", () => {
     const opt = optimizeFcrReservation(cfg, 30, 15, econ, undefined, series);
-    const full = opt.candidates.find((c) => c.fraction === 1);
+    const full = opt.candidates[opt.candidates.length - 1];
     expect(full).toBeDefined();
     const partialBetter = opt.candidates.some(
       (c) =>
-        c.fraction > 0 &&
-        c.fraction < 1 &&
+        c.offeredPowerKw > 0 &&
+        c.offeredPowerKw < full!.offeredPowerKw &&
         c.annualCustomerBenefitSek > full!.annualCustomerBenefitSek + FCR_TIE_TOLERANCE_SEK,
     );
-    if (partialBetter) expect(opt.best.fraction).toBeLessThan(1);
+    if (partialBetter) expect(opt.best.offeredPowerKw).toBeLessThan(full!.offeredPowerKw);
   });
 
   it("keeps 25 kWh and 30 kWh on the same objective, so the step stays explainable", () => {

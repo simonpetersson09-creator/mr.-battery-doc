@@ -19,3 +19,4 @@
 - FCR reservation tie tolerance is an economic amount defined in SEK and converted to the economy's currency via the central rate table before comparing candidates — the currency must never change the chosen FCR level.
 - Storage management for two-directional reserves uses the lower edge of solveAncillarySoc's fully-backed band (plus planning headroom, grossed for self-discharge) as ONE floor shared with the ordinary strategies; it never chases the midpoint — prevents a grid -> battery -> load circle while keeping the paid reserve energy.
 - FCR endurance-capacity plateau uses a relative tolerance (0.25 % of the plateau, 0.005 kW floor) — watt-level self-discharge-compensation drift must never drive capacity sizing.
+- FCR reservation candidates are searched in absolute kW against the plan-clipped physical cap (coarse grid min(cap/20, 2 kW) + local refinement), never as fixed shares of battery power — resolution must not degrade as battery power grows.

@@ -299,11 +299,14 @@ describe("FCR-D up reservation optimisation (economic layer only)", () => {
    */
   const total = (c: { annualCustomerBenefitSek: number }) => c.annualCustomerBenefitSek;
 
-  it("sweeps 0-100 % of the offerable power in 10 % steps and always includes 0 %", () => {
+  it("searches 0 kW..physical cap in absolute kW, always including 0 kW and the cap", () => {
     const o = optimizeFcrReservation(withFcr(villa(), 3), 15, 3, ECON);
-    expect(o.candidates.map((c) => c.offeredPowerKw)).toEqual([
-      0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8, 2.1, 2.4, 2.7, 3,
-    ]);
+    const offers = o.candidates.map((c) => c.offeredPowerKw);
+    expect(offers[0]).toBe(0);
+    expect(offers.length).toBeGreaterThanOrEqual(21);
+    for (let i = 1; i < offers.length; i++) expect(offers[i]).toBeGreaterThan(offers[i - 1]!);
+    // Pure upward product: no NEM clip, so the cap is the full 3 kW.
+    expect(offers[offers.length - 1]).toBeCloseTo(3, 2);
     expect(o.offerablePowerKw).toBe(3);
     expect(FCR_SWEEP_FRACTIONS).toEqual([
       0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1,
@@ -377,7 +380,7 @@ describe("FCR-D up reservation optimisation (economic layer only)", () => {
 
   it("F: works without solar", () => {
     const o = optimizeFcrReservation(withFcr(noSolar(), 3), 15, 3, ECON);
-    expect(o.candidates).toHaveLength(11);
+    expect(o.candidates.length).toBeGreaterThanOrEqual(21);
     o.candidates.forEach((c) => expect(Number.isFinite(c.totalOperatingBenefitSek)).toBe(true));
   });
 

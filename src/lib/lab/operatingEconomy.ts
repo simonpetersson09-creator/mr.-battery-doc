@@ -603,6 +603,79 @@ export interface FcrOptimisationResult {
 /** Absolute engine cap on offered ancillary power, kW. Unchanged in this step. */
 const MAX_OFFERED_POWER_KW = 200;
 
+/** Coarse grid divisions of the PHYSICAL offer cap (not of battery power). */
+const FCR_COARSE_STEPS = 20;
+/** Coarse step never exceeds this, kW, so resolution cannot grow with battery size. */
+const FCR_COARSE_MAX_STEP_KW = 2;
+/** Number of best coarse candidates refined locally (the curve can be multi-modal). */
+const FCR_REFINE_SEEDS = 3;
+/** Final search resolution, kW: max(absolute floor, share of the physical cap). */
+const FCR_RESOLUTION_ABS_KW = 0.05;
+const FCR_RESOLUTION_REL = 0.002;
+
+/**
+ * Candidate search in ABSOLUTE kW against the physical offer cap.
+ * 1. The full request (offerable power) is simulated first; the plan clips it by the
+ *    product's own NEM/power-reserve rule, so its reported offer IS the physical cap —
+ *    no reserve share is duplicated here.
+ * 2. Coarse grid 0..cap in steps of min(cap/20, 2 kW) (0 kW and the cap always included).
+ * 3. Local pattern search around the best coarse candidates, step halving down to
+ *    max(0.05 kW, 0.2 % of cap).
+ * Resolution therefore no longer scales with battery power, so a larger battery can
+ * always evaluate the levels a smaller one could.
+ */
+function adaptiveFcrCandidates(
+  evaluate: (kw: number) => FcrSweepCandidate,
+  offerablePowerKw: number,
+): FcrSweepCandidate[] {
+  const memo = new Map<number, FcrSweepCandidate>();
+  const at = (kw: number) => {
+    const key = round2(Math.max(0, kw));
+    let c = memo.get(key);
+    if (!c) {
+      c = evaluate(key);
+      memo.set(key, c);
+    }
+    return c;
+  };
+  at(0);
+  if (offerablePowerKw <= 0) return [memo.get(0)!];
+  const cap = Math.min(offerablePowerKw, at(offerablePowerKw).offeredPowerKw);
+  if (cap <= 0) return [...memo.values()].sort((a, b) => a.offeredPowerKw - b.offeredPowerKw);
+  at(cap);
+  const n = Math.max(FCR_COARSE_STEPS, Math.ceil(cap / FCR_COARSE_MAX_STEP_KW));
+  const coarse = cap / n;
+  for (let i = 1; i < n; i++) at(coarse * i);
+  const resolution = Math.max(FCR_RESOLUTION_ABS_KW, cap * FCR_RESOLUTION_REL);
+  const seeds = [...memo.entries()]
+    .filter(([k]) => k <= cap + 1e-9)
+    .sort((a, b) => b[1].annualCustomerBenefitSek - a[1].annualCustomerBenefitSek)
+    .slice(0, FCR_REFINE_SEEDS)
+    .map(([k]) => k);
+  for (const seed of seeds) {
+    let x = seed;
+    let h = coarse / 2;
+    while (h >= resolution - 1e-12) {
+      // Pattern search: keep stepping at this size while a neighbour improves.
+      for (let moved = true, guard = 0; moved && guard < 50; guard++) {
+        moved = false;
+        for (const y of [x - h, x + h]) {
+          if (y <= 0 || y > cap + 1e-9) continue;
+          if (at(y).annualCustomerBenefitSek > at(x).annualCustomerBenefitSek) {
+            x = round2(y);
+            moved = true;
+          }
+        }
+      }
+      h /= 2;
+    }
+  }
+  // One candidate per actually-offered level, ascending (tie-break = lowest wins).
+  const byOffer = new Map<number, FcrSweepCandidate>();
+  for (const c of memo.values()) if (!byOffer.has(c.offeredPowerKw)) byOffer.set(c.offeredPowerKw, c);
+  return [...byOffer.values()].sort((a, b) => a.offeredPowerKw - b.offeredPowerKw);
+}
+
 /**
  * Sweeps FCR-D up reservation levels for one battery and returns the economically best
  * one. Pure post-processing: it only re-runs the existing simulation with a different
@@ -617,8 +690,6 @@ export function optimizeFcrReservation(
   series = buildSeries(cfg),
 ): FcrOptimisationResult {
   const offerablePowerKw = Math.min(Math.max(0, powerKw), MAX_OFFERED_POWER_KW);
-  const levels = Array.from(new Set([0, ...fractions.map((f) => Math.min(1, Math.max(0, f)))]))
-    .sort((a, b) => a - b);
 
   // Reference case: identical inputs, FCR off. Used for every opportunity cost.
   const cfgOff: LabConfig = {
@@ -629,33 +700,35 @@ export function optimizeFcrReservation(
   const resultOff = simulate(cfgOff, series, capacityKWh, powerKw);
   const benefitOff = otherBenefitSek(resultOff, econ);
 
-  const candidates: FcrSweepCandidate[] = levels.map((fraction) => {
-    const offeredPowerKw = round2(offerablePowerKw * fraction);
-    if (fraction === 0 || offeredPowerKw <= 0) {
-      const economy = composeOperatingEconomy(resultOff, econ);
-      return {
-        fraction: 0,
-        offeredPowerKw: 0,
-        avgHeldPowerKw: 0,
-        reservedHours: 0,
-        availabilityPct: 0,
-        energyBenefitSek: economy.energy.energyBenefitSek,
-        peakBenefitSek: economy.peak.annualPeakBenefitSek,
-        fcrGrossSek: null,
-        opportunityCostSek: null,
-        incrementalNetSek: null,
-        totalOperatingBenefitSek: round2(
-          economy.energy.energyBenefitSek + (economy.peak.annualPeakBenefitSek ?? 0),
-        ),
-        annualCustomerBenefitSek: annualCustomerBenefitSek(
-          economy.energy.energyBenefitSek,
-          economy.peak.annualPeakBenefitSek,
-          null,
-          econ,
-        ),
-        economy,
-      };
-    }
+  const zeroCandidate = (): FcrSweepCandidate => {
+    const economy = composeOperatingEconomy(resultOff, econ);
+    return {
+      fraction: 0,
+      offeredPowerKw: 0,
+      avgHeldPowerKw: 0,
+      reservedHours: 0,
+      availabilityPct: 0,
+      energyBenefitSek: economy.energy.energyBenefitSek,
+      peakBenefitSek: economy.peak.annualPeakBenefitSek,
+      fcrGrossSek: null,
+      opportunityCostSek: null,
+      incrementalNetSek: null,
+      totalOperatingBenefitSek: round2(
+        economy.energy.energyBenefitSek + (economy.peak.annualPeakBenefitSek ?? 0),
+      ),
+      annualCustomerBenefitSek: annualCustomerBenefitSek(
+        economy.energy.energyBenefitSek,
+        economy.peak.annualPeakBenefitSek,
+        null,
+        econ,
+      ),
+      economy,
+    };
+  };
+
+  const evaluate = (requestedKw: number): FcrSweepCandidate => {
+    const offeredPowerKw = round2(requestedKw);
+    if (offeredPowerKw <= 0) return zeroCandidate();
     const cfgOn: LabConfig = {
       ...cfg,
       strategies: { ...cfg.strategies, ancillaryServices: true },
@@ -667,11 +740,12 @@ export function optimizeFcrReservation(
       otherBenefitWithFcrSek: otherBenefitSek(r, econ),
     });
     const gross = economy.fcr.grossSek;
+    // The plan clips a two-directional bid by the NEM rule; report what was actually
+    // offered, never the unclipped request.
+    const offered = round2(r.ancillary.reservedPowerUpKw);
     return {
-      fraction,
-      // The plan clips a symmetric bid to (rating / (1 + NEM share)); report what was
-      // actually offered, never the unclipped candidate.
-      offeredPowerKw: round2(r.ancillary.reservedPowerUpKw),
+      fraction: offerablePowerKw > 0 ? offered / offerablePowerKw : 0,
+      offeredPowerKw: offered,
       avgHeldPowerKw: economy.fcr.avgHeldPowerKw,
       reservedHours: economy.fcr.reservedHours,
       availabilityPct: economy.fcr.availabilityPct,
@@ -693,7 +767,20 @@ export function optimizeFcrReservation(
       ),
       economy,
     };
-  });
+  };
+
+  let candidates: FcrSweepCandidate[];
+  if (fractions !== FCR_SWEEP_FRACTIONS) {
+    // Explicit grid (diagnostics/tests): exactly the requested shares of offerable power.
+    const levels = Array.from(new Set([0, ...fractions.map((f) => Math.min(1, Math.max(0, f)))]))
+      .sort((a, b) => a - b);
+    candidates = levels.map((f) => {
+      const c = evaluate(offerablePowerKw * f);
+      return f === 0 ? c : { ...c, fraction: f };
+    });
+  } else {
+    candidates = adaptiveFcrCandidates(evaluate, offerablePowerKw);
+  }
 
   /**
    * MODEL RULE: the winner is the highest TOTAL CUSTOMER BENEFIT
