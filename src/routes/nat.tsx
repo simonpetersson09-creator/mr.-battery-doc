@@ -19,7 +19,6 @@ import {
   phaseOptions,
   resolvePhaseOption,
   type CountryCode,
-  type PhaseCount,
 } from "@/lib/country-config";
 import { marketAreaOptions, type MarketArea } from "@/lib/reserve-market";
 import { gridFieldErrors, validateGridStep } from "@/lib/battery-app/stepValidation";
