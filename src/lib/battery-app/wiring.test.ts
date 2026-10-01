@@ -243,8 +243,11 @@ describe("peak tariff source", () => {
 });
 
 describe("country and currency", () => {
-  it("v1 offers SE/FI/DK/DE, each with its own local display currency", () => {
-    expect(SUPPORTED_COUNTRY_CODES).toEqual(["SE", "FI", "DK", "DE"]);
+  it("offers seven countries, each with its own local display currency", () => {
+    expect(SUPPORTED_COUNTRY_CODES).toEqual(["SE", "FI", "DK", "DE", "NL", "AT", "CH"]);
+    expect(getCountry("NL").economy.currency).toBe("EUR");
+    expect(getCountry("AT").economy.currency).toBe("EUR");
+    expect(getCountry("CH").economy.currency).toBe("CHF");
     expect(getCountry("SE").economy.currency).toBe("SEK");
     expect(getCountry("FI").economy.currency).toBe("EUR");
     expect(getCountry("DK").economy.currency).toBe("DKK");
