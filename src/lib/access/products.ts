@@ -68,10 +68,9 @@ export const GOOGLE_PLAY_PRODUCT_IDS: Record<ProductKey, string> = { ...PRODUCT_
 export const GOOGLE_PLAY_PREMIUM_BASE_PLAN_ID = "yearly";
 
 /**
- * Master switch for Google Play purchases. Stays false until server-side Google
- * Play verification exists: without it no Android purchase could ever be
- * verified, so the Android app keeps purchasing disabled instead of charging a
- * customer who then gets nothing.
+ * Master switch for Google Play purchases. Enabled now that server-side Google
+ * Play verification (GOOGLE_PLAY_SERVICE_ACCOUNT_JSON) is in place; only a
+ * server-verified purchase unlocks anything. Has no effect on iOS.
  */
 export const GOOGLE_PLAY_BILLING_ENABLED = true;
 
