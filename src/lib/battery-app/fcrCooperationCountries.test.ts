@@ -30,7 +30,6 @@ import {
 } from "@/lib/lab/ancillary/countryMarkets";
 import { reserveCalculationAvailable } from "@/lib/reserve-market";
 import { buildReportModel, collectReportText } from "@/lib/report/reportModel";
-import { getReportCopy } from "@/lib/report/copy";
 import { createInitialState, type WizardState } from "@/state/wizard";
 
 const NEW = ["BE", "FR", "CZ", "SI"] as const;
@@ -138,8 +137,10 @@ describe("BE/FR/CZ/SI symmetric FCR, no fallback", () => {
       const state = caseFor(c);
       const input = normalizeWizardToEngineInput(state);
       expect(input.site?.country).toBe(c);
-      const res = runBatteryApp(state);
-      const ce = customerEconomyFromResult(res, state);
+      expect(input.strategies?.fcrDUp).toBeFalsy();
+      const outcome = runBatteryApp(state);
+      if (outcome.status !== "ok") throw new Error(outcome.status);
+      const ce = customerEconomyFromResult(outcome.result, state.preferences.customerAncillaryShare);
       expect(ce.ancillaryMarketValueSek).toBe(0);
       expect(ancillaryUnavailableText(c)).toBe(t("ancillary.priceDataNotConfigured", { where: t(`countries.${c}`) }));
     });
@@ -172,14 +173,22 @@ describe("saved cases and reports", () => {
   });
 
   it("CZ report shows CZK and BE report shows 3x230 V", () => {
-    const cz = caseFor("CZ");
-    const czText = collectReportText(buildReportModel(runBatteryApp(cz), cz, getReportCopy("en")));
+    const report = (st: WizardState) => {
+      const outcome = runBatteryApp(st);
+      if (outcome.status !== "ok") throw new Error(outcome.status);
+      return collectReportText(buildReportModel({
+        outcome, language: "en",
+        customerEconomy: customerEconomyFromResult(outcome.result, st.preferences.customerAncillaryShare),
+        targetPaybackYears: 10, alternatives: [], now: new Date(2026, 9, 1), reportId: "MBD-TEST",
+      }));
+    };
+    const czText = report(caseFor("CZ"));
     expect(czText.join(" ")).toMatch(/Kč/);
     const be = caseFor("BE", (s) => {
       s.grid.connectionId = "3x230";
       s.grid.phases = 3;
     });
-    const beText = collectReportText(buildReportModel(runBatteryApp(be), be, getReportCopy("en"))).join(" ");
+    const beText = report(be).join(" ");
     expect(beText).toMatch(/230 V/);
   });
 });
