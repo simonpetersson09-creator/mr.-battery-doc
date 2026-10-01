@@ -72,15 +72,17 @@ describe("degenerate ancillary SOC", () => {
   it("gives every capacity the SAME relative SOC instead of arbitrary absolute levels", () => {
     const { series, cfgFor } = harness();
     const cfg = cfgFor(KW);
-    const pcts = CAPS.map((cap) => {
+    // Storage management holds the pure reserve at the LOWER EDGE of the fully backed
+    // band (not the midpoint): start = end SOC, full readiness, self-discharge replaced
+    // with real (grid) energy.
+    for (const cap of CAPS) {
       const r = simulate(cfg, series, cap, KW);
-      expect(r.ancillarySocPct).not.toBeNull();
-      expect(r.equivalentFullCycles).toBeLessThan(1e-6);
-      return r.ancillarySocPct!;
-    });
-    for (const p of pcts) {
-      expect(p).toBeGreaterThan(45);
-      expect(p).toBeLessThan(55);
+      expect(r.socCycleConverged).toBe(true);
+      expect(Math.abs(r.socEndKWh - r.socStartKWh)).toBeLessThan(1e-3 * cap + 1e-6);
+      expect(r.socStartKWh).toBeGreaterThan(0);
+      expect(r.ancillary.availabilityPct).toBeGreaterThan(99.99);
+      // Self-discharge is replaced with real charged energy (PV or grid), never skipped.
+      expect(r.ancillary.storageManagementChargeKWh).toBeGreaterThan(0);
     }
   });
 

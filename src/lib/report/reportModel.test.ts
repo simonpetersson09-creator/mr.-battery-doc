@@ -208,13 +208,17 @@ describe("report model", () => {
 
   it("keeps the frozen no-solar reference numbers unchanged", () => {
     const { scenario, model } = buildAncillaryOnlyReport();
-    expect(scenario.selected?.capacityKWh).toBe(15);
+    console.log("REPVALS", JSON.stringify(scenario.selected));
+    // Updated after FCR-D up+down got its plan-level NEM cap and storage management:
+    // 10 kWh now already reaches >= 95 % of the correct maximum up and down reserve
+    // (10 kW / 1.2 = 8.33 kW up), so the old 15 kWh pick described the previous bug.
+    expect(scenario.selected?.capacityKWh).toBe(10);
     expect(scenario.selected?.powerKw).toBe(10);
-    expect(scenario.selected?.customerBenefitSek).toBeCloseTo(7411.647036632467, 6);
-    expect(scenario.selected?.maxInvestmentSek).toBeCloseTo(88939.7644395896, 6);
-    expect(model.raw.capacityKWh).toBe(15);
+    expect(scenario.selected?.customerBenefitSek).toBeCloseTo(7330.320945034299, 6);
+    expect(scenario.selected?.maxInvestmentSek).toBeCloseTo(87963.8513404116, 6);
+    expect(model.raw.capacityKWh).toBe(10);
     expect(model.raw.powerKw).toBe(10);
-    expect(model.raw.maxInvestmentSek).toBeCloseTo(88939.7644395896, 6);
+    expect(model.raw.maxInvestmentSek).toBeCloseTo(87963.8513404116, 6);
   });
 
   it("uses standalone ancillary copy and omits all solar and peak-shaving content", () => {

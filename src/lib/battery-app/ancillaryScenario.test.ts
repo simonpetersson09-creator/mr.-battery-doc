@@ -469,8 +469,15 @@ describe("PV=0 technical sizing", () => {
         expect(p.capacityKWh).toBe(picks[0]!.capacityKWh);
         expect(p.powerKw).toBe(picks[0]!.powerKw);
       }
-      // ...but the customer result still follows the customer's own 8760 h load.
-      expect(picks[0]!.upCapacityKwh).not.toBeCloseTo(picks[2]!.upCapacityKwh, 0);
+      // Real physics instead of "up must follow the load": the offered reserve power is
+      // load independent, the up reserve can never exceed the physical ceiling
+      // (power / (1 + NEM share)), and only the DOWN side may follow the load through
+      // the grid import margin — so the FCR revenue is allowed to differ.
+      const hours = 8760;
+      for (const p of picks) {
+        expect(p.upCapacityKwh / hours).toBeLessThanOrEqual(p.powerKw / 1.2 + 1e-6);
+        expect(p.downCapacityKwh / hours).toBeLessThanOrEqual(p.powerKw / 1.2 + 1e-6);
+      }
     },
     T,
   );

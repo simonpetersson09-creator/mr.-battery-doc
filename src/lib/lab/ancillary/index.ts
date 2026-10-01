@@ -242,17 +242,16 @@ export function ancillaryPlan(cfg: AncillaryConfig): AncillaryPlan | null {
  *   (1 + s) * C <= min(P_charge, P_discharge).
  * The plan is clipped to that ceiling BEFORE dispatch, so the offered power, the reserved
  * power and the reserved endurance energy (C * enduranceHours) never describe more than
- * the battery can actually hold. Upward and up-and-down plans are returned unchanged
- * (their NEM rule is bid-aware and applied per hour in the dispatch).
+ * the battery can actually hold. The up-and-down pair uses the same rule; pure upward plans
+ * are returned unchanged.
  */
 export function capSymmetricPlanToBatteryPower(
   plan: AncillaryPlan | null,
   chargeKw: number,
   dischargeKw: number,
 ): AncillaryPlan | null {
-  // Symmetric FCR only. Extending this to the Nordic up-and-down pair is technically
-  // ready (same formula) but changes verified SE/FI/DK2 results — awaiting a decision.
-  if (!plan || plan.reserveMode !== "symmetric") return plan;
+  // Symmetric FCR and the Nordic up-and-down pair (same NEM rule, share from the profile).
+  if (!plan || (plan.reserveMode !== "symmetric" && plan.reserveMode !== "up-and-down")) return plan;
   /**
    * Same NEM power rule as nem.ts, applied to the PLAN so offered = holdable power:
    *   discharge side: U + s*D <= Pdischarge,   charge side: D + s*U <= Pcharge.

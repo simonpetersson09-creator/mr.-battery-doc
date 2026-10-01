@@ -135,6 +135,7 @@ function dispatchCyclicYear(
   ) {
     const win = resolveWindow(cfg.battery, cfg.strategies, cfg.flex, capacityKWh, powerKw);
     const solved = solveAncillarySoc(win, plan);
+    const storageManaged = plan.reserveMode === "symmetric" || plan.reserveMode === "up-and-down";
     if (solved !== null) {
       /**
        * With storage management the dispatch holds a pure reserve at the lower edge of
@@ -143,7 +144,7 @@ function dispatchCyclicYear(
        * self-discharge drift from the midpoint down to the floor.
        */
       const startPct =
-plan.reserveMode === "symmetric" && capacityKWh > 0
+        storageManaged && capacityKWh > 0
           ? (solved.bandLowKWh / capacityKWh) * 100
           : solved.socPct;
       const solvedRun = run({ ...cfg.battery, initialSocPct: startPct });
@@ -154,7 +155,7 @@ plan.reserveMode === "symmetric" && capacityKWh > 0
          * management a solved SOC that is not a fixed point continues with the ordinary
          * fixed-point iteration below.
          */
-        if (delta(solvedRun) <= tolerance || plan.reserveMode !== "symmetric")
+        if (delta(solvedRun) <= tolerance || !storageManaged)
           return {
             result: solvedRun,
             iterations: 2,

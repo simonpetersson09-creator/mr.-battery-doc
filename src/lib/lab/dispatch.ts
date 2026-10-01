@@ -651,8 +651,10 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
    * Losses (efficiency, self-discharge) are real; grid energy is ordinary import and is
    * priced by the existing economy. Upward and up-and-down products are unchanged.
    */
-  // Symmetric FCR only (Nordic up-and-down pair: pending decision, see ancillary/index.ts).
-  const smSymmetric = planActive && plan!.reserveMode === "symmetric";
+  // Every two-directional reserve product (symmetric FCR and the Nordic FCR-D up+down
+  // pair). The pure upward product has no down side to steer against and is unchanged.
+  const smSymmetric =
+    planActive && (plan!.reserveMode === "symmetric" || plan!.reserveMode === "up-and-down");
   const smSolution = smSymmetric ? solveAncillarySoc(win, plan) : null;
   const smTargetKWh = smSolution ? smSolution.socKWh : null;
   /**
