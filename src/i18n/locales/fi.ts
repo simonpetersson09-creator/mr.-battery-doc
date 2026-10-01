@@ -437,7 +437,7 @@ export const fi = {
     basePowerForEnergy: "Perusteho energianhallintaan",
     ancillaryRaisedNote: "Korkeampi suositeltu teho tulee reservipalvelujen mitoituksesta.",
     potentialTitle: "Reservipalvelujen potentiaali",
-    potentialNote: "Suurempi asennettu teho voi kasvattaa laskettua reservipalveluhyötyä. Tälle liittymälle malli voi testata tuoteportaita {max} kW asti.",
+    potentialNote: "Suurempi asennettu teho voi kasvattaa laskettua reservipalveluhyötyä. Tälle liittymälle malli voi testata tuoteportaita {{max}} kW asti.",
     potentialColumn: "Lisälaskettu vuosihyöty",
     heldPower: "Reservipalveluihin varattu teho",
     cRate: "C-arvo",

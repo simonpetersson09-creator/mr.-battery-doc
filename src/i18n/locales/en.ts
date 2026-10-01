@@ -442,7 +442,7 @@ export const en = {
     basePowerForEnergy: "Base power for energy handling",
     ancillaryRaisedNote: "The higher recommended power comes from the ancillary services sizing.",
     potentialTitle: "Ancillary services potential",
-    potentialNote: "A higher installed power can increase the calculated ancillary benefit. For this grid connection the engine can test product steps up to {max} kW.",
+    potentialNote: "A higher installed power can increase the calculated ancillary benefit. For this grid connection the engine can test product steps up to {{max}} kW.",
     potentialColumn: "Additional calculated annual benefit",
     heldPower: "Grid services reserved power",
     cRate: "C-rate",

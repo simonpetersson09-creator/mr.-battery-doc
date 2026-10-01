@@ -443,7 +443,7 @@ export const sv = {
     basePowerForEnergy: "Grundeffekt för energihantering",
     ancillaryRaisedNote: "Den högre rekommenderade effekten kommer från stödtjänstdimensioneringen.",
     potentialTitle: "Stödtjänstpotential",
-    potentialNote: "Högre installerad effekt kan öka den beräknade stödtjänstnyttan. För den här anslutningen kan motorn testa produktsteg upp till {max} kW.",
+    potentialNote: "Högre installerad effekt kan öka den beräknade stödtjänstnyttan. För den här anslutningen kan motorn testa produktsteg upp till {{max}} kW.",
     potentialColumn: "Ytterligare beräknad årsnytta",
     heldPower: "Stödtjänster hållen effekt",
     cRate: "C-rate",
