@@ -14,13 +14,20 @@
 
 import type { MarketProfile } from "./types";
 
-export type PendingAncillaryCountry = "NL" | "AT" | "CH";
+export type PendingAncillaryCountry = "NL" | "AT" | "CH" | "BE" | "FR" | "CZ" | "SI";
 
 export const PENDING_ANCILLARY_COUNTRIES: readonly PendingAncillaryCountry[] = [
   "NL",
   "AT",
   "CH",
+  "BE",
+  "FR",
+  "CZ",
+  "SI",
 ];
+
+/** FCR Cooperation members among the pending countries: symmetric FCR, own price series. */
+export const FCR_COOPERATION_PENDING: readonly PendingAncillaryCountry[] = ["BE", "FR", "CZ", "SI"];
 
 export type AncillaryProductKind = "FCR" | "aFRR" | "mFRR" | "other";
 
@@ -60,7 +67,67 @@ export const PENDING_ANCILLARY_MARKETS: Record<PendingAncillaryCountry, CountryA
   NL: { country: "NL", tso: "TenneT", synchronousArea: "continental", products: [] },
   AT: { country: "AT", tso: "APG", synchronousArea: "continental", products: [] },
   CH: { country: "CH", tso: "Swissgrid", synchronousArea: "continental", products: [] },
+  BE: { country: "BE", tso: "Elia", synchronousArea: "continental", products: [fcrCooperationProduct("BE")] },
+  FR: { country: "FR", tso: "RTE", synchronousArea: "continental", products: [fcrCooperationProduct("FR")] },
+  CZ: { country: "CZ", tso: "ČEPS", synchronousArea: "continental", products: [fcrCooperationProduct("CZ")] },
+  SI: { country: "SI", tso: "ELES", synchronousArea: "continental", products: [fcrCooperationProduct("SI")] },
 };
+
+/**
+ * Symmetric FCR (FCR Cooperation) product slot. Only the product TYPE is stated; every
+ * rule/price stays null and `verified` false until the country's own 2025 settlement
+ * capacity price series is imported under `priceSeriesId`. Never another country's data.
+ */
+function fcrCooperationProduct(code: "BE" | "FR" | "CZ" | "SI"): AncillaryProductParams {
+  return {
+    id: `${code}_FCR`,
+    kind: "FCR",
+    label: "FCR (FCR Cooperation)",
+    direction: "symmetric",
+    priceSeriesId: fcrCooperationSeriesId(code, 2025),
+    energyPriceEurPerMWh: null,
+    minBidKw: null,
+    requiresAggregator: null,
+    enduranceMinutes: null,
+    prequalification: null,
+    source: null,
+    verified: false,
+  };
+}
+
+/** Explicit, per-country series key: BE -> "FCR_BE_2025", never a shared/fallback key. */
+export function fcrCooperationSeriesId(code: "BE" | "FR" | "CZ" | "SI", year: number): string {
+  return `FCR_${code}_${year}`;
+}
+
+/** One FCR Cooperation 4-hour product block (EUR/MW for each hour of the block). */
+export interface FcrFourHourBlock {
+  /** 0-based day of the engine model year (0..364). */
+  day: number;
+  /** Block index within the day, 0..5 (00-04, 04-08, ... 20-24). */
+  block: number;
+  /** Settlement capacity price, EUR/MW per hour. */
+  priceEurPerMwH: number;
+}
+
+export const FCR_BLOCK_HOURS = 4;
+export const MODEL_YEAR_HOURS = 8760;
+
+/**
+ * Expands 4-hour FCR blocks into the 8760-hour engine series. Every hour inside a block
+ * gets exactly that block's price. Missing blocks stay NaN so incomplete imports are
+ * detectable — they are never filled with another country's or a neighbouring price.
+ */
+export function expandFourHourBlocksToHourly(blocks: readonly FcrFourHourBlock[]): number[] {
+  const out = new Array<number>(MODEL_YEAR_HOURS).fill(Number.NaN);
+  for (const b of blocks) {
+    if (!Number.isInteger(b.day) || !Number.isInteger(b.block)) continue;
+    if (b.day < 0 || b.day > 364 || b.block < 0 || b.block > 5) continue;
+    const start = b.day * 24 + b.block * FCR_BLOCK_HOURS;
+    for (let h = 0; h < FCR_BLOCK_HOURS; h++) out[start + h] = b.priceEurPerMwH;
+  }
+  return out;
+}
 
 export function isPendingAncillaryCountry(code: string | undefined | null): code is PendingAncillaryCountry {
   return !!code && (PENDING_ANCILLARY_COUNTRIES as readonly string[]).includes(code);
