@@ -1,6 +1,7 @@
 import { HOURS_PER_YEAR, MONTH_DAYS } from "./defaults";
 import { expandPriceSeries, quantile } from "./profiles";
 import { applyNemPowerReservation } from "./ancillary/nem";
+import { solveAncillarySoc } from "./ancillarySoc";
 import type { AncillaryPlan } from "./ancillary/types";
 import type {
   BatteryParams,
@@ -238,6 +239,12 @@ export interface DispatchTallies {
   ancillaryReadyHours: number;
   /** Grid energy charged only to keep the ancillary readiness, kWh. */
   ancillaryReadinessChargeKWh: number;
+  /** Symmetric-FCR storage management: AC energy charged (PV + grid), kWh. */
+  storageManagementChargeKWh: number;
+  /** Grid part of the storage-management charge, kWh. */
+  storageManagementGridChargeKWh: number;
+  /** Symmetric-FCR storage management: AC energy discharged to the load, kWh. */
+  storageManagementDischargeKWh: number;
   /**
    * DIAGNOSTIC ONLY (no physics): the highest battery AC power the dispatch actually
    * used, kW. Separates "what the product can do" from "what the site actually used".
@@ -290,6 +297,8 @@ export interface DispatchOutput {
   flexAvailableHours: number;
   /** Share of the scheduled ancillary hours where the readiness could be held, %. */
   ancillaryAvailabilityPct: number;
+  /** Storage-management SOC target, kWh (null = no symmetric reserve active). */
+  storageManagementTargetSocKWh: number | null;
   /**
    * Up-regulation power the battery ACTUALLY held reserved, per hour, kW (8 760 values).
    * Pure reporting: it mirrors the reservation the dispatch already withheld from the
@@ -532,6 +541,9 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
     ancillaryReservedHours: 0,
     ancillaryReadyHours: 0,
     ancillaryReadinessChargeKWh: 0,
+    storageManagementChargeKWh: 0,
+    storageManagementGridChargeKWh: 0,
+    storageManagementDischargeKWh: 0,
     maxChargePowerKw: 0,
     maxDischargePowerKw: 0,
     fcrReservableSumKw: 0,
@@ -616,6 +628,28 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
   const planReservedHour = (hod: number, month: number) =>
     planActive && planHourSet.has(hod) && planMonthSet.has(month);
 
+  /**
+   * STORAGE MANAGEMENT for SYMMETRIC FCR (DE PQ rules: Speichermanagement; shared by every
+   * symmetric market — no country special case).
+   *
+   * An energy-limited reservoir selling symmetric FCR must actively steer its SOC back
+   * to a working point; the NEM power share (Pmax >= (1 + s) * C) exists for exactly this.
+   * TARGET: the same technical working point the engine already uses for a pure reserve
+   * (`solveAncillarySoc`: the SOC that maximises the worst direction's endurance coverage,
+   * midpoint of the fully backed interval). In every reserved hour the dispatch moves the
+   * SOC towards it with real energy flows only:
+   *  - below target: charge (PV surplus first, then grid inside the import headroom);
+   *  - above target: discharge into the household's own load deficit (no export).
+   * POWER: only what is left of the battery rating after the FCR capacity itself, i.e.
+   * the NEM slice s*C plus anything the other strategies did not use this hour.
+   * Losses (efficiency, self-discharge) are real; grid energy is ordinary import and is
+   * priced by the existing economy. Upward and up-and-down products are unchanged.
+   */
+  const smSymmetric = planActive && plan!.reserveMode === "symmetric";
+  const smSolution = smSymmetric ? solveAncillarySoc(win, plan) : null;
+  const smTargetKWh = smSolution ? smSolution.socKWh : null;
+  const smNemShare = smSymmetric ? Math.max(0, plan!.nemPowerSharePct) / 100 : 0;
+
   for (let h = 0; h < HOURS_PER_YEAR; h++) {
     // ---------- passive losses first ----------
     // Self-discharge may never push SOC below the allowed floor (min SOC / reserve).
@@ -686,12 +720,18 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
     const hourFloorDefended = resNow
       ? Math.min(hourCeil, hourFloor / Math.max(1e-9, 1 - selfDischargeRate))
       : win.socFloorKWh;
+    /**
+     * Power left for the ORDINARY strategies. Symmetric FCR also withholds the NEM slice
+     * (s * C) — it is reserved for storage management, not for self-consumption/arbitrage.
+     */
+    const smNemKw = resNow && smSymmetric ? smNemShare * (plan?.upPowerKw ?? 0) : 0;
     const dischargeLimitKw = resNow
-      ? Math.max(0, win.dischargeKw - (plan?.upPowerKw ?? 0))
+      ? Math.max(0, win.dischargeKw - (plan?.upPowerKw ?? 0) - smNemKw)
       : win.dischargeKw;
     const chargeLimitKw = resNow
-      ? Math.max(0, win.chargeKw - (plan?.downPowerKw ?? 0))
+      ? Math.max(0, win.chargeKw - (plan?.downPowerKw ?? 0) - smNemKw)
       : win.chargeKw;
+    let hourCharged = 0;
     if (resNow) t.ancillaryReservedHours++;
     /**
      * SOC at the START of the hour, i.e. after the passive self-discharge and before any
@@ -988,6 +1028,36 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
           }
         }
 
+        /** STORAGE MANAGEMENT (symmetric FCR) — charge towards the SOC target. */
+        if (resNow && smTargetKWh !== null) {
+          const target = Math.max(hourFloorDefended, Math.min(hourCeil, smTargetKWh));
+          const socPending = soc + charged * win.chargeEff;
+          const shortfall = target - socPending;
+          if (shortfall > 1e-9) {
+            const smPowerKw = Math.max(0, win.chargeKw - (plan?.downPowerKw ?? 0) - charged);
+            const wanted = Math.min(smPowerKw, shortfall / win.chargeEff);
+            const fromPvFirst = takeFromSurplus(wanted);
+            if (fromPvFirst > 0) {
+              powerLeft = Math.max(0, powerLeft - fromPvFirst);
+              acceptable = Math.max(0, acceptable - fromPvFirst);
+              charged += fromPvFirst;
+              t.storageManagementChargeKWh += fromPvFirst;
+            }
+            const rest = Math.max(0, wanted - fromPvFirst);
+            const headroomKw = gridChargeHeadroomKw(deficit, limits.maxImportKw);
+            const fromGrid = Math.min(rest, headroomKw);
+            if (fromGrid > 0) {
+              t.chargedFromGridKWh += fromGrid;
+              t.storageManagementChargeKWh += fromGrid;
+              t.storageManagementGridChargeKWh += fromGrid;
+              deficit += fromGrid;
+              powerLeft = Math.max(0, powerLeft - fromGrid);
+              acceptable = Math.max(0, acceptable - fromGrid);
+              charged += fromGrid;
+            }
+          }
+        }
+
         /**
          * Any charging that is NOT covered by PV surplus is grid charging and must
          * respect the import limit on the REAL net flow (load + charge - pv - discharge).
@@ -1029,6 +1099,7 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
           }
         }
 
+        hourCharged = charged;
         if (charged > 0) {
           const stored = charged * win.chargeEff;
           soc += stored;
@@ -1038,6 +1109,33 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
         }
       } else if (win.usableKWh > 0) {
         t.cycleLimitHit = true;
+      }
+    }
+
+    /**
+     * STORAGE MANAGEMENT (symmetric FCR) — discharge towards the SOC target, only into
+     * the household's own remaining load deficit and only in an hour without charging
+     * (charge and discharge never share an hour). Power: rating minus the FCR capacity
+     * minus what the ordinary strategies already discharged.
+     */
+    if (resNow && smTargetKWh !== null && hourCharged <= 0 && deficit > 1e-9) {
+      const target = Math.max(hourFloorDefended, Math.min(hourCeil, smTargetKWh));
+      const excess = soc - target;
+      if (excess > 1e-9) {
+        const smPowerKw = Math.max(0, win.dischargeKw - (plan?.upPowerKw ?? 0) - delivered);
+        const out = Math.min(smPowerKw, deficit, excess * win.dischargeEff);
+        if (out > 1e-9) {
+          const fromBattery = out / win.dischargeEff;
+          soc -= fromBattery;
+          t.dischargedKWh += out;
+          t.dischargedToLoadKWh += out;
+          t.lossesKWh += fromBattery - out;
+          t.storageManagementDischargeKWh += out;
+          throughput += out;
+          deficit -= out;
+          if (delivered + out > t.maxDischargePowerKw) t.maxDischargePowerKw = delivered + out;
+          delivered += out;
+        }
       }
     }
 
@@ -1366,6 +1464,7 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
     arbitrageChargeCostKr: arbCost,
     arbitrageDischargeRevenueKr: arbRevenue,
     flexAvailableHours,
+    storageManagementTargetSocKWh: smTargetKWh,
     ancillaryReservedPowerKwByHour,
     ancillaryReservedDownPowerKwByHour,
     fcrGate: (() => {
