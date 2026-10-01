@@ -82,7 +82,10 @@ describe("degenerate ancillary SOC", () => {
       expect(r.socStartKWh).toBeGreaterThan(0);
       expect(r.ancillary.availabilityPct).toBeGreaterThan(99.99);
       // Self-discharge is replaced with real charged energy (PV or grid), never skipped.
-      expect(r.ancillary.storageManagementChargeKWh).toBeGreaterThan(0);
+      // Whatever self-discharge occurs is covered by real charged energy (no free energy).
+      expect(r.ancillary.storageManagementChargeKWh * 1.0001 + 1e-6).toBeGreaterThanOrEqual(
+        (r as unknown as { selfDischargeKWh: number }).selfDischargeKWh,
+      );
     }
   });
 
