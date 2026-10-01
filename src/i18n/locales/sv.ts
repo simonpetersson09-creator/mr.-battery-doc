@@ -29,7 +29,6 @@ export const sv = {
     FI: "Finland",
     DK: "Danmark",
     DE: "Tyskland",
-    NL: "Nederländerna",
     AT: "Österrike",
     CH: "Schweiz",
     BE: "Belgien",

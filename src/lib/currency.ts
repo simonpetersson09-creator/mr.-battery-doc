@@ -21,7 +21,7 @@ import { t } from "@/i18n";
 
 export type Currency = "SEK" | "EUR" | "DKK" | "NOK" | "CHF" | "CZK";
 
-export type CurrencyCountry = "SE" | "NO" | "FI" | "DK" | "DE" | "NL" | "AT" | "CH" | "BE" | "FR" | "CZ" | "SI";
+export type CurrencyCountry = "SE" | "NO" | "FI" | "DK" | "DE" | "AT" | "CH" | "BE" | "FR" | "CZ" | "SI";
 
 /** Country -> the currency its customers see and enter values in. Source of truth. */
 export const CURRENCY_BY_COUNTRY: Record<CurrencyCountry, Currency> = {
@@ -30,7 +30,6 @@ export const CURRENCY_BY_COUNTRY: Record<CurrencyCountry, Currency> = {
   FI: "EUR",
   DK: "DKK",
   DE: "EUR",
-  NL: "EUR",
   AT: "EUR",
   CH: "CHF",
   BE: "EUR",

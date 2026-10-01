@@ -9,7 +9,6 @@
 import { da } from "./copy.da";
 import { fi as fiCopy } from "./copy.fi";
 import { de as deCopy } from "./copy.de";
-import { nl as nlCopy } from "./copy.nl";
 
 export interface ReportCopy {
   title: string;
@@ -1158,8 +1157,6 @@ export function getReportCopy(language: string): ReportCopy {
       return fiCopy;
     case "de":
       return deCopy;
-    case "nl":
-      return nlCopy;
     default:
       return en;
   }

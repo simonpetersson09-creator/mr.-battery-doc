@@ -53,7 +53,7 @@ export interface WizardState {
     mainFuseA: number;
     /**
      * Connection type. Optional for backward compatibility with saved cases: missing =
-     * the country's default (3-phase). Only countries with a phase choice (NL) expose it.
+     * the country's default (3-phase). Only countries with a phase choice (e.g. FR) expose it.
      */
     phases?: PhaseCount;
     /**

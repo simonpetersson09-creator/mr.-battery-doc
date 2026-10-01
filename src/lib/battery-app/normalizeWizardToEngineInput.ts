@@ -43,7 +43,7 @@ export function normalizeWizardToEngineInput(
   const country = getCountry(state.grid.country);
 
   /* ---------------- site / grid ---------------- */
-  // Connection type: the chosen one when the country offers a choice (NL), else the
+  // Connection type: the chosen one when the country offers a choice (e.g. FR), else the
   // country's default 3-phase 400 V. Unchanged for SE/FI/DK/DE.
   const connection = resolvePhaseOption(state.grid.country, gridConnectionSelector(state.grid));
   const site: EngineSiteInput = {
@@ -53,13 +53,12 @@ export function normalizeWizardToEngineInput(
   };
   // The country tag is the single source of truth for which historical FCR-D up market
   // and price dataset the engine uses (SE, FI, DK, DE). Grid physics stays shared.
-  // NL/AT/CH are tagged too, so they can NEVER fall back to the legacy Swedish default.
+  // AT/CH are tagged too, so they can NEVER fall back to the legacy Swedish default.
   if (
     state.grid.country === "SE" ||
     state.grid.country === "FI" ||
     state.grid.country === "DK" ||
     state.grid.country === "DE" ||
-    state.grid.country === "NL" ||
     state.grid.country === "AT" ||
     state.grid.country === "CH" ||
     state.grid.country === "BE" ||
@@ -127,7 +126,7 @@ export function normalizeWizardToEngineInput(
     reduceImport: state.strategies.reducedGridImport,
     peakShaving: state.strategies.peakShaving,
   };
-  // Markets without configured ancillary products/prices (NL/AT/CH today) never run a
+  // Markets without configured ancillary products/prices (AT/CH today) never run a
   // reserve: no rules are borrowed from another country and the revenue is 0.
   if (state.strategies.fcrDUp && !isPendingAncillaryCountry(state.grid.country)) {
     strategies.fcrDUp = true;
