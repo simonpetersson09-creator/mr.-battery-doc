@@ -99,12 +99,20 @@ describe("BE/FR/CZ/SI electrical systems", () => {
     expect(theoreticalGridPowerKw(40, "BE", "3x230")).not.toBeCloseTo(theoreticalGridPowerKw(40, "BE", "3x400"), 1);
   });
 
-  it("uses neutral economy, never Swedish values", () => {
+  it("uses its own unverified default prices, never Swedish values", () => {
+    const expected: Record<string, [number, number, number]> = {
+      BE: [0.35, 0.06, 0],
+      FR: [0.2, 0.05, 0],
+      CZ: [6.0, 1.5, 0],
+      SI: [0.2, 0.05, 0],
+    };
     for (const c of NEW) {
       const e = getCountry(c).economy;
-      expect([e.importPrice, e.exportPrice, e.demandCharge]).toEqual([0, 0, 0]);
+      expect([e.importPrice, e.exportPrice, e.demandCharge]).toEqual(expected[c]);
       expect(e.economyVerified).toBe(false);
     }
+    expect(getCountry("FI").economy.importPrice).toBe(0.2);
+    expect(getCountry("FI").economy.exportPrice).toBe(0.05);
   });
 
   it("formats CZK centrally", () => {
