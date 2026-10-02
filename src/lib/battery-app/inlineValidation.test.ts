@@ -151,7 +151,8 @@ describe("language initialization", () => {
   });
 
   it("an unsupported system language falls back to English, never Swedish", () => {
-    stubBrowser({ languages: ["fr-FR", "es-ES"] });
+    // fr is supported since the FR market was added; use truly unsupported languages.
+    stubBrowser({ languages: ["es-ES", "it-IT"] });
     expect(resolveInitialLanguage()).toBe<Language>("en");
   });
 
