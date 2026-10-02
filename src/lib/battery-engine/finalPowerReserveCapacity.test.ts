@@ -20,7 +20,7 @@ function run(cc: "CH" | "SE", fcr: boolean) {
 
 describe("final power drives reserve capacity", () => {
   for (const [cc, kwh, baseKwh] of [
-    ["CH", 100, 20],
+    ["CH", 150, 20], // 1.0 C limit: 100 kWh -> 150 kWh
     ["SE", 200, 25],
   ] as const) {
     it(`${cc}: 150 kW / ${kwh} kWh with reserve, ${baseKwh} kWh / 3 kW without`, () => {
