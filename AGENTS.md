@@ -21,3 +21,4 @@
 - FCR endurance-capacity plateau uses a relative tolerance (0.25 % of the plateau, 0.005 kW floor) — watt-level self-discharge-compensation drift must never drive capacity sizing.
 - When ancillary services raise the power, `fcrEnduranceCapacity` is re-run for the FINAL power (from the energy-sized capacity) and that capacity feeds potential analysis, power options, FCR sweep and economy — no result may keep the pre-raise kWh.
 - FCR reservation candidates are searched in absolute kW against the plan-clipped physical cap (coarse grid min(cap/20, 2 kW) + local refinement), never as fixed shares of battery power — resolution must not degrade as battery power grows.
+- The final automatic battery recommendation obeys a hard 1.0 C limit (capacity >= power, raised to the next real capacity step, never lowering power; caller-fixed sizes exempt) in both the engine and the standalone ancillary scenario — keeps every recommended kW/kWh pair physically plausible.
