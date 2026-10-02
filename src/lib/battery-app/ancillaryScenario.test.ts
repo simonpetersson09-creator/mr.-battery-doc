@@ -164,7 +164,7 @@ describe("ancillary scenario (Model C)", () => {
         // Power is a REAL central product step; no C-rate pairing rule applies here.
         expect(defaultConfig().powerSizing.productStepsKw).toContain(c.powerKw);
         expect(Number.isFinite(c.ancillaryMarketValueSek)).toBe(true);
-        expect(c.ancillaryCustomerValueSek).toBeCloseTo(c.ancillaryMarketValueSek * 0.75, 6);
+        expect(c.ancillaryCustomerValueSek).toBeCloseTo(c.ancillaryMarketValueSek * 0.75 * 0.8, 6);
       }
     },
     T,

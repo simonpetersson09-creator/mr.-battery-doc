@@ -62,12 +62,13 @@ describe("share applies to the ancillary term only", () => {
   it("0 % and 100 % bracket the engine total by exactly the market value", () => {
     const full = customerEconomyFromResult(result, 1);
     const none = customerEconomyFromResult(result, 0);
+    // 100 % share still carries the central 0.80 ancillary revenue factor.
     expect(full.totalCustomerBenefitSek).toBeCloseTo(
-      result.summary.economy.totalOperatingBenefitSek ?? 0,
+      (result.summary.economy.totalOperatingBenefitSek ?? 0) - full.ancillaryMarketValueSek * 0.2,
       6,
     );
     expect((full.totalCustomerBenefitSek ?? 0) - (none.totalCustomerBenefitSek ?? 0)).toBeCloseTo(
-      full.ancillaryMarketValueSek,
+      full.ancillaryMarketValueSek * 0.8,
       6,
     );
   });
@@ -83,7 +84,7 @@ describe("share applies to the ancillary term only", () => {
   it("the market value stays the raw engine figure", () => {
     const ce = customerEconomyFromResult(result, 0.5);
     expect(ce.ancillaryMarketValueSek).toBe(result.summary.fcr.grossSek ?? 0);
-    expect(ce.ancillaryCustomerValueSek).toBeCloseTo(ce.ancillaryMarketValueSek * 0.5, 9);
+    expect(ce.ancillaryCustomerValueSek).toBeCloseTo(ce.ancillaryMarketValueSek * 0.5 * 0.8, 9);
   });
 
   it("no ancillary => share has no effect at all", () => {
@@ -98,7 +99,7 @@ describe("share applies to the ancillary term only", () => {
 
   it("customerBenefitFromTotals handles a missing total", () => {
     expect(customerBenefitFromTotals(null, 100, 0.5)).toBeNull();
-    expect(customerBenefitFromTotals(1000, 400, 0.75)).toBeCloseTo(900, 9);
+    expect(customerBenefitFromTotals(1000, 400, 0.75)).toBeCloseTo(840, 9); // 1000 - 400 * (1 - 0.75 * 0.8);
   });
 });
 
@@ -130,7 +131,7 @@ describe("engine invariance", () => {
       const h = half[i]!;
       expect(f.annualBenefitSek).toBe(h.annualBenefitSek);
       expect((f.customerBenefitSek ?? 0) - (h.customerBenefitSek ?? 0)).toBeCloseTo(
-        f.ancillaryMarketValueSek * 0.5,
+        f.ancillaryMarketValueSek * 0.5 * 0.8,
         6,
       );
     }

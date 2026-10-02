@@ -224,7 +224,7 @@ describe("C — the power level is chosen on total customer benefit", () => {
     const share = customerAncillaryShareOf(econ);
     expect(share).toBeGreaterThan(0);
     expect(share).toBeLessThanOrEqual(1);
-    expect(annualCustomerBenefitSek(100, 50, 1000, econ)).toBeCloseTo(150 + 1000 * share, 6);
+    expect(annualCustomerBenefitSek(100, 50, 1000, econ)).toBeCloseTo(150 + 1000 * share * 0.8, 6);
     expect(annualCustomerBenefitSek(100, null, null, econ)).toBeCloseTo(100, 6);
   });
 });
