@@ -7,7 +7,7 @@ import { cRateCapacitySteps, exceedsAutoCRate, minCapacityForAutoCRate } from "@
 import { defaultConfig } from "@/lib/lab/defaults";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function input(cc: any, fuse: number, pv: number, fcr: boolean, opts = {}) {
+function input(cc: any, fuse: number, pv: number, fcr: boolean, opts = {}, zeroPrices = false) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const s: any = structuredClone(createInitialState(cc));
   s.grid.gridValuesConfirmed = true;
@@ -19,12 +19,17 @@ function input(cc: any, fuse: number, pv: number, fcr: boolean, opts = {}) {
   s.production.acKw = 10; // explicit inverter size; engine no longer assumes a default
   s.strategies.fcrDUp = fcr;
   s.preferences.customerAncillaryShare = 0.75;
+  if (zeroPrices) {
+    // Explicit 0/0 energy prices: tests the zero-benefit path independent of country defaults.
+    s.economy.importPrice = 0;
+    s.economy.exportPrice = 0;
+  }
   return normalizeWizardToEngineInput(s, opts);
 }
 
 describe("K1: no automatic recommendation with total customer benefit <= 0", () => {
   it("BE villa without reserve (benefit 0) -> no battery, withheld size reported", () => {
-    const r = runBatteryEngine(input("BE", 25, 10000, false));
+    const r = runBatteryEngine(input("BE", 25, 10000, false, {}, true));
     const rec = r.summary.recommendation;
     expect([rec.capacityKWh, rec.powerKw]).toEqual([0, 0]);
     expect(rec.sizingWasFixed).toBe(false);
@@ -33,7 +38,7 @@ describe("K1: no automatic recommendation with total customer benefit <= 0", () 
     expect(rec.withheld!.annualCustomerBenefitSek!).toBeLessThanOrEqual(0);
   }, 600_000);
   it("manually fixed size is still simulated and may show <= 0", () => {
-    const r = runBatteryEngine(input("BE", 25, 10000, false, { fixedCapacityKWh: 20, fixedPowerKw: 3 }));
+    const r = runBatteryEngine(input("BE", 25, 10000, false, { fixedCapacityKWh: 20, fixedPowerKw: 3 }, true));
     expect(r.summary.recommendation.capacityKWh).toBe(20);
     expect(r.summary.recommendation.withheld).toBeUndefined();
     expect(r.summary.economy.annualCustomerBenefitSek!).toBeLessThanOrEqual(0);
