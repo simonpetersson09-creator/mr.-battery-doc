@@ -338,6 +338,7 @@ export const sv = {
       noReduction: "Ingen minskning av effekttoppen med de valda inställningarna.",
     },
     breakdown: {
+      energyNegativeNote: "Energidelen är negativ: batteriets förluster och laddning kostar mer än den sparade elen. Totalen är ändå positiv tack vare stödtjänsterna.",
       title: "Fördelning av årlig nytta",
       total: "Total beräknad kundnytta",
     },
@@ -454,6 +455,9 @@ export const sv = {
     reservablePower: "Fysiskt reserverbar effekt (medel)",
     reservableNote:
       "Separat tekniskt medelvärde för reserverbarhet – inte den effekt som ersättningen beräknas på.",
+    avgHeldPower: "Snitt som faktiskt hålls",
+    fullDeliveryHours: "Timmar med full leverans",
+    fullDeliveryNote: "Andel av de reserverade timmarna då hela den erbjudna effekten kunde hållas. Ersättningen räknas bara på den effekt som faktiskt hålls.",
     reservationNote:
       "Motorn reserverar den nivå som ger högst total beräknad nytta. En större del av batteriets effekt kan vara tekniskt tillgänglig för stödtjänster, men används inte om egenanvändning och effekttoppskapning ger större nytta.",
     selectedServices: "Valda stödtjänster",

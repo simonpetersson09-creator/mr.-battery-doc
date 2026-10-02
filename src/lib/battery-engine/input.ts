@@ -113,6 +113,10 @@ export function toLabConfig(input: BatteryEngineInput = {}): LabConfig {
       gridChargingEnabled:
         (st.peakShavingIsTechnicalGoal ?? false) ||
         (toEconomyConfig(input).peakDemandChargeSekPerKwMonth ?? 0) > 0,
+      /** MODEL RULE (3A): without a demand charge peak shaving never drives the size. */
+      affectsSizing:
+        (st.peakShavingIsTechnicalGoal ?? false) ||
+        (toEconomyConfig(input).peakDemandChargeSekPerKwMonth ?? 0) > 0,
     },
 
     ancillary: {

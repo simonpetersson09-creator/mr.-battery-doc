@@ -114,8 +114,8 @@ function runBatteryEngineCore(input: BatteryEngineInput): BatteryEngineResult {
   const fixedPower = input.battery?.fixedPowerKw;
   const sizingWasFixed = fixedCapacity !== undefined && fixedPower !== undefined;
 
-  const sweep = runSweep(cfg, series);
-  const capacityKWh = fixedCapacity ?? sweep.recommended.capacityKWh;
+  let sweep = runSweep(cfg, series);
+  let capacityKWh = fixedCapacity ?? sweep.recommended.capacityKWh;
   const productPowerKw = fixedPower ?? sweep.recommended.powerKw;
 
   /**
@@ -125,7 +125,7 @@ function runBatteryEngineCore(input: BatteryEngineInput): BatteryEngineResult {
    * the highest calculated annual operating benefit (energy + peak + FCR). No product
    * cost, CAPEX, payback or ROI is involved.
    */
-  const economicPowerSizing: EconomicPowerSizingResult = sizingWasFixed
+  let economicPowerSizing: EconomicPowerSizingResult = sizingWasFixed
     ? {
         capacityKWh,
         physicalPowerNeedKw: sweep.powerSizing.physicalNeedKw,
@@ -165,6 +165,49 @@ function runBatteryEngineCore(input: BatteryEngineInput): BatteryEngineResult {
 
   /** The recommended system power is the technically motivated optimum when available. */
   let powerKw = economicPowerSizing.operatingOptimalPowerKw ?? productPowerKw;
+
+  /**
+   * STEP C2 — CAPACITY SWEEP AT THE CHOSEN POWER (once, no loop). The capacity ladder was
+   * compared at an adaptive comparison power that may differ from the power the battery
+   * actually gets. Re-run the SAME sweep pinned to the chosen power and use its capacity.
+   * The power stays fixed; the power analysis is only refreshed for the new capacity.
+   */
+  if (
+    !sizingWasFixed &&
+    powerKw > 0 &&
+    capacityKWh > 0 &&
+    Math.abs((sweep.sweetSpot.comparisonPower ?? powerKw) - powerKw) > 1e-9
+  ) {
+    const pinned = runSweep({ ...cfg, sweetSpot: { ...cfg.sweetSpot, comparisonPowerKw: powerKw } }, series);
+    const newCap = pinned.recommended.capacityKWh;
+    if (newCap > 0 && Math.abs(newCap - capacityKWh) > 1e-9) {
+      const fixedPowerKw = powerKw;
+      sweep = pinned;
+      capacityKWh = newCap;
+      const reran = runEconomicPowerSizing({
+        cfg,
+        series,
+        capacityKWh,
+        physicalPowerNeedKw: sweep.powerSizing.physicalNeedKw,
+        productPowerKw,
+        econ,
+        cost: productCostConfig(input.productCost ?? {}),
+        fcrMarket: { ...EMPTY_FCR_MARKET_REALISM, ...(input.fcrMarketRealism ?? {}) },
+        optimiseFcrReservation: input.strategies?.optimiseFcrReservation ?? false,
+        maxProductCRate: input.battery?.maxProductCRateForCandidates,
+      });
+      economicPowerSizing = {
+        ...reran,
+        operatingOptimalPowerKw: fixedPowerKw,
+        recommendedPowerKw: fixedPowerKw,
+        energyPowerNeedKw: economicPowerSizing.energyPowerNeedKw ?? null,
+        options: reran.options.map((o) => ({
+          ...o,
+          selected: Math.abs(o.powerKw - fixedPowerKw) < 1e-9,
+        })),
+      };
+    }
+  }
 
   /**
    * STEP D — FCR ENDURANCE CAPACITY. The power above is FIXED here. Only the capacity may
@@ -554,6 +597,7 @@ function runBatteryEngineCore(input: BatteryEngineInput): BatteryEngineResult {
       reservedEnergyKWh: a.reservedEnergyUpKWh,
       reservedHours: a.reservedHours,
       availabilityPct: a.availabilityPct,
+      fullDeliveryPct: a.fullDeliveryPct,
       grossSek: economy.fcr.grossSek,
       grossUpSek: economy.fcr.grossUpSek,
       grossDownSek: economy.fcr.grossDownSek,

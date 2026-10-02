@@ -81,6 +81,7 @@ export interface ReportCopy {
     total: string;
     energy: string;
     energyHint: string;
+    energyNegativeHint: string;
     energyNoSolarHint: string;
     peak: string;
     peakHint: string;
@@ -103,6 +104,7 @@ export interface ReportCopy {
     held: string;
     monetized: string;
     availability: string;
+    fullDelivery: string;
     limiting: string;
     limitingPower: string;
     limitingEnergy: string;
@@ -343,6 +345,7 @@ const sv: ReportCopy = {
     energy: "Flyttad solel och minskat elköp",
     energyHint:
       "Batteriet lagrar överskottsproduktion och använder energin när fastigheten behöver den.",
+    energyNegativeHint: "Energidelen är negativ: batteriets förluster och laddning kostar mer än den sparade elen. Totalen är ändå positiv tack vare stödtjänsterna.",
     energyNoSolarHint:
       "Batteriet laddas när elen är billigare och används när fastigheten behöver den.",
     peak: "Peak shaving",
@@ -368,6 +371,7 @@ const sv: ReportCopy = {
     held: "Hållen effekt (medel)",
     monetized: "Beräknad ersättningsgrundande effekt",
     availability: "Tillgänglighet",
+    fullDelivery: "Timmar med full leverans",
     limiting: "Vad begränsar batteristorleken",
     limitingPower: "Batteriets effekt",
     limitingEnergy: "Lagrad energi / SOC",
@@ -782,6 +786,7 @@ const en: ReportCopy = {
     energy: "Shifted solar and reduced electricity purchase",
     energyHint:
       "The battery stores surplus production and uses the energy when the property needs it.",
+    energyNegativeHint: "The energy part is negative: battery losses and charging cost more than the electricity saved. The total is still positive thanks to grid services.",
     energyNoSolarHint:
       "The battery charges when electricity is cheaper and is used when the property needs it.",
     peak: "Peak shaving",
@@ -807,6 +812,7 @@ const en: ReportCopy = {
     held: "Held power (average)",
     monetized: "Estimated compensable power",
     availability: "Availability",
+    fullDelivery: "Hours with full delivery",
     limiting: "What limits the battery size",
     limitingPower: "Battery power",
     limitingEnergy: "Stored energy / SOC",

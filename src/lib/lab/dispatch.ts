@@ -237,6 +237,8 @@ export interface DispatchTallies {
   ancillaryReservedHours: number;
   /** Of those, the hours the battery could actually hold the readiness. */
   ancillaryReadyHours: number;
+  /** Of those, the hours the FULL offered power was held (held >= offered). */
+  ancillaryFullHours: number;
   /** Grid energy charged only to keep the ancillary readiness, kWh. */
   ancillaryReadinessChargeKWh: number;
   /** Symmetric-FCR storage management: AC energy charged (PV + grid), kWh. */
@@ -297,6 +299,8 @@ export interface DispatchOutput {
   flexAvailableHours: number;
   /** Share of the scheduled ancillary hours where the readiness could be held, %. */
   ancillaryAvailabilityPct: number;
+  /** Share of the scheduled ancillary hours where the full offered power was held, %. */
+  ancillaryFullDeliveryPct: number;
   /** Storage-management SOC target, kWh (null = no symmetric reserve active). */
   storageManagementTargetSocKWh: number | null;
   /**
@@ -546,6 +550,7 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
     cycleLimitHit: false,
     ancillaryReservedHours: 0,
     ancillaryReadyHours: 0,
+    ancillaryFullHours: 0,
     ancillaryReadinessChargeKWh: 0,
     storageManagementChargeKWh: 0,
     storageManagementGridChargeKWh: 0,
@@ -1473,6 +1478,7 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
         // Symmetric product: the one paid capacity loads BOTH sides, so the energy
         // management reservation is held on the discharge side as well.
         if (symmetric) t.fcrNemDischargeSumKw += nemShare * heldKw;
+        if (offeredKw > 1e-9 && heldKw >= offeredKw - 1e-6) t.ancillaryFullHours++;
         if (heldKw > 1e-9) {
           t.ancillaryReadyHours++;
           ancillaryReservedPowerKwByHour[h] = heldKw;
@@ -1568,6 +1574,8 @@ export function dispatch(args: DispatchArgs): DispatchOutput {
     })(),
     ancillaryAvailabilityPct:
       t.ancillaryReservedHours > 0 ? (t.ancillaryReadyHours / t.ancillaryReservedHours) * 100 : 0,
+    ancillaryFullDeliveryPct:
+      t.ancillaryReservedHours > 0 ? (t.ancillaryFullHours / t.ancillaryReservedHours) * 100 : 0,
     notes,
   };
 }

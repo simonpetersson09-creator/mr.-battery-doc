@@ -51,8 +51,8 @@ describe("true without-FCR counterfactual", () => {
    * base-power correction: the 3 kW step is now scanned and already reaches 95 % of the
    * saturated physical benefit, so the technical level is 3 kW.
    */
-  it("B: the FCR-on base power is the technical 25 kWh / 3 kW", () => {
-    expect(rec.capacityKWh).toBe(25);
+  it("B: the FCR-on base power is the technical 20 kWh / 3 kW (was 25 before the kWh sweep was re-run at the final power)", () => {
+    expect(rec.capacityKWh).toBe(20);
     // UPDATED: FCR revenue no longer changes the BASE power, but the approved product
     // rule does raise the INSTALLED power to the highest step inside the fuse guardrail.
     expect(rec.basePowerForEnergyKw).toBe(3);
@@ -101,7 +101,7 @@ describe("true without-FCR counterfactual", () => {
       battery: { ...outcome.input.battery, fixedCapacityKWh: 200, fixedPowerKw: 100 },
     };
     const counterfactual = computeWithoutFcrOptimum(inputWithFixedSizing, outcome.result);
-    expect(counterfactual?.capacityKWh).toBe(25);
+    expect(counterfactual?.capacityKWh).toBe(20); // was 25 before the kWh sweep re-run at the final power;
     expect(counterfactual?.withoutFcrOptimalPowerKw).toBe(3);
   });
 

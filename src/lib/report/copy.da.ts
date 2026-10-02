@@ -72,6 +72,7 @@ export const da: ReportCopy = {
     energy: "Flyttet solstrøm og reduceret elkøb",
     energyHint:
       "Batteriet lagrer overskudsproduktion og bruger energien, når ejendommen har brug for den.",
+    energyNegativeHint: "Energidelen er negativ: batteriets tab og opladning koster mere end den sparede el. Totalen er alligevel positiv takket være systemydelserne.",
     energyNoSolarHint:
       "Batteriet lader op, når strømmen er billigere, og bruges, når ejendommen har brug for den.",
     peak: "Topkapning",
@@ -97,6 +98,7 @@ export const da: ReportCopy = {
     held: "Holdt effekt (gennemsnit)",
     monetized: "Beregnet betalbar effekt",
     availability: "Tilgængelighed",
+    fullDelivery: "Timer med fuld levering",
     limiting: "Hvad begrænser batteristørrelsen",
     limitingPower: "Batterieffekt",
     limitingEnergy: "Lagret energi / SOC",

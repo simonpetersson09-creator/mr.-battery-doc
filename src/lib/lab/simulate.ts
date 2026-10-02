@@ -499,6 +499,7 @@ export function simulate(
       reservedHours: t.ancillaryReservedHours,
       readyHours: t.ancillaryReadyHours,
       availabilityPct: d.ancillaryAvailabilityPct,
+      fullDeliveryPct: d.ancillaryFullDeliveryPct,
       readinessChargeKWh: t.ancillaryReadinessChargeKWh,
       storageManagementChargeKWh: t.storageManagementChargeKWh,
       storageManagementDischargeKWh: t.storageManagementDischargeKWh,

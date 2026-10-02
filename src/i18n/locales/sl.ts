@@ -269,6 +269,9 @@ export const sl = {
     "reservedPower": "Rezervirana moč",
     "reservablePower": "Fizično rezervabilna moč (povprečje)",
     "reservableNote": "Ločena povprečna mera rezervabilnosti – ni moč, iz katere se izračuna nadomestilo.",
+    "avgHeldPower": "Povprečje dejansko zadržano",
+    "fullDeliveryHours": "Ure s polno dobavo",
+    "fullDeliveryNote": "Delež rezerviranih ur, ko je bilo mogoče zadržati celotno ponujeno moč. Nadomestilo se izračuna le na dejansko zadržano moč.",
     "reservationNote": "Mehanizem rezervira raven, ki prinaša najvišjo skupno izračunano korist. Več moči baterije je lahko tehnično na voljo za sistemske storitve, vendar se ne uporabi, če samooskrba in glajenje konic prinašata večjo korist.",
     "selectedServices": "Izbrane storitve",
     "limitingFactor": "Kaj omejuje velikost baterije",
@@ -606,6 +609,7 @@ export const sl = {
       "noReduction": "Z izbranimi nastavitvami ni zmanjšanja konice moči."
     },
     "breakdown": {
+      "energyNegativeNote": "Energijski del je negativen: izgube in polnjenje baterije stanejo več kot prihranjena elektrika. Skupaj je rezultat kljub temu pozitiven zaradi sistemskih storitev.",
       "title": "Porazdelitev letne koristi",
       "total": "Skupna izračunana korist za stranko"
     },

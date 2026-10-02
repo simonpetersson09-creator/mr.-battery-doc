@@ -524,7 +524,12 @@ export function runEconomicPowerSizing(
     candidatePowersKw.length > 0
       ? scanPhysicalPowerBenefit(cfg, series, capacityKWh, candidatePowersKw)
       : [];
-  const energyNeedKw = energyPowerNeedFromScan(physicalBenefitScan);
+  // MODEL RULE (3A): without a demand charge the peak cut does not drive the power need.
+  const energyNeedKw = energyPowerNeedFromScan(
+    cfg.peakShaving.affectsSizing === false
+      ? physicalBenefitScan.map((p) => ({ ...p, peakReductionKw: 0 }))
+      : physicalBenefitScan,
+  );
   const chosenPowerKw =
     energyNeedKw === null
       ? Math.min(productPowerKw, gridAllowedPowerKw)
