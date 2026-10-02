@@ -525,11 +525,18 @@ function computeAncillaryScenarioUncached(
   let technicalPick =
     atPower.find((c) => ratioOf(c) >= appliedCoverage - 1e-9) ?? atPower[atPower.length - 1];
   if (!technicalPick) return null;
-  /* HARD 1.0 C LIMIT on the final recommendation: capacity >= power, next real step up. */
+  /* HARD 1.0 C LIMIT on the final recommendation: capacity >= power, next real step up.
+   * If no real capacity step >= power can be evaluated, there is no recommendation —
+   * a pick above 1.0 C is never kept. */
   if (technicalPick.powerKw > technicalPick.capacityKWh + 1e-9) {
-    const capForC = caps.find((c) => c >= selectedPowerKw - 1e-9);
-    const atC = capForC !== undefined ? evaluate(capForC, selectedPowerKw) : null;
-    if (atC) technicalPick = atC;
+    let atC: AncillaryScenarioCandidate | null = null;
+    for (const cap of caps) {
+      if (cap < selectedPowerKw - 1e-9) continue;
+      atC = evaluate(cap, selectedPowerKw);
+      if (atC) break;
+    }
+    if (!atC || atC.powerKw > atC.capacityKWh + 1e-9) return null;
+    technicalPick = atC;
   }
 
   const powerScan: AncillaryPowerScanStep[] = powerRuns.map((c, i) => {
