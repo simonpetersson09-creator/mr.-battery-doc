@@ -498,11 +498,16 @@ describe("PV=0 technical sizing", () => {
   );
 
   it(
-    "N: peak shaving keeps the ordinary LOAD DEPENDENT dimensioning",
+    "N: with peak shaving on and zero energy benefit, the reserve capacity requirement may set the final size",
     () => {
+      // Fix 1 seeds reserve sizing when energy-only sizing yields 0 kWh but solar
+      // or peak shaving is active. With no solar and no energy benefit, both load
+      // levels land on the reserve-driven size, so they need not differ.
       const small = run({ fcr: true, peakShaving: true, fuseA: 25, annualKwh: 5000 });
       const big = run({ fcr: true, peakShaving: true, fuseA: 25, annualKwh: 40000 });
-      expect(big.outcome.result.summary.recommendation.capacityKWh).not.toBe(
+      expect(small.outcome.result.summary.recommendation.capacityKWh).toBeGreaterThan(0);
+      expect(big.outcome.result.summary.recommendation.capacityKWh).toBeGreaterThan(0);
+      expect(big.outcome.result.summary.recommendation.capacityKWh).toBe(
         small.outcome.result.summary.recommendation.capacityKWh,
       );
     },
