@@ -117,9 +117,17 @@ const CONNECTION_SPECS: Record<ConnectionId, { phases: PhaseCount; voltage: numb
   "3x400": { phases: 3, voltage: 400, defaultMainFuse: 25 },
 };
 
+/** Unverified default electricity prices (local currency/kWh), user-editable. */
+const NEW_COUNTRY_DEFAULT_PRICES: Record<"BE" | "FR" | "CZ" | "SI", { importPrice: number; exportPrice: number }> = {
+  BE: { importPrice: 0.35, exportPrice: 0.06 },
+  FR: { importPrice: 0.2, exportPrice: 0.05 },
+  CZ: { importPrice: 6.0, exportPrice: 1.5 },
+  SI: { importPrice: 0.2, exportPrice: 0.05 },
+};
+
 /**
  * Country with an explicit electrical-system list, the generic ampere selector and
- * NEUTRAL economy (all prices 0 = "not yet supplied", always user-editable). Nothing is
+ * unverified default economy (economyVerified: false, always user-editable). Nothing is
  * copied from another country. First connection in `connections` = default.
  */
 function newCountry(
@@ -157,9 +165,9 @@ function newCountry(
     economy: {
       currency: currencyForCountry(code),
       currencyLabel: CURRENCY_SUFFIX[currencyForCountry(code)],
-      // NEUTRAL placeholders: verified tariffs not supplied yet. Never copied from SE.
-      importPrice: 0,
-      exportPrice: 0,
+      // Unverified editable default assumptions (own currency). Never copied from SE.
+      importPrice: NEW_COUNTRY_DEFAULT_PRICES[code].importPrice,
+      exportPrice: NEW_COUNTRY_DEFAULT_PRICES[code].exportPrice,
       demandCharge: 0,
       eurSekRate: localUnitsPerEur(code),
       demandChargeVerified: false,
@@ -235,7 +243,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       // Finska schablonvärden i EUR.
       currency: currencyForCountry("FI"),
       currencyLabel: CURRENCY_SUFFIX[currencyForCountry("FI")],
-      importPrice: 0.15,
+      importPrice: 0.2,
       exportPrice: 0.05,
       demandCharge: 0,
       eurSekRate: localUnitsPerEur("FI"),
