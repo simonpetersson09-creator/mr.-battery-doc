@@ -241,14 +241,14 @@ const CASES: Record<string, Case> = {
  */
 const EXPECTED: Record<string, { capacityKWh: number; powerKw: number }> = {
   CG01: { capacityKWh: 20, powerKw: 3 },
-  CG02: { capacityKWh: 20, powerKw: 3 }, // 25 -> 20: kWh sweep now re-run at the final power (item 4),
+  CG02: { capacityKWh: 20, powerKw: 3 }, // 25 -> 20: kWh sweep now re-run at the final power (item 4)
   CG03: { capacityKWh: 5, powerKw: 3 },
 
   /* Ancillary services raise the installed power to the highest real product step
      inside the nominal main-fuse guardrail (CG04, CG07, CG12, CG14, CG15). */
     /* UPDATED: reserve capacity is now sized by fcrEnduranceCapacity for the FINAL
        (ancillary-raised) power: CG07 50 -> 75, CG12 100 -> 150, CG14 50 -> 75 kWh. */
-  CG04: { capacityKWh: 200, powerKw: 125 }, // 300 -> 200: kWh sweep re-run at the final power (item 4),
+  CG04: { capacityKWh: 200, powerKw: 125 }, // 300 -> 200: kWh sweep re-run at the final power (item 4)
   CG07: { capacityKWh: 75, powerKw: 60 },
   CG12: { capacityKWh: 150, powerKw: 125 },
   CG14: { capacityKWh: 75, powerKw: 60 },
