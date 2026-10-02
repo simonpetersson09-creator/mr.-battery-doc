@@ -729,20 +729,34 @@ export function optimizeFcrReservation(
   const evaluate = (requestedKw: number): FcrSweepCandidate => {
     const offeredPowerKw = round2(requestedKw);
     if (offeredPowerKw <= 0) return zeroCandidate();
-    const cfgOn: LabConfig = {
-      ...cfg,
-      strategies: { ...cfg.strategies, ancillaryServices: true },
-      ancillary: { ...cfg.ancillary, enabled: true, offeredPowerKw },
-    };
-    const r = simulate(cfgOn, series, capacityKWh, powerKw);
+    const simulateWith = (kw: number) =>
+      simulate(
+        {
+          ...cfg,
+          strategies: { ...cfg.strategies, ancillaryServices: true },
+          ancillary: { ...cfg.ancillary, enabled: true, offeredPowerKw: kw },
+        },
+        series,
+        capacityKWh,
+        powerKw,
+      );
+    let r = simulateWith(offeredPowerKw);
+    // The plan clips a two-directional bid by the NEM rule; report what was actually
+    // offered, never the unclipped request. When the clip changes the value, re-run
+    // the simulation with EXACTLY the reported (clipped, rounded) value, so the
+    // candidate's economics always come from the same value that is recommended and
+    // used by the final simulation — never from a nearby unrounded level whose
+    // dispatch can differ (e.g. zero charging margin exactly at the clip boundary).
+    let offered = round2(r.ancillary.reservedPowerUpKw);
+    if (offered > 0 && offered !== offeredPowerKw) {
+      r = simulateWith(offered);
+      offered = round2(r.ancillary.reservedPowerUpKw);
+    }
     const economy = composeOperatingEconomy(r, econ, {
       otherBenefitWithoutFcrSek: benefitOff,
       otherBenefitWithFcrSek: otherBenefitSek(r, econ),
     });
     const gross = economy.fcr.grossSek;
-    // The plan clips a two-directional bid by the NEM rule; report what was actually
-    // offered, never the unclipped request.
-    const offered = round2(r.ancillary.reservedPowerUpKw);
     return {
       fraction: offerablePowerKw > 0 ? offered / offerablePowerKw : 0,
       offeredPowerKw: offered,
