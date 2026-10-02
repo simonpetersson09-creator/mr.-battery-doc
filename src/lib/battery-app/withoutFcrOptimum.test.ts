@@ -111,6 +111,7 @@ describe("true without-FCR counterfactual", () => {
       const engine = engineOptions.find((x) => Math.abs(x.powerKw - o.powerKw) < 1e-9);
       if (!engine) continue;
       const subtracted = engine.totalOperatingBenefitSek - engine.fcrRevenueSek;
+      console.log('FDBG', o.powerKw, engine.fcrRevenueSek, (engine as any).fcrOfferedKw ?? (engine as any).offeredPowerKw, subtracted, o.totalOperatingBenefitSek);
       // The reservation changes dispatch, so the two can never be assumed equal.
       expect(Math.abs(subtracted - o.totalOperatingBenefitSek)).toBeGreaterThan(1);
     }
@@ -123,6 +124,7 @@ describe("true without-FCR counterfactual", () => {
     const wrongPick = engineOptions.find(
       (o) => o.totalOperatingBenefitSek - o.fcrRevenueSek >= best - 25,
     )!;
+    console.log('FDBG2', JSON.stringify(wrongPick));
     const same = wo.options.find(
       (o) => Math.abs(o.powerKw - wrongPick.powerKw) < 1e-9,
     );
