@@ -522,9 +522,15 @@ function computeAncillaryScenarioUncached(
   const atPower = seen()
     .filter((c) => c.powerKw === selectedPowerKw)
     .sort((a, b) => a.capacityKWh - b.capacityKWh);
-  const technicalPick =
+  let technicalPick =
     atPower.find((c) => ratioOf(c) >= appliedCoverage - 1e-9) ?? atPower[atPower.length - 1];
   if (!technicalPick) return null;
+  /* HARD 1.0 C LIMIT on the final recommendation: capacity >= power, next real step up. */
+  if (technicalPick.powerKw > technicalPick.capacityKWh + 1e-9) {
+    const capForC = caps.find((c) => c >= selectedPowerKw - 1e-9);
+    const atC = capForC !== undefined ? evaluate(capForC, selectedPowerKw) : null;
+    if (atC) technicalPick = atC;
+  }
 
   const powerScan: AncillaryPowerScanStep[] = powerRuns.map((c, i) => {
     const prev = i > 0 ? powerRuns[i - 1]! : null;
