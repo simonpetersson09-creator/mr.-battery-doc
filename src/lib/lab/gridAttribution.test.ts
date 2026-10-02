@@ -71,7 +71,12 @@ describe("grid limitation attribution", () => {
   it("C2: if a bigger fuse changes nothing, the connection is not called limiting", () => {
     const base = runBatteryEngine(REFERENCE);
     const big = runBatteryEngine(withFuse(REFERENCE, 200));
-    expect(big.summary.recommendation.capacityKWh).toBe(
+    /* UPDATED: the energy-sized capacity is unchanged; the final capacity may grow
+       because the reserve capacity is sized for the (fuse-allowed) final power. */
+    expect(big.diagnostics.fcrEnduranceCapacity?.baseCapacityKWh).toBe(
+      base.diagnostics.fcrEnduranceCapacity?.baseCapacityKWh,
+    );
+    expect(big.summary.recommendation.capacityKWh).toBeGreaterThanOrEqual(
       base.summary.recommendation.capacityKWh,
     );
     /* UPDATED: with ancillary services on, a bigger fuse allows a higher real product
