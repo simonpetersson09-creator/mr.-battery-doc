@@ -246,10 +246,12 @@ const EXPECTED: Record<string, { capacityKWh: number; powerKw: number }> = {
 
   /* Ancillary services raise the installed power to the highest real product step
      inside the nominal main-fuse guardrail (CG04, CG07, CG12, CG14, CG15). */
+    /* UPDATED: reserve capacity is now sized by fcrEnduranceCapacity for the FINAL
+       (ancillary-raised) power: CG07 50 -> 75, CG12 100 -> 150, CG14 50 -> 75 kWh. */
   CG04: { capacityKWh: 300, powerKw: 125 },
-  CG07: { capacityKWh: 50, powerKw: 60 },
-  CG12: { capacityKWh: 100, powerKw: 125 },
-  CG14: { capacityKWh: 50, powerKw: 60 },
+  CG07: { capacityKWh: 75, powerKw: 60 },
+  CG12: { capacityKWh: 150, powerKw: 125 },
+  CG14: { capacityKWh: 75, powerKw: 60 },
   CG15: { capacityKWh: 500, powerKw: 200 },
   CG05: { capacityKWh: 0, powerKw: 0 },
   CG06: { capacityKWh: 10, powerKw: 3 },
