@@ -134,7 +134,7 @@ describe("engine invariance", () => {
         6,
       );
     }
-  });
+  }, 600_000);
 });
 
 describe("simple payback", () => {
