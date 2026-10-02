@@ -129,12 +129,14 @@ function newCountry(
   locale: string,
   defaultConnection: ConnectionId,
   connections: ConnectionId[],
+  /** Extra larger steps per connection type (only where applicable). */
+  extraFuses: Partial<Record<ConnectionId, number[]>> = {},
 ): CountryConfig {
   const ordered = [defaultConnection, ...connections.filter((c) => c !== defaultConnection)];
   const options: PhaseOption[] = ordered.map((id) => ({
     id,
     ...CONNECTION_SPECS[id],
-    fuses: [...GENERIC_FUSE_STEPS],
+    fuses: [...GENERIC_FUSE_STEPS, ...(extraFuses[id] ?? [])],
   }));
   const def = options[0]!;
   return {
@@ -176,7 +178,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       voltage: 400,
       phases: 3,
       frequency: 50,
-      commonMainFuses: [16, 20, 25, 35, 50, 63, 80, 100, 125, 160, 200, 400],
+      commonMainFuses: [16, 20, 25, 35, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400],
       defaultMainFuse: 20,
       standards: ["SS-EN 50549-1", "EIFS 2018:2", "Elsäkerhetsverket"],
     },
@@ -224,7 +226,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       voltage: 400,
       phases: 3,
       frequency: 50,
-      commonMainFuses: [25, 35, 50, 63, 80, 100, 125, 160, 200, 400],
+      commonMainFuses: [25, 35, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400],
       additionalMainFuses: [16, 20],
       defaultMainFuse: 25,
       standards: ["SFS 6000", "VDE-AR-N 4105"],
@@ -249,7 +251,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       voltage: 400,
       phases: 3,
       frequency: 50,
-      commonMainFuses: [16, 20, 25, 32, 35, 40, 50, 63, 80, 100, 400],
+      commonMainFuses: [16, 20, 25, 32, 35, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400],
       defaultMainFuse: 25,
       standards: ["DS/EN 50549-1"],
     },
@@ -273,7 +275,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       voltage: 400,
       phases: 3,
       frequency: 50,
-      commonMainFuses: [16, 20, 25, 32, 35, 40, 50, 63, 80, 100, 400],
+      commonMainFuses: [16, 20, 25, 32, 35, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400],
       defaultMainFuse: 35,
       standards: ["VDE-AR-N 4105", "VDE-AR-N 4110"],
     },
@@ -297,7 +299,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       voltage: 400,
       phases: 3,
       frequency: 50,
-      commonMainFuses: [16, 20, 25, 32, 35, 40, 50, 63, 80, 100],
+      commonMainFuses: [16, 20, 25, 32, 35, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400],
       defaultMainFuse: 25,
       standards: ["OVE E 8101:2025"],
     },
@@ -322,7 +324,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       voltage: 400,
       phases: 3,
       frequency: 50,
-      commonMainFuses: [16, 20, 25, 32, 40, 50, 63, 80, 100],
+      commonMainFuses: [16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400],
       defaultMainFuse: 25,
       standards: ["NIN 2025 / SN 411000"],
     },
@@ -337,10 +339,17 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
       demandChargeVerified: false,
     },
   },
-  BE: newCountry("BE", "Belgien", "🇧🇪", "nl-BE", "3x400", ["1x230", "3x230", "3x400"]),
+  BE: newCountry("BE", "Belgien", "🇧🇪", "nl-BE", "3x400", ["1x230", "3x230", "3x400"], {
+    "3x230": [250],
+    "3x400": [250],
+  }),
   FR: newCountry("FR", "Frankrike", "🇫🇷", "fr-FR", "1x230", ["1x230", "3x400"]),
-  CZ: newCountry("CZ", "Tjeckien", "🇨🇿", "cs-CZ", "3x400", ["3x400", "1x230"]),
-  SI: newCountry("SI", "Slovenien", "🇸🇮", "sl-SI", "3x400", ["3x400", "1x230"]),
+  CZ: newCountry("CZ", "Tjeckien", "🇨🇿", "cs-CZ", "3x400", ["3x400", "1x230"], {
+    "3x400": [250, 315, 400],
+  }),
+  SI: newCountry("SI", "Slovenien", "🇸🇮", "sl-SI", "3x400", ["3x400", "1x230"], {
+    "3x400": [250, 315, 400],
+  }),
 };
 
 export const COUNTRY_LIST = Object.values(COUNTRIES);
