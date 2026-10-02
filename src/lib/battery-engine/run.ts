@@ -291,6 +291,44 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
   }
 
   /**
+   * HARD 1.0 C LIMIT for the final automatic recommendation: power / capacity <= 1.0.
+   * Only the capacity is raised (never the power lowered), to the smallest real capacity
+   * step >= power. Caller-fixed sizes are untouched. All downstream results use it.
+   */
+  if (!sizingWasFixed && powerKw > 0 && finalCapacityKWh > 0 && powerKw > finalCapacityKWh + 1e-9) {
+    const steps = cfg.sweep.capacitiesKWh.filter((c) => c >= powerKw - 1e-9);
+    const cRateCapacity = steps.length ? Math.min(...steps) : powerKw;
+    finalCapacityKWh = cRateCapacity;
+    if (ancillaryPowerPotential) {
+      ancillaryPowerPotential = computeAncillaryPowerPotential({
+        cfg,
+        series,
+        capacityKWh: finalCapacityKWh,
+        basePowerKw: seedBasePowerKw,
+        econ,
+        optimiseFcrReservation: input.strategies?.optimiseFcrReservation ?? false,
+      });
+    }
+    const reran = runEconomicPowerSizing({
+      cfg,
+      series,
+      capacityKWh: finalCapacityKWh,
+      physicalPowerNeedKw: sweep.powerSizing.physicalNeedKw,
+      productPowerKw,
+      econ,
+      cost: productCostConfig(input.productCost ?? {}),
+      fcrMarket: { ...EMPTY_FCR_MARKET_REALISM, ...(input.fcrMarketRealism ?? {}) },
+      optimiseFcrReservation: input.strategies?.optimiseFcrReservation ?? false,
+      maxProductCRate: input.battery?.maxProductCRateForCandidates,
+    });
+    const selectedKw = powerOptionsSource.find((o) => o.selected)?.powerKw ?? null;
+    powerOptionsSource = reran.options.map((o) => ({
+      ...o,
+      selected: selectedKw !== null && Math.abs(o.powerKw - selectedKw) < 1e-9,
+    }));
+  }
+
+  /**
    * Everything below runs on the FINAL recommended power AND final capacity: FCR
    * reservation sweep, dispatch, economy and therefore also the customer benefit and max
    * investment.
