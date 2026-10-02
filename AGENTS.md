@@ -25,3 +25,4 @@
 - An automatic recommendation whose final total customer benefit is <= 0 is withheld ("no battery", original size kept in `recommendation.withheld`); caller-fixed sizes are always shown as simulated — never recommend a loss-making battery.
 - Self-sufficiency is exactly 0 % without PV and clamped to [0, 100] — grid-charged energy is not own energy.
 - Ancillary services raise the installed power only when the highest analysed step gives a positive customer reserve benefit — a 0 kW FCR result must never justify a larger battery (M1).
+- The customer's part of ancillary market value is computed only via `src/lib/lab/customerAncillaryValue.ts` (`customerAncillaryValueSek` / `effectiveAncillaryShare`, incl. `ANCILLARY_REVENUE_FACTOR`); `fcr.grossSek` and reported gross totals stay gross — one helper means the share/factor can never differ between selection, K1, M1, result and PDF, nor be applied twice.

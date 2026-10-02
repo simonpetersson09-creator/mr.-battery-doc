@@ -22,6 +22,7 @@ import {
   SWEDISH_OPERATING_ECONOMY,
 } from "./operatingEconomy";
 import type { OperatingEconomyConfig } from "./operatingEconomy";
+import { customerAncillaryValueSek } from "./customerAncillaryValue";
 import {
   fuseProductGuardrailKw,
   gridAllowedProductStepKw,
@@ -146,7 +147,7 @@ export function computeAncillaryPowerPotential(
       avgHeldUpKw: a.avgReservedPowerUpKw,
       avgHeldDownKw: e.fcr.avgHeldDownPowerKw ?? null,
       reservablePowerAvgKw: a.reservablePowerAvgKw,
-      ancillaryCustomerBenefitPerYear: round2((grossSek ?? 0) * share),
+      ancillaryCustomerBenefitPerYear: round2(customerAncillaryValueSek(grossSek, share)),
       energyBenefitPerYear: round2(energyBenefitPerYear),
       peakBenefitPerYear: peakBenefitPerYear === null ? null : round2(peakBenefitPerYear),
       totalCustomerBenefitPerYear: annualCustomerBenefitSek(

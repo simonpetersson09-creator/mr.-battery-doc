@@ -28,6 +28,11 @@ import {
 import { buildSeries, simulate } from "./simulate";
 import type { LabConfig, SimResult } from "./types";
 import { DEFAULT_RATES_PER_EUR } from "@/lib/currency";
+import {
+  DEFAULT_CUSTOMER_ANCILLARY_SHARE,
+  clampAncillaryShare,
+  customerAncillaryValueSek,
+} from "./customerAncillaryValue";
 
 export type PeakTariffSource = "default-estimate" | "user-provided";
 
@@ -64,13 +69,11 @@ export interface OperatingEconomyConfig {
  * Share of the ancillary market value that reaches the customer, used in the SELECTION
  * objective only. Mirrors the presentation-layer default (75 %).
  */
-export const DEFAULT_ENGINE_CUSTOMER_ANCILLARY_SHARE = 0.75;
+export const DEFAULT_ENGINE_CUSTOMER_ANCILLARY_SHARE = DEFAULT_CUSTOMER_ANCILLARY_SHARE;
 
-/** Clamped customer share of an economy config. */
+/** Clamped contract share of an economy config (display/notes; values use the helper). */
 export function customerAncillaryShareOf(econ: OperatingEconomyConfig): number {
-  const v = econ.customerAncillaryShare;
-  if (typeof v !== "number" || !Number.isFinite(v)) return DEFAULT_ENGINE_CUSTOMER_ANCILLARY_SHARE;
-  return Math.min(1, Math.max(0, v));
+  return clampAncillaryShare(econ.customerAncillaryShare);
 }
 
 /**
@@ -78,6 +81,7 @@ export function customerAncillaryShareOf(econ: OperatingEconomyConfig): number {
  *
  *   annualCustomerBenefit = energyBenefit + peakBenefit + ancillaryCustomerValue
  *
+ * The ancillary term comes from the central `customerAncillaryValueSek` helper.
  * Reported totals keep using the full market value; only the CHOICE uses this.
  */
 export function annualCustomerBenefitSek(
@@ -86,9 +90,10 @@ export function annualCustomerBenefitSek(
   ancillaryMarketValueSek: number | null,
   econ: OperatingEconomyConfig,
 ): number {
-  const share = customerAncillaryShareOf(econ);
   return round2(
-    energyBenefitSek + (peakBenefitSek ?? 0) + (ancillaryMarketValueSek ?? 0) * share,
+    energyBenefitSek +
+      (peakBenefitSek ?? 0) +
+      customerAncillaryValueSek(ancillaryMarketValueSek, econ.customerAncillaryShare),
   );
 }
 
