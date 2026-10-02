@@ -29,6 +29,7 @@ import type { EconomicPowerSizingResult } from "../lab/economicPowerSizing";
 import { computeAncillaryPowerPotential } from "../lab/ancillaryPowerPotential";
 import { productCostConfig } from "../lab/productCost";
 import { fcrEnduranceCapacity } from "../lab/fcrEnduranceCapacity";
+import { exceedsAutoCRate, minCapacityForAutoCRate } from "../lab/cRateLimit";
 import { assessGrid } from "../lab/gridAssessment";
 import { simulate } from "../lab/simulate";
 import { runSweep } from "../lab/sweep";
@@ -77,8 +78,34 @@ export function runBatterySimulation(
  * Full engine run: sizing + simulation + operating economy (+ optional FCR-D up
  * reservation optimisation). Returns a customer-facing `summary` and a complete
  * engineering `diagnostics` block.
+ *
+ * AUTOMATIC sizing only: a recommendation whose final total customer benefit is <= 0, or
+ * that would break the 1.0 C limit, is withheld — the result becomes "no battery"
+ * (0 kWh / 0 kW). Caller-fixed sizes are always returned as simulated.
  */
 export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineResult {
+  const r = runBatteryEngineCore(input);
+  const rec = r.summary.recommendation;
+  if (rec.sizingWasFixed || rec.capacityKWh <= 0) return r;
+  const benefit = r.summary.economy.annualCustomerBenefitSek;
+  const nonPositive = benefit !== null && benefit <= 0;
+  const cRateBroken = exceedsAutoCRate(rec.powerKw, rec.capacityKWh);
+  if (!nonPositive && !cRateBroken) return r;
+  const none = runBatteryEngineCore({
+    ...input,
+    battery: { ...input.battery, fixedCapacityKWh: 0, fixedPowerKw: 0 },
+  });
+  none.summary.recommendation.sizingWasFixed = false;
+  none.summary.recommendation.withheld = {
+    reason: cRateBroken ? "c-rate" : "non-positive-benefit",
+    capacityKWh: rec.capacityKWh,
+    powerKw: rec.powerKw,
+    annualCustomerBenefitSek: benefit,
+  };
+  return none;
+}
+
+function runBatteryEngineCore(input: BatteryEngineInput): BatteryEngineResult {
   const cfg: LabConfig = toLabConfig(input);
   const econ = toEconomyConfig(input);
   const series = toTimeSeries(cfg, input);
@@ -291,13 +318,14 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
   }
 
   /**
-   * HARD 1.0 C LIMIT for the final automatic recommendation: power / capacity <= 1.0.
-   * Only the capacity is raised (never the power lowered), to the smallest real capacity
-   * step >= power. Caller-fixed sizes are untouched. All downstream results use it.
+   * HARD 1.0 C LIMIT (shared rule, see lab/cRateLimit). When no real step satisfies it the
+   * capacity is left as is and `runBatteryEngine` withholds the recommendation.
    */
-  if (!sizingWasFixed && powerKw > 0 && finalCapacityKWh > 0 && powerKw > finalCapacityKWh + 1e-9) {
-    const steps = cfg.sweep.capacitiesKWh.filter((c) => c >= powerKw - 1e-9);
-    const cRateCapacity = steps.length ? Math.min(...steps) : powerKw;
+  const cRateCapacity =
+    !sizingWasFixed && finalCapacityKWh > 0 && exceedsAutoCRate(powerKw, finalCapacityKWh)
+      ? minCapacityForAutoCRate(powerKw, cfg.sweep.capacitiesKWh)
+      : null;
+  if (cRateCapacity !== null) {
     finalCapacityKWh = cRateCapacity;
     if (ancillaryPowerPotential) {
       ancillaryPowerPotential = computeAncillaryPowerPotential({
