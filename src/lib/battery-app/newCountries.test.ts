@@ -107,11 +107,17 @@ describe("CHF", () => {
   });
 });
 
-describe("Netherlands and Dutch removed", () => {
-  it("NL is not a country and nl is not a language", () => {
+describe("Netherlands is not a market; Dutch stays as a Belgian language", () => {
+  it("NL is not a supported market and cannot be selected as a country", () => {
     expect(SUPPORTED_COUNTRY_CODES as readonly string[]).not.toContain("NL");
-    expect(SUPPORTED_LANGUAGES as readonly string[]).not.toContain("nl");
-    expect(getReportCopy("nl")).toBe(getReportCopy("en"));
+    expect(Object.keys(COUNTRIES) as string[]).not.toContain("NL");
+    expect(isSupportedCountry("NL" as unknown as CountryCode)).toBe(false);
+    expect(SUPPORTED_COUNTRY_LIST.map((c) => c.locale)).not.toContain("nl-NL");
+  });
+
+  it("Dutch (nl) remains a supported language for Belgium", () => {
+    expect(SUPPORTED_LANGUAGES as readonly string[]).toContain("nl");
+    expect(getReportCopy("nl")).not.toBe(getReportCopy("en"));
   });
 
   it("names AT/CH in every supported language", () => {
