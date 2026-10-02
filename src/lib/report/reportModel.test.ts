@@ -214,11 +214,11 @@ describe("report model", () => {
     // (10 kW / 1.2 = 8.33 kW up), so the old 15 kWh pick described the previous bug.
     expect(scenario.selected?.capacityKWh).toBe(10);
     expect(scenario.selected?.powerKw).toBe(10);
-    expect(scenario.selected?.customerBenefitSek).toBeCloseTo(7325.537609331186, 6);
-    expect(scenario.selected?.maxInvestmentSek).toBeCloseTo(87906.45131197423, 6);
+    expect(scenario.selected?.customerBenefitSek).toBeCloseTo(5860.43008746495, 6); // 0.75 x 0.80 of the unchanged market value
+    expect(scenario.selected?.maxInvestmentSek).toBeCloseTo(70325.1610495794, 6);
     expect(model.raw.capacityKWh).toBe(10);
     expect(model.raw.powerKw).toBe(10);
-    expect(model.raw.maxInvestmentSek).toBeCloseTo(87906.45131197423, 6);
+    expect(model.raw.maxInvestmentSek).toBeCloseTo(70325.1610495794, 6);
   });
 
   it("uses standalone ancillary copy and omits all solar and peak-shaving content", () => {
