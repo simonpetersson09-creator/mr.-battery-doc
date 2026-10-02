@@ -19,7 +19,7 @@ type Overrides = {
   legal: { terms: { p2: string }; privacy: { p2: string } };
 };
 
-export const ANDROID_OVERRIDES: Record<"sv" | "en" | "da" | "fi" | "de", Overrides> = {
+export const ANDROID_OVERRIDES: Record<"sv" | "en" | "da" | "fi" | "de" | "fr" | "nl" | "cs" | "sl", Overrides> = {
   sv: {
     errors: {
       importFilesDenied: "Filer är inte tillåtna. Tillåt åtkomst i telefonens inställningar för att välja underlag.",

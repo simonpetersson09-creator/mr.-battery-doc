@@ -16,9 +16,13 @@ import { en } from "./locales/en";
 import { de } from "./locales/de";
 import { da } from "./locales/da";
 import { fi } from "./locales/fi";
+import { fr } from "./locales/fr";
+import { nl } from "./locales/nl";
+import { cs } from "./locales/cs";
+import { sl } from "./locales/sl";
 import { applyPlatformCopy } from "./platformCopy";
 
-export const SUPPORTED_LANGUAGES = ["sv", "en", "de", "da", "fi"] as const;
+export const SUPPORTED_LANGUAGES = ["sv", "en", "de", "da", "fi", "fr", "nl", "cs", "sl"] as const;
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
 
 /** Fallback used for any missing key, in any language. */
@@ -34,6 +38,10 @@ export const LANGUAGE_NAMES: Record<Language, string> = {
   de: "Deutsch",
   da: "Dansk",
   fi: "Suomi",
+  fr: "Français",
+  nl: "Nederlands",
+  cs: "Čeština",
+  sl: "Slovenščina",
 };
 
 /** Country flag emoji shown beside each language — presentation only. */
@@ -43,6 +51,10 @@ export const LANGUAGE_FLAGS: Record<Language, string> = {
   de: "🇩🇪",
   da: "🇩🇰",
   fi: "🇫🇮",
+  fr: "🇫🇷",
+  nl: "🇧🇪",
+  cs: "🇨🇿",
+  sl: "🇸🇮",
 };
 
 /** Number locale — presentation only. Currency stays country-driven. */
@@ -52,6 +64,10 @@ const NUMBER_LOCALE: Record<Language, string> = {
   de: "de-DE",
   da: "da-DK",
   fi: "fi-FI",
+  fr: "fr-FR",
+  nl: "nl-BE",
+  cs: "cs-CZ",
+  sl: "sl-SI",
 };
 
 export function isSupportedLanguage(v: unknown): v is Language {
@@ -96,6 +112,10 @@ export const translationResources: Record<Language, Record<string, unknown>> = {
   de,
   da,
   fi,
+  fr,
+  nl,
+  cs,
+  sl,
 };
 
 if (!i18next.isInitialized) {

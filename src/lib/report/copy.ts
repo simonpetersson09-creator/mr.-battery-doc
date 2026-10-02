@@ -9,6 +9,10 @@
 import { da } from "./copy.da";
 import { fi as fiCopy } from "./copy.fi";
 import { de as deCopy } from "./copy.de";
+import { fr as frCopy } from "./copy.fr";
+import { nl as nlCopy } from "./copy.nl";
+import { cs as csCopy } from "./copy.cs";
+import { sl as slCopy } from "./copy.sl";
 
 export interface ReportCopy {
   title: string;
@@ -1157,6 +1161,14 @@ export function getReportCopy(language: string): ReportCopy {
       return fiCopy;
     case "de":
       return deCopy;
+    case "fr":
+      return frCopy;
+    case "nl":
+      return nlCopy;
+    case "cs":
+      return csCopy;
+    case "sl":
+      return slCopy;
     default:
       return en;
   }
