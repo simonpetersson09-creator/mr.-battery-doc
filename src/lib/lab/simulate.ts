@@ -62,6 +62,15 @@ export function socCycleToleranceKWh(capacityKWh: number): number {
   return Math.max(1e-9, capacityKWh * 1e-4);
 }
 
+/**
+ * Self-sufficiency, % of load covered by own resources. Exactly 0 without PV (grid-charged
+ * battery energy is not own energy) and clamped to [0, 100] so rounding can never leave it.
+ */
+export function selfSufficiency(load: number, pv: number, imp: number, unserved: number): number {
+  if (!(load > 0) || !(pv > 0)) return 0;
+  return Math.min(100, Math.max(0, ((load - imp - unserved) / load) * 100));
+}
+
 type DispatchResult = ReturnType<typeof dispatch>;
 
 /**
