@@ -14,11 +14,15 @@ import { en } from "@/i18n/locales/en";
 import { de } from "@/i18n/locales/de";
 import { da } from "@/i18n/locales/da";
 import { fi } from "@/i18n/locales/fi";
+import { fr } from "@/i18n/locales/fr";
+import { nl } from "@/i18n/locales/nl";
+import { cs } from "@/i18n/locales/cs";
+import { sl } from "@/i18n/locales/sl";
 import { countryName, marketAreaName, reserveProductName } from "@/i18n/labels";
 import { reserveProductLabel, reserveMarketConfig } from "@/lib/reserve-market";
 import { getCountry } from "@/lib/country-config";
 
-const RESOURCES: Record<Language, unknown> = { sv, en, de, da, fi };
+const RESOURCES: Record<Language, unknown> = { sv, en, de, da, fi, fr, nl, cs, sl };
 
 function flatten(obj: unknown, prefix = ""): string[] {
   if (typeof obj !== "object" || obj === null) return [prefix];
@@ -40,8 +44,8 @@ const withLanguage = <T,>(lng: Language, fn: () => T): T => {
 describe("locale parity", () => {
   const svKeys = flatten(sv).sort();
 
-  it("supports exactly sv, en, de, da, and fi", () => {
-    expect([...SUPPORTED_LANGUAGES].sort()).toEqual(["da", "de", "en", "fi", "sv"]);
+  it("supports exactly sv, en, de, da, fi, fr, nl, cs and sl", () => {
+    expect([...SUPPORTED_LANGUAGES].sort()).toEqual(["cs", "da", "de", "en", "fi", "fr", "nl", "sl", "sv"]);
   });
 
   for (const lng of SUPPORTED_LANGUAGES) {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getReportCopy } from "./copy";
 
-const LANGS = ["sv", "en", "da", "fi", "de"] as const;
+const LANGS = ["sv", "en", "da", "fi", "de", "fr", "nl", "cs", "sl"] as const;
 
 /** Every leaf string path of an object, so structures can be compared exactly. */
 function paths(value: unknown, prefix = ""): string[] {
