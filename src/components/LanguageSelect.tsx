@@ -30,6 +30,10 @@ const LANGUAGE_COUNTRY: Partial<Record<Language, CountryCode>> = {
   de: "DE",
   da: "DK",
   fi: "FI",
+  fr: "FR",
+  nl: "BE",
+  cs: "CZ",
+  sl: "SI",
   // German keeps suggesting Germany; Austria/Switzerland are picked in the country list.
 };
 
