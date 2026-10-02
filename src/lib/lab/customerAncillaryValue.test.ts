@@ -26,47 +26,47 @@ function fakeResult(energy: number, peak: number): BatteryEngineResult {
   } as unknown as BatteryEngineResult;
 }
 
-describe("central customer ancillary value (refactor, factor 1.00)", () => {
-  it("revenue factor is still 1.00 — no safety margin introduced", () => {
-    expect(ANCILLARY_REVENUE_FACTOR).toBe(1);
+describe("central customer ancillary value (factor 0.80 = 20 % safety margin)", () => {
+  it("revenue factor is 0.80 (20 % safety margin)", () => {
+    expect(ANCILLARY_REVENUE_FACTOR).toBe(0.8);
   });
 
   for (const [share, expected] of [
-    [0.6, 6000],
-    [0.75, 7500],
-    [1, 10000],
+    [0.6, 4800],
+    [0.75, 6000],
+    [1, 8000],
   ] as const) {
     it(`traces ${GROSS} kr gross at ${share * 100} % identically through A–E`, () => {
       const econ = { ...SWEDISH_OPERATING_ECONOMY, customerAncillaryShare: share };
       // A: engine objective / K1 total (energy 0, peak 0 isolates the ancillary term)
-      expect(annualCustomerBenefitSek(0, 0, GROSS, econ)).toBe(expected);
+      expect(annualCustomerBenefitSek(0, 0, GROSS, econ)).toBeCloseTo(expected, 9);
       // B: M1 ancillary component (same helper, rounded to öre like before)
-      expect(Math.round(customerAncillaryValueSek(GROSS, share) * 100) / 100).toBe(expected);
+      expect(Math.round(customerAncillaryValueSek(GROSS, share) * 100) / 100).toBeCloseTo(expected, 9);
       // C: result page / PDF
       const ce = customerEconomyFromResult(fakeResult(0, 0), share);
-      expect(ce.ancillaryCustomerValueSek).toBe(expected);
-      expect(ce.totalCustomerBenefitSek).toBe(expected);
+      expect(ce.ancillaryCustomerValueSek).toBeCloseTo(expected, 9);
+      expect(ce.totalCustomerBenefitSek).toBeCloseTo(expected, 9);
       // D: ancillary-only uses the helper directly
-      expect(customerAncillaryValueSek(GROSS, share)).toBe(expected);
+      expect(customerAncillaryValueSek(GROSS, share)).toBeCloseTo(expected, 9);
       // E: capacity alternatives
-      expect(customerBenefitFromTotals(GROSS, GROSS, share)).toBe(expected);
-      // Old inline formula, bit for bit
-      expect(customerAncillaryValueSek(GROSS, share)).toBe(GROSS * share);
+      expect(customerBenefitFromTotals(GROSS, GROSS, share)).toBeCloseTo(expected, 9);
+      // gross x share x 0.80, applied once
+      expect(customerAncillaryValueSek(GROSS, share)).toBeCloseTo(GROSS * share * 0.8, 9);
     });
   }
 
   it("totals keep their own definitions and the share is applied exactly once", () => {
     const econ = { ...SWEDISH_OPERATING_ECONOMY, customerAncillaryShare: 0.75 };
-    expect(annualCustomerBenefitSek(3000, 500, GROSS, econ)).toBe(11000);
-    expect(customerEconomyFromResult(fakeResult(3000, 500), 0.75).totalCustomerBenefitSek).toBe(11000);
-    expect(customerBenefitFromTotals(3500 + GROSS, GROSS, 0.75)).toBe(11000);
-    expect(customerAncillaryValueSek(GROSS, 0.75)).not.toBe(GROSS * 0.75 * 0.75);
+    expect(annualCustomerBenefitSek(3000, 500, GROSS, econ)).toBe(9500);
+    expect(customerEconomyFromResult(fakeResult(3000, 500), 0.75).totalCustomerBenefitSek).toBe(9500);
+    expect(customerBenefitFromTotals(3500 + GROSS, GROSS, 0.75)).toBe(9500);
+    expect(customerAncillaryValueSek(GROSS, 0.75)).not.toBeCloseTo(GROSS * 0.75 * 0.8 * 0.8, 0);
   });
 
   it("clamps and falls back exactly like the old local clamps", () => {
-    expect(effectiveAncillaryShare(Number.NaN)).toBe(0.75);
-    expect(effectiveAncillaryShare(undefined)).toBe(0.75);
-    expect(effectiveAncillaryShare(1.4)).toBe(1);
+    expect(effectiveAncillaryShare(Number.NaN)).toBeCloseTo(0.6, 12);
+    expect(effectiveAncillaryShare(undefined)).toBeCloseTo(0.6, 12);
+    expect(effectiveAncillaryShare(1.4)).toBeCloseTo(0.8, 12);
     expect(effectiveAncillaryShare(-0.2)).toBe(0);
     expect(customerAncillaryValueSek(null, 0.75)).toBe(0);
   });
