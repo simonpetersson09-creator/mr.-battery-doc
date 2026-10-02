@@ -15,10 +15,10 @@
 export const DEFAULT_CUSTOMER_ANCILLARY_SHARE = 0.75;
 
 /**
- * Economic revenue factor applied on top of the customer share (1.00 = no safety margin).
+ * Economic revenue factor applied on top of the customer share (0.80 = 20 % safety margin; 1.00 = none).
  * Economic only: it never changes power, held power, SOC, endurance or prices.
  */
-export const ANCILLARY_REVENUE_FACTOR = 1.0;
+export const ANCILLARY_REVENUE_FACTOR = 0.8;
 
 /** The customer's contract share, clamped to 0–1. Invalid input falls back to the default. */
 export function clampAncillaryShare(value: unknown): number {
