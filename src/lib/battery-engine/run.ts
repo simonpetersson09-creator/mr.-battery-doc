@@ -144,7 +144,7 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
    * fully sustainable reserve. A grid- or power-bound reserve is never compensated with
    * extra kWh, and the search stops as soon as the power is sustainable.
    */
-  const fcrEnduranceCapacityResult = sizingWasFixed
+  let fcrEnduranceCapacityResult = sizingWasFixed
     ? null
     : fcrEnduranceCapacity({
         cfg,
@@ -153,7 +153,8 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
         powerKw,
         capacityStepsKWh: cfg.sweep.capacitiesKWh,
       });
-  const finalCapacityKWh = fcrEnduranceCapacityResult?.capacityKWh ?? capacityKWh;
+  let finalCapacityKWh = fcrEnduranceCapacityResult?.capacityKWh ?? capacityKWh;
+  let powerOptionsSource = economicPowerSizing.options;
 
   /**
    * BASE POWER FOR ENERGY HANDLING — the 95 % physical saturation step. This is the
@@ -168,7 +169,7 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
    * min(nominal main-fuse product guardrail, global 200 kW product cap), each one a
    * complete 8760 run through the existing engine. No cost model, no C-rate rule.
    */
-  const ancillaryPowerPotential =
+  let ancillaryPowerPotential =
     sizingWasFixed || (input.strategies?.ancillaryPowerPotential ?? true) === false
       ? null
       : computeAncillaryPowerPotential({
@@ -200,8 +201,58 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
   if (ancillaryRaisedPowerKw !== null) powerKw = ancillaryRaisedPowerKw;
 
   /**
-   * Everything below runs on the FINAL recommended power: FCR reservation sweep,
-   * dispatch, economy and therefore also the customer benefit and max investment.
+   * STEP D AGAIN, FOR THE FINAL POWER. When ancillary services raised the power, the
+   * reserve capacity must be sized for THAT power — the same `fcrEnduranceCapacity` rule,
+   * same capacity ladder, starting from the same energy-sized capacity. The power stays
+   * fixed (no kW -> kWh -> kW loop): the selection above does not depend on capacity.
+   */
+  if (ancillaryRaisedPowerKw !== null && !sizingWasFixed) {
+    fcrEnduranceCapacityResult = fcrEnduranceCapacity({
+      cfg,
+      series,
+      capacityKWh,
+      powerKw,
+      capacityStepsKWh: cfg.sweep.capacitiesKWh,
+    });
+    const reSized = fcrEnduranceCapacityResult?.capacityKWh ?? capacityKWh;
+    if (Math.abs(reSized - finalCapacityKWh) > 1e-9) {
+      finalCapacityKWh = reSized;
+      // Power analysis re-read at the final capacity so nothing reports the old kWh.
+      if (ancillaryPowerPotential) {
+        ancillaryPowerPotential = computeAncillaryPowerPotential({
+          cfg,
+          series,
+          capacityKWh: finalCapacityKWh,
+          basePowerKw: basePowerForEnergyKw,
+          econ,
+          optimiseFcrReservation: input.strategies?.optimiseFcrReservation ?? false,
+        });
+      }
+      const reran = runEconomicPowerSizing({
+        cfg,
+        series,
+        capacityKWh: finalCapacityKWh,
+        physicalPowerNeedKw: sweep.powerSizing.physicalNeedKw,
+        productPowerKw,
+        econ,
+        cost: productCostConfig(input.productCost ?? {}),
+        fcrMarket: { ...EMPTY_FCR_MARKET_REALISM, ...(input.fcrMarketRealism ?? {}) },
+        optimiseFcrReservation: input.strategies?.optimiseFcrReservation ?? false,
+        maxProductCRate: input.battery?.maxProductCRateForCandidates,
+      });
+      // Keep the original selection semantics; only the simulated values are refreshed.
+      const selectedKw = powerOptionsSource.find((o) => o.selected)?.powerKw ?? null;
+      powerOptionsSource = reran.options.map((o) => ({
+        ...o,
+        selected: selectedKw !== null && Math.abs(o.powerKw - selectedKw) < 1e-9,
+      }));
+    }
+  }
+
+  /**
+   * Everything below runs on the FINAL recommended power AND final capacity: FCR
+   * reservation sweep, dispatch, economy and therefore also the customer benefit and max
+   * investment.
    */
   let fcrOptimisation: FcrOptimisationResult | null = null;
   let runCfg = cfg;
