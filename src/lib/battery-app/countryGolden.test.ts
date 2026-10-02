@@ -344,7 +344,7 @@ describe("country golden regression cases", () => {
         const share = state.preferences.customerAncillaryShare;
         const ce = customerEconomyFromResult(outcome.result, share);
         expect(ce.ancillaryCustomerValueSek).toBeCloseTo(
-          ce.ancillaryMarketValueSek * ce.customerAncillaryShare,
+          ce.ancillaryMarketValueSek * ce.customerAncillaryShare * 0.8, // central 0.80 revenue factor
           6,
         );
         if (ce.totalCustomerBenefitSek !== null && ce.engineTotalBenefitSek !== null) {

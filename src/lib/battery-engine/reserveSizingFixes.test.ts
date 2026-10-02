@@ -130,24 +130,24 @@ describe("Fix 2 — Denmark market area", () => {
     expect(fcrPriceSeriesForCountry(cfg.ancillary.priceCountry)).toBeNull();
   });
 
-  it("DK1 control case: ~31.9 kW held, ~31 664 DKK income, ~23 565 DKK benefit", { timeout: T }, () => {
+  it("DK1 control case: ~31.9 kW held, ~31 664 DKK income, ~18 805 DKK benefit (after 0.80 revenue factor)", { timeout: T }, () => {
     const r = run(caseB({ cc: "DK", area: "DK1", fcr: true }));
     expect(rec(r).powerKw).toBe(40);
     expect(+r.summary.fcr.avgHeldPowerKw).toBeCloseTo(31.9, 0);
     expect(gross(r)).toBeGreaterThan(31664 * 0.95);
     expect(gross(r)).toBeLessThan(31664 * 1.05);
-    expect(r.summary.economy.annualCustomerBenefitSek).toBeGreaterThan(23565 * 0.95);
-    expect(r.summary.economy.annualCustomerBenefitSek).toBeLessThan(23565 * 1.05);
+    expect(r.summary.economy.annualCustomerBenefitSek).toBeGreaterThan(18805 * 0.95);
+    expect(r.summary.economy.annualCustomerBenefitSek).toBeLessThan(18805 * 1.05);
   });
 
-  it("DK2 control case: ~32.2 kW held, ~24 612 DKK income, ~21 047 DKK benefit", { timeout: T }, () => {
+  it("DK2 control case: ~32.2 kW held, ~24 612 DKK income, ~17 346 DKK benefit (after 0.80 revenue factor)", { timeout: T }, () => {
     const r = run(caseB({ cc: "DK", area: "DK2", fcr: true }));
     expect(rec(r).powerKw).toBe(40);
     expect(+r.summary.fcr.avgHeldPowerKw).toBeCloseTo(32.2, 0);
     expect(gross(r)).toBeGreaterThan(24612 * 0.95);
     expect(gross(r)).toBeLessThan(24612 * 1.05);
-    expect(r.summary.economy.annualCustomerBenefitSek).toBeGreaterThan(21047 * 0.95);
-    expect(r.summary.economy.annualCustomerBenefitSek).toBeLessThan(21047 * 1.05);
+    expect(r.summary.economy.annualCustomerBenefitSek).toBeGreaterThan(17346 * 0.95);
+    expect(r.summary.economy.annualCustomerBenefitSek).toBeLessThan(17346 * 1.05);
   });
 });
 

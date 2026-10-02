@@ -107,13 +107,21 @@ describe("true without-FCR counterfactual", () => {
 
   it("F: the old subtraction method is gone — FCR-off totals differ from total minus FCR", () => {
     const engineOptions = outcome.result.summary.powerOptions;
+    let reservingSteps = 0;
     for (const o of wo.options) {
       const engine = engineOptions.find((x) => Math.abs(x.powerKw - o.powerKw) < 1e-9);
       if (!engine) continue;
+      // Only a step that actually reserves FCR changes dispatch. Since the 0.80 ancillary
+      // revenue factor the optimiser may reserve 0 kW at a step; then both runs are the
+      // same simulation and equality is correct, not the old subtraction bug.
+      if (!(engine.fcrRevenueSek > 0)) continue;
+      reservingSteps++;
       const subtracted = engine.totalOperatingBenefitSek - engine.fcrRevenueSek;
       // The reservation changes dispatch, so the two can never be assumed equal.
       expect(Math.abs(subtracted - o.totalOperatingBenefitSek)).toBeGreaterThan(1);
     }
+    // The property must still be exercised on at least one reserving step (5 kW here).
+    expect(reservingSteps).toBeGreaterThan(0);
     /**
      * And the discredited method rests on a different total. Its picked power may
      * coincide with the counterfactual one in a single case (it does for the Swedish
@@ -126,7 +134,10 @@ describe("true without-FCR counterfactual", () => {
     const same = wo.options.find(
       (o) => Math.abs(o.powerKw - wrongPick.powerKw) < 1e-9,
     );
-    expect(
+    // If the old method lands on a step without reservation (3 kW since the 0.80 factor),
+    // its total is legitimately the same simulation; the difference is only required
+    // where an FCR reservation actually changed dispatch.
+    if (wrongPick.fcrRevenueSek > 0) expect(
       Math.abs(
         wrongPick.totalOperatingBenefitSek -
           wrongPick.fcrRevenueSek -

@@ -96,6 +96,10 @@ const CASES: Record<string, { label: string; input: BatteryEngineInput }> = {
  * GM12 was regenerated after the approved EV-night profile correction made the
  * weekend charging window match weekdays (23–02). Only this profile case moves;
  * its battery recommendation remains 25 kWh / 5 kW.
+ *
+ * GM06 regenerated after ANCILLARY_REVENUE_FACTOR 1.00 -> 0.80: the customer FCR value in the
+ * reservation objective is 20 % lower, so the optimiser now picks 1,5 kW instead of 1,65 kW;
+ * the freed capacity goes to energy/peak (import -18,6 kWh). No physics, price or rule changed.
  */
 const EXPECTED = {
   "GM01": {
@@ -243,26 +247,26 @@ const EXPECTED = {
     "powerKw": 3,
     "physicalPowerNeedKw": 2.5,
     "importBeforeKWh": 7126.1765,
-    "importAfterKWh": 5129.6926,
+    "importAfterKWh": 5111.0641,
     "exportBeforeKWh": 9126.1765,
-    "exportAfterKWh": 6713.4135,
-    "shiftedToLoadKWh": 2160.7234,
+    "exportAfterKWh": 6692.656,
+    "shiftedToLoadKWh": 2179.9849,
     "recoveredCurtailmentKWh": 0,
-    "cycles": 160.0536,
-    "utilisationPct": 43.8503,
+    "cycles": 161.4804,
+    "utilisationPct": 44.2412,
     "peakBeforeKw": 5.5338,
     "peakAfterKw": 4.4872,
     "gridStatus": "none",
     "unservedKWh": 0,
     "peakReductionKw": 1.0466,
-    "demandCostSavingSek": 392.5,
+    "demandCostSavingSek": 404.14,
     "fcrEnabled": true,
-    "fcrOfferedKw": 1.65,
-    "fcrHeldKw": 1.2797,
-    "fcrGrossSek": 779.7864,
-    "fcrOptimisedKw": 1.65,
-    "energyBenefitSek": 1547.07,
-    "totalOperatingBenefitSek": 2719.35,
+    "fcrOfferedKw": 1.5,
+    "fcrHeldKw": 1.1555,
+    "fcrGrossSek": 705.051,
+    "fcrOptimisedKw": 1.5,
+    "energyBenefitSek": 1562.56,
+    "totalOperatingBenefitSek": 2671.75,
     "balanceOk": true,
     "residualKWh": 0
   },
