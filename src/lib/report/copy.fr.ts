@@ -2,50 +2,32 @@
 import type { ReportCopy } from "./copy";
 
 export const fr: ReportCopy = {
-  "notAvailable": "Non disponible",
+  "title": "Rapport de batterie",
   "brand": "Mr. Battery Doc",
-  "before": "Sans batterie",
+  "created": "Créé",
   "perYear": "/an",
   "reportIdLabel": "ID du rapport",
-  "title": "Rapport de batterie",
-  "after": "Avec batterie",
   "pageLabel": "Page",
-  "cannotBeCalculated": "Calcul impossible",
-  "created": "Créé",
+  "ofLabel": "de",
   "engineVersionLabel": "Version de calcul",
+  "notAvailable": "Non disponible",
+  "cannotBeCalculated": "Calcul impossible",
+  "before": "Sans batterie",
+  "after": "Avec batterie",
   "tagline": "Une façon plus intelligente d'utiliser votre électricité",
+  "footerTagline": "De meilleures décisions pour un avenir plus radieux",
   "source": {
     "user": "Votre valeur",
     "calculated": "Calculé",
     "default": "Hypothèse par défaut",
     "external": "Source de données externe"
   },
-  "ofLabel": "de",
   "searchLimit": {
     "atLeastCapacity": "Au moins {value}",
     "atLeastPower": "Au moins {value}",
     "capacityNote": "La limite de capacité supérieure de l'analyse a été atteinte. Une batterie plus grande pourrait être plus avantageuse.",
     "powerNote": "La limite de puissance supérieure de l'analyse a été atteinte. Un système de puissance supérieure peut nécessiter une analyse distincte.",
     "bothNote": "Le site a atteint la limite de dimensionnement supérieure de l'analyse. Les systèmes plus grands nécessitent une étude technique approfondie."
-  },
-  "footerTagline": "De meilleures décisions pour un avenir plus radieux",
-  "energy": {
-    "title": "Bilan énergétique sans et avec batterie",
-    "load": "Consommation annuelle",
-    "pv": "Production solaire",
-    "importBefore": "Importation réseau sans batterie",
-    "importAfter": "Importation réseau avec batterie",
-    "exportLabel": "Exportation réseau",
-    "exportBefore": "Exportation sans batterie",
-    "exportAfter": "Exportation avec batterie",
-    "selfConsumptionBefore": "Autoconsommation sans batterie",
-    "selfConsumptionAfter": "Autoconsommation avec batterie",
-    "selfSufficiencyBefore": "Autosuffisance sans batterie",
-    "selfSufficiencyAfter": "Autosuffisance avec batterie",
-    "gridCharged": "Énergie chargée depuis le réseau",
-    "shifted": "Solaire différé",
-    "losses": "Pertes de la batterie",
-    "cycles": "Cycles complets équivalents par an"
   },
   "summary": {
     "title": "Résumé",
@@ -74,58 +56,6 @@ export const fr: ReportCopy = {
     "percentagePoints": "points de pourcentage",
     "perYearLong": "par an"
   },
-  "risks": {
-    "title": "Qu'est-ce qui peut affecter le résultat ?",
-    "text": "Le rapport est une aide à la décision, et non une garantie ni un devis. Le résultat réel peut différer, entre autres, en raison de :",
-    "items": [
-      "la consommation électrique réelle et le profil de charge",
-      "la production solaire réelle",
-      "les prix de l'électricité et les frais de réseau",
-      "les frais de puissance et les modèles tarifaires",
-      "l'efficacité et la dégradation de la batterie",
-      "la disponibilité de la batterie au cours de l'année",
-      "les prix et conditions sur le marché des services auxiliaires",
-      "les conditions de l'agrégateur et les frais éventuels",
-      "les règles du marché et les contraintes du réseau"
-    ]
-  },
-  "ancillaryScenario": {
-    "title": "Comparaison des tailles de batterie pour les services auxiliaires",
-    "intro": "Le dimensionnement standard n'a identifié aucun besoin de batterie. Voici une comparaison de la rémunération pour les services auxiliaires avec différentes tailles de batterie.",
-    "notRecommendation": "Ceci est un scénario de comparaison, et non une taille de batterie recommandée.",
-    "technicalTitle": "Proposition technique",
-    "technicalHint": "La taille est choisie pour qu'au moins 95 % de la capacité de service auxiliaire calculée pour votre profil de connexion et de consommation puisse être utilisée. C'est une proposition technique, et non une affirmation sur la batterie la plus rentable.",
-    "battery": "Batterie",
-    "compensation": "Rémunération auxiliaire",
-    "totalBenefit": "Bénéfice total calculé",
-    "maxInvestment": "Investissement maximum pour le temps de retour sur investissement choisi",
-    "maxInvestmentNone": "Ne peut pas être calculé",
-    "note": "Le calcul est basé sur les niveaux de rémunération historiques. La rémunération réelle, la disponibilité et la capacité à participer aux services auxiliaires dépendent entre autres du marché, de l'agrégateur et des exigences techniques."
-  },
-  "about": {
-    "pageTitle": "Important à savoir",
-    "title": "À propos de ce rapport",
-    "items": [
-      "Le rapport est une aide à la décision et doit être complété par un devis et une évaluation sur site.",
-      "Ce rapport n'est pas un devis et n'indique pas le coût d'une batterie sur le marché.",
-      "Le résultat est un calcul basé sur vos saisies et les hypothèses de calcul, et ne constitue pas une garantie.",
-      "Le calcul couvre l'année 1.",
-      "Aucune évolution future des prix n'est incluse dans le calcul.",
-      "Aucune dégradation future de la batterie n'est incluse dans le calcul."
-    ]
-  },
-  "grid": {
-    "title": "Puissance et réseau",
-    "fuse": "Fusible principal",
-    "connection": "Raccordement au réseau",
-    "theoretical": "Capacité théorique du réseau",
-    "peakBefore": "Pic d'importation sans batterie",
-    "peakAfter": "Pic d'importation avec batterie",
-    "reduction": "Écrêtage de pointe",
-    "curtailed": "Exportation bloquée",
-    "status": "Évaluation du réseau",
-    "kwKwh": "Le kW est la puissance : la vitesse de charge ou de décharge de la batterie. Le kWh est l'énergie : sa capacité de stockage."
-  },
   "benefit": {
     "title": "D'où vient la valeur ?",
     "total": "Valeur économique estimée, année 1",
@@ -140,88 +70,6 @@ export const fr: ReportCopy = {
     "note": "Le calcul couvre l'année 1. Le rapport ne contient aucune prévision pluriannuelle, car le calcul ne modélise pas les prix futurs ni la dégradation.",
     "historicalBox": "Calcul historique – pas un revenu futur garanti.",
     "shareOfTotal": "du total"
-  },
-  "terms": {
-    "kwKwh": "Le kW est la puissance : ce que la batterie peut charger ou décharger à un instant donné. Le kWh est l'énergie : ce qu'elle peut stocker.",
-    "selfConsumption": "L'autoconsommation est la part de la production solaire utilisée sur place au lieu d'être exportée vers le réseau.",
-    "selfSufficiency": "L'autosuffisance est la part de la consommation électrique de la propriété couverte par l'électricité autoproduite plutôt que par l'électricité achetée.",
-    "peakShaving": "L'écrêtage des pointes signifie que la batterie réduit les pics de consommation les plus élevés, ce qui peut réduire les frais de puissance."
-  },
-  "installer": {
-    "title": "À vérifier avec l'installateur",
-    "items": [
-      "Vérifier que la capacité de batterie proposée est adaptée au logement.",
-      "Vérifier que la puissance de la batterie et de l'onduleur proposée est techniquement possible.",
-      "Vérifier le fusible principal et le raccordement au réseau auprès du gestionnaire de réseau.",
-      "Vérifier si l'installation nécessite des modifications du tableau électrique.",
-      "Vérifier l'emplacement de l'installation, les exigences de température et la sécurité incendie.",
-      "Vérifier les garanties et la durée de vie prévue de la batterie.",
-      "Vérifier la puissance de charge et de décharge autorisée.",
-      "Vérifier la compatibilité avec une installation solaire existante ou prévue.",
-      "Vérifier les conditions pour les services auxiliaires, l'agrégateur et la préqualification.",
-      "Comparer le prix proposé avec l'investissement maximal indiqué dans ce rapport."
-    ]
-  },
-  "sizing": {
-    "title": "Pourquoi cette batterie ?",
-    "capacity": "Capacité",
-    "power": "Puissance",
-    "cRate": "Taux C",
-    "physicalNeed": "Besoin en puissance physique",
-    "basePower": "Puissance de base pour la gestion d'énergie",
-    "alternatives": "Alternatives simulées",
-    "lower": "Plus petite",
-    "yours": "Votre batterie",
-    "higher": "Plus grande",
-    "balance": "L'alternative du milieu est la taille qui, d'après le calcul, offre le meilleur équilibre entre la taille de la batterie et le bénéfice estimé. Cela ne signifie pas qu'elle soit objectivement la meilleure à tous égards.",
-    "consumerExplanation": "Mr. Battery Doc simule plusieurs tailles de batterie en fonction de la consommation de la propriété, de la production solaire et des utilisations sélectionnées. Dans ce cas, la taille recommandée offre un bon équilibre entre la taille de la batterie et le bénéfice estimé. Une batterie plus grande n'apporte que peu d'avantages supplémentaires et n'est donc pas recommandée.",
-    "recommendedLabel": "Recommandée",
-    "powerTitle": "Puissance de la batterie : {value}",
-    "powerAncillaryExplanation": "Environ {value} est requis pour la gestion énergétique de la propriété. La puissance supérieure recommandée offre une plus grande capacité pour le service complémentaire sélectionné."
-  },
-  "investment": {
-    "title": "Investissement maximum et temps de retour",
-    "selected": "Temps de retour choisi",
-    "max": "Investissement maximum",
-    "scenarios": "Investissement maximum pour différents temps de retour",
-    "yourChoice": "Votre choix",
-    "explanation": "L'investissement maximum n'est pas un prix de marché estimé ni un devis. Il indique le niveau d'investissement qui correspond au temps de retour choisi, sur la base de la valeur économique issue du calcul.",
-    "notAQuote": "Le montant n'est ni un prix de marché estimé, ni un devis. Il découle uniquement de la valeur économique estimée et du temps de retour que vous avez choisi.",
-    "unavailable": "L'investissement maximum ne peut pas être calculé car le calcul n'indique aucune valeur économique positive.",
-    "headline": "Votre point de référence pour un devis",
-    "paybackText": "Pour un temps de retour choisi de {years}, le calcul donne un investissement maximum d'environ {amount}.",
-    "ancillaryDependencyTitle": "Avec et sans services système",
-    "withAncillary": "Valeur économique avec le service système sélectionné",
-    "withoutAncillary": "Valeur économique hors services système",
-    "dependencyNote": "La comparaison montre quelle part du calcul dépend de la rémunération estimée des services système."
-  },
-  "assumptions": {
-    "title": "Vos données et hypothèses de calcul",
-    "property": "La propriété",
-    "battery": "La batterie",
-    "economy": "Économie",
-    "ancillary": "Services auxiliaires",
-    "annualConsumption": "Consommation annuelle",
-    "solarProduction": "Production solaire",
-    "consumptionProfile": "Profil de consommation",
-    "fuse": "Disjoncteur principal",
-    "connection": "Raccordement",
-    "gridPowerLimit": "Puissance de raccordement maximale",
-    "capacity": "Capacité",
-    "power": "Puissance",
-    "efficiency": "Rendement aller-retour",
-    "socWindow": "Limites SOC",
-    "reserveSoc": "SOC réservé",
-    "serviceSocUp": "SOC de service, régulation à la hausse",
-    "serviceSocDown": "SOC de service, régulation à la baisse",
-    "maxCycles": "Cycles maximum par an",
-    "importPrice": "Électricité achetée",
-    "exportPrice": "Solaire vendu (prix spot)",
-    "demandCharge": "Facturation de la puissance",
-    "payback": "Temps de retour choisi",
-    "market": "Marché sélectionné",
-    "share": "Part client supposée",
-    "horizonNote": "La période de calcul est d'un an. Aucune dégradation, évolution des prix ou taux d'actualisation n'est inclus dans le bénéfice rapporté."
   },
   "ancillary": {
     "title": "Services auxiliaires",
@@ -249,6 +97,19 @@ export const fr: ReportCopy = {
     "historicalWarning": "Calcul historique – revenu futur non garanti. La rémunération réelle dépend entre autres des futurs prix du marché, de la disponibilité, des contrats d'agrégation et des règles du marché.",
     "noPriceData": "Aucune valeur économique ne peut être calculée pour ce marché en l'absence de données de prix vérifiées. La puissance et la disponibilité sont calculées, mais aucun revenu n'est affiché.",
     "note": "La participation requiert généralement un agrégateur, une préqualification et une installation agréée. La rémunération réelle dépend du contrat, de l'accès au marché et des conditions."
+  },
+  "ancillaryScenario": {
+    "title": "Comparaison des tailles de batterie pour les services auxiliaires",
+    "intro": "Le dimensionnement standard n'a identifié aucun besoin de batterie. Voici une comparaison de la rémunération pour les services auxiliaires avec différentes tailles de batterie.",
+    "notRecommendation": "Ceci est un scénario de comparaison, et non une taille de batterie recommandée.",
+    "technicalTitle": "Proposition technique",
+    "technicalHint": "La taille est choisie pour qu'au moins 95 % de la capacité de service auxiliaire calculée pour votre profil de connexion et de consommation puisse être utilisée. C'est une proposition technique, et non une affirmation sur la batterie la plus rentable.",
+    "battery": "Batterie",
+    "compensation": "Rémunération auxiliaire",
+    "totalBenefit": "Bénéfice total calculé",
+    "maxInvestment": "Investissement maximum pour le temps de retour sur investissement choisi",
+    "maxInvestmentNone": "Ne peut pas être calculé",
+    "note": "Le calcul est basé sur les niveaux de rémunération historiques. La rémunération réelle, la disponibilité et la capacité à participer aux services auxiliaires dépendent entre autres du marché, de l'agrégateur et des exigences techniques."
   },
   "ancillaryOnly": {
     "summaryProposal": "Proposition de dimensionnement technique",
@@ -336,6 +197,127 @@ export const fr: ReportCopy = {
       }
     ]
   },
+  "sizing": {
+    "title": "Pourquoi cette batterie ?",
+    "capacity": "Capacité",
+    "power": "Puissance",
+    "cRate": "Taux C",
+    "physicalNeed": "Besoin en puissance physique",
+    "basePower": "Puissance de base pour la gestion d'énergie",
+    "alternatives": "Alternatives simulées",
+    "lower": "Plus petite",
+    "yours": "Votre batterie",
+    "higher": "Plus grande",
+    "balance": "L'alternative du milieu est la taille qui, d'après le calcul, offre le meilleur équilibre entre la taille de la batterie et le bénéfice estimé. Cela ne signifie pas qu'elle soit objectivement la meilleure à tous égards.",
+    "consumerExplanation": "Mr. Battery Doc simule plusieurs tailles de batterie en fonction de la consommation de la propriété, de la production solaire et des utilisations sélectionnées. Dans ce cas, la taille recommandée offre un bon équilibre entre la taille de la batterie et le bénéfice estimé. Une batterie plus grande n'apporte que peu d'avantages supplémentaires et n'est donc pas recommandée.",
+    "recommendedLabel": "Recommandée",
+    "powerTitle": "Puissance de la batterie : {value}",
+    "powerAncillaryExplanation": "Environ {value} est requis pour la gestion énergétique de la propriété. La puissance supérieure recommandée offre une plus grande capacité pour le service complémentaire sélectionné."
+  },
+  "energy": {
+    "title": "Bilan énergétique sans et avec batterie",
+    "load": "Consommation annuelle",
+    "pv": "Production solaire",
+    "importBefore": "Importation réseau sans batterie",
+    "importAfter": "Importation réseau avec batterie",
+    "exportLabel": "Exportation réseau",
+    "exportBefore": "Exportation sans batterie",
+    "exportAfter": "Exportation avec batterie",
+    "selfConsumptionBefore": "Autoconsommation sans batterie",
+    "selfConsumptionAfter": "Autoconsommation avec batterie",
+    "selfSufficiencyBefore": "Autosuffisance sans batterie",
+    "selfSufficiencyAfter": "Autosuffisance avec batterie",
+    "gridCharged": "Énergie chargée depuis le réseau",
+    "shifted": "Solaire différé",
+    "losses": "Pertes de la batterie",
+    "cycles": "Cycles complets équivalents par an"
+  },
+  "grid": {
+    "title": "Puissance et réseau",
+    "fuse": "Fusible principal",
+    "connection": "Raccordement au réseau",
+    "theoretical": "Capacité théorique du réseau",
+    "peakBefore": "Pic d'importation sans batterie",
+    "peakAfter": "Pic d'importation avec batterie",
+    "reduction": "Écrêtage de pointe",
+    "curtailed": "Exportation bloquée",
+    "status": "Évaluation du réseau",
+    "kwKwh": "Le kW est la puissance : la vitesse de charge ou de décharge de la batterie. Le kWh est l'énergie : sa capacité de stockage."
+  },
+  "investment": {
+    "title": "Investissement maximum et temps de retour",
+    "selected": "Temps de retour choisi",
+    "max": "Investissement maximum",
+    "scenarios": "Investissement maximum pour différents temps de retour",
+    "yourChoice": "Votre choix",
+    "explanation": "L'investissement maximum n'est pas un prix de marché estimé ni un devis. Il indique le niveau d'investissement qui correspond au temps de retour choisi, sur la base de la valeur économique issue du calcul.",
+    "notAQuote": "Le montant n'est ni un prix de marché estimé, ni un devis. Il découle uniquement de la valeur économique estimée et du temps de retour que vous avez choisi.",
+    "unavailable": "L'investissement maximum ne peut pas être calculé car le calcul n'indique aucune valeur économique positive.",
+    "headline": "Votre point de référence pour un devis",
+    "paybackText": "Pour un temps de retour choisi de {years}, le calcul donne un investissement maximum d'environ {amount}.",
+    "ancillaryDependencyTitle": "Avec et sans services système",
+    "withAncillary": "Valeur économique avec le service système sélectionné",
+    "withoutAncillary": "Valeur économique hors services système",
+    "dependencyNote": "La comparaison montre quelle part du calcul dépend de la rémunération estimée des services système."
+  },
+  "assumptions": {
+    "title": "Vos données et hypothèses de calcul",
+    "property": "La propriété",
+    "battery": "La batterie",
+    "economy": "Économie",
+    "ancillary": "Services auxiliaires",
+    "annualConsumption": "Consommation annuelle",
+    "solarProduction": "Production solaire",
+    "consumptionProfile": "Profil de consommation",
+    "fuse": "Disjoncteur principal",
+    "connection": "Raccordement",
+    "gridPowerLimit": "Puissance de raccordement maximale",
+    "capacity": "Capacité",
+    "power": "Puissance",
+    "efficiency": "Rendement aller-retour",
+    "socWindow": "Limites SOC",
+    "reserveSoc": "SOC réservé",
+    "serviceSocUp": "SOC de service, régulation à la hausse",
+    "serviceSocDown": "SOC de service, régulation à la baisse",
+    "maxCycles": "Cycles maximum par an",
+    "importPrice": "Électricité achetée",
+    "exportPrice": "Solaire vendu (prix spot)",
+    "demandCharge": "Facturation de la puissance",
+    "payback": "Temps de retour choisi",
+    "market": "Marché sélectionné",
+    "share": "Part client supposée",
+    "horizonNote": "La période de calcul est d'un an. Aucune dégradation, évolution des prix ou taux d'actualisation n'est inclus dans le bénéfice rapporté."
+  },
+  "risks": {
+    "title": "Qu'est-ce qui peut affecter le résultat ?",
+    "text": "Le rapport est une aide à la décision, et non une garantie ni un devis. Le résultat réel peut différer, entre autres, en raison de :",
+    "items": [
+      "la consommation électrique réelle et le profil de charge",
+      "la production solaire réelle",
+      "les prix de l'électricité et les frais de réseau",
+      "les frais de puissance et les modèles tarifaires",
+      "l'efficacité et la dégradation de la batterie",
+      "la disponibilité de la batterie au cours de l'année",
+      "les prix et conditions sur le marché des services auxiliaires",
+      "les conditions de l'agrégateur et les frais éventuels",
+      "les règles du marché et les contraintes du réseau"
+    ]
+  },
+  "installer": {
+    "title": "À vérifier avec l'installateur",
+    "items": [
+      "Vérifier que la capacité de batterie proposée est adaptée au logement.",
+      "Vérifier que la puissance de la batterie et de l'onduleur proposée est techniquement possible.",
+      "Vérifier le fusible principal et le raccordement au réseau auprès du gestionnaire de réseau.",
+      "Vérifier si l'installation nécessite des modifications du tableau électrique.",
+      "Vérifier l'emplacement de l'installation, les exigences de température et la sécurité incendie.",
+      "Vérifier les garanties et la durée de vie prévue de la batterie.",
+      "Vérifier la puissance de charge et de décharge autorisée.",
+      "Vérifier la compatibilité avec une installation solaire existante ou prévue.",
+      "Vérifier les conditions pour les services auxiliaires, l'agrégateur et la préqualification.",
+      "Comparer le prix proposé avec l'investissement maximal indiqué dans ce rapport."
+    ]
+  },
   "faq": {
     "title": "Foire aux questions",
     "items": [
@@ -384,5 +366,23 @@ export const fr: ReportCopy = {
         "a": "Non. Le rapport est une aide à la décision et doit être complété par un devis et une évaluation sur site."
       }
     ]
+  },
+  "about": {
+    "pageTitle": "Important à savoir",
+    "title": "À propos de ce rapport",
+    "items": [
+      "Le rapport est une aide à la décision et doit être complété par un devis et une évaluation sur site.",
+      "Ce rapport n'est pas un devis et n'indique pas le coût d'une batterie sur le marché.",
+      "Le résultat est un calcul basé sur vos saisies et les hypothèses de calcul, et ne constitue pas une garantie.",
+      "Le calcul couvre l'année 1.",
+      "Aucune évolution future des prix n'est incluse dans le calcul.",
+      "Aucune dégradation future de la batterie n'est incluse dans le calcul."
+    ]
+  },
+  "terms": {
+    "kwKwh": "Le kW est la puissance : ce que la batterie peut charger ou décharger à un instant donné. Le kWh est l'énergie : ce qu'elle peut stocker.",
+    "selfConsumption": "L'autoconsommation est la part de la production solaire utilisée sur place au lieu d'être exportée vers le réseau.",
+    "selfSufficiency": "L'autosuffisance est la part de la consommation électrique de la propriété couverte par l'électricité autoproduite plutôt que par l'électricité achetée.",
+    "peakShaving": "L'écrêtage des pointes signifie que la batterie réduit les pics de consommation les plus élevés, ce qui peut réduire les frais de puissance."
   }
 };

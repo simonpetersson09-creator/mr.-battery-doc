@@ -2,138 +2,32 @@
 import type { ReportCopy } from "./copy";
 
 export const cs: ReportCopy = {
-  "notAvailable": "Není k dispozici",
-  "created": "Vytvořeno",
-  "before": "Bez baterie",
-  "ofLabel": "z",
-  "after": "S baterií",
+  "title": "Zpráva o baterii",
   "brand": "Mr. Battery Doc",
-  "engineVersionLabel": "Verze výpočtu",
-  "footerTagline": "Lepší rozhodnutí pro světlejší budoucnost",
+  "created": "Vytvořeno",
+  "perYear": "/rok",
+  "reportIdLabel": "ID zprávy",
   "pageLabel": "Stránka",
+  "ofLabel": "z",
+  "engineVersionLabel": "Verze výpočtu",
+  "notAvailable": "Není k dispozici",
+  "cannotBeCalculated": "Nelze vypočítat",
+  "before": "Bez baterie",
+  "after": "S baterií",
+  "tagline": "Chytřejší způsob, jak využívat elektřinu",
+  "footerTagline": "Lepší rozhodnutí pro světlejší budoucnost",
   "source": {
     "user": "Vaše hodnota",
     "calculated": "Vypočteno",
     "default": "Výchozí předpoklad",
     "external": "Externí zdroj dat"
   },
-  "perYear": "/rok",
-  "cannotBeCalculated": "Nelze vypočítat",
-  "reportIdLabel": "ID zprávy",
-  "title": "Zpráva o baterii",
   "searchLimit": {
     "atLeastCapacity": "Minimálně {value}",
     "atLeastPower": "Minimálně {value}",
     "capacityNote": "Bylo dosaženo horního limitu kapacity pro tuto analýzu. Větší baterie může přinést další výhody.",
     "powerNote": "Bylo dosaženo horního limitu výkonu pro tuto analýzu. Systém s vyšším výkonem může vyžadovat samostatnou analýzu.",
     "bothNote": "Objekt dosáhl horního limitu dimenzování pro tuto analýzu. Větší systémy by měly být dimenzovány na základě rozšířené technické studie."
-  },
-  "sizing": {
-    "title": "Proč tato baterie?",
-    "capacity": "Kapacita",
-    "power": "Výkon",
-    "cRate": "C-rate",
-    "physicalNeed": "Fyzická potřeba výkonu",
-    "basePower": "Základní výkon pro práci s energií",
-    "alternatives": "Simulované alternativy",
-    "lower": "Menší",
-    "yours": "Vaše baterie",
-    "higher": "Větší",
-    "balance": "Prostřední alternativa je velikost, u které výpočet nalezl nejlepší rovnováhu mezi velikostí baterie a odhadovaným přínosem. Nejde o tvrzení, že je objektivně nejlepší v každém ohledu.",
-    "consumerExplanation": "Mr. Battery Doc simuluje několik velikostí baterií na základě spotřeby nemovitosti, solární výroby a zvoleného využití. V tomto případě doporučená velikost poskytuje dobrou rovnováhu mezi velikostí baterie a odhadovaným přínosem. Větší baterie přináší jen omezený další přínos, a proto se nedoporučuje.",
-    "recommendedLabel": "Doporučeno",
-    "powerTitle": "Výkon baterie: {value}",
-    "powerAncillaryExplanation": "Pro práci s energií v nemovitosti je potřeba přibližně {value}. Vyšší doporučený výkon umožňuje větší kapacitu pro zvolenou podpůrnou službu."
-  },
-  "faq": {
-    "title": "Často kladené otázky",
-    "items": [
-      {
-        "q": "Co znamenají kW a kWh?",
-        "a": "kW je výkon, tedy jak rychle se baterie může nabíjet nebo vybíjet. kWh je energie, tedy kolik dokáže uložit."
-      },
-      {
-        "q": "Proč je doporučena tato velikost baterie?",
-        "a": "Výpočet simuluje několik velikostí a vybírá tu s nejlepším poměrem mezi velikostí a odhadovaným přínosem pro vaše vstupy."
-      },
-      {
-        "q": "Co znamená vlastní spotřeba?",
-        "a": "Podíl solární výroby spotřebované v objektu namísto exportu do sítě."
-      },
-      {
-        "q": "Co znamená soběstačnost?",
-        "a": "Podíl spotřeby elektřiny v objektu pokrytý vlastní elektřinou namísto elektřiny nakoupené."
-      },
-      {
-        "q": "Co je ořezávání špiček (peak shaving)?",
-        "a": "Baterie ořezává nejvyšší výkonové špičky, což může snížit poplatky za rezervovaný příkon."
-      },
-      {
-        "q": "Jak se počítá odměna za podpůrné služby?",
-        "a": "Z výkonu, který může baterie fyzicky poskytnout, a z historických tržních cen, po odečtení podílu, který nezískáte vy."
-      },
-      {
-        "q": "Je příjem z podpůrných služeb zaručen?",
-        "a": "Ne. Vychází z historických cen a předpokladů o dostupnosti a smluvních podmínkách."
-      },
-      {
-        "q": "Co znamená maximální investice?",
-        "a": "Přibližně kolik může baterie stát, aby odpovídala vaší zvolené době návratnosti při daném vypočteném ročním přínosu."
-      },
-      {
-        "q": "Je maximální investice stejná jako tržní cena?",
-        "a": "Ne. Neříká nic o tom, kolik baterie stojí, pouze co podporuje výpočet."
-      },
-      {
-        "q": "Proč se může výpočet instalatéra lišit?",
-        "a": "Odlišné předpoklady o cenách, profilu zátěže, účinnosti, dostupnosti a podpůrných službách dávají odlišné výsledky."
-      },
-      {
-        "q": "Je report cenová nabídka?",
-        "a": "Ne. Report je podpora pro rozhodování a měl by být doplněn cenovou nabídkou a posouzením na místě."
-      }
-    ]
-  },
-  "tagline": "Chytřejší způsob, jak využívat elektřinu",
-  "ancillaryScenario": {
-    "title": "Porovnání velikostí baterií pro podpůrné služby",
-    "intro": "Standardní výpočet nenavrhl žádnou baterii. Níže uvádíme srovnání odměn za podpůrné služby pro různé velikosti baterií.",
-    "notRecommendation": "Toto je srovnávací scénář, nikoli doporučená velikost baterie.",
-    "technicalTitle": "Technický návrh",
-    "technicalHint": "Velikost je zvolena tak, aby bylo možné využít alespoň 95 % vypočteného výkonu pro podpůrné služby pro vaše odběrné místo a profil spotřeby. Jde o technický návrh, ne o doporučení nejvýnosnější baterie.",
-    "battery": "Baterie",
-    "compensation": "Odměna za podpůrné služby",
-    "totalBenefit": "Vypočtený celkový přínos",
-    "maxInvestment": "Maximální investice při zvolené době návratnosti",
-    "maxInvestmentNone": "Nelze vypočítat",
-    "note": "Výpočet je založen na historických úrovních odměn. Skutečná odměna, dostupnost a možnost účasti na podpůrných službách závisí mimo jiné na trhu, agregátorovi a technických požadavcích."
-  },
-  "ancillary": {
-    "title": "Služby výkonové rovnováhy",
-    "product": "Zvolená služba",
-    "offered": "Nabízený výkon",
-    "reservable": "Fyzicky rezervovatelný výkon (průměr)",
-    "technicalTitle": "Technický podklad",
-    "technicalNote": "Fyzicky rezervovatelný výkon je samostatná metrika průměrné rezervovatelnosti, nikoliv výkon, ze kterého se počítá odměna.",
-    "held": "Držený výkon (průměr)",
-    "monetized": "Odhadovaný honorovaný výkon",
-    "availability": "Dostupnost",
-    "limiting": "Co omezuje velikost baterie",
-    "limitingPower": "Výkon baterie",
-    "limitingEnergy": "Uložená energie / SOC",
-    "limitingGrid": "Kapacita sítě",
-    "limitingNone": "Bez omezení",
-    "reservedEnergy": "Rezervovaná energie",
-    "reservedHours": "Hodiny s rezervací",
-    "marketValue": "Odhadovaná tržní hodnota",
-    "share": "Váš podíl z tržní hodnoty",
-    "customerValue": "Odhadovaná odměna pro vás",
-    "priceBasis": "Cenový podklad",
-    "priceBasisValue": "Historické tržní ceny",
-    "nominalPower": "Jmenovitý výkon baterie",
-    "historicalWarning": "Historický výpočet – nejedná se o záruku budoucího příjmu. Skutečná odměna závisí mimo jiné na budoucích tržních cenách, dostupnosti, smlouvách s agregátorem a pravidlech trhu.",
-    "noPriceData": "Pro tento trh nelze vypočítat ekonomickou hodnotu, protože chybí ověřená cenová data. Výkon a dostupnost jsou vypočteny, ale nejsou uvedeny žádné výnosy.",
-    "note": "Účast obvykle vyžaduje agregátora, prekvalifikaci a schválenou instalaci. Skutečná odměna závisí na smlouvě, přístupu na trh a podmínkách."
   },
   "summary": {
     "title": "Souhrn",
@@ -162,83 +56,6 @@ export const cs: ReportCopy = {
     "percentagePoints": "procentní body",
     "perYearLong": "ročně"
   },
-  "assumptions": {
-    "title": "Vaše vstupy a předpoklady pro výpočet",
-    "property": "Nemovitost",
-    "battery": "Baterie",
-    "economy": "Ekonomika",
-    "ancillary": "Služby výkonové rovnováhy",
-    "annualConsumption": "Roční spotřeba",
-    "solarProduction": "Solární výroba",
-    "consumptionProfile": "Profil spotřeby",
-    "fuse": "Hlavní jistič",
-    "connection": "Připojení",
-    "gridPowerLimit": "Rezervovaný příkon",
-    "capacity": "Kapacita",
-    "power": "Výkon",
-    "efficiency": "Účinnost (nabití a vybití)",
-    "socWindow": "Limity SOC",
-    "reserveSoc": "Rezervní SOC",
-    "serviceSocUp": "Provozní SOC, regulace nahoru",
-    "serviceSocDown": "Provozní SOC, regulace dolů",
-    "maxCycles": "Maximální počet cyklů za rok",
-    "importPrice": "Nakupovaná elektřina",
-    "exportPrice": "Prodaná solární energie (spotová cena)",
-    "demandCharge": "Platba za rezervovaný příkon",
-    "payback": "Zvolená doba návratnosti",
-    "market": "Zvolený trh",
-    "share": "Předpokládaný podíl zákazníka",
-    "horizonNote": "Výpočet je proveden pro období jednoho roku. Uváděný přínos nezahrnuje degradaci baterie, vývoj cen ani diskontní sazbu."
-  },
-  "investment": {
-    "title": "Maximální investice a doba návratnosti",
-    "selected": "Zvolená doba návratnosti",
-    "max": "Maximální investice",
-    "scenarios": "Maximální investice při různých dobách návratnosti",
-    "yourChoice": "Vaše volba",
-    "explanation": "Maximální investice není odhadem tržní ceny ani nabídkou. Ukazuje výši investice, která odpovídá vaší zvolené době návratnosti na základě ekonomické hodnoty zjištěné výpočtem.",
-    "notAQuote": "Částka není odhadem tržní ceny ani nabídkou. Vychází pouze z odhadované ekonomické hodnoty a vámi zvolené doby návratnosti.",
-    "unavailable": "Maximální investici nelze vypočítat, protože výpočet nevykazuje žádnou kladnou ekonomickou hodnotu.",
-    "headline": "Váš referenční bod pro cenovou nabídku",
-    "paybackText": "Při zvolené době návratnosti {years} vychází z výpočtu maximální investice přibližně {amount}.",
-    "ancillaryDependencyTitle": "S podpůrnými službami a bez nich",
-    "withAncillary": "Ekonomická hodnota se zvolenou podpůrnou službou",
-    "withoutAncillary": "Ekonomická hodnota bez podpůrných služeb",
-    "dependencyNote": "Srovnání ukazuje, jak velká část výpočtu závisí na odhadované kompenzaci za podpůrné služby."
-  },
-  "about": {
-    "pageTitle": "Důležité vědět",
-    "title": "O této zprávě",
-    "items": [
-      "Zpráva je podkladem pro rozhodování a měla by být doplněna cenovou nabídkou a posouzením na místě.",
-      "Zpráva není cenovou nabídkou a neuvádí, kolik baterie na trhu stojí.",
-      "Výsledek je výpočet založený na vámi zadaných údajích a předpokladech výpočtu a není zárukou.",
-      "Výpočet se vztahuje na 1. rok.",
-      "Výpočet nezahrnuje budoucí vývoj cen.",
-      "Výpočet nezahrnuje budoucí degradaci baterie."
-    ]
-  },
-  "installer": {
-    "title": "Proberte s instalační firmou",
-    "items": [
-      "Ověřte, že navržená kapacita baterie je vhodná pro vaši nemovitost.",
-      "Ověřte, že navržený výkon baterie a střídače je technicky proveditelný.",
-      "Ověřte u provozovatele sítě hodnotu hlavního jističe a možnosti připojení.",
-      "Zkontrolujte, zda si instalace vyžádá úpravy v rozvaděči.",
-      "Zkontrolujte místo instalace, teplotní požadavky a požární bezpečnost.",
-      "Zkontrolujte záruky a očekávanou životnost baterie.",
-      "Zkontrolujte povolený výkon pro nabíjení a vybíjení.",
-      "Zkontrolujte kompatibilitu se stávající nebo plánovanou solární instalací.",
-      "Prověřte si podmínky pro podpůrné služby, agregátora a prekvalifikaci.",
-      "Porovnejte nabídkovou cenu s maximální investicí uvedenou v tomto reportu."
-    ]
-  },
-  "terms": {
-    "kwKwh": "kW je výkon, tedy jak rychle se baterie může nabíjet nebo vybíjet. kWh je energie, tedy kolik jí dokáže uložit.",
-    "selfConsumption": "Vlastní spotřeba udává, jakou část vyrobené solární energie spotřebujete sami, místo abyste ji poslali do sítě.",
-    "selfSufficiency": "Soběstačnost udává, jakou část spotřeby elektřiny pokryjete z vlastních zdrojů namísto nákupu ze sítě.",
-    "peakShaving": "Ořezávání špiček znamená, že baterie pokryje nejvyšší odběrové špičky, což může snížit platby za rezervovaný příkon."
-  },
   "benefit": {
     "title": "Odkud se bere hodnota?",
     "total": "Odhadovaná ekonomická hodnota, 1. rok",
@@ -254,50 +71,45 @@ export const cs: ReportCopy = {
     "historicalBox": "Historický výpočet – nejedná se o zaručený budoucí příjem.",
     "shareOfTotal": "z celku"
   },
-  "risks": {
-    "title": "Co může ovlivnit výsledek?",
-    "text": "Tato zpráva je podkladem pro rozhodování, nikoli zárukou nebo cenovou nabídkou. Skutečný výsledek se může lišit, mimo jiné z následujících důvodů:",
-    "items": [
-      "skutečná spotřeba elektřiny a zátěžový profil",
-      "skutečná výroba ze solárních panelů",
-      "ceny elektřiny a poplatky za distribuci",
-      "platby za rezervovaný příkon a tarifní modely",
-      "účinnost a degradace baterie",
-      "dostupnost baterie v průběhu roku",
-      "ceny a podmínky na trhu s podpůrnými službami",
-      "podmínky agregátora a případné poplatky",
-      "pravidla trhu a omezení v síti"
-    ]
+  "ancillary": {
+    "title": "Služby výkonové rovnováhy",
+    "product": "Zvolená služba",
+    "offered": "Nabízený výkon",
+    "reservable": "Fyzicky rezervovatelný výkon (průměr)",
+    "technicalTitle": "Technický podklad",
+    "technicalNote": "Fyzicky rezervovatelný výkon je samostatná metrika průměrné rezervovatelnosti, nikoliv výkon, ze kterého se počítá odměna.",
+    "held": "Držený výkon (průměr)",
+    "monetized": "Odhadovaný honorovaný výkon",
+    "availability": "Dostupnost",
+    "limiting": "Co omezuje velikost baterie",
+    "limitingPower": "Výkon baterie",
+    "limitingEnergy": "Uložená energie / SOC",
+    "limitingGrid": "Kapacita sítě",
+    "limitingNone": "Bez omezení",
+    "reservedEnergy": "Rezervovaná energie",
+    "reservedHours": "Hodiny s rezervací",
+    "marketValue": "Odhadovaná tržní hodnota",
+    "share": "Váš podíl z tržní hodnoty",
+    "customerValue": "Odhadovaná odměna pro vás",
+    "priceBasis": "Cenový podklad",
+    "priceBasisValue": "Historické tržní ceny",
+    "nominalPower": "Jmenovitý výkon baterie",
+    "historicalWarning": "Historický výpočet – nejedná se o záruku budoucího příjmu. Skutečná odměna závisí mimo jiné na budoucích tržních cenách, dostupnosti, smlouvách s agregátorem a pravidlech trhu.",
+    "noPriceData": "Pro tento trh nelze vypočítat ekonomickou hodnotu, protože chybí ověřená cenová data. Výkon a dostupnost jsou vypočteny, ale nejsou uvedeny žádné výnosy.",
+    "note": "Účast obvykle vyžaduje agregátora, prekvalifikaci a schválenou instalaci. Skutečná odměna závisí na smlouvě, přístupu na trh a podmínkách."
   },
-  "grid": {
-    "title": "Výkon a síť",
-    "fuse": "Hlavní jistič",
-    "connection": "Připojení k síti",
-    "theoretical": "Teoretický výkon přípojky",
-    "peakBefore": "Nejvyšší odběr bez baterie",
-    "peakAfter": "Nejvyšší odběr s baterií",
-    "reduction": "Omezení špiček",
-    "curtailed": "Zablokovaný přetok",
-    "status": "Vyhodnocení přípojky",
-    "kwKwh": "kW je výkon, tedy jak rychle se baterie nabíjí a vybíjí. kWh je energie, tedy kolik se jí do baterie vejde."
-  },
-  "energy": {
-    "title": "Energetická bilance bez a s baterií",
-    "load": "Roční spotřeba",
-    "pv": "Solární produkce",
-    "importBefore": "Nákup ze sítě bez baterie",
-    "importAfter": "Nákup ze sítě s baterií",
-    "exportLabel": "Prodej do sítě",
-    "exportBefore": "Prodej do sítě bez baterie",
-    "exportAfter": "Prodej do sítě s baterií",
-    "selfConsumptionBefore": "Vlastní spotřeba bez baterie",
-    "selfConsumptionAfter": "Vlastní spotřeba s baterií",
-    "selfSufficiencyBefore": "Soběstačnost bez baterie",
-    "selfSufficiencyAfter": "Soběstačnost s baterií",
-    "gridCharged": "Energie nabitá ze sítě",
-    "shifted": "Přesunutá solární energie",
-    "losses": "Ztráty baterie",
-    "cycles": "Ekvivalentních plných cyklů za rok"
+  "ancillaryScenario": {
+    "title": "Porovnání velikostí baterií pro podpůrné služby",
+    "intro": "Standardní výpočet nenavrhl žádnou baterii. Níže uvádíme srovnání odměn za podpůrné služby pro různé velikosti baterií.",
+    "notRecommendation": "Toto je srovnávací scénář, nikoli doporučená velikost baterie.",
+    "technicalTitle": "Technický návrh",
+    "technicalHint": "Velikost je zvolena tak, aby bylo možné využít alespoň 95 % vypočteného výkonu pro podpůrné služby pro vaše odběrné místo a profil spotřeby. Jde o technický návrh, ne o doporučení nejvýnosnější baterie.",
+    "battery": "Baterie",
+    "compensation": "Odměna za podpůrné služby",
+    "totalBenefit": "Vypočtený celkový přínos",
+    "maxInvestment": "Maximální investice při zvolené době návratnosti",
+    "maxInvestmentNone": "Nelze vypočítat",
+    "note": "Výpočet je založen na historických úrovních odměn. Skutečná odměna, dostupnost a možnost účasti na podpůrných službách závisí mimo jiné na trhu, agregátorovi a technických požadavcích."
   },
   "ancillaryOnly": {
     "summaryProposal": "Technický návrh dimenzování",
@@ -384,5 +196,193 @@ export const cs: ReportCopy = {
         "a": "Ne. Report slouží jako podpora pro rozhodování a měl by být doplněn cenovou nabídkou, technickou prohlídkou a podmínkami agregátora."
       }
     ]
+  },
+  "sizing": {
+    "title": "Proč tato baterie?",
+    "capacity": "Kapacita",
+    "power": "Výkon",
+    "cRate": "C-rate",
+    "physicalNeed": "Fyzická potřeba výkonu",
+    "basePower": "Základní výkon pro práci s energií",
+    "alternatives": "Simulované alternativy",
+    "lower": "Menší",
+    "yours": "Vaše baterie",
+    "higher": "Větší",
+    "balance": "Prostřední alternativa je velikost, u které výpočet nalezl nejlepší rovnováhu mezi velikostí baterie a odhadovaným přínosem. Nejde o tvrzení, že je objektivně nejlepší v každém ohledu.",
+    "consumerExplanation": "Mr. Battery Doc simuluje několik velikostí baterií na základě spotřeby nemovitosti, solární výroby a zvoleného využití. V tomto případě doporučená velikost poskytuje dobrou rovnováhu mezi velikostí baterie a odhadovaným přínosem. Větší baterie přináší jen omezený další přínos, a proto se nedoporučuje.",
+    "recommendedLabel": "Doporučeno",
+    "powerTitle": "Výkon baterie: {value}",
+    "powerAncillaryExplanation": "Pro práci s energií v nemovitosti je potřeba přibližně {value}. Vyšší doporučený výkon umožňuje větší kapacitu pro zvolenou podpůrnou službu."
+  },
+  "energy": {
+    "title": "Energetická bilance bez a s baterií",
+    "load": "Roční spotřeba",
+    "pv": "Solární produkce",
+    "importBefore": "Nákup ze sítě bez baterie",
+    "importAfter": "Nákup ze sítě s baterií",
+    "exportLabel": "Prodej do sítě",
+    "exportBefore": "Prodej do sítě bez baterie",
+    "exportAfter": "Prodej do sítě s baterií",
+    "selfConsumptionBefore": "Vlastní spotřeba bez baterie",
+    "selfConsumptionAfter": "Vlastní spotřeba s baterií",
+    "selfSufficiencyBefore": "Soběstačnost bez baterie",
+    "selfSufficiencyAfter": "Soběstačnost s baterií",
+    "gridCharged": "Energie nabitá ze sítě",
+    "shifted": "Přesunutá solární energie",
+    "losses": "Ztráty baterie",
+    "cycles": "Ekvivalentních plných cyklů za rok"
+  },
+  "grid": {
+    "title": "Výkon a síť",
+    "fuse": "Hlavní jistič",
+    "connection": "Připojení k síti",
+    "theoretical": "Teoretický výkon přípojky",
+    "peakBefore": "Nejvyšší odběr bez baterie",
+    "peakAfter": "Nejvyšší odběr s baterií",
+    "reduction": "Omezení špiček",
+    "curtailed": "Zablokovaný přetok",
+    "status": "Vyhodnocení přípojky",
+    "kwKwh": "kW je výkon, tedy jak rychle se baterie nabíjí a vybíjí. kWh je energie, tedy kolik se jí do baterie vejde."
+  },
+  "investment": {
+    "title": "Maximální investice a doba návratnosti",
+    "selected": "Zvolená doba návratnosti",
+    "max": "Maximální investice",
+    "scenarios": "Maximální investice při různých dobách návratnosti",
+    "yourChoice": "Vaše volba",
+    "explanation": "Maximální investice není odhadem tržní ceny ani nabídkou. Ukazuje výši investice, která odpovídá vaší zvolené době návratnosti na základě ekonomické hodnoty zjištěné výpočtem.",
+    "notAQuote": "Částka není odhadem tržní ceny ani nabídkou. Vychází pouze z odhadované ekonomické hodnoty a vámi zvolené doby návratnosti.",
+    "unavailable": "Maximální investici nelze vypočítat, protože výpočet nevykazuje žádnou kladnou ekonomickou hodnotu.",
+    "headline": "Váš referenční bod pro cenovou nabídku",
+    "paybackText": "Při zvolené době návratnosti {years} vychází z výpočtu maximální investice přibližně {amount}.",
+    "ancillaryDependencyTitle": "S podpůrnými službami a bez nich",
+    "withAncillary": "Ekonomická hodnota se zvolenou podpůrnou službou",
+    "withoutAncillary": "Ekonomická hodnota bez podpůrných služeb",
+    "dependencyNote": "Srovnání ukazuje, jak velká část výpočtu závisí na odhadované kompenzaci za podpůrné služby."
+  },
+  "assumptions": {
+    "title": "Vaše vstupy a předpoklady pro výpočet",
+    "property": "Nemovitost",
+    "battery": "Baterie",
+    "economy": "Ekonomika",
+    "ancillary": "Služby výkonové rovnováhy",
+    "annualConsumption": "Roční spotřeba",
+    "solarProduction": "Solární výroba",
+    "consumptionProfile": "Profil spotřeby",
+    "fuse": "Hlavní jistič",
+    "connection": "Připojení",
+    "gridPowerLimit": "Rezervovaný příkon",
+    "capacity": "Kapacita",
+    "power": "Výkon",
+    "efficiency": "Účinnost (nabití a vybití)",
+    "socWindow": "Limity SOC",
+    "reserveSoc": "Rezervní SOC",
+    "serviceSocUp": "Provozní SOC, regulace nahoru",
+    "serviceSocDown": "Provozní SOC, regulace dolů",
+    "maxCycles": "Maximální počet cyklů za rok",
+    "importPrice": "Nakupovaná elektřina",
+    "exportPrice": "Prodaná solární energie (spotová cena)",
+    "demandCharge": "Platba za rezervovaný příkon",
+    "payback": "Zvolená doba návratnosti",
+    "market": "Zvolený trh",
+    "share": "Předpokládaný podíl zákazníka",
+    "horizonNote": "Výpočet je proveden pro období jednoho roku. Uváděný přínos nezahrnuje degradaci baterie, vývoj cen ani diskontní sazbu."
+  },
+  "risks": {
+    "title": "Co může ovlivnit výsledek?",
+    "text": "Tato zpráva je podkladem pro rozhodování, nikoli zárukou nebo cenovou nabídkou. Skutečný výsledek se může lišit, mimo jiné z následujících důvodů:",
+    "items": [
+      "skutečná spotřeba elektřiny a zátěžový profil",
+      "skutečná výroba ze solárních panelů",
+      "ceny elektřiny a poplatky za distribuci",
+      "platby za rezervovaný příkon a tarifní modely",
+      "účinnost a degradace baterie",
+      "dostupnost baterie v průběhu roku",
+      "ceny a podmínky na trhu s podpůrnými službami",
+      "podmínky agregátora a případné poplatky",
+      "pravidla trhu a omezení v síti"
+    ]
+  },
+  "installer": {
+    "title": "Proberte s instalační firmou",
+    "items": [
+      "Ověřte, že navržená kapacita baterie je vhodná pro vaši nemovitost.",
+      "Ověřte, že navržený výkon baterie a střídače je technicky proveditelný.",
+      "Ověřte u provozovatele sítě hodnotu hlavního jističe a možnosti připojení.",
+      "Zkontrolujte, zda si instalace vyžádá úpravy v rozvaděči.",
+      "Zkontrolujte místo instalace, teplotní požadavky a požární bezpečnost.",
+      "Zkontrolujte záruky a očekávanou životnost baterie.",
+      "Zkontrolujte povolený výkon pro nabíjení a vybíjení.",
+      "Zkontrolujte kompatibilitu se stávající nebo plánovanou solární instalací.",
+      "Prověřte si podmínky pro podpůrné služby, agregátora a prekvalifikaci.",
+      "Porovnejte nabídkovou cenu s maximální investicí uvedenou v tomto reportu."
+    ]
+  },
+  "faq": {
+    "title": "Často kladené otázky",
+    "items": [
+      {
+        "q": "Co znamenají kW a kWh?",
+        "a": "kW je výkon, tedy jak rychle se baterie může nabíjet nebo vybíjet. kWh je energie, tedy kolik dokáže uložit."
+      },
+      {
+        "q": "Proč je doporučena tato velikost baterie?",
+        "a": "Výpočet simuluje několik velikostí a vybírá tu s nejlepším poměrem mezi velikostí a odhadovaným přínosem pro vaše vstupy."
+      },
+      {
+        "q": "Co znamená vlastní spotřeba?",
+        "a": "Podíl solární výroby spotřebované v objektu namísto exportu do sítě."
+      },
+      {
+        "q": "Co znamená soběstačnost?",
+        "a": "Podíl spotřeby elektřiny v objektu pokrytý vlastní elektřinou namísto elektřiny nakoupené."
+      },
+      {
+        "q": "Co je ořezávání špiček (peak shaving)?",
+        "a": "Baterie ořezává nejvyšší výkonové špičky, což může snížit poplatky za rezervovaný příkon."
+      },
+      {
+        "q": "Jak se počítá odměna za podpůrné služby?",
+        "a": "Z výkonu, který může baterie fyzicky poskytnout, a z historických tržních cen, po odečtení podílu, který nezískáte vy."
+      },
+      {
+        "q": "Je příjem z podpůrných služeb zaručen?",
+        "a": "Ne. Vychází z historických cen a předpokladů o dostupnosti a smluvních podmínkách."
+      },
+      {
+        "q": "Co znamená maximální investice?",
+        "a": "Přibližně kolik může baterie stát, aby odpovídala vaší zvolené době návratnosti při daném vypočteném ročním přínosu."
+      },
+      {
+        "q": "Je maximální investice stejná jako tržní cena?",
+        "a": "Ne. Neříká nic o tom, kolik baterie stojí, pouze co podporuje výpočet."
+      },
+      {
+        "q": "Proč se může výpočet instalatéra lišit?",
+        "a": "Odlišné předpoklady o cenách, profilu zátěže, účinnosti, dostupnosti a podpůrných službách dávají odlišné výsledky."
+      },
+      {
+        "q": "Je report cenová nabídka?",
+        "a": "Ne. Report je podpora pro rozhodování a měl by být doplněn cenovou nabídkou a posouzením na místě."
+      }
+    ]
+  },
+  "about": {
+    "pageTitle": "Důležité vědět",
+    "title": "O této zprávě",
+    "items": [
+      "Zpráva je podkladem pro rozhodování a měla by být doplněna cenovou nabídkou a posouzením na místě.",
+      "Zpráva není cenovou nabídkou a neuvádí, kolik baterie na trhu stojí.",
+      "Výsledek je výpočet založený na vámi zadaných údajích a předpokladech výpočtu a není zárukou.",
+      "Výpočet se vztahuje na 1. rok.",
+      "Výpočet nezahrnuje budoucí vývoj cen.",
+      "Výpočet nezahrnuje budoucí degradaci baterie."
+    ]
+  },
+  "terms": {
+    "kwKwh": "kW je výkon, tedy jak rychle se baterie může nabíjet nebo vybíjet. kWh je energie, tedy kolik jí dokáže uložit.",
+    "selfConsumption": "Vlastní spotřeba udává, jakou část vyrobené solární energie spotřebujete sami, místo abyste ji poslali do sítě.",
+    "selfSufficiency": "Soběstačnost udává, jakou část spotřeby elektřiny pokryjete z vlastních zdrojů namísto nákupu ze sítě.",
+    "peakShaving": "Ořezávání špiček znamená, že baterie pokryje nejvyšší odběrové špičky, což může snížit platby za rezervovaný příkon."
   }
 };
