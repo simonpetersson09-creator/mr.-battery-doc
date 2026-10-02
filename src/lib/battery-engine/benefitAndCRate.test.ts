@@ -16,6 +16,7 @@ function input(cc: any, fuse: number, pv: number, fcr: boolean, opts = {}) {
   s.consumption.profileId = "normal";
   s.production.mode = pv > 0 ? "manual" : "none";
   s.production.annualKwh = pv;
+  s.production.acKw = 10; // explicit inverter size; engine no longer assumes a default
   s.strategies.fcrDUp = fcr;
   s.preferences.customerAncillaryShare = 0.75;
   return normalizeWizardToEngineInput(s, opts);

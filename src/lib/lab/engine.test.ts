@@ -55,10 +55,18 @@ describe("synthetic profiles", () => {
   });
 
   it("pv series sums exactly to each monthly input after AC clipping", () => {
-    const c = cfg();
+    const c = cfg((x) => (x.solar.inverterAcKw = 10));
     const { pv } = buildPvSeries(c.solar);
     monthlySums(pv).forEach((s, i) => expect(s).toBeCloseTo(c.solar.monthlyKWh[i] ?? 0, 6));
     expect(Math.max(...pv)).toBeLessThanOrEqual(c.solar.inverterAcKw + 1e-6);
+  });
+
+  it("inverterAcKw 0 means no AC clipping (no assumed default inverter size)", () => {
+    const c = cfg();
+    expect(c.solar.inverterAcKw).toBe(0);
+    const { pv, clipped } = buildPvSeries(c.solar);
+    monthlySums(pv).forEach((s, i) => expect(s).toBeCloseTo(c.solar.monthlyKWh[i] ?? 0, 6));
+    expect(clipped.reduce((a, b) => a + b, 0)).toBe(0);
   });
 
   it("annual spread reproduces the annual total", () => {

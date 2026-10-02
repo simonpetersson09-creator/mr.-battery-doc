@@ -60,7 +60,9 @@ export function defaultConfig(): LabConfig {
       enabled: true,
       monthlyKWh: spreadAnnual(12000, DEFAULT_PV_MONTH_SHARE),
       kWp: 12,
-      inverterAcKw: 10,
+      // No assumed inverter size: 0 = no AC clipping. The wizard always
+      // requires the user to enter the inverter AC power explicitly.
+      inverterAcKw: 0,
       currentSelfConsumptionPct: 35,
       monthlyIsModelled: true,
     },
