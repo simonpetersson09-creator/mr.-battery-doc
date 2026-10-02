@@ -62,6 +62,15 @@ export function socCycleToleranceKWh(capacityKWh: number): number {
   return Math.max(1e-9, capacityKWh * 1e-4);
 }
 
+/**
+ * Self-sufficiency, % of load covered by own resources. Exactly 0 without PV (grid-charged
+ * battery energy is not own energy) and clamped to [0, 100] so rounding can never leave it.
+ */
+export function selfSufficiency(load: number, pv: number, imp: number, unserved: number): number {
+  if (!(load > 0) || !(pv > 0)) return 0;
+  return Math.min(100, Math.max(0, ((load - imp - unserved) / load) * 100));
+}
+
 type DispatchResult = ReturnType<typeof dispatch>;
 
 /**
@@ -273,10 +282,8 @@ export function simulate(
    * Load the connection could not deliver (unserved) is neither import nor a win, so it
    * is subtracted too — otherwise an undersized fuse would show up as high self-sufficiency.
    */
-  const baseSelfSufficiencyPct =
-    annualLoad > 0 ? ((annualLoad - baseImport - base.unserved) / annualLoad) * 100 : 0;
-  const selfSufficiencyPct =
-    annualLoad > 0 ? ((annualLoad - importKWh - t.unservedKWh) / annualLoad) * 100 : 0;
+  const baseSelfSufficiencyPct = selfSufficiency(annualLoad, annualPv, baseImport, base.unserved);
+  const selfSufficiencyPct = selfSufficiency(annualLoad, annualPv, importKWh, t.unservedKWh);
 
   const baseModelledPeakKw = peakKw(base.imp);
   const modelledPeakKw = peakKw(d.importSeries);

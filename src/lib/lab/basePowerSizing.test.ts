@@ -147,8 +147,10 @@ describe("base power for energy handling — 95 % physical saturation", () => {
   it("7. FCR on/off does not change the base power", () => {
     const off = runBatteryEngine(c032(false)).summary.recommendation;
     const on = runBatteryEngine(c032(true)).summary.recommendation;
-    expect(on.basePowerForEnergyKw).toBe(off.basePowerForEnergyKw);
-    expect(off.recommendedPowerKw).toBe(off.basePowerForEnergyKw);
+    // K1: FCR off has a negative customer benefit and is withheld; the sized base power
+    // is kept on `withheld` (with FCR off it equals the recommended power).
+    expect(off.withheld?.reason).toBe("non-positive-benefit");
+    expect(on.basePowerForEnergyKw).toBe(off.withheld!.powerKw);
     expect(on.recommendationUsesHistoricalFcr).toBe(false);
   });
 
@@ -165,6 +167,7 @@ describe("base power for energy handling — 95 % physical saturation", () => {
       strategies: { selfConsumption: true, reduceImport: true, peakShaving: true, fcrDUp: false },
       economy: { ...ECON, peakDemandChargeSekPerKwMonth: 150 },
     }).summary.recommendation;
-    expect(r.recommendedPowerKw).toBe(200);
+    // K1 may withhold the automatic size; the sized power is then kept on `withheld`.
+    expect(r.withheld?.powerKw ?? r.recommendedPowerKw).toBe(200);
   });
 });

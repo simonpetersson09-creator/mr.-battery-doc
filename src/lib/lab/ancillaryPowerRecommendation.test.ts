@@ -49,8 +49,9 @@ const c032 = (fcr: boolean) => site(100, 200000, 100, fcr);
 describe("ancillary services and the recommended system power", () => {
   it("1. FCR off: the recommendation is exactly the base power for energy handling", () => {
     const r = runBatteryEngine(c032(false)).summary.recommendation;
-    expect(r.basePowerForEnergyKw).toBe(15);
-    expect(r.recommendedPowerKw).toBe(15);
+    // K1: the 15 kW / 150 kWh size has a negative customer benefit and is withheld.
+    expect(r.withheld).toMatchObject({ reason: "non-positive-benefit", powerKw: 15, capacityKWh: 150 });
+    expect([r.capacityKWh, r.powerKw]).toEqual([0, 0]);
     expect(r.ancillaryRaisedPowerKw).toBeNull();
   });
 
