@@ -230,6 +230,16 @@ export interface EngineRecommendation {
   /** True when the sizing was supplied by the caller instead of recommended. */
   sizingWasFixed: boolean;
   /**
+   * Set when an AUTOMATIC recommendation was withheld (result is "no battery"): its final
+   * total customer benefit was <= 0, or no real capacity step met the 1.0 C limit.
+   */
+  withheld?: {
+    reason: "non-positive-benefit" | "c-rate";
+    capacityKWh: number;
+    powerKw: number;
+    annualCustomerBenefitSek: number | null;
+  };
+  /**
    * DIAGNOSTIC ONLY: the highest battery AC power the dispatch actually used in the
    * recommended system. Never mixed up with the product rating (`powerKw`) or with the
    * property's calculated need (`physicalPowerNeedKw`).

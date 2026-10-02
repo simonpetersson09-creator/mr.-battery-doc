@@ -525,17 +525,15 @@ function computeAncillaryScenarioUncached(
   let technicalPick =
     atPower.find((c) => ratioOf(c) >= appliedCoverage - 1e-9) ?? atPower[atPower.length - 1];
   if (!technicalPick) return null;
-  /* HARD 1.0 C LIMIT on the final recommendation: capacity >= power, next real step up.
-   * If no real capacity step >= power can be evaluated, there is no recommendation —
-   * a pick above 1.0 C is never kept. */
-  if (technicalPick.powerKw > technicalPick.capacityKWh + 1e-9) {
+  /* HARD 1.0 C LIMIT (shared rule, see lab/cRateLimit). If no real capacity step that meets
+   * it can be evaluated, there is no recommendation — a pick above 1.0 C is never kept. */
+  if (exceedsAutoCRate(technicalPick.powerKw, technicalPick.capacityKWh)) {
     let atC: AncillaryScenarioCandidate | null = null;
-    for (const cap of caps) {
-      if (cap < selectedPowerKw - 1e-9) continue;
+    for (const cap of cRateCapacitySteps(selectedPowerKw, caps)) {
       atC = evaluate(cap, selectedPowerKw);
       if (atC) break;
     }
-    if (!atC || atC.powerKw > atC.capacityKWh + 1e-9) return null;
+    if (!atC || exceedsAutoCRate(atC.powerKw, atC.capacityKWh)) return null;
     technicalPick = atC;
   }
 
@@ -592,6 +590,8 @@ function computeAncillaryScenarioUncached(
 
   // No priced reserve data for this market -> no scenario, never a 0 kr claim.
   if (!candidates.some((c) => c.ancillaryMarketValueSek > 0)) return null;
+  // An automatic recommendation is never given with a total customer benefit <= 0.
+  if (selected.customerBenefitSek !== null && selected.customerBenefitSek <= 0) return null;
 
   return {
     candidates,
