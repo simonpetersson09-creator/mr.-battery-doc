@@ -24,3 +24,4 @@
 - The final automatic battery recommendation obeys a hard 1.0 C limit (capacity >= power, raised to the next real capacity step, never lowering power; caller-fixed sizes exempt) via the single shared helper `src/lib/lab/cRateLimit.ts`, used by both the engine and the standalone ancillary scenario; no valid step means no recommendation — keeps every recommended kW/kWh pair physically plausible.
 - An automatic recommendation whose final total customer benefit is <= 0 is withheld ("no battery", original size kept in `recommendation.withheld`); caller-fixed sizes are always shown as simulated — never recommend a loss-making battery.
 - Self-sufficiency is exactly 0 % without PV and clamped to [0, 100] — grid-charged energy is not own energy.
+- Ancillary services raise the installed power only when the highest analysed step gives a positive customer reserve benefit — a 0 kW FCR result must never justify a larger battery (M1).
