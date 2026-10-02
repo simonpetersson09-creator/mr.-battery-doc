@@ -120,7 +120,8 @@ describe("true without-FCR counterfactual", () => {
       // The reservation changes dispatch, so the two can never be assumed equal.
       expect(Math.abs(subtracted - o.totalOperatingBenefitSek)).toBeGreaterThan(1);
     }
-    console.log('FDBG reserving', reservingSteps, engineOptions.map((x) => [x.powerKw, x.fcrRevenueSek]));
+    // The property must still be exercised on at least one reserving step (5 kW here).
+    expect(reservingSteps).toBeGreaterThan(0);
     /**
      * And the discredited method rests on a different total. Its picked power may
      * coincide with the counterfactual one in a single case (it does for the Swedish
@@ -133,7 +134,10 @@ describe("true without-FCR counterfactual", () => {
     const same = wo.options.find(
       (o) => Math.abs(o.powerKw - wrongPick.powerKw) < 1e-9,
     );
-    expect(
+    // If the old method lands on a step without reservation (3 kW since the 0.80 factor),
+    // its total is legitimately the same simulation; the difference is only required
+    // where an FCR reservation actually changed dispatch.
+    if (wrongPick.fcrRevenueSek > 0) expect(
       Math.abs(
         wrongPick.totalOperatingBenefitSek -
           wrongPick.fcrRevenueSek -
