@@ -19,18 +19,20 @@
  */
 
 import type { BatteryEngineResult } from "@/lib/battery-engine";
+import {
+  DEFAULT_CUSTOMER_ANCILLARY_SHARE,
+  clampAncillaryShare,
+  customerAncillaryValueSek,
+  effectiveAncillaryShare,
+} from "@/lib/lab/customerAncillaryValue";
 
-export const DEFAULT_CUSTOMER_ANCILLARY_SHARE = 0.75;
+export { DEFAULT_CUSTOMER_ANCILLARY_SHARE };
 export const DEFAULT_TARGET_PAYBACK_YEARS = 10;
 export const MIN_TARGET_PAYBACK_YEARS = 5;
 export const MAX_TARGET_PAYBACK_YEARS = 20;
 
 /** Keeps a persisted or typed share inside 0–1. Invalid input falls back to the default. */
-export function clampCustomerAncillaryShare(value: unknown): number {
-  const n = typeof value === "number" ? value : Number.NaN;
-  if (!Number.isFinite(n)) return DEFAULT_CUSTOMER_ANCILLARY_SHARE;
-  return Math.min(1, Math.max(0, n));
-}
+export const clampCustomerAncillaryShare = clampAncillaryShare;
 
 /** Keeps a persisted or dragged payback target inside the supported slider range. */
 export function clampTargetPaybackYears(value: unknown): number {
@@ -68,7 +70,7 @@ export function customerEconomyFromResult(
   const ancillaryEnabled = s.fcr.enabled;
   const marketRaw = ancillaryEnabled ? (s.fcr.grossSek ?? 0) : 0;
   const market = Number.isFinite(marketRaw) ? marketRaw : 0;
-  const customerAncillary = market * clamped;
+  const customerAncillary = customerAncillaryValueSek(market, clamped);
   const engineTotal = s.economy.totalOperatingBenefitSek;
 
   return {
@@ -91,9 +93,9 @@ export function customerBenefitFromTotals(
   share: number,
 ): number | null {
   if (engineTotalSek === null) return null;
-  const clamped = clampCustomerAncillaryShare(share);
   const market = Number.isFinite(ancillaryMarketValueSek) ? ancillaryMarketValueSek : 0;
-  return engineTotalSek - market * (1 - clamped);
+  // Kept in its original arithmetic form (bit-identical); the share is the central one.
+  return engineTotalSek - market * (1 - effectiveAncillaryShare(share));
 }
 
 /**

@@ -37,6 +37,7 @@
  */
 
 import { runBatteryEngine, DEFAULT_MAX_PRODUCT_C_RATE } from "@/lib/battery-engine";
+import { customerAncillaryValueSek } from "@/lib/lab/customerAncillaryValue";
 import type { BatteryEngineInput, BatteryEngineResult } from "@/lib/battery-engine";
 
 import type { BatteryAlternative } from "./capacityAlternatives";
@@ -274,7 +275,8 @@ function runCandidate(
        The presented customer benefit is therefore the ancillary share alone, which keeps the
        result page, the cards and the PDF on one and the same number. Selection is technical
        and does not use this value. */
-    const customerBenefit = total === null ? null : market * clampCustomerAncillaryShare(share);
+    const ancillaryCustomerValueSek = customerAncillaryValueSek(market, share);
+    const customerBenefit = total === null ? null : ancillaryCustomerValueSek;
     const hours = num(f.reservedHours);
     const paidUpKw = num(f.monetizedPowerKw);
     const paidDownKw = num(f.avgHeldDownPowerKw);
@@ -304,7 +306,7 @@ function runCandidate(
       throughputKWh,
       ancillaryDriven: cycles <= 1e-6 && throughputKWh <= 1e-6,
       ancillaryMarketValueSek: market,
-      ancillaryCustomerValueSek: market * share,
+      ancillaryCustomerValueSek,
       annualBenefitSek: total,
       customerBenefitSek: customerBenefit,
       maxInvestmentSek: maxInvestmentSek(customerBenefit, years),
