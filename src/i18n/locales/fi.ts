@@ -332,6 +332,7 @@ export const fi = {
       noReduction: "Tehohuippu ei pienene valituilla asetuksilla.",
     },
     breakdown: {
+      energyNegativeNote: "Energiaosuus on negatiivinen: akun häviöt ja lataus maksavat enemmän kuin säästetty sähkö. Kokonaisuus on silti positiivinen reservipalvelujen ansiosta.",
       title: "Vuotuisen hyödyn jakauma",
       total: "Laskettu kokonaishyöty asiakkaalle",
     },
@@ -448,6 +449,9 @@ export const fi = {
     reservablePower: "Fyysisesti varattavissa oleva teho (keskiarvo)",
     reservableNote:
       "Erillinen varattavuuden keskiarvo – ei se teho, jonka perusteella korvaus lasketaan.",
+    avgHeldPower: "Todellisuudessa pidetty keskiarvo",
+    fullDeliveryHours: "Tunnit täydellä toimituksella",
+    fullDeliveryNote: "Osuus varatuista tunneista, jolloin koko tarjottu teho voitiin pitää. Korvaus lasketaan vain todellisuudessa pidetystä tehosta.",
     reservationNote:
       "Moottori varaa sen tason, joka antaa suurimman kokonaishyödyn. Suurempi osa akun tehosta voi olla teknisesti saatavilla reservipalveluihin, mutta sitä ei käytetä, jos oma kulutus ja huippukuormituksen tasaus tuovat enemmän hyötyä.",
     selectedServices: "Valitut reservipalvelut",

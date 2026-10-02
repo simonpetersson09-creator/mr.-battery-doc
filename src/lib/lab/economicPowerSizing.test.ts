@@ -333,7 +333,7 @@ describe("engine integration", () => {
   it("F/K. keeps the capacity and recommends the operating optimum", () => {
     const r = runBatteryEngine(referenceInput());
     const rec = r.summary.recommendation;
-    expect(rec.capacityKWh).toBe(25);
+    expect(rec.capacityKWh).toBe(20) // 25 -> 20: kWh sweep re-run at the final power (item 4);
     expect(rec.productPowerKw).toBe(5);
     expect(rec.physicalPowerNeedKw).toBe(3.5);
     // UPDATED: the 95 % rule may now see the 3 kW step; the old 99 % floor is gone.

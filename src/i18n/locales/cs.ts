@@ -399,6 +399,9 @@ export const cs = {
     "reservedPower": "Rezervovaný výkon",
     "reservablePower": "Fyzicky rezervovatelný výkon (průměr)",
     "reservableNote": "Samostatná metrika průměrné rezervovatelnosti – nejedná se o výkon, ze kterého se počítá odměna.",
+    "avgHeldPower": "Průměr skutečně držený",
+    "fullDeliveryHours": "Hodiny s plnou dodávkou",
+    "fullDeliveryNote": "Podíl rezervovaných hodin, kdy bylo možné držet celý nabízený výkon. Odměna se počítá jen ze skutečně drženého výkonu.",
     "reservationNote": "Model rezervuje takovou úroveň, která přináší nejvyšší celkový vypočtený přínos. Pro podpůrné služby může být technicky dostupný i vyšší výkon baterie, ale není využit, pokud vlastní spotřeba a omezování špiček poskytují větší přínos.",
     "selectedServices": "Zvolené služby",
     "limitingFactor": "Co omezuje velikost baterie",
@@ -606,6 +609,7 @@ export const cs = {
       "noReduction": "Při zvoleném nastavení nedochází ke snížení výkonové špičky."
     },
     "breakdown": {
+      "energyNegativeNote": "Energetická část je záporná: ztráty a nabíjení baterie stojí víc než ušetřená elektřina. Celkem je výsledek přesto kladný díky podpůrným službám.",
       "title": "Rozdělení ročního přínosu",
       "total": "Celkový vypočtený přínos pro zákazníka"
     },

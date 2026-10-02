@@ -72,6 +72,7 @@ export const de: ReportCopy = {
     energy: "Verschobener Solarstrom und geringerer Stromeinkauf",
     energyHint:
       "Die Batterie speichert Überschussproduktion und nutzt die Energie, wenn das Objekt sie braucht.",
+    energyNegativeHint: "Der Energieanteil ist negativ: Batterieverluste und Laden kosten mehr als der eingesparte Strom. Die Summe ist dank der Systemdienstleistungen trotzdem positiv.",
     energyNoSolarHint:
       "Die Batterie lädt, wenn Strom günstiger ist, und wird genutzt, wenn das Objekt Strom braucht.",
     peak: "Lastspitzenkappung",
@@ -97,6 +98,7 @@ export const de: ReportCopy = {
     held: "Gehaltene Leistung (Durchschnitt)",
     monetized: "Berechnete vergütungsfähige Leistung",
     availability: "Verfügbarkeit",
+    fullDelivery: "Stunden mit voller Lieferung",
     limiting: "Was die Batteriegröße begrenzt",
     limitingPower: "Batterieleistung",
     limitingEnergy: "Gespeicherte Energie / SOC",

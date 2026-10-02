@@ -72,6 +72,7 @@ export const fi: ReportCopy = {
     energy: "Siirretty aurinkosähkö ja pienempi sähkön osto",
     energyHint:
       "Akku varastoi ylijäämätuotannon ja käyttää energian, kun kiinteistö tarvitsee sitä.",
+    energyNegativeHint: "Energiaosuus on negatiivinen: akun häviöt ja lataus maksavat enemmän kuin säästetty sähkö. Kokonaisuus on silti positiivinen reservipalvelujen ansiosta.",
     energyNoSolarHint:
       "Akku latautuu, kun sähkö on halvempaa, ja purkautuu, kun kiinteistö tarvitsee sähköä.",
     peak: "Huipputehon leikkaus",
@@ -97,6 +98,7 @@ export const fi: ReportCopy = {
     held: "Ylläpidetty teho (keskiarvo)",
     monetized: "Laskettu korvattava teho",
     availability: "Käytettävyys",
+    fullDelivery: "Tunnit täydellä toimituksella",
     limiting: "Mikä rajoittaa akun kokoa",
     limitingPower: "Akkuteho",
     limitingEnergy: "Varastoitu energia / SOC",

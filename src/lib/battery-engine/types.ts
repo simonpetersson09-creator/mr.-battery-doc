@@ -372,6 +372,8 @@ export interface EngineFcrSummary {
   reservedEnergyKWh: number;
   reservedHours: number;
   availabilityPct: number;
+  /** Share of reserved hours where the full offered power was held, %. Display only. */
+  fullDeliveryPct: number;
   grossSek: number | null;
   /**
    * Split of the gross: FCR-D upp and (Sverige) FCR-D ned. Two separate products on the

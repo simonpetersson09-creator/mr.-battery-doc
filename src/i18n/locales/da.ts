@@ -336,6 +336,7 @@ export const da = {
       noReduction: "Ingen reduktion af effekttoppen med de valgte indstillinger.",
     },
     breakdown: {
+      energyNegativeNote: "Energidelen er negativ: batteriets tab og opladning koster mere end den sparede el. Totalen er alligevel positiv takket være systemydelserne.",
       title: "Fordeling af årlig værdi",
       total: "Samlet beregnet kundeværdi",
     },
@@ -453,6 +454,9 @@ export const da = {
     reservablePower: "Fysisk reserverbar effekt (gennemsnit)",
     reservableNote:
       "Et separat gennemsnitligt mål for reserverbarhed – ikke den effekt, som betalingen beregnes ud fra.",
+    avgHeldPower: "Gennemsnit der faktisk holdes",
+    fullDeliveryHours: "Timer med fuld levering",
+    fullDeliveryNote: "Andel af de reserverede timer, hvor hele den tilbudte effekt kunne holdes. Kompensationen beregnes kun på den effekt, der faktisk holdes.",
     reservationNote:
       "Motoren reserverer det niveau, der giver den højeste samlede beregnede nytte. En større del af batteriets effekt kan være teknisk tilgængelig til systemydelser, men bruges ikke, hvis eget forbrug og spidslastkapning giver større nytte.",
     selectedServices: "Valgte systemydelser",

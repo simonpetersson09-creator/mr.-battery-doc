@@ -475,7 +475,13 @@ export function runSweep(cfg: LabConfig, seriesOverride?: TimeSeries): SweepResu
   const peakFloor = applyPeakFloor(
     capacitySpot,
     capacities,
-    peakCapacityNeed(cfg, series),
+    cfg.peakShaving.affectsSizing === false
+      ? {
+          ...peakCapacityNeed(cfg, series),
+          active: false,
+          blockedReason: "Ingen effektavgift — toppkapningen får inte höja kapaciteten.",
+        }
+      : peakCapacityNeed(cfg, series),
     cfg.sweetSpot,
   );
   /**

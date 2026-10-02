@@ -288,6 +288,9 @@ export const fr = {
     "reservedPower": "Puissance réservée",
     "reservablePower": "Puissance physiquement réservable (moyenne)",
     "reservableNote": "Une mesure de réservabilité moyenne distincte – ce n'est pas la puissance à partir de laquelle la compensation est calculée.",
+    "avgHeldPower": "Moyenne réellement tenue",
+    "fullDeliveryHours": "Heures à livraison complète",
+    "fullDeliveryNote": "Part des heures réservées où toute la puissance offerte a pu être tenue. La rémunération n'est calculée que sur la puissance réellement tenue.",
     "reservationNote": "Le moteur réserve le niveau qui offre le bénéfice total calculé le plus élevé. Une plus grande partie de la puissance de la batterie peut être techniquement disponible pour les services auxiliaires, mais n'est pas utilisée si l'autoconsommation et l'écrêtage des pointes offrent un plus grand bénéfice.",
     "selectedServices": "Services sélectionnés",
     "limitingFactor": "Ce qui limite la taille de la batterie",
@@ -606,6 +609,7 @@ export const fr = {
       "noReduction": "Pas de réduction du pic de puissance avec les paramètres sélectionnés."
     },
     "breakdown": {
+      "energyNegativeNote": "La part énergie est négative : les pertes et la charge de la batterie coûtent plus que l'électricité économisée. Le total reste positif grâce aux services système.",
       "title": "Répartition du bénéfice annuel",
       "total": "Bénéfice client total calculé"
     },

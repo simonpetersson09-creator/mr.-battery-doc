@@ -745,6 +745,7 @@ function ResultStep() {
               }
               title={t("results.breakdown.title")}
               totalLabel={t("results.breakdown.total")}
+              negativeEnergyNote={t("results.breakdown.energyNegativeNote")}
               money={money}
               moneyPerYear={moneyPerYear}
               nf={nf}
@@ -904,6 +905,16 @@ function ResultStep() {
                     2,
                   )}
                 />
+                {!ancillaryBest && p.fcrHeldPowerKw !== null ? (
+                  <>
+                    <Row label={t("technical.avgHeldPower")} value={kw(p.fcrHeldPowerKw, 2)} />
+                    <Row
+                      label={t("technical.fullDeliveryHours")}
+                      value={`${nf(s.fcr.fullDeliveryPct ?? 0, 0)} %`}
+                    />
+                    <p className="ui-help">{t("technical.fullDeliveryNote")}</p>
+                  </>
+                ) : null}
                 {!ancillaryBest && p.fcrReservableAvgPowerKw !== null ? (
                   <>
                     <Row
@@ -1057,6 +1068,7 @@ function BenefitDistribution({
   label,
   title,
   totalLabel,
+  negativeEnergyNote,
   money,
   moneyPerYear,
   nf,
@@ -1065,6 +1077,7 @@ function BenefitDistribution({
   label: (key: BenefitComponentKey) => string;
   title: string;
   totalLabel: string;
+  negativeEnergyNote: string;
   money: (v: number | null) => string;
   moneyPerYear: (v: number | null) => string;
   nf: (v: number, d?: number) => string;
@@ -1106,6 +1119,9 @@ function BenefitDistribution({
         <span>{totalLabel}</span>
         <span className="tabular-nums">{breakdown.totalCustomerBenefitSek === null ? money(null) : <CountUpValue value={breakdown.totalCustomerBenefitSek} format={(v) => money(v)} />}</span>
       </div>
+      {rows.some((c) => c.key === "energy" && c.sek < 0) ? (
+        <p className="ui-help mt-1.5">{negativeEnergyNote}</p>
+      ) : null}
     </div>
   );
 }

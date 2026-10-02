@@ -336,6 +336,7 @@ export const en = {
       noReduction: "No reduction of the power peak with the selected settings.",
     },
     breakdown: {
+      energyNegativeNote: "The energy part is negative: battery losses and charging cost more than the electricity saved. The total is still positive thanks to grid services.",
       title: "Distribution of annual benefit",
       total: "Total calculated customer benefit",
     },
@@ -453,6 +454,9 @@ export const en = {
     reservablePower: "Physically reservable power (average)",
     reservableNote:
       "A separate average reservability measure – not the power the compensation is calculated from.",
+    avgHeldPower: "Average actually held",
+    fullDeliveryHours: "Hours with full delivery",
+    fullDeliveryNote: "Share of reserved hours when the full offered power could be held. Compensation is only calculated on the power actually held.",
     reservationNote:
       "The engine reserves the level that gives the highest total calculated benefit. More of the battery's power may be technically available for ancillary services, but is not used if self-consumption and peak shaving give greater benefit.",
     selectedServices: "Selected services",

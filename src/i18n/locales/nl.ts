@@ -246,6 +246,9 @@ export const nl = {
     "reservedPower": "Gereserveerd vermogen",
     "reservablePower": "Fysiek reserveerbaar vermogen (gemiddeld)",
     "reservableNote": "Een afzonderlijke, gemiddelde maat voor reserveerbaarheid – niet het vermogen waarop de vergoeding wordt berekend.",
+    "avgHeldPower": "Gemiddeld werkelijk vastgehouden",
+    "fullDeliveryHours": "Uren met volledige levering",
+    "fullDeliveryNote": "Aandeel van de gereserveerde uren waarin het volledige aangeboden vermogen kon worden vastgehouden. De vergoeding wordt alleen berekend op het werkelijk vastgehouden vermogen.",
     "reservationNote": "De engine reserveert het niveau dat het hoogste totale berekende voordeel oplevert. Meer vermogen van de batterij kan technisch beschikbaar zijn voor netdiensten, maar wordt niet gebruikt als eigen verbruik en peak shaving een groter voordeel bieden.",
     "selectedServices": "Geselecteerde diensten",
     "limitingFactor": "Beperkende factor",
@@ -606,6 +609,7 @@ export const nl = {
       "noReduction": "Geen reductie van de vermogenspiek met de geselecteerde instellingen."
     },
     "breakdown": {
+      "energyNegativeNote": "Het energiedeel is negatief: batterijverliezen en laden kosten meer dan de bespaarde stroom. Het totaal is toch positief dankzij de systeemdiensten.",
       "title": "Verdeling van het jaarlijks voordeel",
       "total": "Totaal berekend klantvoordeel"
     },

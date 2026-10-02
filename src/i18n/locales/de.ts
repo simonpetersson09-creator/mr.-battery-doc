@@ -339,6 +339,7 @@ export const de = {
       noReduction: "Keine Reduktion der Lastspitze mit den gewählten Einstellungen.",
     },
     breakdown: {
+      energyNegativeNote: "Der Energieanteil ist negativ: Batterieverluste und Laden kosten mehr als der eingesparte Strom. Die Summe ist dank der Systemdienstleistungen trotzdem positiv.",
       title: "Verteilung des jährlichen Nutzens",
       total: "Gesamter berechneter Kundennutzen",
     },
@@ -457,6 +458,9 @@ export const de = {
     reservablePower: "Physikalisch reservierbare Leistung (Durchschnitt)",
     reservableNote:
       "Ein separater durchschnittlicher Reservierbarkeitswert – nicht die Leistung, auf der die Vergütung basiert.",
+    avgHeldPower: "Tatsächlich gehaltener Durchschnitt",
+    fullDeliveryHours: "Stunden mit voller Lieferung",
+    fullDeliveryNote: "Anteil der reservierten Stunden, in denen die volle angebotene Leistung gehalten werden konnte. Die Vergütung wird nur auf die tatsächlich gehaltene Leistung berechnet.",
     reservationNote:
       "Die Engine reserviert die Leistung, die den höchsten Gesamtnutzen bringt. Ein größerer Teil der Batterieleistung könnte technisch für Systemdienstleistungen verfügbar sein, wird aber nicht genutzt, wenn Eigenverbrauch und Spitzenlastkappung einen größeren Nutzen bringen.",
     selectedServices: "Gewählte Systemdienstleistungen",

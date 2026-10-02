@@ -299,7 +299,12 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
       key: "energy",
       label: copy.benefit.energy,
       sek: ce.energyBenefitSek,
-      hint: hasSolar ? copy.benefit.energyHint : copy.benefit.energyNoSolarHint,
+      hint:
+        ce.energyBenefitSek < 0
+          ? copy.benefit.energyNegativeHint
+          : hasSolar
+            ? copy.benefit.energyHint
+            : copy.benefit.energyNoSolarHint,
     });
   }
   if (!ancillaryOnly && ce.peakBenefitSek !== 0) {
@@ -714,6 +719,11 @@ export function buildReportModel(req: ReportModelRequest): ReportModel {
         source: "calculated",
       },
       { label: copy.ancillary.availability, value: pct(fcr.availabilityPct), source: "calculated" },
+      {
+        label: copy.ancillary.fullDelivery,
+        value: pct(fcr.fullDeliveryPct ?? 0),
+        source: "calculated",
+      },
       ...(ancillaryPriced
         ? [
             {

@@ -131,6 +131,13 @@ export interface PeakShavingConfig {
    * here, so the physical peak reduction is still simulated.
    */
   gridChargingEnabled?: boolean;
+  /**
+   * Whether peak shaving may influence battery SIZING (capacity floor and power need).
+   * False when there is no demand charge and no technical peak goal: peak shaving still
+   * runs in the simulation, but size is driven by energy value and reserve services.
+   * Undefined = true (legacy behaviour).
+   */
+  affectsSizing?: boolean;
 }
 
 
@@ -627,6 +634,8 @@ export interface SimResult {
     reservedHours: number;
     readyHours: number;
     availabilityPct: number;
+    /** Share of reserved hours where the FULL offered power was held, %. Display only. */
+    fullDeliveryPct: number;
     readinessChargeKWh: number;
     /** AC energy charged by symmetric-FCR storage management (PV + grid), kWh. */
     storageManagementChargeKWh: number;
