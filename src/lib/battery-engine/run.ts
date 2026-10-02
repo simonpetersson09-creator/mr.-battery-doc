@@ -292,9 +292,10 @@ function runBatteryEngineCore(input: BatteryEngineInput): BatteryEngineResult {
    * allowed to simulate, i.e. the largest step inside the nominal main-fuse guardrail and
    * the 200 kW product cap. This is a deliberate product decision: no CAPEX, no SEK/kW,
    * no C-rate limit, no multiplier and no payback rule is involved. Capacity is untouched.
-   * The power is only raised when reserve income can actually be priced. From a zero
-   * energy seed it is only raised when that step yields a positive customer reserve
-   * benefit — otherwise "no battery" stands.
+   * The power is only raised when reserve income can actually be priced AND that step
+   * yields a positive customer reserve benefit (M1) — a step whose FCR optimisation
+   * reserves 0 kW gives ancillary services no reason to raise the power. From a zero
+   * energy seed "no battery" then stands.
    */
   const highestStep =
     cfg.strategies.ancillaryServices && reservePriceable && ancillaryPowerPotential
@@ -303,7 +304,7 @@ function runBatteryEngineCore(input: BatteryEngineInput): BatteryEngineResult {
         >((best, st) => (best === null || st.installedPowerKw > best.installedPowerKw ? st : best), null)
       : null;
   const ancillaryPowerSelection =
-    highestStep && (!zeroEnergySeed || highestStep.ancillaryCustomerBenefitPerYear > 0)
+    highestStep && highestStep.ancillaryCustomerBenefitPerYear > 0
       ? highestStep.installedPowerKw
       : 0;
   const ancillaryRaisedPowerKw = ancillaryPowerSelection > powerKw ? ancillaryPowerSelection : null;
