@@ -34,6 +34,7 @@ import { simulate } from "../lab/simulate";
 import { runSweep } from "../lab/sweep";
 import type { SweepResult } from "../lab/sweep";
 import type { LabConfig, SimResult } from "../lab/types";
+import { fcrPriceSeriesForCountry } from "../lab/ancillary/prices";
 import { toEconomyConfig, toLabConfig, toTimeSeries } from "./input";
 import type {
   BatteryEngineInput,
@@ -169,14 +170,46 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
    * min(nominal main-fuse product guardrail, global 200 kW product cap), each one a
    * complete 8760 run through the existing engine. No cost model, no C-rate rule.
    */
+  /**
+   * Reserve income can only be priced when the market has its own verified price series
+   * (same condition as the simulation's `priceModel !== "unavailable"`).
+   */
+  const reservePriceable = fcrPriceSeriesForCountry(cfg.ancillary.priceCountry) !== null;
+
+  /**
+   * ZERO ENERGY SIZING SEED. When energy sizing yields 0 kWh or 0 kW, the existing
+   * potential analysis would exit before the reserve market is ever evaluated. With a
+   * priceable reserve market ON, the SAME analysis is seeded at the smallest real
+   * capacity step and smallest real product step. No new sizing formula: whether a
+   * battery results is still decided by the analysis below.
+   */
+  const zeroEnergySeed =
+    !sizingWasFixed &&
+    cfg.strategies.ancillaryServices &&
+    reservePriceable &&
+    // Without solar AND without peak shaving the standalone ancillary scenario owns the
+    // 0 kWh case (it runs its own load-neutral sizing) — leave that flow untouched.
+    (cfg.strategies.peakShaving || series.pv.some((v) => v > 0)) &&
+    (!(finalCapacityKWh > 0) || !(basePowerForEnergyKw > 0));
+  const smallestPositive = (xs: number[]) =>
+    xs.filter((x) => x > 0).reduce((m, x) => Math.min(m, x), Infinity);
+  const seedCapacityKWh = zeroEnergySeed
+    ? smallestPositive(cfg.sweep.capacitiesKWh)
+    : finalCapacityKWh;
+  const seedBasePowerKw = zeroEnergySeed
+    ? smallestPositive(cfg.powerSizing.productStepsKw)
+    : basePowerForEnergyKw;
+  const zeroSeedUsable =
+    !zeroEnergySeed || (Number.isFinite(seedCapacityKWh) && Number.isFinite(seedBasePowerKw));
+
   let ancillaryPowerPotential =
-    sizingWasFixed || (input.strategies?.ancillaryPowerPotential ?? true) === false
+    sizingWasFixed || (input.strategies?.ancillaryPowerPotential ?? true) === false || !zeroSeedUsable
       ? null
       : computeAncillaryPowerPotential({
           cfg,
           series,
-          capacityKWh: finalCapacityKWh,
-          basePowerKw: basePowerForEnergyKw,
+          capacityKWh: seedCapacityKWh,
+          basePowerKw: seedBasePowerKw,
           econ,
           optimiseFcrReservation: input.strategies?.optimiseFcrReservation ?? false,
         });
@@ -189,16 +222,24 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
    * allowed to simulate, i.e. the largest step inside the nominal main-fuse guardrail and
    * the 200 kW product cap. This is a deliberate product decision: no CAPEX, no SEK/kW,
    * no C-rate limit, no multiplier and no payback rule is involved. Capacity is untouched.
+   * The power is only raised when reserve income can actually be priced. From a zero
+   * energy seed it is only raised when that step yields a positive customer reserve
+   * benefit — otherwise "no battery" stands.
    */
+  const highestStep =
+    cfg.strategies.ancillaryServices && reservePriceable && ancillaryPowerPotential
+      ? ancillaryPowerPotential.steps.reduce<
+          (typeof ancillaryPowerPotential.steps)[number] | null
+        >((best, st) => (best === null || st.installedPowerKw > best.installedPowerKw ? st : best), null)
+      : null;
   const ancillaryPowerSelection =
-    cfg.strategies.ancillaryServices && ancillaryPowerPotential
-      ? ancillaryPowerPotential.steps.reduce(
-          (best, st) => Math.max(best, st.installedPowerKw),
-          0,
-        )
+    highestStep && (!zeroEnergySeed || highestStep.ancillaryCustomerBenefitPerYear > 0)
+      ? highestStep.installedPowerKw
       : 0;
   const ancillaryRaisedPowerKw = ancillaryPowerSelection > powerKw ? ancillaryPowerSelection : null;
   if (ancillaryRaisedPowerKw !== null) powerKw = ancillaryRaisedPowerKw;
+  if (zeroEnergySeed && ancillaryRaisedPowerKw === null) ancillaryPowerPotential = null;
+  const reserveSizingStartKWh = zeroEnergySeed ? seedCapacityKWh : capacityKWh;
 
   /**
    * STEP D AGAIN, FOR THE FINAL POWER. When ancillary services raised the power, the
@@ -210,11 +251,11 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
     fcrEnduranceCapacityResult = fcrEnduranceCapacity({
       cfg,
       series,
-      capacityKWh,
+      capacityKWh: reserveSizingStartKWh,
       powerKw,
       capacityStepsKWh: cfg.sweep.capacitiesKWh,
     });
-    const reSized = fcrEnduranceCapacityResult?.capacityKWh ?? capacityKWh;
+    const reSized = fcrEnduranceCapacityResult?.capacityKWh ?? reserveSizingStartKWh;
     if (Math.abs(reSized - finalCapacityKWh) > 1e-9) {
       finalCapacityKWh = reSized;
       // Power analysis re-read at the final capacity so nothing reports the old kWh.
@@ -223,7 +264,7 @@ export function runBatteryEngine(input: BatteryEngineInput = {}): BatteryEngineR
           cfg,
           series,
           capacityKWh: finalCapacityKWh,
-          basePowerKw: basePowerForEnergyKw,
+          basePowerKw: seedBasePowerKw,
           econ,
           optimiseFcrReservation: input.strategies?.optimiseFcrReservation ?? false,
         });
