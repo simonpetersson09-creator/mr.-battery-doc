@@ -23,6 +23,10 @@ describe("1.0 C limit", () => {
     ["CH", 63, 10000, 20000, 40, 40], // was 40 / 25
     ["SI", 63, 10000, 20000, 40, 40], // was 40 / 25
     ["CH", 250, 10000, 20000, 150, 150], // was 150 / 100
+    ["CH", 160, 10000, 20000, 100, 100], // 100 kW -> at least 100 kWh
+    ["CH", 315, 10000, 20000, 200, 200], // 200 kW -> at least 200 kWh
+    ["CH", 100, 10000, 20000, 60, 75], // no 60 kWh step -> next real step 75
+    ["CH", 200, 10000, 20000, 125, 150], // no 125 kWh step -> next real step 150
   ] as const) {
     it(`${cc} ${fuse} A: ${kw} kW -> ${kwh} kWh`, () => {
       const r = run(cc, fuse, pv, annual, true);
