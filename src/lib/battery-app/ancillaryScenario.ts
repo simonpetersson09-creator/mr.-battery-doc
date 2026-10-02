@@ -41,6 +41,7 @@ import type { BatteryEngineInput, BatteryEngineResult } from "@/lib/battery-engi
 
 import type { BatteryAlternative } from "./capacityAlternatives";
 import { defaultConfig } from "@/lib/lab/defaults";
+import { cRateCapacitySteps, exceedsAutoCRate } from "@/lib/lab/cRateLimit";
 import {
   clampCustomerAncillaryShare,
   clampTargetPaybackYears,

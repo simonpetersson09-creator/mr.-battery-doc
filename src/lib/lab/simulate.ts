@@ -273,10 +273,8 @@ export function simulate(
    * Load the connection could not deliver (unserved) is neither import nor a win, so it
    * is subtracted too — otherwise an undersized fuse would show up as high self-sufficiency.
    */
-  const baseSelfSufficiencyPct =
-    annualLoad > 0 ? ((annualLoad - baseImport - base.unserved) / annualLoad) * 100 : 0;
-  const selfSufficiencyPct =
-    annualLoad > 0 ? ((annualLoad - importKWh - t.unservedKWh) / annualLoad) * 100 : 0;
+  const baseSelfSufficiencyPct = selfSufficiency(annualLoad, annualPv, baseImport, base.unserved);
+  const selfSufficiencyPct = selfSufficiency(annualLoad, annualPv, importKWh, t.unservedKWh);
 
   const baseModelledPeakKw = peakKw(base.imp);
   const modelledPeakKw = peakKw(d.importSeries);
