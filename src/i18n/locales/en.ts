@@ -668,6 +668,8 @@ export const en = {
     open: "Open result",
     edit: "Change details",
     notVerified: "The purchase could not be verified on this device. Try Restore purchases.",
+    delete: "Delete",
+    deleteConfirm: "Delete this calculation from history? This cannot be undone.",
     empty: {
       title: "No history yet",
       text: "Calculations you unlock are collected here.",

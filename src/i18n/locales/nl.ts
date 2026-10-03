@@ -406,6 +406,8 @@ export const nl = {
     "open": "Resultaat openen",
     "edit": "Details wijzigen",
     "notVerified": "De aankoop kon niet worden geverifieerd op dit toestel. Probeer Aankoop herstellen.",
+    "delete": "Verwijderen",
+    "deleteConfirm": "Deze berekening uit de geschiedenis verwijderen? Dit kan niet ongedaan worden gemaakt.",
     "empty": {
       "title": "Nog geen historiek",
       "text": "Berekeningen die je ontgrendelt, worden hier verzameld."

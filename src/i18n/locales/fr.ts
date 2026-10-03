@@ -409,6 +409,8 @@ export const fr = {
     "open": "Ouvrir le résultat",
     "edit": "Modifier les détails",
     "notVerified": "L'achat n'a pas pu être vérifié sur cet appareil. Essayez de restaurer les achats.",
+    "delete": "Supprimer",
+    "deleteConfirm": "Supprimer ce calcul de l'historique ? Cette action est irréversible.",
     "empty": {
       "title": "Aucun historique pour le moment",
       "text": "Les calculs que vous débloquez sont rassemblés ici."
