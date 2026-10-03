@@ -43,6 +43,8 @@ export interface NativePurchasePlugin {
   }>;
   /** Restores/verifies existing SUBSCRIPTION entitlements only. */
   restorePremium(): Promise<{ active: boolean; expiresISO?: string | null; purchaseToken?: string }>;
+  /** Silent subscription check without an Apple ID prompt. iOS only. */
+  currentPremium?(): Promise<{ active: boolean; expiresISO?: string | null }>;
   /**
    * Transactions StoreKit still considers unfinished — a purchase that completed
    * while the app was closed, an interrupted/pending transaction, or one whose
@@ -127,6 +129,15 @@ export function createNativeGateway(p: NativePurchasePlugin): PurchaseGateway {
         await p.finishTransaction?.(transactionId);
       } catch {
         /* a failed acknowledgement just means StoreKit replays it later */
+      }
+    },
+    async syncPremium() {
+      if (!p.currentPremium) return null;
+      try {
+        const res = await p.currentPremium();
+        return res?.active ? { expiresISO: res.expiresISO ?? null } : null;
+      } catch {
+        return null;
       }
     },
     async restore() {

@@ -381,6 +381,8 @@ export function createCdvPurchaseAdapter(
      * calls restorePurchases, so it can never show an Apple ID prompt.
      */
     async currentPremium() {
+      // Android stays unchanged: Play subscriptions need backend token verification.
+      if (isGoogle) return { active: false };
       await ensureInit();
       await store.update?.();
       const premiumId = PRODUCT_IDS.premiumYear;

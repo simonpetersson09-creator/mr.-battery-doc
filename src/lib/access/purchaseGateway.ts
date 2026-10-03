@@ -61,6 +61,8 @@ export interface PurchaseGateway {
   purchase(key: ProductKey): Promise<PurchaseResult>;
   /** Subscriptions only. A consumable report purchase is never restorable. */
   restore(): Promise<RestoreResult>;
+  /** Silent check (no prompt) for an active subscription. Null = nothing found / unknown. */
+  syncPremium?(): Promise<{ expiresISO: string | null } | null>;
   /** Unfinished StoreKit transactions to recover on start. Native only. */
   pendingTransactions?(): Promise<UnfinishedTransaction[]>;
   /** Acknowledges a recovered transaction. Native only. */
