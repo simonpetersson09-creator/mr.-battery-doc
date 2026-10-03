@@ -222,4 +222,91 @@ describe("native StoreKit adapter", () => {
     expect(res.status).toBe("failed");
     expect("transactionId" in res).toBe(false);
   });
+
+  describe("purchase waits for StoreKit instead of failing on a slow load", () => {
+    it("starts the purchase immediately without a refresh when the product is already loaded", async () => {
+      const a = createCdvPurchaseAdapter(f.ns as never);
+      const res = await a.purchase(PRODUCT_IDS.singleReport);
+      expect(res.status).toBe("purchased");
+      expect(res.transactionId).toBe("tx-42");
+      expect(f.store.update).not.toHaveBeenCalled();
+    });
+
+    it("refreshes once and starts the purchase when the product arrives after store.update()", async () => {
+      let available = false;
+      const store = {
+        ...f.store,
+        get: (id: string) =>
+          available
+            ? {
+                id,
+                pricing: { price: "59,00 kr" },
+                offers: [{ order: async () => f.approved.forEach((cb) => cb(f.transaction)) }],
+              }
+            : undefined,
+        update: vi.fn(async () => {
+          available = true;
+          for (const cb of f.productUpdated) cb({ id: PRODUCT_IDS.singleReport });
+        }),
+      };
+      const a = createCdvPurchaseAdapter({ ...f.ns, store } as never);
+      const res = await a.purchase(PRODUCT_IDS.singleReport);
+      expect(res.status).toBe("purchased");
+      expect(res.transactionId).toBe("tx-42");
+      expect(store.update).toHaveBeenCalledTimes(1);
+    });
+
+    it("returns product-unavailable only after the retry wait when the product never loads", async () => {
+      vi.useFakeTimers();
+      try {
+        const store = { ...f.store, get: () => undefined };
+        const a = createCdvPurchaseAdapter({ ...f.ns, store } as never);
+        const p = a.purchase(PRODUCT_IDS.singleReport);
+        await vi.advanceTimersByTimeAsync(20000);
+        const res = await p;
+        expect(res).toEqual({ status: "failed", code: "PRODUCT_UNAVAILABLE" });
+        expect(store.update).toHaveBeenCalledTimes(1);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it("waits for a delayed offer instead of failing immediately", async () => {
+      let offersReady = false;
+      const store = {
+        ...f.store,
+        get: (id: string) => ({
+          id,
+          pricing: { price: "59,00 kr" },
+          offers: offersReady
+            ? [{ order: async () => f.approved.forEach((cb) => cb(f.transaction)) }]
+            : [],
+        }),
+        update: vi.fn(async () => {
+          offersReady = true;
+          for (const cb of f.productUpdated) cb({ id: PRODUCT_IDS.singleReport });
+        }),
+      };
+      const a = createCdvPurchaseAdapter({ ...f.ns, store } as never);
+      const res = await a.purchase(PRODUCT_IDS.singleReport);
+      expect(res.status).toBe("purchased");
+      expect(res.transactionId).toBe("tx-42");
+      expect(store.update).toHaveBeenCalledTimes(1);
+    });
+
+    it("still maps a cancelled purchase to cancelled exactly as before", async () => {
+      const store = {
+        ...f.store,
+        get: (id: string) => ({
+          id,
+          pricing: { price: "59,00 kr" },
+          offers: [{ order: async () => ({ isError: true, code: 6777006, message: "Purchase cancelled" }) }],
+        }),
+      };
+      const a = createCdvPurchaseAdapter({ ...f.ns, store } as never);
+      const res = await a.purchase(PRODUCT_IDS.singleReport);
+      expect(res).toEqual({ status: "cancelled" });
+      expect(f.store.update).not.toHaveBeenCalled();
+    });
+  });
 });
