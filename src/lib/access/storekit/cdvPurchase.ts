@@ -375,6 +375,27 @@ export function createCdvPurchaseAdapter(
       return { active: true, expiresISO: expiresISO(active) };
     },
 
+    /**
+     * Silent Premium check on start/foreground: reads the transactions StoreKit
+     * already has after initialise + refresh. Unlike restorePremium it never
+     * calls restorePurchases, so it can never show an Apple ID prompt.
+     */
+    async currentPremium() {
+      await ensureInit();
+      await store.update?.();
+      const premiumId = PRODUCT_IDS.premiumYear;
+      const tx = (store.localTransactions ?? []).filter((t) =>
+        (t.products ?? []).some((p) => p.id === premiumId),
+      );
+      const active = tx.find((t) => {
+        const iso = expiresISO(t);
+        return !iso || Date.parse(iso) > Date.now();
+      });
+      tx.forEach(rememberTransaction);
+      if (!active) return { active: false };
+      return { active: true, expiresISO: expiresISO(active) };
+    },
+
     async pendingTransactions() {
       await ensureInit();
       const list = store.localTransactions ?? [];
