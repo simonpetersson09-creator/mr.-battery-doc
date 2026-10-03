@@ -663,6 +663,8 @@ export const fi = {
     open: "Avaa tulos",
     edit: "Muuta tietoja",
     notVerified: "Ostoa ei voitu vahvistaa tällä laitteella. Kokeile Palauta ostot.",
+    delete: "Poista",
+    deleteConfirm: "Poistetaanko tämä laskelma historiasta? Toimintoa ei voi perua.",
     empty: {
       title: "Ei vielä historiaa",
       text: "Tähän kerätään avaamasi laskelmat.",

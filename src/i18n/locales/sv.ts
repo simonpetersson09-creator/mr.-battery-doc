@@ -669,6 +669,8 @@ export const sv = {
     open: "Öppna resultat",
     edit: "Ändra uppgifter",
     notVerified: "Köpet kunde inte verifieras på den här enheten. Prova Återställ köp.",
+    delete: "Ta bort",
+    deleteConfirm: "Ta bort den här beräkningen från historiken? Det går inte att ångra.",
     empty: {
       title: "Ingen historik ännu",
       text: "Här samlas de beräkningar du har låst upp.",

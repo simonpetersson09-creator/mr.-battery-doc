@@ -675,6 +675,8 @@ export const de = {
     open: "Ergebnis öffnen",
     edit: "Angaben ändern",
     notVerified: "Der Kauf konnte auf diesem Gerät nicht bestätigt werden. Versuchen Sie „Käufe wiederherstellen“.",
+    delete: "Löschen",
+    deleteConfirm: "Diese Berechnung aus dem Verlauf löschen? Dies kann nicht rückgängig gemacht werden.",
     empty: {
       title: "Noch kein Verlauf",
       text: "Hier sammeln sich die Berechnungen, die Sie freigeschaltet haben.",

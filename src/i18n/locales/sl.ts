@@ -230,6 +230,8 @@ export const sl = {
     "open": "Odpri rezultat",
     "edit": "Spremeni podrobnosti",
     "notVerified": "Nakupa na tej napravi ni bilo mogoče preveriti. Poskusite z možnostjo Obnovi nakupe.",
+    "delete": "Izbriši",
+    "deleteConfirm": "Izbrišem ta izračun iz zgodovine? Tega ni mogoče razveljaviti.",
     "empty": {
       "title": "Zgodovina je prazna",
       "text": "Tukaj se zbirajo izračuni, ki jih odklenete."

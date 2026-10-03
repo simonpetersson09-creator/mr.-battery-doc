@@ -8,12 +8,12 @@
  * Opening an entry never runs the engine and never triggers a payment.
  */
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, BatteryCharging, ChevronRight, Pencil } from "lucide-react";
+import { ArrowLeft, BatteryCharging, ChevronRight, Pencil, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useT, currentLanguage, formatNumber } from "@/i18n";
 import { formatMoney } from "@/lib/country-config";
 import { buildHistoryEntries } from "@/lib/history/verification";
-import { listSnapshots } from "@/lib/history/store";
+import { listSnapshots, removeSnapshot } from "@/lib/history/store";
 import { useAccess } from "@/state/access";
 import { useWizard } from "@/state/wizard";
 import { clearCalculationCache } from "@/lib/access/calculationCache";
@@ -52,7 +52,7 @@ function HistoryPage() {
   const navigate = useNavigate();
   const { update } = useWizard();
   /* Reading storage once per mount keeps the list stable while it is open. */
-  const [snapshots] = useState(() => listSnapshots());
+  const [snapshots, setSnapshots] = useState(() => listSnapshots());
   const entries = useMemo(
     () => buildHistoryEntries(snapshots, access.entitlements),
     [snapshots, access.entitlements],
@@ -143,6 +143,18 @@ function HistoryPage() {
                     >
                       <Pencil className="size-3.5 shrink-0" />
                       <span>{t("history.edit")}</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="flex h-9 w-full items-center justify-center gap-1.5 rounded-[0.75rem] px-3 text-[13px] font-semibold text-destructive"
+                      onClick={() => {
+                        if (!window.confirm(t("history.deleteConfirm"))) return;
+                        removeSnapshot(entry.calculationId);
+                        setSnapshots(listSnapshots());
+                      }}
+                    >
+                      <Trash2 className="size-3.5 shrink-0" />
+                      <span>{t("history.delete")}</span>
                     </button>
                     {(() => {
                       const credits = adjustmentCreditsRemaining(access.entitlements);

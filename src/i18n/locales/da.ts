@@ -668,6 +668,8 @@ export const da = {
     open: "Åbn resultat",
     edit: "Ændr oplysninger",
     notVerified: "Købet kunne ikke bekræftes på denne enhed. Prøv Gendan køb.",
+    delete: "Slet",
+    deleteConfirm: "Slet denne beregning fra historikken? Det kan ikke fortrydes.",
     empty: {
       title: "Ingen historik endnu",
       text: "Her samles de beregninger, du har låst op.",

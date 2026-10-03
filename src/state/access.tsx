@@ -181,9 +181,25 @@ export function AccessProvider({
 
     void recover();
 
+    // Premium sync with Apple: picks up renewals and purchases made on another
+    // device. Only ever grants/extends — expiry is handled by the cached date.
+    const syncPremium = async () => {
+      const found = await resolved.syncPremium?.();
+      if (!alive || !found) return;
+      setEntitlements((e) => {
+        const next = applyRestore(e, { status: "restored", premiumExpiresISO: found.expiresISO });
+        persistEntitlements(next);
+        return next;
+      });
+    };
+    void syncPremium();
+
     // Capacitor's WKWebView fires visibilitychange on background/foreground.
     const onVisible = () => {
-      if (document.visibilityState === "visible") void recover();
+      if (document.visibilityState === "visible") {
+        void recover();
+        void syncPremium();
+      }
     };
     document.addEventListener("visibilitychange", onVisible);
 

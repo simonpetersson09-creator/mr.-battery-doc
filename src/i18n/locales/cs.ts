@@ -449,6 +449,8 @@ export const cs = {
     "open": "Otevřít výsledek",
     "edit": "Změnit detaily",
     "notVerified": "Nákup se na tomto zařízení nepodařilo ověřit. Zkuste Obnovit nákupy.",
+    "delete": "Smazat",
+    "deleteConfirm": "Smazat tento výpočet z historie? Tuto akci nelze vrátit.",
     "empty": {
       "title": "Zatím žádná historie",
       "text": "Výpočty, které odemknete, se shromažďují zde."
