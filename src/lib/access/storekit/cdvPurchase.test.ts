@@ -46,7 +46,7 @@ function fakeStore() {
     Platform: { APPLE_APPSTORE: "ios-appstore" },
     ProductType: { CONSUMABLE: "consumable", PAID_SUBSCRIPTION: "paid subscription" },
   };
-  return { ns, store, registered, transaction, finished, productUpdated, pending };
+  return { ns, store, registered, transaction, finished, productUpdated, pending, approved };
 }
 
 describe("native StoreKit adapter", () => {

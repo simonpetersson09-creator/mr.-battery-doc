@@ -286,8 +286,30 @@ export function createCdvPurchaseAdapter(
       } catch (err) {
         return mapPluginError(err);
       }
-      const product = store.get(productId, platform);
+      let product = store.get(productId, platform);
+      if (!product && !isGoogle) {
+        // StoreKit may still be loading products when the user taps buy:
+        // refresh once and wait briefly for THIS product before failing.
+        await store.update?.();
+        await waitForProducts([productId]);
+        product = store.get(productId, platform);
+      }
       if (!product) return { status: "failed" as const, code: "PRODUCT_UNAVAILABLE" };
+
+      // Google Play subscriptions: order exactly the configured base plan.
+      let offer =
+        isGoogle && PRODUCT_TYPES[keyForId(productId)] === "auto-renewable-subscription"
+          ? product.offers?.find((o) => o.id === `${productId}@${GOOGLE_PLAY_PREMIUM_BASE_PLAN_ID}`)
+          : (product.getOffer?.() ?? product.offers?.[0]);
+      if (!offer && !isGoogle) {
+        // The product can be registered before its offer/pricing has loaded;
+        // wait for pricing (same mechanism) instead of failing immediately.
+        await store.update?.();
+        await waitForProducts([productId]);
+        product = store.get(productId, platform) ?? product;
+        offer = product.getOffer?.() ?? product.offers?.[0];
+      }
+      if (!offer) return { status: "failed" as const, code: "PRODUCT_UNAVAILABLE" };
 
       const transaction = new Promise<CdvTransaction | null>((resolve) => {
         const previous = waiting.get(productId);
@@ -305,15 +327,6 @@ export function createCdvPurchaseAdapter(
       });
 
       try {
-        // Google Play subscriptions: order exactly the configured base plan.
-        const offer =
-          isGoogle && PRODUCT_TYPES[keyForId(productId)] === "auto-renewable-subscription"
-            ? product.offers?.find((o) => o.id === `${productId}@${GOOGLE_PLAY_PREMIUM_BASE_PLAN_ID}`)
-            : (product.getOffer?.() ?? product.offers?.[0]);
-        if (!offer) {
-          settleWaiting(productId, null);
-          return { status: "failed" as const, code: "PRODUCT_UNAVAILABLE" };
-        }
         // v13 may RETURN an IError instead of throwing it — both paths must fail.
         const ordered = await (offer.order ? offer.order() : store.order?.(offer));
         const returnedError = asPluginError(ordered);
