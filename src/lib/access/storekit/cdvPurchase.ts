@@ -395,7 +395,12 @@ export function createCdvPurchaseAdapter(
       });
       tx.forEach(rememberTransaction);
       if (!active) return { active: false };
-      return { active: true, expiresISO: expiresISO(active) };
+      return {
+        active: true,
+        expiresISO: expiresISO(active),
+        transactionId: active.transactionId,
+        originalTransactionId: active.originalTransactionId ?? null,
+      };
     },
 
     async pendingTransactions() {
