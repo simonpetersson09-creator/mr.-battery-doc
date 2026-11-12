@@ -93,7 +93,10 @@ export function subscribeNativePurchasePlugin(listener: () => void): () => void 
   return () => listeners.delete(listener);
 }
 
-export function createNativeGateway(p: NativePurchasePlugin): PurchaseGateway {
+export function createNativeGateway(
+  p: NativePurchasePlugin,
+  verifyPremium: typeof verifyPurchaseWithServer = verifyPurchaseWithServer,
+): PurchaseGateway {
   return {
     kind: "native",
     requiresServerVerification: true,
