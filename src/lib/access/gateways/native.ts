@@ -11,6 +11,7 @@
  * per-calculation unlocking, error copy) lives in platform-independent code.
  */
 import { PRODUCT_IDS, type ProductKey } from "../products";
+import { verifyPurchaseWithServer } from "../serverVerification";
 import {
   interpretPurchaseError,
   type PurchaseGateway,
@@ -44,7 +45,12 @@ export interface NativePurchasePlugin {
   /** Restores/verifies existing SUBSCRIPTION entitlements only. */
   restorePremium(): Promise<{ active: boolean; expiresISO?: string | null; purchaseToken?: string }>;
   /** Silent subscription check without an Apple ID prompt. iOS only. */
-  currentPremium?(): Promise<{ active: boolean; expiresISO?: string | null }>;
+  currentPremium?(): Promise<{
+    active: boolean;
+    expiresISO?: string | null;
+    transactionId?: string;
+    originalTransactionId?: string | null;
+  }>;
   /**
    * Transactions StoreKit still considers unfinished — a purchase that completed
    * while the app was closed, an interrupted/pending transaction, or one whose
@@ -135,7 +141,19 @@ export function createNativeGateway(p: NativePurchasePlugin): PurchaseGateway {
       if (!p.currentPremium) return null;
       try {
         const res = await p.currentPremium();
-        return res?.active ? { expiresISO: res.expiresISO ?? null } : null;
+        if (!res?.active || !res.transactionId) return null;
+        // The local StoreKit record alone never grants Premium: Apple must
+        // confirm it through our server, with a real future expiry date.
+        const verdict = await verifyPremium({
+          key: "premiumYear",
+          productId: PRODUCT_IDS.premiumYear,
+          transactionId: res.transactionId,
+          originalTransactionId: res.originalTransactionId ?? null,
+        });
+        if (verdict.status !== "verified" || !verdict.premiumExpiresISO) return null;
+        const exp = Date.parse(verdict.premiumExpiresISO);
+        if (!Number.isFinite(exp) || exp <= Date.now()) return null;
+        return { expiresISO: verdict.premiumExpiresISO };
       } catch {
         return null;
       }
