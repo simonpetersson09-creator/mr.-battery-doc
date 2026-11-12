@@ -10,7 +10,8 @@ import { CountUpValue } from "@/components/CountUp";
 import {
   clearCalculationCache,
   getCalculation,
-  getDerivedAnalyses,
+  peekDerivedAnalyses,
+  deriveInBackground,
 } from "@/lib/access/calculationCache";
 import { adjustmentCreditsRemaining } from "@/lib/access/entitlements";
 import { useAccess } from "@/state/access";
@@ -135,10 +136,22 @@ function ResultStep() {
    */
   /* Both comparison layers come from the one-slot cache, so re-entering the result
      page (purchase, back navigation) never re-runs them. Identical inputs/arguments. */
-  const derived = useMemo(
-    () => (snapshot ? null : getDerivedAnalyses(liveState)),
-    [snapshot, liveState],
+  /* Shown as soon as the main result is ready; the comparisons are filled in
+     afterwards in the background (same functions, same numbers). */
+  const [derivedState, setDerivedState] = useState(() =>
+    snapshot ? null : peekDerivedAnalyses(liveState),
   );
+  useEffect(() => {
+    if (snapshot) return;
+    let alive = true;
+    void deriveInBackground(liveState).then((d) => {
+      if (alive) setDerivedState(d);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [snapshot, liveState]);
+  const derived = derivedState && derivedState.id === calculation.id ? derivedState : null;
   const withoutFcr = snapshot ? snapshot.withoutFcr : (derived?.withoutFcr ?? null);
   /** Comparison layer: nearest simulated capacity step below/above the recommendation. */
   const alternatives = snapshot ? snapshot.alternatives : (derived?.alternatives ?? []);
@@ -186,7 +199,7 @@ function ResultStep() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [purchasedNow, outcome.status]);
   useEffect(() => {
-    if (snapshot || !purchasedNow || outcome.status !== "ok") return;
+    if (snapshot || !purchasedNow || outcome.status !== "ok" || !derived) return;
     const ce = customerEconomyFromResult(outcome.result, state.preferences.customerAncillaryShare);
     saveSnapshot(
       buildSnapshot({
@@ -216,7 +229,7 @@ function ResultStep() {
       }),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [snapshot, purchasedNow, calculation.id, outcome, ancillaryBest]);
+  }, [snapshot, purchasedNow, calculation.id, outcome, ancillaryBest, derived]);
 
 
 

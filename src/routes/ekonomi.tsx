@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { SimulatingOverlay } from "@/components/SimulatingOverlay";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { getCalculation, getDerivedAnalyses } from "@/lib/access/calculationCache";
+import { calculateInBackground } from "@/lib/access/calculationCache";
 import { calculationId } from "@/lib/access/calculationId";
 import { adjustmentCreditsRemaining, hasAdjustmentCredit } from "@/lib/access/entitlements";
 import { destinationAfterStep5 } from "@/lib/access/flow";
@@ -85,12 +85,11 @@ function EconomyStep() {
     // deferral — the inputs, the engine and the flow rule are unchanged.
     setCalculating(true);
     setCalcDone(false);
-    const run = () => {
+    const run = async () => {
       try {
-        const calc = getCalculation(state);
-        // Same comparison layers the result page shows — computed here so the
-        // result page renders immediately instead of freezing on arrival.
-        getDerivedAnalyses(state);
+        // Runs in the background so the screen stays responsive; the
+        // comparison layers are filled in on the result page afterwards.
+        const calc = await calculateInBackground(state);
         const dest = destinationAfterStep5({
           calculationStatus: calc.outcome.status,
           entitlements: access.entitlements,
@@ -114,7 +113,7 @@ function EconomyStep() {
         setCalcDone(false);
       }
     };
-    requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(run, 0)));
+    requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => void run(), 0)));
   };
 
   /** Formats the remaining time until adjustment credits expire. */
